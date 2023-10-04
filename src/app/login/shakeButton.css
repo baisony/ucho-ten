@@ -1,0 +1,22 @@
+.shakeButton {
+    animation-name: shake;
+    animation-duration: 0.2s;
+    animation-iteration-count: 3
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(-2.5px);
+        background-color: rgba(255, 0, 0, 0.5); /* 初期の背景色 */
+    }
+
+    50% {
+        transform: translateX(5px);
+        background-color: rgba(255, 00, 0, 0.5); /* 50%までの背景色 */
+    }
+
+    100% {
+        transform: translateX(-2.5px);
+        background-color: rgba(255, 0, 0, 0.5); /* 最終的な背景色 */
+    }
+}

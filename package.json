@@ -1,0 +1,52 @@
+{
+  "name": "ucho-ten",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.6.16",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
+    "@fortawesome/fontawesome-svg-core": "^6.4.2",
+    "@fortawesome/free-regular-svg-icons": "^6.4.2",
+    "@fortawesome/free-solid-svg-icons": "^6.4.2",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@nextui-org/react": "^2.1.13",
+    "@nextui-org/system": "^2.0.10",
+    "@nextui-org/theme": "^2.1.9",
+    "@react-spring/web": "^9.7.3",
+    "@types/node": "20.6.3",
+    "@types/react": "18.2.22",
+    "@types/react-dom": "18.2.7",
+    "@use-gesture/react": "^10.3.0",
+    "autoprefixer": "10.4.16",
+    "eslint": "8.50.0",
+    "eslint-config-next": "13.5.2",
+    "framer-motion": "^10.16.4",
+    "jotai": "^2.4.2",
+    "next": "13.5.2",
+    "postcss": "8.4.30",
+    "react": "18.2.0",
+    "react-circular-progressbar": "^2.1.0",
+    "react-device-detect": "^2.2.3",
+    "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-infinite-scroller": "^1.2.6",
+    "react-string-replace": "^1.1.1",
+    "react-swipeable-list": "^1.9.1",
+    "react-textarea-autosize": "^8.5.3",
+    "tailwind-variants": "^0.1.14",
+    "tailwindcss": "3.3.3",
+    "typescript": "5.2.2",
+    "yet-another-react-lightbox": "^3.12.2"
+  },
+  "devDependencies": {
+    "@types/react-image-gallery": "^1.2.1",
+    "@types/react-infinite-scroller": "^1.2.3"
+  }
+}

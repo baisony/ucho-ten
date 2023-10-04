@@ -1,0 +1,32 @@
+.openSideBar{
+    animation-name: openSideBar;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes openSideBar {
+    0% {
+        transform: translateX(0px);
+    }
+
+    100% {
+        transform: translateX(300px);
+    }
+}
+
+
+.closeSideBar{
+    animation-name: closeSideBar;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes closeSideBar {
+    0% {
+        transform: translateX(300px);
+    }
+
+    100% {
+        transform: translateX(0px);
+    }
+}
