@@ -19,29 +19,28 @@ import {useUserPreferencesAtom} from "@/app/_atoms/preferences";
 import {useAgent} from "@/app/_atoms/agent";
 import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 import {BskyLabelPreference} from "@atproto/api/";
+import {useTranslationLanguage} from "@/app/_atoms/translationLanguage";
+import {useDisplayLanguage} from "@/app/_atoms/displayLanguage";
 
 export default function Root() {
     const router = useRouter()
-    const ToTranslateLanguages: string[] = [
-        'English',
-        'Japanese',
-        'Chinese',
-        'Korean',
-        'French',
-        'German',
-        'Spanish',
-        'Italian',
-        'Russian',
-        'Portuguese',
-        'Arabic',
-        'Turkish',
-        'Hindi',
-        'Indonesian',
-        'Thai',
-    ]
+    const ToTranslateLanguages = {
+        English: 'en',
+        Japanese: 'ja',
+        Chinese: 'zh',
+        Korean: 'ko',
+        Russian: 'ru',
+        Spanish: 'es',
+        French: 'fr',
+        German: 'de',
+        Indonesian: 'id',
+        Thai: 'th',
+    }
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
+    const [translateTo, setTranslateTo] = useTranslationLanguage()
+    const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [darkMode, setDarkMode] = useState(false);
     const color = darkMode ? 'dark' : 'light'
     const [isLoading, setIsLoading] = useState(false)
@@ -82,6 +81,14 @@ export default function Root() {
         setIsLoading(false)
     };
 
+    const handleDisplayLanguageSelectionChange = (e:any) => {
+        setDisplayLanguage(e.target.value.split(","));
+    };
+
+    const handleTranslateToSelectionChange = (e:any) => {
+        setTranslateTo(e.target.value.split(","));
+    };
+
 
     return(
         <>
@@ -115,11 +122,15 @@ export default function Root() {
                                 size={'sm'}
                                 label="Languages"
                                 variant={'flat'}
+                                selectedKeys={displayLanguage}
                                 className={`${accordion({color:color})} max-w-xs`}
+                                onChange={(event) => {
+                                    handleDisplayLanguageSelectionChange(event)
+                                }}
                             >
-                                {ToTranslateLanguages.map((language) => {
+                                {Object.entries(ToTranslateLanguages || {}).map(([key, value]) => {
                                     return(
-                                        <SelectItem key={language}>{language}</SelectItem>
+                                        <SelectItem key={value}>{key}</SelectItem>
                                     )
 
                                 })}
@@ -133,15 +144,19 @@ export default function Root() {
                             </div>
                         </div>
                         <div className={'flex justify-between items-center pt-[5px] pb-[5px] h-[40px]'}>
-                            <div>翻訳先の言語</div>
+                            <div>Translate To</div>
                             <Select
                                 size={'sm'}
                                 label="Select a Language"
                                 className={`${accordion({color:color})} max-w-xs`}
+                                selectedKeys={translateTo}
+                                onChange={(event) => {
+                                    handleTranslateToSelectionChange(event)
+                                }}
                             >
-                                {ToTranslateLanguages.map((language) => {
+                                {Object.entries(ToTranslateLanguages || {}).map(([key, value]) => {
                                     return(
-                                        <SelectItem key={language}>{language}</SelectItem>
+                                        <SelectItem key={value}>{key}</SelectItem>
                                     )
 
                                 })}
