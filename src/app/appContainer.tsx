@@ -234,6 +234,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         setImageSlideIndex(null)
                     }}
                     slides={imageSlides}
+                    carousel={{ finite: imageSlides.length <= 1 }}
+                    render={{
+                        buttonPrev: imageSlides.length <= 1 ? () => null : undefined,
+                        buttonNext: imageSlides.length <= 1 ? () => null : undefined,
+                    }}
                 />
             }
         </>
