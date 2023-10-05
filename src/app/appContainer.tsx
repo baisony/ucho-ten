@@ -1,6 +1,6 @@
 'use client';
 import {ViewHeader} from "@/app/components/ViewHeader";
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {layout} from "@/app/styles";
 import {TabBar} from "@/app/components/TabBar";
 import {isMobile} from "react-device-detect";
@@ -16,8 +16,9 @@ import { BskyAgent } from "@atproto/api";
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators";
 import { useUserPreferencesAtom } from "./_atoms/preferences";
 import { useImageGalleryAtom } from "./_atoms/imageGallery";
-import Lightbox, { Slide } from "yet-another-react-lightbox";
+import Lightbox, { Slide, ZoomRef, FullscreenRef } from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { Zoom } from "yet-another-react-lightbox/plugins"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
@@ -42,6 +43,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const isMatchingPath = specificPaths.includes(pathName)
     const {background} = layout();
     const [darkMode, setDarkMode] = useState(false);
+    const zoomRef = useRef<ZoomRef>(null);
+    const fullscreenRef = useRef<FullscreenRef>(null);
     const color = darkMode ? 'dark' : 'light'
 
     const [page, setPage] = useState<'profile' | 'home' | 'post' | 'search'>("home")
@@ -210,29 +213,24 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 )}
             </main>
             {(imageSlides && imageSlideIndex !== null) &&
-                <div style= {
-                    {
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: 1000
-                    }
-                }>
-                    <Lightbox 
-                        open={true}
-                        index={imageSlideIndex}
-                        close={() => {
-                            setImageGallery(null)
-                            setImageSlides(null)
-                            setImageSlideIndex(null)
-                        }}
-                        slides={imageSlides}
-                    />
-                </div>
+                <Lightbox 
+                    open={true}
+                    index={imageSlideIndex}
+                    plugins={[Zoom]}
+                    zoom={{
+                        ref: zoomRef,
+                        scrollToZoom: true
+                    }}
+                    // inline={{
+                    //     style: { width: "100%", maxWidth: "900px", aspectRatio: "3 / 2" },
+                    // }}
+                    close={() => {
+                        setImageGallery(null)
+                        setImageSlides(null)
+                        setImageSlideIndex(null)
+                    }}
+                    slides={imageSlides}
+                />
             }
         </>
     )
