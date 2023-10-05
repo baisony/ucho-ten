@@ -16,8 +16,8 @@ export default function Root() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
-    const [searchPostsResult, setSearchPostsResult] = useState<PostView[]>([])
-    const [searchUsersResult, setSearchUsersResult] = useState<ProfileView[]>([])
+    const [searchPostsResult, setSearchPostsResult] = useState<PostView[] | null>(null)
+    const [searchUsersResult, setSearchUsersResult] = useState<ProfileView[] | null>(null)
     const searchParams = useSearchParams()
     const searchWord = searchParams.get('word') || ''
     const target = searchParams.get('target') || 'posts'
@@ -65,6 +65,7 @@ export default function Root() {
 
             const maxBatchSize = 25; // 1つのリクエストに許容される最大数
             const batches = [];
+            
             for (let i = 0; i < outputArray.length; i += maxBatchSize) {
                 const batch = outputArray.slice(i, i + maxBatchSize);
                 batches.push(batch);
@@ -89,13 +90,14 @@ export default function Root() {
 
     const fetchSearchUsers = async (term: string) => {
         try{
-            setLoading(true)
             if(!agent) return
+            setLoading(true)
             const {data} = await agent.searchActors({term: term})
             setSearchUsersResult(data.actors)
+        } catch (e) {
+            console.error(e)
+        } finally {
             setLoading(false)
-        }catch (e) {
-
         }
     }
 
@@ -128,10 +130,18 @@ export default function Root() {
             }
             //重複する投稿を削除
             const diffTimeline = results.filter(newItem => {
+                if (!searchPostsResult) {
+                    return true
+                }
+
                 return !searchPostsResult.some(oldItem => oldItem.uri === newItem.uri);
             });
 
-            setSearchPostsResult([...searchPostsResult,...diffTimeline])
+            if (searchPostsResult) {
+                setSearchPostsResult([...searchPostsResult, ...diffTimeline])
+            } else {
+                setSearchPostsResult([...diffTimeline])
+            }
             setNumOfResult(json.length === 30 ? numOfResult + json.length : 0)
 
             setLoading2(false)
@@ -164,69 +174,90 @@ export default function Root() {
 
     return(
         <>
-            {target === 'posts' && (
-                <InfiniteScroll
-                    loadMore={loadMore}    //項目を読み込む際に処理するコールバック関数
-                    hasMore={!loading2 && numOfResult !==0}         //読み込みを行うかどうかの判定
-                    threshold={300}
-                    useWindow={false}
-                >
-                    {loading && Array.from({ length: 15 }, (_, index) => (
-                        <ViewPostCard
-                            key={`skeleton-${index}`}
-                            color={color}
-                            numbersOfImage={0}
-                            postJson={null}
-                            isMobile={isMobile}
-                            isSkeleton={true}
-                        />
-                    ))}
-                    {!loading && searchPostsResult.map((post: PostView, index) => (
-                    // eslint-disable-next-line react/jsx-key
-                    <ViewPostCard key={`search-post-${post.uri}`} color={color} numbersOfImage={0} postJson={post}
-                                isMobile={isMobile} now={now}/>
-                    ))}
-                    {(!loading && loading2) && (
-                        <Spinner className={'flex justify-center '}/>
-                    )}
-                </InfiniteScroll>
-            )}
-            {target === 'users' && (
-                loading ? (
-                    Array.from({ length: 15 }, (_, index) => (
-                        <ViewPostCard
-                            key={`skeleton-${index}`}
-                            color={color}
-                            numbersOfImage={0}
-                            postJson={null}
-                            isMobile={isMobile}
-                            isSkeleton={true}
-                        />
-                    ))
-                ) : (
-                    searchUsersResult.map((actor:ProfileView, index) => (
-                        // eslint-disable-next-line react/jsx-key
-                        //<ViewPostCard key={index} color={color} numbersOfImage={0} postJson={post} isMobile={isMobile}/>
-                        <div key={`search-actor-${actor.did}`}
-                             onClick={() => {
-                                 router.push(`/profile/${actor.did}`)
-                             }}
-                                className={'w-full max-w-[600px] h-[100px] flex items-center bg-[#2C2C2C] text-[#D7D7D7] border-[#181818] border-b-[1px] overflow-x-hidden cursor-pointer'}>
-                            <div className={'h-[50px] w-[50px] rounded-[10px] ml-[10px] mr-[10px]'}>
-                                <Image className={'h-full w-full'} src={actor?.avatar} alt={'avatar image'}/>
-                            </div>
-                            <div className={'h-[50px]'}>
-                                <div className={'flex w-full'}>
-                                    <div className={''}>{actor.displayName}</div>
-                                    <div className={'text-[#BABABA]'}>&nbsp;-&nbsp;</div>
-                                    <div className={''}>{actor.handle}</div>
-                                </div>
-                                <div className={'w-[calc(500px)] whitespace-nowrap text-ellipsis overflow-hidden'}>{actor.description}</div>
-                            </div>
-                        </div>
-                    ))
-                )
-            )}
+            <InfiniteScroll
+                loadMore={loadMore}
+                hasMore={!loading2 && numOfResult !==0}
+                threshold={300}
+                useWindow={false}
+            >
+                {target === 'posts' &&
+                    <>
+                        {(loading || !searchPostsResult) &&
+                            Array.from({ length: 15 }, (_, index) => (
+                                <ViewPostCard
+                                    key={`skeleton-${index}`}
+                                    color={color}
+                                    numbersOfImage={0}
+                                    postJson={null}
+                                    isMobile={isMobile}
+                                    isSkeleton={true}
+                                />
+                            ))
+                        }
+                        {(!loading && searchPostsResult) && searchPostsResult.map((post: PostView, index) => (
+                            // eslint-disable-next-line react/jsx-key
+                            <ViewPostCard
+                                key={`search-post-${post.uri}`}
+                                color={color}
+                                numbersOfImage={0}
+                                postJson={post}
+                                isMobile={isMobile}
+                                now={now}/>
+                        ))}
+                        {(!loading && loading2) && (
+                            <Spinner className={'flex justify-center '}/>
+                        )}
+                    </>
+                }
+                {target === 'users' &&
+                    <>
+                        {(loading || !searchUsersResult) &&
+                            Array.from({ length: 15 }, (_, index) => (
+                                <ViewPostCard
+                                    key={`skeleton-${index}`}
+                                    color={color}
+                                    numbersOfImage={0}
+                                    postJson={null}
+                                    isMobile={isMobile}
+                                    isSkeleton={true}
+                                />
+                            ))
+                        }
+                        {(!loading && searchUsersResult) &&
+                            searchUsersResult.map((actor: ProfileView, index) => {
+                                return userComponent({actor, onClick: () => {
+                                    router.push(`/profile/${actor.did}`)
+                                }})
+                            })
+                        }
+                    </>
+                }
+            </InfiniteScroll>
         </>
+    )
+}
+
+interface userProps {
+    actor: ProfileView
+    onClick: () => void
+}
+
+const userComponent = ({actor, onClick }: userProps) => {
+    return (
+        <div key={`search-actor-${actor.did}`}
+            onClick={onClick}
+                className={'w-full max-w-[600px] h-[100px] flex items-center bg-[#2C2C2C] text-[#D7D7D7] border-[#181818] border-b-[1px] overflow-x-hidden cursor-pointer'}>
+            <div className={'h-[50px] w-[50px] rounded-[10px] ml-[10px] mr-[10px]'}>
+                <Image className={'h-full w-full'} src={actor?.avatar} alt={'avatar image'}/>
+            </div>
+            <div className={'h-[50px]'}>
+                <div className={'flex w-full'}>
+                    <div className={''}>{actor.displayName}</div>
+                    <div className={'text-[#BABABA]'}>&nbsp;-&nbsp;</div>
+                    <div className={''}>{actor.handle}</div>
+                </div>
+                <div className={'w-[calc(500px)] whitespace-nowrap text-ellipsis overflow-hidden'}>{actor.description}</div>
+            </div>
+        </div>
     )
 }
