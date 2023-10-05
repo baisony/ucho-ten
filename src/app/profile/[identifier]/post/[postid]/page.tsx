@@ -35,10 +35,12 @@ import {ViewPostCard} from "@/app/components/ViewPostCard";
 import {isMobile} from "react-device-detect";
 import {PostModal} from "@/app/components/PostModal";
 import {useRouter} from "next/navigation";
+import {useTranslationLanguage} from "@/app/_atoms/translationLanguage";
 
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const [translateTo] = useTranslationLanguage()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
@@ -321,7 +323,7 @@ export default function Root() {
         }
         setLoading(false)
     }
-    console.log(post)
+    console.log(translateTo[0])
     return post && (
         <>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement={isMobile ? 'top' : 'center'} className={'z-[100] max-w-[600px]'}>
