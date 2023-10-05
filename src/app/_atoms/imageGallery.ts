@@ -1,7 +1,11 @@
 import { atom, useAtom } from 'jotai'
 
+export interface ImageObject {
+  fullsize: string
+  alt: string
+}
 export interface ImageGalleryObject {
-  imageURLs: string[]
+  images: ImageObject[]
   index: number
 }
 

@@ -25,7 +25,7 @@ import {useAgent} from "@/app/_atoms/agent";
 import {useRouter} from "next/navigation";
 import {Modal, ModalContent, useDisclosure} from "@nextui-org/react";
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime";
-import { ImageGalleryObject, useImageGalleryAtom } from "@/app/_atoms/imageGallery";
+import { ImageGalleryObject, ImageObject, useImageGalleryAtom } from "@/app/_atoms/imageGallery";
 
 
 interface Props {
@@ -101,17 +101,30 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
 
     const handleImageClick = useCallback((index: number) => {
         if (postJson?.embed?.images && Array.isArray(postJson.embed.images)) {
-            let imageURLs: string[] = []
+            let images: ImageObject[] = []
 
             for(const image of postJson.embed.images) {
+                let currentImage: ImageObject = {
+                    fullsize: "",
+                    alt: "",
+                }
+
                 if (typeof image.fullsize === "string") {
-                    imageURLs.push(image.fullsize)
+                    currentImage.fullsize = image.fullsize
+                }
+
+                if (typeof image.alt === "string") {
+                    currentImage.alt = image.alt
+                }
+
+                if (currentImage.fullsize.length > 0) {
+                    images.push(currentImage)
                 }
             }
 
-            if (imageURLs.length > 0) {
+            if (images.length > 0) {
                 const gelleryObject: ImageGalleryObject = {
-                    imageURLs: imageURLs,
+                    images,
                     index,
                 }
 
