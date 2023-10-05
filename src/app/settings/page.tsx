@@ -17,6 +17,7 @@ import {viewSettingsPage} from "@/app/settings/styles"
 import {useRouter} from "next/navigation";
 import {useUserPreferencesAtom} from "@/app/_atoms/preferences";
 import {useAgent} from "@/app/_atoms/agent";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 import {BskyLabelPreference} from "@atproto/api/";
 
 export default function Root() {
@@ -40,6 +41,7 @@ export default function Root() {
     ]
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()
+    const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [darkMode, setDarkMode] = useState(false);
     const color = darkMode ? 'dark' : 'light'
     const [isLoading, setIsLoading] = useState(false)
@@ -89,9 +91,21 @@ export default function Root() {
                         <div className={'flex justify-between items-center pt-[5px] pb-[5px] h-[40px]'}>
                             <div>Theme Color</div>
                             <ButtonGroup>
-                                <Button>System</Button>
-                                <Button isDisabled={color === "light"}>Light</Button>
-                                <Button isDisabled={color === "dark"}>Dark</Button>
+                                <Button isDisabled={appearanceColor === "system"}
+                                    onClick={() => {setAppearanceColor('system')}}
+                                >
+                                    System
+                                </Button>
+                                <Button isDisabled={appearanceColor === "light"}
+                                        onClick={() => {setAppearanceColor('light')}}
+                                >
+                                    Light
+                                </Button>
+                                <Button isDisabled={appearanceColor === "dark"}
+                                        onClick={() => {setAppearanceColor('dark')}}
+                                >
+                                    Dark
+                                </Button>
                             </ButtonGroup>
                         </div>
                         <div className={'flex justify-between items-center pt-[5px] pb-[5px] h-[40px]'}>
