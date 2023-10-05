@@ -173,35 +173,31 @@ export default function Root() {
     return(
         <>
             {target === 'posts' && (
-                loading ? (
-                        Array.from({ length: 15 }, (_, index) => (
-                            <ViewPostCard
-                                key={`skeleton-${index}`}
-                                color={color}
-                                numbersOfImage={0}
-                                postJson={null}
-                                isMobile={isMobile}
-                                isSkeleton={true}
-                            />
-                        ))
-                    ) : (
-                        <InfiniteScroll
-                           loadMore={loadMore}    //項目を読み込む際に処理するコールバック関数
-                           hasMore={!loading2 && numOfResult !==0}         //読み込みを行うかどうかの判定
-                           threshold={300}
-                           useWindow={false}
-                        >
-                             {searchPostsResult.map((post: PostView, index) => (
-                                // eslint-disable-next-line react/jsx-key
-                                <ViewPostCard key={`search-post-${post.uri}`} color={color} numbersOfImage={0} postJson={post}
-                                           isMobile={isMobile} now={now}/>
-                             ))}
-                            {loading2 && (
-                                <Spinner className={'flex justify-center '}/>
-
-                            )}
-                        </InfiniteScroll>
-                    )
+                <InfiniteScroll
+                    loadMore={loadMore}    //項目を読み込む際に処理するコールバック関数
+                    hasMore={!loading2 && numOfResult !==0}         //読み込みを行うかどうかの判定
+                    threshold={300}
+                    useWindow={false}
+                >
+                    {loading && Array.from({ length: 15 }, (_, index) => (
+                        <ViewPostCard
+                            key={`skeleton-${index}`}
+                            color={color}
+                            numbersOfImage={0}
+                            postJson={null}
+                            isMobile={isMobile}
+                            isSkeleton={true}
+                        />
+                    ))}
+                    {!loading && searchPostsResult.map((post: PostView, index) => (
+                    // eslint-disable-next-line react/jsx-key
+                    <ViewPostCard key={`search-post-${post.uri}`} color={color} numbersOfImage={0} postJson={post}
+                                isMobile={isMobile} now={now}/>
+                    ))}
+                    {(!loading && loading2) && (
+                        <Spinner className={'flex justify-center '}/>
+                    )}
+                </InfiniteScroll>
             )}
             {target === 'users' && (
                 loading ? (

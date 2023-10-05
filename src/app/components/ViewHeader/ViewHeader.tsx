@@ -1,15 +1,16 @@
 import React, {useState, useEffect, useMemo, useCallback, Key} from "react";
+import Image from "next/image";
 import { viewHeader } from "./styles";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faPlus, faChevronLeft, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 import 'react-circular-progressbar/dist/styles.css';
-import {Button, Image, ScrollShadow} from "@nextui-org/react";
+import {Button, ScrollShadow} from "@nextui-org/react";
 import {Tabs, Tab, Chip} from "@nextui-org/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAgent } from "@/app/_atoms/agent";
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators";
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences";
-
+import logoImage from "../../../../public/images/logo/ucho-ten-logo.png";
 
 interface Props {
     className?: string
@@ -87,7 +88,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         props.setSideBarOpen(true)
                     }}
                 />
-                {selectedTab === 'search' ? (
+                {selectedTab === 'search' &&
                     <div
                         className={'h-[40px] w-[60%] rounded-[10px] overflow-hidden relative'}
                     >
@@ -121,17 +122,17 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             </button>
                         )}
                     </div>
-                ) : (
+                }
+                {selectedTab !== 'search' &&
                     <Image
-                        className={'h-[100%] w-[145px] cursor-pointer'}
-                        src={'/images/logo/ucho-ten.svg'}
+                        className={'w-[145px] cursor-pointer'}
+                        src={logoImage}
                         alt={'logo'}
-                        radius={'none'}
                         onClick={() => {
                             router.push('/')
                         }}
                     />
-                )}
+                }
                 {selectedTab === 'single' && (
                     <Button
                         variant="light"

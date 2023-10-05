@@ -1,6 +1,6 @@
 'use client';
 import {ViewHeader} from "@/app/components/ViewHeader";
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {layout} from "@/app/styles";
 import {TabBar} from "@/app/components/TabBar";
 import {isMobile} from "react-device-detect";
@@ -16,9 +16,12 @@ import { BskyAgent } from "@atproto/api";
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators";
 import { useUserPreferencesAtom } from "./_atoms/preferences";
 import { useImageGalleryAtom } from "./_atoms/imageGallery";
-import Lightbox, { Slide } from "yet-another-react-lightbox";
+import Lightbox, { Slide, ZoomRef, CaptionsRef } from "yet-another-react-lightbox";
+import { Zoom, Captions, Counter } from "yet-another-react-lightbox/plugins"
 import "yet-another-react-lightbox/styles.css";
 import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
+import "yet-another-react-lightbox/plugins/captions.css";
+import "yet-another-react-lightbox/plugins/counter.css";
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
@@ -44,6 +47,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const isMatchingPath = specificPaths.includes(pathName)
     const {background} = layout();
     const [darkMode, setDarkMode] = useState(false);
+    const zoomRef = useRef<ZoomRef>(null);
+    const captionsRef = useRef<CaptionsRef>(null);
     const color = darkMode ? 'dark' : 'light'
 
     const [page, setPage] = useState<'profile' | 'home' | 'post' | 'search'>("home")
@@ -161,16 +166,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName])
 
     useEffect(() => {
-        if (imageGallery && imageGallery.imageURLs.length > 0) {
+        if (imageGallery && imageGallery.images.length > 0) {
             let slides: Slide[] = []
 
-            for(const imageURL of imageGallery.imageURLs) {
+            for(const image of imageGallery.images) {
                 slides.push({
-                    src: imageURL
+                    src: image.fullsize,
+                    description: image.alt,
                 })
             }
-
-            console.log("here")
 
             setImageSlideIndex(imageGallery.index)
             setImageSlides(slides)
@@ -186,61 +190,58 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     return (
         <>
             <main className={background({ color: color, isMobile: isMobile })}>
-                {agent ? (
-                    <div className={'h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative'}>
-                        {!isMatchingPath && (
-                            <ViewHeader color={color} page={page} tab={selectedTab} setSideBarOpen={setIsSideBarOpen} setSearchText={setSearchText} selectedTab={selectedTab}/>
-                        )}
-                        <div className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${!isSideBarOpen && `hidden`}`}
-                            onClick={() => setIsSideBarOpen(false)}
+                <div className={'h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative'}>
+                    {!isMatchingPath && (
+                        <ViewHeader color={color} page={page} tab={selectedTab} setSideBarOpen={setIsSideBarOpen} setSearchText={setSearchText} selectedTab={selectedTab}/>
+                    )}
+                    <div className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${!isSideBarOpen && `hidden`}`}
+                        onClick={() => setIsSideBarOpen(false)}
+                    >
+                        {/*<animated.div
+                            className={`${isSideBarOpen && `openSideBar`} absolute h-full w-[70svw] min-w-[210px] max-w-[350px] bg-black z-[12] left-[-300px]`}
+                            style={{x: x}}
                         >
-                            {/*<animated.div
-                                className={`${isSideBarOpen && `openSideBar`} absolute h-full w-[70svw] min-w-[210px] max-w-[350px] bg-black z-[12] left-[-300px]`}
-                                style={{x: x}}
-                            >
-                                <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
-                            </animated.div>*/}
-                            <div className={`${isSideBarOpen && `openSideBar`} absolute h-[calc(100%-50px)] w-[70svw] min-w-[210px] max-w-[350px] bg-black bg-opacity-90 z-[12] left-[-300px]`}>
-                                <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
-                            </div>
+                            <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
+                        </animated.div>*/}
+                        <div className={`${isSideBarOpen && `openSideBar`} absolute h-[calc(100%-50px)] w-[70svw] min-w-[210px] max-w-[350px] bg-black bg-opacity-90 z-[12] left-[-300px]`}>
+                            <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
                         </div>
-                        <div className={`${isMatchingPath ? `pt-[0px]` : `pt-[100px]`} h-[calc(100%-50px)] overflow-y-scroll`}>
-                            {children}
-                        </div>
-                        {!isMatchingPath && (
-                            <TabBar color={color} selected={selectedTab} setValue={setSelectedTab}/>
-                        )}
                     </div>
-                ) : (
-                    <div className={'h-full max-w-[600px] min-w-[350px] w-full'}>
+                    <div className={`${isMatchingPath ? `pt-[0px]` : `pt-[100px]`} h-[calc(100%-50px)] overflow-y-scroll`}>
                         {children}
                     </div>
-                )}
+                    {!isMatchingPath && (
+                        <TabBar color={color} selected={selectedTab} setValue={setSelectedTab}/>
+                    )}
+                </div>
             </main>
             {(imageSlides && imageSlideIndex !== null) &&
-                <div style= {
-                    {
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: 1000
-                    }
-                }>
-                    <Lightbox 
-                        open={true}
-                        index={imageSlideIndex}
-                        close={() => {
-                            setImageGallery(null)
-                            setImageSlides(null)
-                            setImageSlideIndex(null)
-                        }}
-                        slides={imageSlides}
-                    />
-                </div>
+                <Lightbox 
+                    open={true}
+                    index={imageSlideIndex}
+                    plugins={[Zoom, Captions, Counter]}
+                    zoom={{
+                        ref: zoomRef,
+                        scrollToZoom: true,
+                    }}
+                    captions={{
+                        ref: captionsRef,
+                        showToggle: true,
+                        descriptionMaxLines: 2,
+                        descriptionTextAlign: "start",
+                    }}
+                    close={() => {
+                        setImageGallery(null)
+                        setImageSlides(null)
+                        setImageSlideIndex(null)
+                    }}
+                    slides={imageSlides}
+                    carousel={{ finite: imageSlides.length <= 1 }}
+                    render={{
+                        buttonPrev: imageSlides.length <= 1 ? () => null : undefined,
+                        buttonNext: imageSlides.length <= 1 ? () => null : undefined,
+                    }}
+                />
             }
         </>
     )

@@ -107,31 +107,29 @@ export default function Root() {
 
     return(
         <>
-            {loading ? (
-                Array.from({ length: 15 }, (_, index) => (
-                    <ViewPostCard
-                        key={`skeleton-${index}`}
-                        color={color}
-                        numbersOfImage={0}
-                        postJson={null}
-                        isMobile={isMobile}
-                        isSkeleton={true}
-                    />
-                ))
-            ) : (
-                <InfiniteScroll
-                    loadMore={loadMore}    //項目を読み込む際に処理するコールバック関数
-                    hasMore={!loading2}         //読み込みを行うかどうかの判定
-                    loader={<Spinner key="spinner-inbox"/>}
-                    threshold={700}
-                    useWindow={false}
-                >
-                    {notification.map((post, index) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <ViewPostCard key={post.uri} color={color} numbersOfImage={0} postJson={post} isMobile={isMobile} now={now}/>
-                    ))}
+            <InfiniteScroll
+                loadMore={loadMore}    //項目を読み込む際に処理するコールバック関数
+                hasMore={loading2}         //読み込みを行うかどうかの判定
+                loader={<Spinner key="spinner-inbox"/>}
+                threshold={700}
+                useWindow={false}
+            >
+                {loading && 
+                    Array.from({ length: 15 }, (_, index) => (
+                        <ViewPostCard
+                            key={`skeleton-${index}`}
+                            color={color}
+                            numbersOfImage={0}
+                            postJson={null}
+                            isMobile={isMobile}
+                            isSkeleton={true}
+                        />
+                ))}
+                {!loading && notification.map((post, index) => (
+                    // eslint-disable-next-line react/jsx-key
+                    <ViewPostCard key={post.uri} color={color} numbersOfImage={0} postJson={post} isMobile={isMobile} now={now}/>
+                ))}
                 </InfiniteScroll>
-            )}
         </>
     )
 }
