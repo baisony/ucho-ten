@@ -61,7 +61,7 @@ export default function Root(props:any) {
         console.log(timeline)
         console.log(newTimeline)
         const diffTimeline = newTimeline.filter(newItem => {
-            if (!timeline) { return newItem }
+            if (!timeline) { return true }
 
             return !timeline.some(oldItem => oldItem.post.uri === newItem.post.uri);
         });
@@ -149,7 +149,7 @@ export default function Root(props:any) {
             const filteredData = FormattingTimeline(feed)
             const diffTimeline = filteredData.filter(newItem => {
                 if (!timeline) {
-                    return newItem
+                    return true
                 }
 
                 return !timeline.some(oldItem => oldItem.post === newItem.post);
@@ -189,9 +189,9 @@ export default function Root(props:any) {
                     setNewCursor(data.cursor)
                     const diffTimeline = filteredData.filter(newItem => {
                         if (!timeline) {
-                            return newItem
+                            return true
                         }
-                        
+
                         return !timeline.some(oldItem => oldItem.post.uri === newItem.post.uri);
                     });
                     console.log(diffTimeline);

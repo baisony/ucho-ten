@@ -169,7 +169,7 @@ export default function Root() {
             }
             const filteredData = FormattingTimeline(feed)
             const diffTimeline = filteredData.filter(newItem => {
-                if (!timeline) { return newItem }
+                if (!timeline) { return true }
 
                 return !timeline.some(oldItem => oldItem.post.uri === newItem.post.uri);
             });
@@ -205,7 +205,7 @@ export default function Root() {
     }
 
 
-    return timeline && feedInfo && (
+    return feedInfo && (
         <>
             <div className={ProfileContainer({color:color})}>
                 <div className={ProfileInfoContainer()}>
