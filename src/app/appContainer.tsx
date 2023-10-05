@@ -17,9 +17,10 @@ import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators";
 import { useUserPreferencesAtom } from "./_atoms/preferences";
 import { useImageGalleryAtom } from "./_atoms/imageGallery";
 import Lightbox, { Slide, ZoomRef, CaptionsRef } from "yet-another-react-lightbox";
-import { Zoom, Captions } from "yet-another-react-lightbox/plugins"
+import { Zoom, Captions, Counter } from "yet-another-react-lightbox/plugins"
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/captions.css";
+import "yet-another-react-lightbox/plugins/counter.css";
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
@@ -216,7 +217,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 <Lightbox 
                     open={true}
                     index={imageSlideIndex}
-                    plugins={[Zoom, Captions]}
+                    plugins={[Zoom, Captions, Counter]}
                     zoom={{
                         ref: zoomRef,
                         scrollToZoom: true,
