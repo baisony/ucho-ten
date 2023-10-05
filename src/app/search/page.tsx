@@ -180,7 +180,7 @@ export default function Root() {
                 threshold={300}
                 useWindow={false}
             >
-                {target === 'posts' &&
+                {(target === 'posts' && searchText) &&
                     <>
                         {(loading || !searchPostsResult) &&
                             Array.from({ length: 15 }, (_, index) => (
@@ -209,7 +209,7 @@ export default function Root() {
                         )}
                     </>
                 }
-                {target === 'users' &&
+                {(target === 'users' && searchText) &&
                     <>
                         {(loading || !searchUsersResult) &&
                             Array.from({ length: 15 }, (_, index) => (
