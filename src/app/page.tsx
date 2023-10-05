@@ -19,7 +19,7 @@ export default function Root(props:any) {
     const [agent, setAgent] = useAgent()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
-    const [timeline, setTimeline] = useState<FeedViewPost[]>([])
+    const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [newCursor, setNewCursor] = useState<string | null>(null)
@@ -61,11 +61,18 @@ export default function Root(props:any) {
         console.log(timeline)
         console.log(newTimeline)
         const diffTimeline = newTimeline.filter(newItem => {
+            if (!timeline) { return newItem }
+
             return !timeline.some(oldItem => oldItem.post.uri === newItem.post.uri);
         });
         console.log(diffTimeline);
         // timelineに差分を追加
-        setTimeline([...diffTimeline, ...timeline]);
+
+        if (timeline) {
+            setTimeline([...diffTimeline, ...timeline]);
+        } else {
+            setTimeline([...diffTimeline]);
+        }
         setCursor(newCursor)
         setAvailableNewTimeline(false);
     }
@@ -94,7 +101,6 @@ export default function Root(props:any) {
         });
         return filteredData as FeedViewPost[];
     }
-
 
     const fetchTimeline = async () => {
         if(!agent) return
@@ -142,6 +148,10 @@ export default function Root(props:any) {
             }
             const filteredData = FormattingTimeline(feed)
             const diffTimeline = filteredData.filter(newItem => {
+                if (!timeline) {
+                    return newItem
+                }
+
                 return !timeline.some(oldItem => oldItem.post === newItem.post);
             });
 
@@ -149,7 +159,11 @@ export default function Root(props:any) {
             console.log(diffTimeline)
 
             //取得データをリストに追加
-            setTimeline([...timeline, ...diffTimeline])
+            if (timeline) {
+                setTimeline([...timeline, ...diffTimeline])
+            } else {
+                setTimeline([...diffTimeline])
+            }
             setLoading2(false)
         }catch(e){
             setLoading2(false)
@@ -174,6 +188,10 @@ export default function Root(props:any) {
                 if(data.cursor && data.cursor !== cursor && data.cursor !== newCursor){
                     setNewCursor(data.cursor)
                     const diffTimeline = filteredData.filter(newItem => {
+                        if (!timeline) {
+                            return newItem
+                        }
+                        
                         return !timeline.some(oldItem => oldItem.post.uri === newItem.post.uri);
                     });
                     console.log(diffTimeline);
@@ -218,7 +236,7 @@ export default function Root(props:any) {
                     threshold={1500}
                     useWindow={false}
                 > 
-                    {loading && Array.from({ length: 15 }, (_, index) => (
+                    {(loading || !timeline) && Array.from({ length: 15 }, (_, index) => (
                         <ViewPostCard
                             key={`skeleton-${index}`}
                             color={color}
@@ -228,7 +246,7 @@ export default function Root(props:any) {
                             isSkeleton={true}
                         />
                     ))}
-                    {!loading && timeline.map((post, index) => (
+                    {(!loading && timeline) && timeline.map((post, index) => (
                         <ViewPostCard key={`${post?.reason ? `reason-${(post.reason as any).by.did}` : `post`}-${post.post.uri}`} color={color} numbersOfImage={0} postJson={post.post} json={post} isMobile={isMobile}/>
                     ))}
                 </InfiniteScroll>
