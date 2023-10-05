@@ -1,11 +1,27 @@
 'use client';
 import {isMobile} from "react-device-detect";
 
-import {Accordion, AccordionItem, Button, ButtonGroup, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Switch, Select, SelectItem} from "@nextui-org/react";
-import {useEffect, useState} from "react";
+import {
+    Accordion,
+    AccordionItem,
+    Button,
+    ButtonGroup,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    Switch,
+    Select,
+    SelectItem,
+    Spinner
+} from "@nextui-org/react";
+import {useCallback, useEffect, useState} from "react";
 import {viewProfilePage} from "@/app/profile/[identifier]/styles";
 import {viewSettingsPage} from "@/app/settings/styles"
 import {useRouter} from "next/navigation";
+import {useUserPreferencesAtom} from "@/app/_atoms/preferences";
+import {useAgent} from "@/app/_atoms/agent";
+import {BskyLabelPreference} from "@atproto/api/";
 
 export default function Root() {
     const router = useRouter()
@@ -18,8 +34,28 @@ export default function Root() {
         {content: 'Spam', value: 'Warn'},
         {content: 'Impersonation', value: 'Warn'},
     ]
+    const ToTranslateLanguages: string[] = [
+        'English',
+        'Japanese',
+        'Chinese',
+        'Korean',
+        'French',
+        'German',
+        'Spanish',
+        'Italian',
+        'Russian',
+        'Portuguese',
+        'Arabic',
+        'Turkish',
+        'Hindi',
+        'Indonesian',
+        'Thai',
+    ]
+    const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
+    const [agent] = useAgent()
     const [darkMode, setDarkMode] = useState(false);
     const color = darkMode ? 'dark' : 'light'
+    const [isLoading, setIsLoading] = useState(false)
     const { background, accordion, button } = viewSettingsPage();
 
     const modeMe = (e:any) => {
@@ -36,6 +72,28 @@ export default function Root() {
         return () => matchMedia.removeEventListener("change", modeMe);
     }, []);
 
+
+    const {contentLabels} = userPreferences || {}
+
+
+    const handleButtonClick = async (key: any, value: BskyLabelPreference) => {
+        if(isLoading) return
+        setIsLoading(true)
+        // ここでボタンの状態を更新
+        const newContentLabels = { ...contentLabels };
+        newContentLabels[key] = value;
+        //@ts-ignore
+        setUserPreferences((prevUserPreferences) => ({
+            ...prevUserPreferences,
+            contentLabels: newContentLabels,
+        }));
+
+        // そして、APIなどで設定を保存する等の操作を実行
+        await agent?.setContentLabelPref(key, value);
+        setIsLoading(false)
+    };
+
+
     return(
         <>
             <div className={`w-full ${background({color: color})}`}>
@@ -50,21 +108,19 @@ export default function Root() {
                             </ButtonGroup>
                         </div>
                         <div className={'flex justify-between items-center pt-[5px] pb-[5px] h-[40px]'}>
-                            <div>Language</div>
-                            <Dropdown className={accordion({color:color})}>
-                                <DropdownTrigger>
-                                    <Button
-                                        variant="bordered"
-                                    >
-                                        Select Language
-                                    </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label="Select Languages">
-                                    <DropdownItem key="japanese">日本語</DropdownItem>
-                                    <DropdownItem key="english">English</DropdownItem>
-                                    <DropdownItem key="hoge">hoge</DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
+                            <div>Display Language</div>
+                            <Select
+                                size={'sm'}
+                                label="Languages"
+                                className={`${accordion({color:color})} max-w-xs`}
+                            >
+                                {ToTranslateLanguages.map((language) => {
+                                    return(
+                                        <SelectItem key={language}>{language}</SelectItem>
+                                    )
+
+                                })}
+                            </Select>
                         </div>
                         <div className={''}>
                             <div>Notification</div>
@@ -77,24 +133,67 @@ export default function Root() {
                             <div>翻訳先の言語</div>
                             <Select
                                 size={'sm'}
-                                label="Select an animal"
+                                label="Select a Language"
                                 className={`${accordion({color:color})} max-w-xs`}
                             >
-                                <SelectItem key={'a'} value={'a'} className={accordion({color:color})}>a</SelectItem>
+                                {ToTranslateLanguages.map((language) => {
+                                    return(
+                                        <SelectItem key={language}>{language}</SelectItem>
+                                    )
+
+                                })}
                             </Select>
                         </div>
                     </AccordionItem>
-                    <AccordionItem key="contentFiltering" aria-label="Accordion 1" title="Content Filtering" className={`${accordion({color:color})}`}>
-                        {contentFilteringList.map((item, index) => (
-                            <div key={index}
-                                className={'flex justify-between items-center pt-[5px] pb-[5px]'}
-                            >
-                                <div>{item.content}</div>
+                    <AccordionItem key="contentFiltering" aria-label="Accordion 1" title="Content Filtering" className={`${accordion({color:color})} relative`}>
+                        {Object.entries(userPreferences?.contentLabels || {}).map(([key, value]) => (
+                            <div key={key} className={'flex justify-between items-center pt-[5px] pb-[5px]'}>
+                                <div>
+                                    {
+                                        key === 'nsfw' ? 'Explicit Sexual Images' : (
+                                            key === 'nudity' ? 'Other Nudity' : (
+                                                key === 'spam' ? 'Spam' : (
+                                                    key === 'gore' ? 'Violent / Bloody' : (
+                                                        key === 'hate' ? 'Hate Group Iconography' : (
+                                                            key === 'impersonation' ? 'Impersonation' : (
+                                                                key === 'suggestive' ? 'Sexually Suggestive' : key
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    }
+                                </div>
                                 <div className={''}>
                                     <ButtonGroup>
-                                        <Button size="sm" isDisabled={item.value === 'Hide'}>Hide</Button>
-                                        <Button size="sm" isDisabled={item.value === 'Warn'}>Warn</Button>
-                                        <Button size="sm" isDisabled={item.value === 'Show'}>Show</Button>
+                                        <Button
+                                            size="sm"
+                                            isDisabled={contentLabels && contentLabels[key] === 'hide'}
+                                            onClick={async () => {
+                                                await handleButtonClick(key, 'hide');
+                                            }}
+                                        >
+                                            Hide
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            isDisabled={contentLabels && contentLabels[key] === 'warn'}
+                                            onClick={async () => {
+                                                await handleButtonClick(key, 'warn');
+                                            }}
+                                        >
+                                            Warn
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            isDisabled={contentLabels && contentLabels[key] === 'ignore'}
+                                            onClick={async () => {
+                                                await handleButtonClick(key, 'ignore');
+                                            }}
+                                        >
+                                            Show
+                                        </Button>
                                     </ButtonGroup>
                                 </div>
                             </div>
