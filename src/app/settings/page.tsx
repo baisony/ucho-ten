@@ -6,10 +6,6 @@ import {
     AccordionItem,
     Button,
     ButtonGroup,
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownItem,
     Switch,
     Select,
     SelectItem,
@@ -25,15 +21,6 @@ import {BskyLabelPreference} from "@atproto/api/";
 
 export default function Root() {
     const router = useRouter()
-    const contentFilteringList = [
-        {content: 'Explicit Sexual Images', value: 'Warn'},
-        {content: 'Other Nudity', value: 'Warn'},
-        {content: 'Sexually Suggestive', value: 'Warn'},
-        {content: 'Violent / Bloody', value: 'Warn'},
-        {content: 'Hate Group Iconography', value: 'Warn'},
-        {content: 'Spam', value: 'Warn'},
-        {content: 'Impersonation', value: 'Warn'},
-    ]
     const ToTranslateLanguages: string[] = [
         'English',
         'Japanese',
@@ -110,8 +97,10 @@ export default function Root() {
                         <div className={'flex justify-between items-center pt-[5px] pb-[5px] h-[40px]'}>
                             <div>Display Language</div>
                             <Select
+                                color={"default"}
                                 size={'sm'}
                                 label="Languages"
+                                variant={'flat'}
                                 className={`${accordion({color:color})} max-w-xs`}
                             >
                                 {ToTranslateLanguages.map((language) => {

@@ -14,6 +14,23 @@ import {
 
 export default function Root() {
 
+    const ToTranslateLanguages: string[] = [
+        'English',
+        'Japanese',
+        'Chinese',
+        'Korean',
+        'French',
+        'German',
+        'Spanish',
+        'Italian',
+        'Russian',
+        'Portuguese',
+        'Arabic',
+        'Turkish',
+        'Hindi',
+        'Indonesian',
+        'Thai',
+    ]
     return(
         <>
             <div className={'h-full w-full bg-white'}>
@@ -57,7 +74,12 @@ export default function Root() {
                                 label="Select an animal"
                                 className="max-w-xs"
                             >
-                                <SelectItem key={'a'} value={'a'}>a</SelectItem>
+                                {ToTranslateLanguages.map((language) => {
+                                    return(
+                                        <SelectItem key={language}>{language}</SelectItem>
+                                    )
+
+                                })}
                             </Select>
                         </div>
                     </AccordionItem>
