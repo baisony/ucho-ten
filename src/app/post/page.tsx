@@ -28,12 +28,14 @@ import Textarea from 'react-textarea-autosize'; // 追加
 import {useRouter, useSearchParams} from "next/navigation";
 import {useAgent} from "@/app/_atoms/agent";
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 
 export default function Root() {
     const [userProfileDetailed, setUserProfileDetailed] = useUserProfileDetailedAtom()
     const [agent, setAgent] = useAgent()
     const router = useRouter()
+    const [appearanceColor] = useAppearanceColor()
     const searchParams = useSearchParams()
     const postParam = searchParams.get('text')
     const reg = /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/;
@@ -76,13 +78,19 @@ export default function Root() {
     }
 
     useEffect(() => {
-        setPostContentLanguage(new Set([navigator.language]))
-        console.log(window.history.state)
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
+
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {

@@ -28,12 +28,14 @@ import {
 } from "@nextui-org/react";
 import reactStringReplace from 'react-string-replace'
 import {useRouter} from "next/navigation";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
     const router = useRouter()
+    const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
@@ -74,13 +76,19 @@ export default function Root() {
     }, []);
 
     useEffect(() => {
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     const handleRefresh = () => {
         console.log('refresh');

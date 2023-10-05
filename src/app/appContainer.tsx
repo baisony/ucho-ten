@@ -18,10 +18,12 @@ import { useUserPreferencesAtom } from "./_atoms/preferences";
 import { useImageGalleryAtom } from "./_atoms/imageGallery";
 import Lightbox, { Slide } from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
     const [agent, setAgent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] = useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
@@ -47,6 +49,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [page, setPage] = useState<'profile' | 'home' | 'post' | 'search'>("home")
 
     const modeMe = (e:any) => {
+        if(appearanceColor !== "system") return
         setDarkMode(!!e.matches);
     };
 
@@ -127,14 +130,19 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     },[searchText])
 
     useEffect(() => {
-        console.log('hoge')
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     useEffect(() => {
         if (pathName.startsWith("/search")) {

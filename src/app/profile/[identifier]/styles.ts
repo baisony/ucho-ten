@@ -24,6 +24,9 @@ export const viewProfilePage = tv({
         color:{
             light: {
                 background: '',
+                dropdown: 'light text-black',
+                ProfileInfoContainer: 'text-black bg-white',
+                FollowButton: 'text-black light'
             },
             dark: {
                 background: '',

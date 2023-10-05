@@ -18,10 +18,11 @@ import {faTrash, faEllipsis, faChevronRight} from "@fortawesome/free-solid-svg-i
 import {faEye, faEyeSlash, faEdit} from '@fortawesome/free-regular-svg-icons'
 
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Switch} from "@nextui-org/react";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 
 export default function Root() {
-
+    const [appearanceColor] = useAppearanceColor()
     const [darkMode, setDarkMode] = useState(false);
     const color = darkMode ? 'dark' : 'light'
     const { background, accordion, button } = viewMutewordsPage();
@@ -32,14 +33,19 @@ export default function Root() {
     };
 
     useEffect(() => {
-        console.log('hoge')
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     return(
         <>

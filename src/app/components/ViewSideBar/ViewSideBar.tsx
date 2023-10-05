@@ -42,6 +42,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         console.log('delete session')
         localStorage.removeItem('session')
         router.push('/login')
+
     }
 
     return (

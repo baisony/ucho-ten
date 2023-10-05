@@ -51,7 +51,9 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     const [loading, setLoading] = useState(false)
     const [isHover, setIsHover] = useState<boolean>(false)
     const { PostCard, PostAuthor, PostContent, PostReactionButtonContainer, PostCardContainer, PostReactionButton,
-        PostAuthorIcon, PostAuthorDisplayName, PostAuthorHandle, PostCreatedAt, dropdown,skeletonIcon, skeletonName, skeletonHandle, skeletonText1line, skeletonText2line,chip } = viewPostCard();
+        PostAuthorIcon, PostAuthorDisplayName, PostAuthorHandle, PostCreatedAt, dropdown,skeletonIcon, skeletonName, skeletonHandle, skeletonText1line, skeletonText2line,chip,
+        LinkCard, LinkCardThumbnailContainer, LinkCardThumbnail, LinkCardContent, LinkCardTitle, LinkCardDescription, LinkCardSiteName,
+    } = viewPostCard();
     const [isLiked, setIsLiked] = useState<boolean>(postJson?.viewer?.like)
     const [isReposted, setIsReposted] = useState<boolean>(postJson?.viewer?.repost)
     const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false)
@@ -496,23 +498,24 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                   onMouseUp={(e) => e.stopPropagation()}
 
                                               >
-                                                  <div className="h-[100px] w-full rounded-lg overflow-hidden border border-gray-600 flex items-center text-gray-800 hover:bg-[#1C1C1C]">
-                                                      <div className="h-[100px] w-[100px] border-r border-gray-600">
+                                                  <div className={LinkCard({color: color})}>
+                                                      <div className={LinkCardThumbnailContainer()}>
                                                           <img
                                                               src={postJson.embed.external?.thumb}
-                                                              className="object-cover w-full h-full z-0"
+                                                              className={LinkCardThumbnail()}
                                                               alt={postJson.embed.external?.alt}
                                                           />
                                                       </div>
-                                                      <div className="flex items-center ml-2 h-full w-[calc(100%-6rem)]">
+                                                      <div className={LinkCardContent()}>
                                                           <div className="w-full min-w-0">
-                                                              <div className="text-sm font-bold text-white whitespace-nowrap overflow-hidden overflow-ellipsis">
+                                                              <div className={LinkCardTitle({color: color})}>
                                                                   {postJson.embed.external?.title}
                                                               </div>
-                                                              <div className="text-xs text-gray-200 mt-1" style={{WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', display: '-webkit-box', overflow: 'hidden'}}>
+                                                              <div className={LinkCardDescription({color: color})}
+                                                                   style={{WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', display: '-webkit-box', overflow: 'hidden'}}>
                                                                   {postJson.embed.external?.description}
                                                               </div>
-                                                              <div className="text-xs text-gray-700 mt-1">
+                                                              <div className={LinkCardSiteName({color: color})}>
                                                                   <div className="text-gray-400">
                                                                       {postJson.embed.external?.uri.match(/^https?:\/{2,}(.*?)(?:\/|\?|#|$)/)[1]}
                                                                   </div>

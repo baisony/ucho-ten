@@ -7,10 +7,12 @@ import {useAgent} from "@/app/_atoms/agent";
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import InfiniteScroll  from "react-infinite-scroller"
 import {Spinner} from "@nextui-org/react"
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const [notification, setNotification] = useState<PostView[]>([])
@@ -83,11 +85,19 @@ export default function Root() {
     }
 
     useEffect(() => {
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
+
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     useEffect(() => {
         if(!agent) return

@@ -51,14 +51,19 @@ export default function Root() {
     };
 
     useEffect(() => {
-        console.log('hoge')
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
 
     const {contentLabels} = userPreferences || {}
@@ -120,10 +125,8 @@ export default function Root() {
                             <div className={'flex justify-between items-center pt-[5px] pb-[5px] h-[40px]'}>
                                 <div>Display Language</div>
                                 <Select
-                                    color={"default"}
                                     size={'sm'}
                                     label="Languages"
-                                    variant={'flat'}
                                     selectedKeys={displayLanguage}
                                     className={`${accordion({color:color})} max-w-xs`}
                                     onChange={(event) => {
@@ -132,7 +135,7 @@ export default function Root() {
                                 >
                                     {Object.entries(ToTranslateLanguages || {}).map(([key, value]) => {
                                         return(
-                                            <SelectItem key={value}>{key}</SelectItem>
+                                            <SelectItem key={value} >{key}</SelectItem>
                                         )
 
                                     })}
@@ -161,7 +164,7 @@ export default function Root() {
                                 >
                                     {Object.entries(ToTranslateLanguages || {}).map(([key, value]) => {
                                         return(
-                                            <SelectItem key={value}>{key}</SelectItem>
+                                            <SelectItem key={value} className={color}>{key}</SelectItem>
                                         )
 
                                     })}
