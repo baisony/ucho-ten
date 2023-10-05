@@ -2,7 +2,7 @@
 import {isMobile} from "react-device-detect";
 import {useEffect, useState} from "react";
 
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@nextui-org/react";
+import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Select, SelectItem} from "@nextui-org/react";
 import {Accordion, AccordionItem, Tooltip} from "@nextui-org/react";
 import {viewMutewordsPage} from "@/app/settings/mute/words/styles";
 import {
@@ -18,10 +18,11 @@ import {faTrash, faEllipsis, faChevronRight} from "@fortawesome/free-solid-svg-i
 import {faEye, faEyeSlash, faEdit} from '@fortawesome/free-regular-svg-icons'
 
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Switch} from "@nextui-org/react";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 
 export default function Root() {
-
+    const [appearanceColor] = useAppearanceColor()
     const [darkMode, setDarkMode] = useState(false);
     const color = darkMode ? 'dark' : 'light'
     const { background, accordion, button } = viewMutewordsPage();
@@ -32,14 +33,19 @@ export default function Root() {
     };
 
     useEffect(() => {
-        console.log('hoge')
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     return(
         <>
@@ -71,9 +77,22 @@ export default function Root() {
                                     <div>Not Followee</div>
                                     <Switch size={'lg'}/>
                                 </div>
+                                <div>Mute Duration</div>
                                 <div className={'flex items-center justify-between'}>
                                     <div>period</div>
-                                    <Switch size={'lg'}/>
+                                    <Select size={'sm'} className={'w-[150px]'}>
+                                        <SelectItem key={'day'}>24 hours</SelectItem>
+                                        <SelectItem key={'week'}>7 days</SelectItem>
+                                        <SelectItem key={'month'}>1 month</SelectItem>
+                                        <SelectItem key={'year'}>1 year</SelectItem>
+                                    </Select>
+                                </div>
+                                <div>Mute Category</div>
+                                <div className={'flex items-center justify-between'}>
+                                    <div>List</div>
+                                    <Select size={'sm'} className={'w-[200px]'}>
+                                        <SelectItem key={'hoge'}>hoge</SelectItem>
+                                    </Select>
                                 </div>
                             </ModalBody>
                             <ModalFooter>
@@ -128,7 +147,7 @@ export default function Root() {
                     </TableBody>
                 </Table>
                 <Table removeWrapper aria-label="Example static collection table"
-                       onRowAction={(key) => alert(`Opening item ${key}...`)}
+                       onRowAction={(key) => onOpen()}
                        className={color}
                 >
                     <TableHeader>
@@ -147,6 +166,7 @@ export default function Root() {
                     </TableBody>
                 </Table>
                 <Table removeWrapper aria-label="Example static collection table"
+                       onRowAction={(key) => onOpen()}
                        className={color}
                 >
                     <TableHeader>
@@ -154,7 +174,7 @@ export default function Root() {
                         <TableColumn>{' '}</TableColumn>
                     </TableHeader>
                     <TableBody>
-                        <TableRow key="1" className={''}>
+                        <TableRow key="1" className={'cursor-pointer '}>
                             <TableCell>イーロン</TableCell>
                             <TableCell>
                                 <FontAwesomeIcon icon={faChevronRight}/>

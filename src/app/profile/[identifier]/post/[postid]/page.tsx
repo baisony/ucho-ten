@@ -35,17 +35,22 @@ import {ViewPostCard} from "@/app/components/ViewPostCard";
 import {isMobile} from "react-device-detect";
 import {PostModal} from "@/app/components/PostModal";
 import {useRouter} from "next/navigation";
+import {useTranslationLanguage} from "@/app/_atoms/translationLanguage";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
+import {AtUri} from "@atproto/api";
 
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const [translateTo] = useTranslationLanguage()
     const router = useRouter()
+    const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
     const username = pathname.replace('/profile/','')
     const atUri1 = pathname.replace('/profile/','at://')
-    const atUri = atUri1.replace('/post/','/app.bsky.feed.post/')
+    let atUri = atUri1.replace('/post/','/app.bsky.feed.post/')
     const [timeline, setTimeline] = useState<FeedViewPost[]>([])
     const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -73,13 +78,19 @@ export default function Root() {
     };
 
     useEffect(() => {
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     const FormattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>();
@@ -104,13 +115,17 @@ export default function Root() {
     const fetchPost = async () => {
         if(!agent) return
         try{
+            if(!atUri.startsWith('at://did:')){
+                const toAtUri = new AtUri(atUri)
+                const did = await agent.resolveHandle({handle: toAtUri.hostname})
+                atUri = atUri.replace(toAtUri.hostname, did.data.did)
+            }
             const {data} = await agent.getPostThread({uri: atUri})
-            console.log(data)
             setPost(data.thread)
             setIsLiked(!!(data.thread.post as any).viewer?.like)
             setIsReposted(!!(data.thread.post as any).viewer?.repost)
         }catch (e) {
-
+            console.log(e)
         }
     }
 
@@ -382,15 +397,15 @@ export default function Root() {
                             <>
                                 <div className={'select-none'}>
                                     Translated by Google
+                                    <span
+                                        onClick={() => {setViewTranslatedText(false)}}
+                                        className={'cursor-pointer'}
+                                    >
+                                        &nbsp;- View original text
+                                    </span>
                                 </div>
                                 <div>
                                     {translatedText}
-                                    <span
-                                        onClick={() => {
-                                            setViewTranslatedText(false)
-                                        }}
-                                        className={'cursor-pointer'}
-                                    > - View original text </span>
                                 </div>
                             </>
 
@@ -440,7 +455,7 @@ export default function Root() {
                                                       onClick={async() => {
                                                           setIsTranslated(true)
                                                           setViewTranslatedText(true)
-                                                          const res = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=auto&dt=t&q=' + encodeURIComponent(post.post.record.text))
+                                                          const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${translateTo[0] ? translateTo[0] : `auto`}&dt=t&q=` + encodeURIComponent(post.post.record.text))
                                                           if(res.status === 200) {
                                                               const json = await res.json()
                                                               if(json[0] !== undefined) {

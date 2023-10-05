@@ -12,11 +12,13 @@ import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import {useSearchParams} from "next/navigation";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 
 
 export default function Root(props:any) {
     const [agent, setAgent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[]>([])
@@ -36,13 +38,19 @@ export default function Root(props:any) {
     };
 
     useEffect(() => {
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {

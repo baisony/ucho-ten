@@ -27,6 +27,7 @@ import {
 } from 'react-swipeable-list';
 import 'react-swipeable-list/dist/styles.css';
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure} from "@nextui-org/react";
+import {useTranslationLanguage} from "@/app/_atoms/translationLanguage";
 
 interface Props {
     className?: string

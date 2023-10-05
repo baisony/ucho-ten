@@ -11,10 +11,12 @@ export const viewSettingsPage = tv({
         color:{
             light: {
                 background: 'bg-white text-black',
+                accordion: 'light text-black',
+                button: 'light text-black'
             },
             dark: {
                 background: 'bg-[#181818] text-white',
-                accordion: 'dark text-white',
+                accordion: 'dark text-white ',
                 button: 'dark text-white'
             },
         },

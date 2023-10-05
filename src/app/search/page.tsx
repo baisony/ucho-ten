@@ -10,6 +10,7 @@ import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import InfiniteScroll  from "react-infinite-scroller"
 import { useRouter } from 'next/navigation'
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -26,6 +27,7 @@ export default function Root() {
     const [darkMode, setDarkMode] = useState(false);
     const [numOfResult, setNumOfResult] = useState(0)
     const [now, setNow] = useState<Date>(new Date())
+    const [appearanceColor] = useAppearanceColor()
     const color = darkMode ? 'dark' : 'light'
 
     const modeMe = (e:any) => {
@@ -33,13 +35,19 @@ export default function Root() {
     };
 
     useEffect(() => {
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {

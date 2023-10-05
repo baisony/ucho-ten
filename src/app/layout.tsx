@@ -6,7 +6,7 @@ import {AppConatiner} from "./appContainer";
 
 
 const noto = Noto_Sans_JP({
-    weight: ['400', '700'],
+    weight: ['400','500','600','700','900'],
     subsets: ['latin'],
     variable: '--font-noto-sans-jp',
 });

@@ -28,6 +28,7 @@ import {
 import 'react-swipeable-list/dist/styles.css';
 import {ViewPostCard} from "@/app/components/ViewPostCard";
 import {isMobile} from "react-device-detect";
+import {useAppearanceColor} from "@/app/_atoms/appearanceColor";
 
 interface Props {
     className?: string
@@ -40,6 +41,7 @@ interface Props {
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
@@ -77,13 +79,19 @@ export default function Root() {
     };
 
     useEffect(() => {
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        if(appearanceColor === 'system'){
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-        setDarkMode(matchMedia.matches);
-        matchMedia.addEventListener("change", modeMe);
+            setDarkMode(matchMedia.matches);
+            matchMedia.addEventListener("change", modeMe);
 
-        return () => matchMedia.removeEventListener("change", modeMe);
-    }, []);
+            return () => matchMedia.removeEventListener("change", modeMe);
+        }else if(appearanceColor === 'dark') {
+            setDarkMode(true);
+        }else if(appearanceColor === 'light') {
+            setDarkMode(false)
+        }
+    }, [appearanceColor]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {

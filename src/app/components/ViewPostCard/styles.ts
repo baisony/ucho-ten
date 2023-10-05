@@ -23,13 +23,22 @@ export const viewPostCard = tv({
         skeletonText2line: 'h-3 w-4/5 rounded-lg ',
         chip: 'overflow-clip max-w-full',
         isEmbedToModal: '',
+        LinkCard: 'h-[100px] w-full rounded-lg overflow-hidden border border-gray-600 flex items-center text-gray-800',
+        LinkCardThumbnailContainer: 'h-[100px] w-[100px] border-r border-gray-600',
+        LinkCardThumbnail: 'object-cover w-full h-full z-0',
+        LinkCardContent: 'flex items-center ml-2 h-full w-[calc(100%-6rem)]',
+        LinkCardTitle: 'text-sm font-bold whitespace-nowrap overflow-hidden overflow-ellipsis',
+        LinkCardDescription: 'text-xs mt-1',
+        LinkCardSiteName: 'text-xs mt-1 text-gray-400',
 
     },
     variants: {
         color:{
             light: {
-                PostCard: 'bg-white',
+                PostCard: 'bg-white text-black border-[#E8E8E8]',
                 PostAuthorDisplayName: 'text-black',
+                LinkCard: 'bg-white text-black hover:bg-[#DBDBDB]',
+                LinkCardTitle: 'text-black'
             },
             dark: {
                 PostCard: 'bg-[#2C2C2C] text-[#D7D7D7] border-[#181818]',
@@ -43,6 +52,10 @@ export const viewPostCard = tv({
                 skeletonText1line: 'dark text-white',
                 skeletonText2line: 'dark text-white',
                 chip: 'dark ',
+                LinkCard: 'hover:bg-[#1C1C1C]',
+                LinkCardTitle: 'text-white',
+                LinkCardDescription: 'text-gray-200',
+                LinkCardSiteName: '',
             },
             null: {
                 PostCard: ' bg-transparent',
