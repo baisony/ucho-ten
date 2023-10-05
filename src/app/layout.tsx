@@ -36,7 +36,7 @@ export default function RootLayout({children,}: { children: React.ReactNode }) {
         <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
         <meta name="robots" content="noarchive,max-image-preview"/>
       </head>
-      <body className={`${noto.className} font-body`} style={{overscrollBehaviorY:'none', WebkitOverflowScrolling: 'touch'}} suppressHydrationWarning>
+      <body className={`${noto.className}`} style={{overscrollBehaviorY:'none', WebkitOverflowScrolling: 'touch'}} suppressHydrationWarning>
         <Providers>
           <AppConatiner>
             {children}
