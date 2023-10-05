@@ -221,9 +221,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         ref: zoomRef,
                         scrollToZoom: true
                     }}
-                    // inline={{
-                    //     style: { width: "100%", maxWidth: "900px", aspectRatio: "3 / 2" },
-                    // }}
                     close={() => {
                         setImageGallery(null)
                         setImageSlides(null)
