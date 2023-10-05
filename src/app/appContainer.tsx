@@ -16,9 +16,10 @@ import { BskyAgent } from "@atproto/api";
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators";
 import { useUserPreferencesAtom } from "./_atoms/preferences";
 import { useImageGalleryAtom } from "./_atoms/imageGallery";
-import Lightbox, { Slide, ZoomRef, FullscreenRef } from "yet-another-react-lightbox";
+import Lightbox, { Slide, ZoomRef, CaptionsRef } from "yet-another-react-lightbox";
+import { Zoom, Captions } from "yet-another-react-lightbox/plugins"
 import "yet-another-react-lightbox/styles.css";
-import { Zoom } from "yet-another-react-lightbox/plugins"
+import "yet-another-react-lightbox/plugins/captions.css";
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
@@ -44,7 +45,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const {background} = layout();
     const [darkMode, setDarkMode] = useState(false);
     const zoomRef = useRef<ZoomRef>(null);
-    const fullscreenRef = useRef<FullscreenRef>(null);
+    const captionsRef = useRef<CaptionsRef>(null);
     const color = darkMode ? 'dark' : 'light'
 
     const [page, setPage] = useState<'profile' | 'home' | 'post' | 'search'>("home")
@@ -156,16 +157,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName])
 
     useEffect(() => {
-        if (imageGallery && imageGallery.imageURLs.length > 0) {
+        if (imageGallery && imageGallery.images.length > 0) {
             let slides: Slide[] = []
 
-            for(const imageURL of imageGallery.imageURLs) {
+            for(const image of imageGallery.images) {
                 slides.push({
-                    src: imageURL
+                    src: image.fullsize,
+                    description: image.alt,
                 })
             }
-
-            console.log("here")
 
             setImageSlideIndex(imageGallery.index)
             setImageSlides(slides)
@@ -216,10 +216,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 <Lightbox 
                     open={true}
                     index={imageSlideIndex}
-                    plugins={[Zoom]}
+                    plugins={[Zoom, Captions]}
                     zoom={{
                         ref: zoomRef,
-                        scrollToZoom: true
+                        scrollToZoom: true,
+                    }}
+                    captions={{
+                        ref: captionsRef,
+                        showToggle: true,
+                        descriptionMaxLines: 2,
+                        descriptionTextAlign: "start",
                     }}
                     close={() => {
                         setImageGallery(null)
