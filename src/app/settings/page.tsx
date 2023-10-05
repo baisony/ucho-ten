@@ -25,16 +25,16 @@ import {useDisplayLanguage} from "@/app/_atoms/displayLanguage";
 export default function Root() {
     const router = useRouter()
     const ToTranslateLanguages = {
-        English: 'en',
-        Japanese: 'ja',
-        Chinese: 'zh',
-        Korean: 'ko',
-        Russian: 'ru',
-        Spanish: 'es',
-        French: 'fr',
-        German: 'de',
-        Indonesian: 'id',
-        Thai: 'th',
+        English: 'en-US',
+        Japanese: 'ja-JP',
+        Chinese: 'zh-CN',
+        Korean: 'ko-KR',
+        Russian: 'ru-RU',
+        Spanish: 'es-ES',
+        French: 'fr-FR',
+        German: 'de-DE',
+        Indonesian: 'id-ID',
+        Thai: 'th-TH',
     }
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()

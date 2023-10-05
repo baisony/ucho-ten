@@ -384,15 +384,15 @@ export default function Root() {
                             <>
                                 <div className={'select-none'}>
                                     Translated by Google
+                                    <span
+                                        onClick={() => {setViewTranslatedText(false)}}
+                                        className={'cursor-pointer'}
+                                    >
+                                        &nbsp;- View original text
+                                    </span>
                                 </div>
                                 <div>
                                     {translatedText}
-                                    <span
-                                        onClick={() => {
-                                            setViewTranslatedText(false)
-                                        }}
-                                        className={'cursor-pointer'}
-                                    > - View original text </span>
                                 </div>
                             </>
 
@@ -442,7 +442,7 @@ export default function Root() {
                                                       onClick={async() => {
                                                           setIsTranslated(true)
                                                           setViewTranslatedText(true)
-                                                          const res = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=auto&dt=t&q=' + encodeURIComponent(post.post.record.text))
+                                                          const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${translateTo[0] ? translateTo[0] : `auto`}&dt=t&q=` + encodeURIComponent(post.post.record.text))
                                                           if(res.status === 200) {
                                                               const json = await res.json()
                                                               if(json[0] !== undefined) {
