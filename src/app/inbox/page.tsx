@@ -15,7 +15,7 @@ export default function Root() {
     const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
-    const [notification, setNotification] = useState<PostView[]>([])
+    const [notification, setNotification] = useState<PostView[] | null>(null)
     const [list, setList] = useState([]);          //表示するデータ
     const [hasMore, setHasMore] = useState(true);  //再読み込み判定
     const [cursor, setCursor] = useState<string>('')
@@ -72,7 +72,11 @@ export default function Root() {
             const hoge = await agent.getPosts({ uris: replyNotifications.map((notification: any) => notification.uri) })
 
             //取得データをリストに追加
-            setNotification([...notification, ...hoge.data.posts])
+            if (notification) {
+                setNotification([...notification, ...hoge.data.posts])
+            } else {
+                setNotification([...hoge.data.posts])
+            }
             setLoading2(false)
         }catch(e){
             setLoading2(false)
@@ -114,7 +118,7 @@ export default function Root() {
                 threshold={700}
                 useWindow={false}
             >
-                {loading && 
+                {(loading || !notification) && 
                     Array.from({ length: 15 }, (_, index) => (
                         <ViewPostCard
                             key={`skeleton-${index}`}
@@ -125,7 +129,7 @@ export default function Root() {
                             isSkeleton={true}
                         />
                 ))}
-                {!loading && notification.map((post, index) => (
+                {(!loading && notification) && notification.map((post, index) => (
                     // eslint-disable-next-line react/jsx-key
                     <ViewPostCard key={post.uri} color={color} numbersOfImage={0} postJson={post} isMobile={isMobile} now={now}/>
                 ))}

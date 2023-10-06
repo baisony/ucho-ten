@@ -48,7 +48,7 @@ export default function Root() {
     const username = pathname.replace('/profile/','')
     const atUri1 = pathname.replace('/profile/','at://')
     const atUri = atUri1.replace('/feed/','/app.bsky.feed.generator/')
-    const [timeline, setTimeline] = useState<FeedViewPost[]>([])
+    const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [post, setPost] = useState<any>(null)
@@ -177,11 +177,17 @@ export default function Root() {
             }
             const filteredData = FormattingTimeline(feed)
             const diffTimeline = filteredData.filter(newItem => {
+                if (!timeline) { return true }
+
                 return !timeline.some(oldItem => oldItem.post.uri === newItem.post.uri);
             });
 
             //取得データをリストに追加
-            setTimeline([...timeline, ...diffTimeline])
+            if (timeline) {
+                setTimeline([...timeline, ...diffTimeline])
+            } else {
+                setTimeline([...diffTimeline])
+            }
             setLoading2(false)
         }catch(e){
             setLoading2(false)
@@ -207,7 +213,7 @@ export default function Root() {
     }
 
 
-    return timeline && feedInfo && (
+    return feedInfo && (
         <>
             <div className={ProfileContainer({color:color})}>
                 <div className={ProfileInfoContainer()}>
@@ -260,7 +266,7 @@ export default function Root() {
                 threshold={300}
                 useWindow={false}
             >
-                {(loading || !agent) &&
+                {(loading || !agent || !timeline) &&
                     Array.from({ length: 15 }, (_, index) => (
                         <ViewPostCard
                             key={`skeleton-${index}`}
@@ -271,7 +277,7 @@ export default function Root() {
                             isSkeleton={true}
                         />
                 ))}
-                {(!loading && agent) && timeline.map((post, index) => (
+                {(!loading && agent && timeline) && timeline.map((post, index) => (
                     <ViewPostCard key={`feed-${index}-${post.post.uri}`} color={color} numbersOfImage={0} postJson={post.post} json={post} isMobile={isMobile}/>
                 ))}
             </InfiniteScroll>
