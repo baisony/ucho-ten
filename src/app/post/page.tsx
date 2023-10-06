@@ -267,7 +267,7 @@ export default function Root() {
                         className={headerCancelButton()}
                         isDisabled={loading}
                         onClick={() => {
-                            router.push('/')
+                            router.back()
                         }}
                     >
                         cancel
