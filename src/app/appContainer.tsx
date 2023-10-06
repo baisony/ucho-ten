@@ -45,6 +45,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ['/post', '/login']
     const isMatchingPath = specificPaths.includes(pathName)
+    const [showTabBar, setShowTabBar] = useState<boolean>(isMatchingPath)
     const {background} = layout();
     const [darkMode, setDarkMode] = useState(false);
     const zoomRef = useRef<ZoomRef>(null);
@@ -151,18 +152,23 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (pathName.startsWith("/search")) {
-            console.log("search", pathName)
             setPage("search")
+            setSelectedTab("search")
         } else if (pathName.startsWith("/profile")) {
-            console.log("profile", pathName)
             setPage("profile")
+            setSelectedTab("home")
         } else if (pathName.startsWith("/post")) {
-            console.log("post", pathName)
             setPage("post")
+            setSelectedTab("post")
+        } else if (pathName.startsWith("/inbox")) {
+            setPage("home") // TODO: ??
+            setSelectedTab("inbox")
         } else {
-            console.log("home", pathName)
             setPage("home")
+            setSelectedTab("home")
         }
+
+        setShowTabBar(specificPaths.includes(pathName))        
     }, [pathName])
 
     useEffect(() => {
@@ -191,7 +197,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         <>
             <main className={background({ color: color, isMobile: isMobile })}>
                 <div className={'h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative'}>
-                    {!isMatchingPath && (
+                    {!showTabBar && (
                         <ViewHeader color={color} page={page} tab={selectedTab} setSideBarOpen={setIsSideBarOpen} setSearchText={setSearchText} selectedTab={selectedTab}/>
                     )}
                     <div className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${!isSideBarOpen && `hidden`}`}
@@ -207,10 +213,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
                         </div>
                     </div>
-                    <div className={`${isMatchingPath ? `pt-[0px]` : `pt-[100px]`} h-[calc(100%-50px)] overflow-y-scroll`}>
+                    <div className={`${showTabBar ? `pt-[0px]` : `pt-[100px]`} h-[calc(100%-50px)] overflow-y-scroll`}>
                         {children}
                     </div>
-                    {!isMatchingPath && (
+                    {!showTabBar && (
                         <TabBar color={color} selected={selectedTab} setValue={setSelectedTab}/>
                     )}
                 </div>
