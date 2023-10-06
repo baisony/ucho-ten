@@ -32,7 +32,7 @@ interface Props {
     color: 'light' | 'dark';
     type?: 'Post' | 'Reply' | `Quote`
     postData?: any
-    onClose?: any
+    onClose: (isClosed: boolean) => void
 }
 export const PostModal: React.FC<Props> = (props: Props) => {
     const {color, type, postData} = props
