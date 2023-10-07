@@ -6,7 +6,7 @@ import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import InfiniteScroll from "react-infinite-scroller"
-// import { Spinner } from "@nextui-org/react"
+import { Spinner } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 
 export default function Root() {
@@ -172,9 +172,12 @@ export default function Root() {
         <>
             <InfiniteScroll
                 initialLoad={false}
-                loadMore={loadMore} //項目を読み込む際に処理するコールバック関数
-                hasMore={hasMore} //読み込みを行うかどうかの判定
-                // loader={<Spinner key="spinner-inbox" />}
+                loadMore={loadMore}
+                hasMore={hasMore}
+                loader={
+                    <div className="flex justify-center mt-2 mb-2">
+                        <Spinner key="spinner-inbox" />
+                    </div>}
                 threshold={700}
                 useWindow={false}
             >
