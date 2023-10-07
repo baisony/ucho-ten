@@ -41,17 +41,54 @@ import {
     Switch,
 } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import {useWordMutes} from "@/app/_atoms/wordMute";
+
+interface MuteWord {
+    category: string | null
+    word: string
+    end: string | null
+    isActive: boolean
+    targets: string[]
+    muteAccountIncludesFollowing: boolean
+}
+
 
 export default function Root() {
     const [appearanceColor] = useAppearanceColor()
+    const [muteWords, setMuteWords] = useWordMutes()
     const [darkMode, setDarkMode] = useState(false)
     const color = darkMode ? "dark" : "light"
     const { background, accordion, button } = viewMutewordsPage()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const [muteText, setMuteText] = useState<string>("")
 
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
     }
+
+    const handleAddMuteWordClick = () => {
+        const json = {
+            category: null,
+            word: muteText,
+            end: null,
+            isActive: true,
+            targets: [],
+            muteAccountIncludesFollowing: false,
+        }
+
+        // 他の連想配列のwordが同じでないか確認する
+        const isDuplicate = muteWords.some((muteWord) => muteWord.word === json.word);
+
+        // 重複がない場合のみ追加
+        if (!isDuplicate) {
+            console.log('add')
+            setMuteWords([...muteWords, json]);
+        } else {
+            // 重複する場合の処理をここに追加する（エラーメッセージを表示、何か特定のアクションを実行、など）
+            console.log('この単語は既に存在します');
+        }
+    }
+
 
     useEffect(() => {
         if (appearanceColor === "system") {
@@ -68,6 +105,7 @@ export default function Root() {
         }
     }, [appearanceColor])
 
+    console.log(muteWords)
     return (
         <>
             <Modal
@@ -264,6 +302,23 @@ export default function Root() {
                         </TableRow>
                     </TableBody>
                 </Table>
+                <div className={'w-full h-[50px] flex absolute bottom-[50px] items-center'}>
+                    <input className={'w-full pl-[20px] pr-[20px] text-black h-[40px] outline-none'}
+                           placeholder={'Mute Words'}
+                           onChange={(e) => {
+                               setMuteText(e.target.value)
+                           }}
+                    />
+                    <Button
+                        color={"primary"}
+                        onClick={() => {
+                            //alert(muteText)
+                            handleAddMuteWordClick()
+                        }}
+                    >
+                        Add
+                    </Button>
+                </div>
             </div>
         </>
     )
