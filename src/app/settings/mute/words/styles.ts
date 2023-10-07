@@ -5,16 +5,19 @@ export const viewMutewordsPage = tv({
         background: "h-full w-full",
         accordion: "",
         button: "",
+        modal: "",
     },
     variants: {
         color: {
             light: {
                 background: "bg-white text-black",
+                modal: "light text-black",
             },
             dark: {
                 background: "bg-[#181818] text-white",
                 accordion: "dark text-white",
                 button: "dark text-white",
+                modal: "dark text-white",
             },
         },
         isMobile: {
