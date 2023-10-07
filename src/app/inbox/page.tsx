@@ -102,7 +102,7 @@ export default function Root() {
     }
 
     const loadMore = async (page: number) => {
-        await fetchNotification()
+        await fetchNotification(false)
     }
 
     // const loadMore = async (page: any) => {
