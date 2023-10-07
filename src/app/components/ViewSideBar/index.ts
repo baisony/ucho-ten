@@ -1,1 +1,1 @@
-export * from "./ViewSideBar";
+export * from "./ViewSideBar"

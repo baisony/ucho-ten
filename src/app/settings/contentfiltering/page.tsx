@@ -1,13 +1,11 @@
-'use client';
-import {isMobile} from "react-device-detect";
-import {useEffect, useState} from "react";
+"use client"
+import { isMobile } from "react-device-detect"
+import { useEffect, useState } from "react"
 
 export default function Root() {
-
-    return(
+    return (
         <>
-            <div className={'h-full w-full bg-white'}>
-            </div>
+            <div className={"h-full w-full bg-white"}></div>
         </>
     )
 }
