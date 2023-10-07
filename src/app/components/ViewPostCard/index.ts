@@ -1,1 +1,1 @@
-export * from "./ViewPostCard";
+export * from "./ViewPostCard"

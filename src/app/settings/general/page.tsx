@@ -1,6 +1,6 @@
-'use client';
-import {isMobile} from "react-device-detect";
-import {useEffect, useState} from "react";
+"use client"
+import { isMobile } from "react-device-detect"
+import { useEffect, useState } from "react"
 import {
     Accordion,
     AccordionItem,
@@ -9,33 +9,39 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    DropdownTrigger, Select, SelectItem, Switch
-} from "@nextui-org/react";
+    DropdownTrigger,
+    Select,
+    SelectItem,
+    Switch,
+} from "@nextui-org/react"
 
 export default function Root() {
-
     const ToTranslateLanguages: string[] = [
-        'English',
-        'Japanese',
-        'Chinese',
-        'Korean',
-        'French',
-        'German',
-        'Spanish',
-        'Italian',
-        'Russian',
-        'Portuguese',
-        'Arabic',
-        'Turkish',
-        'Hindi',
-        'Indonesian',
-        'Thai',
+        "English",
+        "Japanese",
+        "Chinese",
+        "Korean",
+        "French",
+        "German",
+        "Spanish",
+        "Italian",
+        "Russian",
+        "Portuguese",
+        "Arabic",
+        "Turkish",
+        "Hindi",
+        "Indonesian",
+        "Thai",
     ]
-    return(
+    return (
         <>
-            <div className={'h-full w-full bg-white'}>
+            <div className={"h-full w-full bg-white"}>
                 <Accordion variant="light" defaultExpandedKeys={["general"]}>
-                    <AccordionItem key="general" aria-label="General" title="General">
+                    <AccordionItem
+                        key="general"
+                        aria-label="General"
+                        title="General"
+                    >
                         <div>
                             <div>Theme Color</div>
                             <ButtonGroup>
@@ -44,27 +50,33 @@ export default function Root() {
                                 <Button>Dark</Button>
                             </ButtonGroup>
                         </div>
-                        <div className={'flex'}>
+                        <div className={"flex"}>
                             <div>Language</div>
                             <Dropdown>
                                 <DropdownTrigger>
-                                    <Button
-                                        variant="bordered"
-                                    >
+                                    <Button variant="bordered">
                                         Select Language
                                     </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu aria-label="Select Languages">
-                                    <DropdownItem key="japanese">日本語</DropdownItem>
-                                    <DropdownItem key="english">English</DropdownItem>
+                                    <DropdownItem key="japanese">
+                                        日本語
+                                    </DropdownItem>
+                                    <DropdownItem key="english">
+                                        English
+                                    </DropdownItem>
                                     <DropdownItem key="hoge">hoge</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
                         <div>
                             <div>Notification</div>
-                            <div className={'flex justify-between items-center'}>
-                                <div>FF外からの引用リポスト通知を受け取らない</div>
+                            <div
+                                className={"flex justify-between items-center"}
+                            >
+                                <div>
+                                    FF外からの引用リポスト通知を受け取らない
+                                </div>
                                 <Switch></Switch>
                             </div>
                         </div>
@@ -75,10 +87,11 @@ export default function Root() {
                                 className="max-w-xs"
                             >
                                 {ToTranslateLanguages.map((language) => {
-                                    return(
-                                        <SelectItem key={language}>{language}</SelectItem>
+                                    return (
+                                        <SelectItem key={language}>
+                                            {language}
+                                        </SelectItem>
                                     )
-
                                 })}
                             </Select>
                         </div>

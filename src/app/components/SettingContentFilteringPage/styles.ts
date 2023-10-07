@@ -1,20 +1,19 @@
-import { tv } from "@nextui-org/react";
+import { tv } from "@nextui-org/react"
 
 export const settingContentFilteringPage = tv({
     slots: {
-        background: 'w-[100svw] min-w-[350px] max-w-[500px] h-[100svh]',
-        table :'',
-
+        background: "w-[100svw] min-w-[350px] max-w-[500px] h-[100svh]",
+        table: "",
     },
     variants: {
-        color:{
+        color: {
             light: {
-                background: 'bg-white',
-                table: '',
+                background: "bg-white",
+                table: "",
             },
             dark: {
-                background: 'bg-black',
-                table: 'dark text-white',
+                background: "bg-black",
+                table: "dark text-white",
             },
         },
         isMobile: {
@@ -25,5 +24,5 @@ export const settingContentFilteringPage = tv({
                 background: "relative flex justify-center items-center",
             },
         },
-    }
-});
+    },
+})

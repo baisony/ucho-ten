@@ -1,30 +1,30 @@
-import { tv } from "@nextui-org/react";
+import { tv } from "@nextui-org/react"
 
 export const tabBar = tv({
     slots: {
-        TabBar: 'w-full min-w-[350px] h-[50px] flex fixed bottom-0 z-10 max-w-[600px]',
-        Container: 'h-full w-[25%] flex justify-center items-center cursor-pointer',
-        Icon: 'w-[20px] h-[20px] ',
-
+        TabBar: "w-full min-w-[350px] h-[50px] flex fixed bottom-0 z-10 max-w-[600px]",
+        Container:
+            "h-full w-[25%] flex justify-center items-center cursor-pointer",
+        Icon: "w-[20px] h-[20px] ",
     },
     variants: {
-        color:{
+        color: {
             light: {
-                TabBar: 'bg-white',
-                Icon: 'text-black',
+                TabBar: "bg-white",
+                Icon: "text-black",
             },
             dark: {
-                TabBar: 'bg-black',
-                Icon: 'text-white',
+                TabBar: "bg-black",
+                Icon: "text-white",
             },
         },
         selected: {
             true: {
-                Icon: 'text-[#1DA1F2]',
+                Icon: "text-[#1DA1F2]",
             },
             false: {
-                Icon: '',
-            }
+                Icon: "",
+            },
         },
         isMobile: {
             true: {
@@ -36,5 +36,5 @@ export const tabBar = tv({
                 background: "relative flex justify-center items-center",
             },
         },
-    }
-});
+    },
+})

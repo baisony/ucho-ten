@@ -1,1 +1,1 @@
-export * from "./PostOnlyPage";
+export * from "./PostOnlyPage"
