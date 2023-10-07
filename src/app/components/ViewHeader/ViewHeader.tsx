@@ -10,7 +10,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAgent } from "@/app/_atoms/agent";
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators";
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences";
-import logoImage from "../../../../public/images/logo/ucho-ten-logo.png";
+import logoImage from "@/../public/images/logo/ucho-ten.svg";
 
 interface Props {
     className?: string
