@@ -1,1 +1,1 @@
-export * from "./SettingContentFilteringPage";
+export * from "./SettingContentFilteringPage"

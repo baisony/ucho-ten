@@ -1,5 +1,5 @@
-import { BskyPreferences } from '@atproto/api'
-import { atom, useAtom } from 'jotai'
+import { BskyPreferences } from "@atproto/api"
+import { atom, useAtom } from "jotai"
 
 const userPreferences = atom<BskyPreferences | null>(null)
 

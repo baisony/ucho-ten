@@ -1,32 +1,31 @@
-import { tv } from "@nextui-org/react";
+import { tv } from "@nextui-org/react"
 
 export const viewMutewordsPage = tv({
     slots: {
-        background: 'h-full w-full',
-        accordion: '',
-        button: '',
-
+        background: "h-full w-full",
+        accordion: "",
+        button: "",
     },
     variants: {
-        color:{
+        color: {
             light: {
-                background: 'bg-white text-black',
+                background: "bg-white text-black",
             },
             dark: {
-                background: 'bg-[#181818] text-white',
-                accordion: 'dark text-white',
-                button: 'dark text-white'
+                background: "bg-[#181818] text-white",
+                accordion: "dark text-white",
+                button: "dark text-white",
             },
         },
         isMobile: {
             true: {
                 background: "",
-                ProfileHandle: 'text-[12px]',
-                ProfileBio: 'text-[12px]',
+                ProfileHandle: "text-[12px]",
+                ProfileBio: "text-[12px]",
             },
             false: {
                 background: "relative justify-center",
             },
         },
-    }
-});
+    },
+})

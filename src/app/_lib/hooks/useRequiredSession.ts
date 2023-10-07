@@ -5,7 +5,6 @@
 // import { usePathname } from 'next/navigation';
 // import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 
-
 // export const useRequiredSession = () => {
 //     const router = useRouter()
 //     const [agent, setAgent] = useAgent()
@@ -38,7 +37,7 @@
 //             if (!userProfileDetailed) {
 //                 const res = await agent.getProfile({ actor: agent.session?.did || "" })
 //                 const {data} = res
-        
+
 //                 setUserProfileDetailed(data)
 //             }
 //         } catch (error) {
