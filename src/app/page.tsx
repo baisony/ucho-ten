@@ -2,7 +2,7 @@
 
 // import { TabBar } from "@/app/components/TabBar"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
@@ -25,7 +25,6 @@ export default function Root(props: any) {
     const [loading, setLoading] = useState(false)
     //const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [darkMode, setDarkMode] = useState(false)
@@ -33,7 +32,7 @@ export default function Root(props: any) {
     const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
 
     const currentFeed = useRef<string>("")
-    const newCursor = useRef<string>("")
+    // const newCursor = useRef<string>("")
     const cursor = useRef<string>("")
 
     const color = darkMode ? "dark" : "light"
@@ -83,29 +82,19 @@ export default function Root(props: any) {
     }, [])
 
     const handleRefresh = () => {
-        const diffTimeline = newTimeline.filter((newItem) => {
-            if (!timeline) {
-                return true
-            }
-
-            return !timeline.some(
-                (oldItem) => oldItem.post.uri === newItem.post.uri
-            )
-        })
-
         setTimeline((currentTimeline) => {
             if (currentTimeline !== null) {
-                const newTimeline = [...diffTimeline, ...currentTimeline]
+                const timeline = [...newTimeline, ...currentTimeline]
 
-                return newTimeline
+                return timeline
             } else {
-                return [...diffTimeline]
+                return [...newTimeline]
             }
         })
 
         // cursor.current = newCursor.current
 
-        setAvailableNewTimeline(false)
+        setNewTimeline([])
         setShouldScrollToTop(true)
     }
 
@@ -183,7 +172,9 @@ export default function Root(props: any) {
                 const { feed } = response.data
                 const filteredData = formattingTimeline(feed)
 
-                if (currentFeed.current !== selectedFeed) { return }
+                if (currentFeed.current !== selectedFeed) {
+                    return
+                }
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
@@ -307,16 +298,20 @@ export default function Root(props: any) {
                 })
             }
 
+            if (currentFeed.current !== selectedFeed) {
+                return
+            }
+
             if (response.data) {
                 const { feed } = response.data
                 const filteredData = formattingTimeline(feed)
 
                 if (
                     response.data.cursor &&
-                    response.data.cursor !== cursor.current &&
-                    response.data.cursor !== newCursor.current
+                    response.data.cursor !== cursor.current
+                    //&& response.data.cursor !== newCursor.current
                 ) {
-                    newCursor.current = response.data.cursor
+                    // newCursor.current = response.data.cursor
 
                     const diffTimeline = filteredData.filter((newItem) => {
                         if (!timeline) {
@@ -326,13 +321,9 @@ export default function Root(props: any) {
                         return !timeline.some(
                             (oldItem) => oldItem.post.uri === newItem.post.uri
                         )
-                    })
-
+                    })            
+            
                     setNewTimeline(diffTimeline)
-
-                    if (diffTimeline.length > 0) {
-                        setAvailableNewTimeline(true)
-                    }
                 }
             }
         } catch (e) {}
@@ -344,6 +335,8 @@ export default function Root(props: any) {
         setTimeline(null)
         setShouldScrollToTop(true)
 
+        setNewTimeline([])
+
         if (!agent) {
             return
         }
@@ -352,6 +345,7 @@ export default function Root(props: any) {
     }, [agent, selectedFeed])
 
     useEffect(() => {
+        console.log("here")
         const interval = setInterval(() => {
             checkNewTimeline()
         }, 15000)
@@ -363,7 +357,7 @@ export default function Root(props: any) {
 
     return (
         <>
-            {availavleNewTimeline && (
+            {newTimeline.length > 0 && (
                 <div
                     className={
                         " absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
