@@ -5,7 +5,7 @@ import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { useSearchParams } from "next/navigation"
-import { Image, Spinner } from "@nextui-org/react"
+import { Image, Spinner, Skeleton } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import InfiniteScroll from "react-infinite-scroller"
@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
+import { layout } from "@/app/search/styles"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -355,16 +356,20 @@ export default function Root() {
                 {target === "users" && searchText && (
                     <>
                         {(loading || !searchUsersResult) &&
-                            Array.from({ length: 15 }, (_, index) => (
-                                <ViewPostCard
-                                    key={`skeleton-${index}`}
-                                    color={color}
-                                    numbersOfImage={0}
-                                    postJson={null}
-                                    isMobile={isMobile}
-                                    isSkeleton={true}
-                                />
-                            ))}
+                            Array.from({ length: 15 }, (_, index) => {
+                                return userComponent({
+                                    actor: {
+                                        did: "",
+                                        displayName: "",
+                                        handle: "",
+                                        description: "",
+                                    },
+                                    onClick: () => {},
+                                    skeleton: true,
+                                    index: index,
+                                    color: color,
+                                })
+                            })}
                         {!loading &&
                             searchUsersResult &&
                             searchUsersResult.map(
@@ -374,6 +379,7 @@ export default function Root() {
                                         onClick: () => {
                                             router.push(`/profile/${actor.did}`)
                                         },
+                                        color: color,
                                     })
                                 }
                             )}
@@ -387,48 +393,86 @@ export default function Root() {
 interface userProps {
     actor: ProfileView
     onClick: () => void
+    skeleton?: boolean
+    index?: number
+    color: string
 }
 
-const userComponent = ({ actor, onClick }: userProps) => {
+const userComponent = ({
+    actor,
+    onClick,
+    skeleton,
+    index,
+    color,
+}: userProps) => {
+    const { userCard } = layout()
+
     return (
         <div
-            key={`search-actor-${actor.did}`}
+            key={`search-actor-${!skeleton ? actor.did : index}`}
             onClick={onClick}
-            className={
-                "w-full max-w-[600px] h-[100px] flex items-center bg-[#2C2C2C] text-[#D7D7D7] border-[#181818] border-b-[1px] overflow-x-hidden cursor-pointer"
-            }
+            //@ts-ignore
+            className={userCard({ color: color })}
         >
-            <div
-                className={
-                    "h-[50px] w-[50px] rounded-[10px] ml-[10px] mr-[10px]"
-                }
-            >
-                {actor?.avatar ? (
+            <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
+                {skeleton && (
+                    <Skeleton
+                        className={`h-full w-full ${color}`}
+                        style={{ borderRadius: "10px" }}
+                    />
+                )}
+                {!skeleton && actor?.avatar ? (
                     <Image
-                        className={"h-full w-full z-[0]"}
+                        className={`h-[35px] w-[35px] z-[0]`}
                         src={actor.avatar}
                         alt={"avatar image"}
                     />
                 ) : (
-                    <FontAwesomeIcon
-                        className={`z-[0] h-full w-full`}
-                        icon={faUser}
-                    />
+                    !skeleton && (
+                        <FontAwesomeIcon
+                            className={`z-[0] h-full w-full`}
+                            icon={faUser}
+                        />
+                    )
                 )}
             </div>
-            <div className={"h-[50px]"}>
-                <div className={"flex w-full"}>
-                    <div className={""}>{actor.displayName}</div>
-                    <div className={"text-[#BABABA]"}>&nbsp;-&nbsp;</div>
-                    <div className={""}>{actor.handle}</div>
+            <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
+                <div className={"w-full"}>
+                    <div className={"text-[15px]"}>
+                        {skeleton && (
+                            <Skeleton
+                                className={`h-[15px] w-[100px] ${color}`}
+                                style={{ borderRadius: "10px" }}
+                            />
+                        )}
+                        {!skeleton && actor?.displayName}
+                    </div>
+                    <div className={" text-[13px] text-gray-500"}>
+                        {skeleton && (
+                            <Skeleton
+                                className={`h-[13px] w-[200px] mt-[10px] mb-[10px] ${color}`}
+                                style={{ borderRadius: "10px" }}
+                            />
+                        )}
+                        {!skeleton && `@${actor?.handle}`}
+                    </div>
                 </div>
-                <div
-                    className={
-                        "w-[calc(500px)] whitespace-nowrap text-ellipsis overflow-hidden"
-                    }
+                <p
+                    className={"w-full text-[13px]"}
+                    style={{
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                    }}
                 >
-                    {actor.description}
-                </div>
+                    {skeleton && (
+                        <Skeleton
+                            className={`h-[13px] w-full mt-[10px] mb-[10px] ${color}`}
+                            style={{ borderRadius: "10px" }}
+                        />
+                    )}
+                    {!skeleton && actor?.description}
+                </p>
             </div>
         </div>
     )
