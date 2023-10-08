@@ -44,7 +44,7 @@ export default function Root(props: any) {
     useEffect(() => {
         if (shouldScrollToTop) {
             const infiniteScroll = document.getElementById("infinite-scroll")
-            
+
             if (infiniteScroll?.parentElement) {
                 infiniteScroll.parentElement.scrollTop = 0
             }
@@ -106,8 +106,10 @@ export default function Root(props: any) {
         const filteredData = timeline.filter((item) => {
             const uri = item.post.uri
 
-            if (item.post.embed) { console.log(item.post.embed) }
-            
+            if (item.post.embed) {
+                console.log(item.post.embed)
+            }
+
             if (item.reply) {
                 if (item.reason) return true
                 if (
@@ -138,7 +140,9 @@ export default function Root(props: any) {
     }
 
     const fetchTimeline = async (loadingFlag: boolean = true) => {
-        if (!agent) { return }
+        if (!agent) {
+            return
+        }
 
         try {
             setLoading(loadingFlag)

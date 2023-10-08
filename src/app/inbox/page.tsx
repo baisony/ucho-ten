@@ -18,9 +18,9 @@ export default function Root() {
     const [hasMore, setHasMore] = useState(false)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
-    
+
     const cursor = useRef<string>("")
-    
+
     const color = darkMode ? "dark" : "light"
 
     useEffect(() => {
@@ -39,7 +39,9 @@ export default function Root() {
 
             setLoading(loadingFlag)
 
-            const { data } = await agent.listNotifications({ cursor: cursor.current })
+            const { data } = await agent.listNotifications({
+                cursor: cursor.current,
+            })
             let notificationHasMore = false
             let notificationsLength = 0
 
@@ -164,7 +166,7 @@ export default function Root() {
 
     useEffect(() => {
         if (!agent) return
-        
+
         fetchNotification()
     }, [agent])
 
@@ -175,9 +177,13 @@ export default function Root() {
                 loadMore={loadMore}
                 hasMore={hasMore}
                 loader={
-                    <div key="spinner-inbox" className="flex justify-center mt-2 mb-2">
+                    <div
+                        key="spinner-inbox"
+                        className="flex justify-center mt-2 mb-2"
+                    >
                         <Spinner />
-                    </div>}
+                    </div>
+                }
                 threshold={700}
                 useWindow={false}
             >
