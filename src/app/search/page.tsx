@@ -412,7 +412,8 @@ const userComponent = ({
             key={`search-actor-${!skeleton ? actor.did : index}`}
             onClick={onClick}
             //@ts-ignore
-            className={userCard({ color: color })}
+            className={`${userCard({ color: color })}`}
+            style={{ cursor: skeleton ? "default" : "pointer" }}
         >
             <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
                 {skeleton && (
@@ -457,7 +458,7 @@ const userComponent = ({
                         {!skeleton && `@${actor?.handle}`}
                     </div>
                 </div>
-                <p
+                <div
                     className={"w-full text-[13px]"}
                     style={{
                         whiteSpace: "nowrap",
@@ -472,7 +473,7 @@ const userComponent = ({
                         />
                     )}
                     {!skeleton && actor?.description}
-                </p>
+                </div>
             </div>
         </div>
     )

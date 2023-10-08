@@ -2,7 +2,8 @@ import { tv } from "@nextui-org/react"
 
 export const layout = tv({
     slots: {
-        userCard: "w-full max-w-[600px] h-[100px] flex items-center border-b-[1px] overflow-x-hidden cursor-pointer",
+        userCard:
+            "w-full max-w-[600px] h-[100px] flex items-center border-b-[1px] overflow-x-hidden",
     },
     variants: {
         color: {
