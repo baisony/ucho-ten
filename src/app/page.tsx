@@ -1,10 +1,13 @@
 "use client"
 
+// import { TabBar } from "@/app/components/TabBar"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
+import { Spinner } from "@nextui-org/react"
+// import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -12,6 +15,7 @@ import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useSearchParams } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useWordMutes } from "@/app/_atoms/wordMute"
+import { AppBskyFeedGetTimeline } from "@atproto/api"
 
 export default function Root(props: any) {
     const [agent, setAgent] = useAgent()
@@ -22,18 +26,34 @@ export default function Root(props: any) {
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    const [newCursor, setNewCursor] = useState<string | null>(null)
-    const [cursor, setCursor] = useState<string | null>(null)
-    const [hasCursor, setHasCursor] = useState<string | null>(null)
+    const [hasMore, setHasMore] = useState<boolean>(false)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
+    const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
+
+    const newCursor = useRef<string>("")
+    const cursor = useRef<string>("")
+
     const color = darkMode ? "dark" : "light"
+
     const searchParams = useSearchParams()
     const selectedFeed = searchParams.get("feed") || "following"
-    console.log("hogehoge")
+
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
     }
+
+    useEffect(() => {
+        if (shouldScrollToTop) {
+            const infiniteScroll = document.getElementById("infinite-scroll")
+
+            if (infiniteScroll?.parentElement) {
+                infiniteScroll.parentElement.scrollTop = 0
+            }
+
+            setShouldScrollToTop(false)
+        }
+    }, [timeline])
 
     useEffect(() => {
         if (appearanceColor === "system") {
@@ -61,11 +81,6 @@ export default function Root(props: any) {
     }, [])
 
     const handleRefresh = () => {
-        console.log("refresh")
-
-        // newtimelineとtimelineの差分を取得
-        console.log(timeline)
-        console.log(newTimeline)
         const diffTimeline = newTimeline.filter((newItem) => {
             if (!timeline) {
                 return true
@@ -75,24 +90,28 @@ export default function Root(props: any) {
                 (oldItem) => oldItem.post.uri === newItem.post.uri
             )
         })
-        console.log(diffTimeline)
-        // timelineに差分を追加
 
         if (timeline) {
             setTimeline([...diffTimeline, ...timeline])
         } else {
             setTimeline([...diffTimeline])
         }
-        setCursor(newCursor)
+
+        // cursor.current = newCursor.current
+
         setAvailableNewTimeline(false)
+        setShouldScrollToTop(true)
     }
 
-    const FormattingTimeline = (timeline: FeedViewPost[]) => {
+    const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
         const filteredData = timeline.filter((item) => {
             const uri = item.post.uri
-            //console.log(item)
-            if (item.post.embed) console.log(item.post.embed)
+
+            if (item.post.embed) {
+                console.log(item.post.embed)
+            }
+
             if (item.reply) {
                 if (item.reason) return true
                 if (
@@ -118,116 +137,169 @@ export default function Root(props: any) {
             }
             return false
         })
+
         return filteredData as FeedViewPost[]
     }
 
-    const fetchTimeline = async () => {
-        if (!agent) return
+    const fetchTimeline = async (loadingFlag: boolean = true) => {
+        if (!agent) {
+            return
+        }
+
         try {
-            setLoading(true)
-            let data
+            setLoading(loadingFlag)
+
+            let response: AppBskyFeedGetTimeline.Response
+            let timelineLength = 0
+
             if (selectedFeed === "following") {
-                ;({ data } = await agent.getTimeline({ limit: 30 }))
-            } else {
-                ;({ data } = await agent.app.bsky.feed.getFeed({
-                    feed: selectedFeed,
+                response = await agent.getTimeline({
                     limit: 30,
-                }))
-            }
-            if (data) {
-                if (data.cursor) {
-                    setCursor(data.cursor)
-                }
-                const { feed } = data
-                const filteredData = FormattingTimeline(feed)
-                setTimeline(filteredData)
+                    cursor: cursor.current || "",
+                })
             } else {
+                response = await agent.app.bsky.feed.getFeed({
+                    feed: selectedFeed,
+                    cursor: cursor.current || "",
+                    limit: 30,
+                })
+            }
+
+            if (response.data) {
+                const { feed } = response.data
+                const filteredData = formattingTimeline(feed)
+
+                setTimeline((currentTimeline) => {
+                    if (currentTimeline !== null) {
+                        const newTimeline = [
+                            ...currentTimeline,
+                            ...filteredData,
+                        ]
+                        timelineLength = newTimeline.length
+
+                        return newTimeline
+                    } else {
+                        timelineLength = filteredData.length
+                        return [...filteredData]
+                    }
+                })
+            } else {
+                setTimeline([])
                 // もしresがundefinedだった場合の処理
                 console.log("Responseがundefinedです。")
             }
+
             setLoading(false)
+
+            cursor.current = response.data.cursor || ""
+
+            if (
+                response.data &&
+                cursor.current &&
+                cursor.current.length > 0 &&
+                timelineLength < 15
+            ) {
+                await fetchTimeline(false)
+            }
+
+            if (cursor.current.length > 0) {
+                setHasMore(true)
+            } else {
+                setHasMore(false)
+            }
         } catch (e) {
             setLoading(false)
-            console.log(e)
         }
     }
 
-    const loadMore = useCallback(
-        async (page: any) => {
-            if (!agent) return
-            if (!cursor) return
-            console.log("loadMore")
-            try {
-                setLoading2(true)
-                let data
-                if (selectedFeed === "following") {
-                    ;({ data } = await agent.getTimeline({
-                        cursor: !hasCursor ? cursor : hasCursor,
-                        limit: 30,
-                    }))
-                } else {
-                    ;({ data } = await agent.app.bsky.feed.getFeed({
-                        feed: selectedFeed,
-                        cursor: !hasCursor ? cursor : hasCursor,
-                        limit: 30,
-                    }))
-                }
-                const { feed } = data
-                if (data.cursor) {
-                    setHasCursor(data.cursor)
-                }
-                const filteredData = FormattingTimeline(feed)
-                const diffTimeline = filteredData.filter((newItem) => {
-                    if (!timeline) {
-                        return true
-                    }
+    const loadMore = async (page: number) => {
+        await fetchTimeline(false)
+    }
 
-                    return !timeline.some(
-                        (oldItem) => oldItem.post === newItem.post
-                    )
-                })
+    // const loadMore = useCallback(
+    //     async (page: any) => {
+    //         if (!agent) return
+    //         if (!cursor.current) return
 
-                console.log(timeline)
-                console.log(diffTimeline)
+    //         console.log("loadMore")
 
-                //取得データをリストに追加
-                if (timeline) {
-                    setTimeline([...timeline, ...diffTimeline])
-                } else {
-                    setTimeline([...diffTimeline])
-                }
-                setLoading2(false)
-            } catch (e) {
-                setLoading2(false)
-                console.log(e)
-            }
-        },
-        [cursor, agent, timeline, hasCursor, selectedFeed]
-    )
+    //         try {
+    //             setLoading2(true)
+    //             let data
+    //             if (selectedFeed === "following") {
+    //                 ;({ data } = await agent.getTimeline({
+    //                     cursor: !hasCursor ? cursor.current : hasCursor,
+    //                     limit: 30,
+    //                 }))
+    //             } else {
+    //                 ;({ data } = await agent.app.bsky.feed.getFeed({
+    //                     feed: selectedFeed,
+    //                     cursor: !hasCursor ? cursor.current : hasCursor,
+    //                     limit: 30,
+    //                 }))
+    //             }
+
+    //             const { feed } = data
+
+    //             if (data.cursor) {
+    //                 setHasCursor(data.cursor)
+    //             }
+
+    //             const filteredData = FormattingTimeline(feed)
+    //             const diffTimeline = filteredData.filter((newItem) => {
+    //                 if (!timeline) {
+    //                     return true
+    //                 }
+
+    //                 return !timeline.some(
+    //                     (oldItem) => oldItem.post === newItem.post
+    //                 )
+    //             })
+
+    //             console.log(timeline)
+    //             console.log(diffTimeline)
+
+    //             //取得データをリストに追加
+    //             if (timeline) {
+    //                 setTimeline([...timeline, ...diffTimeline])
+    //             } else {
+    //                 setTimeline([...diffTimeline])
+    //             }
+    //             setLoading2(false)
+    //         } catch (e) {
+    //             setLoading2(false)
+    //             console.log(e)
+    //         }
+    //     },
+    //     [agent, timeline, hasCursor, selectedFeed]
+    // )
 
     const checkNewTimeline = async () => {
         if (!agent) return
+
         try {
-            let data
+            let response: AppBskyFeedGetTimeline.Response
+
             if (selectedFeed === "following") {
-                ;({ data } = await agent.getTimeline({ limit: 30 }))
+                response = await agent.getTimeline({ limit: 30 })
             } else {
-                ;({ data } = await agent.app.bsky.feed.getFeed({
+                response = await agent.app.bsky.feed.getFeed({
                     feed: selectedFeed,
                     limit: 30,
-                }))
+                })
             }
-            console.log(data.cursor)
-            if (data) {
-                const { feed } = data
-                const filteredData = FormattingTimeline(feed)
+
+            if (response.data) {
+                const { feed } = response.data
+                const filteredData = formattingTimeline(feed)
 
                 if (
-                    data.cursor &&
-                    data.cursor !== cursor &&
-                    data.cursor !== newCursor
+                    response.data.cursor &&
+                    response.data.cursor !== cursor.current &&
+                    response.data.cursor !== newCursor.current
                 ) {
-                    setNewCursor(data.cursor)
+                    newCursor.current = response.data.cursor
+
                     const diffTimeline = filteredData.filter((newItem) => {
                         if (!timeline) {
                             return true
@@ -237,9 +309,12 @@ export default function Root(props: any) {
                             (oldItem) => oldItem.post.uri === newItem.post.uri
                         )
                     })
-                    console.log(diffTimeline)
-                    setAvailableNewTimeline(true)
-                    setNewTimeline(filteredData)
+
+                    setNewTimeline(diffTimeline)
+
+                    if (diffTimeline.length > 0) {
+                        setAvailableNewTimeline(true)
+                    }
                 }
             }
         } catch (e) {}
@@ -247,6 +322,7 @@ export default function Root(props: any) {
 
     useEffect(() => {
         if (!agent) return
+
         fetchTimeline()
     }, [agent, selectedFeed])
 
@@ -254,11 +330,11 @@ export default function Root(props: any) {
         const interval = setInterval(() => {
             checkNewTimeline()
         }, 15000)
-        // クリーンアップ関数
+
         return () => {
-            clearInterval(interval) // インターバルをクリーンアップ
+            clearInterval(interval)
         }
-    }, [agent, cursor, selectedFeed])
+    }, [agent, cursor.current, selectedFeed])
 
     return (
         <>
@@ -280,10 +356,19 @@ export default function Root(props: any) {
             )}
             <>
                 <InfiniteScroll
+                    id="infinite-scroll"
+                    initialLoad={false}
                     loadMore={loadMore}
-                    hasMore={!loading2}
-                    // loader={<Spinner key="spinner-feed"/>}
-                    threshold={1500}
+                    hasMore={hasMore}
+                    loader={
+                        <div
+                            key="spinner-home"
+                            className="flex justify-center mt-2 mb-2"
+                        >
+                            <Spinner />
+                        </div>
+                    }
+                    threshold={700}
                     useWindow={false}
                 >
                     {(loading || !timeline) &&
