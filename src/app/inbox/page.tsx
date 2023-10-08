@@ -13,7 +13,7 @@ export default function Root() {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
 
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
     const [darkMode, setDarkMode] = useState(false)
@@ -88,7 +88,6 @@ export default function Root() {
             setLoading(false)
 
             if (notificationHasMore && notificationsLength < 15) {
-                console.log("here")
                 await fetchNotification(false)
             } else {
                 setHasMore(notificationHasMore)
@@ -97,6 +96,7 @@ export default function Root() {
             console.log(notification)
         } catch (e) {
             setLoading(false)
+
             console.log(e)
         }
     }
@@ -164,7 +164,7 @@ export default function Root() {
 
     useEffect(() => {
         if (!agent) return
-        console.log("Effect")
+        
         fetchNotification()
     }, [agent])
 
@@ -175,8 +175,8 @@ export default function Root() {
                 loadMore={loadMore}
                 hasMore={hasMore}
                 loader={
-                    <div className="flex justify-center mt-2 mb-2">
-                        <Spinner key="spinner-inbox" />
+                    <div key="spinner-inbox" className="flex justify-center mt-2 mb-2">
+                        <Spinner />
                     </div>}
                 threshold={700}
                 useWindow={false}
