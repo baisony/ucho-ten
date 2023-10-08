@@ -4,7 +4,7 @@ import { atomWithStorage } from "jotai/utils"
 export interface MuteWord {
     category: string | null
     word: string
-    end: string | null
+    end: number | null
     isActive: boolean
     targets: string[]
     muteAccountIncludesFollowing: boolean
