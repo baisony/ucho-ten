@@ -441,6 +441,7 @@ export default function Root(props: any) {
                                         postJson={post.post}
                                         json={post}
                                         isMobile={isMobile}
+                                        now={now}
                                     />
                                 )
                             }
