@@ -156,6 +156,8 @@ export default function Root() {
     }
 
     const fetchSearchUsersResult = async () => {
+        setHasMore(false)
+
         if (!agent) {
             return
         }
@@ -276,6 +278,11 @@ export default function Root() {
 
     useEffect(() => {
         setSearchTarget(target)
+
+        numOfResult.current = 0
+        cursor.current = ""
+        setSearchPostsResult(null)
+        setSearchUsersResult(null)
     }, [target])
 
     useEffect(() => {
