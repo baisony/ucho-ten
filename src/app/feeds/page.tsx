@@ -10,13 +10,37 @@ import {
     faGear,
 } from "@fortawesome/free-solid-svg-icons"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { layout } from "./styles"
+import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 
 export default function Root() {
     const [agent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
+    const { FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [savedFeeds, setSavedFeeds] = useState<string[]>([])
     const [pinnedFeeds, setPinnedFeeds] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [darkMode, setDarkMode] = useState(false)
+    const color = darkMode ? "dark" : "light"
+    const modeMe = (e: any) => {
+        setDarkMode(!!e.matches)
+    }
+
+    useEffect(() => {
+        if (appearanceColor === "system") {
+            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
+
+            setDarkMode(matchMedia.matches)
+            matchMedia.addEventListener("change", modeMe)
+
+            return () => matchMedia.removeEventListener("change", modeMe)
+        } else if (appearanceColor === "dark") {
+            setDarkMode(true)
+        } else if (appearanceColor === "light") {
+            setDarkMode(false)
+        }
+    }, [appearanceColor])
     const fetchFeeds = async () => {
         if (!agent) return
         try {
@@ -44,12 +68,7 @@ export default function Root() {
             {/*@ts-ignore*/}
             {savedFeeds.map((feed: GeneratorView, index) => {
                 return (
-                    <div
-                        className={
-                            "flex items-center bg-[#2C2C2C] text-white w-full h-[80px] justify-between select-none"
-                        }
-                        key={index}
-                    >
+                    <div className={FeedCard({ color: color })} key={index}>
                         <div className={"flex items-center ml-[12px]"}>
                             <div>
                                 <FontAwesomeIcon
@@ -81,7 +100,7 @@ export default function Root() {
                                             feed.uri
                                         )
                                             ? `text-[#016EFF]`
-                                            : `text-white`
+                                            : `text-[#929292]`
                                     }`}
                                     onClick={async () => {
                                         if (
@@ -113,7 +132,11 @@ export default function Root() {
                                 />
                             </div>
                             <div className={"cursor-pointer"}>
-                                <FontAwesomeIcon icon={faGear} size={"lg"} />
+                                <FontAwesomeIcon
+                                    icon={faGear}
+                                    size={"lg"}
+                                    className={"text-[#929292]"}
+                                />
                             </div>
                         </div>
                     </div>
