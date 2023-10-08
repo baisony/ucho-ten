@@ -304,8 +304,11 @@ export default function Root(props: any) {
                         )
                     })
 
-                    setAvailableNewTimeline(true)
                     setNewTimeline(diffTimeline)
+
+                    if (diffTimeline.length > 0) {
+                        setAvailableNewTimeline(true)
+                    }
                 }
             }
         } catch (e) {}
