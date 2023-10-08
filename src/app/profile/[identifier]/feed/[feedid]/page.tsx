@@ -1,5 +1,6 @@
 "use client"
-import React, { useEffect, useState } from "react"
+
+import React, { useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
@@ -53,53 +54,35 @@ interface Props {
 export default function Root() {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
-    const [loading, setLoading] = useState(false)
-    const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
+
     const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
+
+    const [loading, setLoading] = useState(true)
+    const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
-    const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    const [post, setPost] = useState<any>(null)
-    const [newCursor, setNewCursor] = useState<string | null>(null)
-    const [cursor, setCursor] = useState<string | null>(null)
-    const [hasCursor, setHasCursor] = useState<string | null>(null)
+    // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
+    // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
+    // const [post, setPost] = useState<any>(null)
+    // const [newCursor, setNewCursor] = useState<string | null>(null)
+    // const [hasCursor, setHasCursor] = useState<string | null>(null)
     const [darkMode, setDarkMode] = useState(false)
-    const [isLiked, setIsLiked] = useState<boolean>(false)
-    const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
-    const [isPostMine, setIsPostMine] = useState<boolean>(false)
+    // const [isLiked, setIsLiked] = useState<boolean>(false)
+    // const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
+    // const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
-    const [onHoverButton, setOnHoverButton] = useState(false)
-    const [hasMoreLimit, setHasMoreLimit] = useState(false)
+    // const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
+    // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [userPreference, setUserPreference] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
-    const color = darkMode ? "dark" : "light"
+    const cursor = useRef<string>("")
 
-    const {
-        background,
-        ProfileContainer,
-        ProfileInfoContainer,
-        HeaderImageContainer,
-        ProfileHeaderImage,
-        ProfileImage,
-        ProfileDisplayName,
-        ProfileHandle,
-        ProfileCopyButton,
-        ProfileActionButton,
-        FollowButton,
-        ProfileBio,
-        Buttons,
-        ShareButton,
-        PostContainer,
-        PinButton,
-        dropdown,
-    } = viewFeedPage()
+    const color = darkMode ? "dark" : "light"
 
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
@@ -130,7 +113,7 @@ export default function Root() {
         }
     }, [])
 
-    const FormattingTimeline = (timeline: FeedViewPost[]) => {
+    const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
         const filteredData = timeline.filter((item) => {
             const uri = item.post.uri
@@ -156,13 +139,18 @@ export default function Root() {
     }
 
     const fetchUserPreference = async () => {
-        if (!agent) return
+        if (!agent) {
+            return
+        }
+
         try {
             const res = await agent.getPreferences()
             console.log(res)
             setUserPreference(res)
+
             const { feeds } = res
             const { pinned, saved } = feeds
+
             if (pinned) {
                 setIsPinned(pinned.includes(atUri))
             } else {
@@ -175,40 +163,68 @@ export default function Root() {
             } else {
                 setIsSubscribed(false)
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error(e)
+        }
     }
 
-    const fetchPost = async () => {
-        if (!agent) return
+    const fetchFeed = async () => {
+        if (!agent) {
+            return
+        }
+
         try {
             const feedInfo = await agent.app.bsky.feed.getFeedGenerator({
                 feed: atUri,
             })
+
             console.log(feedInfo)
+
             setFeedInfo(feedInfo.data)
+
             const { data } = await agent.app.bsky.feed.getFeed({ feed: atUri })
             const { feed } = data
+
             setTimeline(feed)
-        } catch (e) {}
+
+            if (data.cursor) {
+                cursor.current = data.cursor
+                setHasMore(true)
+            } else {
+                setHasMore(false)
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const loadMore = async (page: any) => {
-        if (!agent) return
-        if (!cursor) return
-        if (loading) return
-        if (loading2) return
+        if (!agent) {
+            return
+        }
+        if (!cursor.current || cursor.current.length === 0) {
+            return
+        }
+        if (loading) {
+            return
+        }
+
         try {
-            setLoading2(true)
             const { data } = await agent.app.bsky.feed.getFeed({
-                cursor: !hasCursor ? cursor : hasCursor,
+                cursor: cursor.current,
                 feed: atUri,
             })
+
             const { feed } = data
-            if (feed.length === 0) setHasMoreLimit(true)
-            if (data.cursor) {
-                setHasCursor(data.cursor)
+
+            if (feed.length === 0) {
+                setHasMore(false)
+                return
             }
-            const filteredData = FormattingTimeline(feed)
+
+            const filteredData = formattingTimeline(feed)
             const diffTimeline = filteredData.filter((newItem) => {
                 if (!timeline) {
                     return true
@@ -219,140 +235,208 @@ export default function Root() {
                 )
             })
 
-            //取得データをリストに追加
-            if (timeline) {
-                setTimeline([...timeline, ...diffTimeline])
+            setTimeline((currentTimeline) => {
+                if (currentTimeline !== null) {
+                    const newTimeline = [
+                        ...currentTimeline,
+                        ...diffTimeline,
+                    ]
+
+                    return newTimeline
+                } else {
+                    return [...diffTimeline]
+                }
+            })
+
+            if (data.cursor) {
+                cursor.current = data.cursor
+                setHasMore(true)
             } else {
-                setTimeline([...diffTimeline])
+                cursor.current = ""
+                setHasMore(true)
             }
-            setLoading2(false)
         } catch (e) {
-            setLoading2(false)
+            setHasMore(false)
             console.log(e)
         }
     }
 
     useEffect(() => {
-        if (!agent) return
-        fetchUserPreference()
-        fetchPost()
+        if (!agent) {
+            return
+        }
+
+        const doFetch = async () => {
+            await fetchUserPreference()
+            await fetchFeed()
+        }
+
+        doFetch()
     }, [agent, atUri])
 
-    const handleLikeClick = () => {
-        if (!agent) return
-        if (!feedInfo) return
-        try {
-        } catch (e) {}
-    }
+    // const handleLikeClick = () => {
+    //     if (!agent) return
+    //     if (!feedInfo) return
+    //     try {
+    //     } catch (e) {}
+    // }
 
     return (
-        feedInfo && (
-            <>
-                <div className={ProfileContainer({ color: color })}>
-                    <div className={ProfileInfoContainer()}>
-                        <img
-                            className={ProfileImage()}
-                            src={feedInfo.view?.avatar}
-                        ></img>
-                        <div className={Buttons()}>
-                            <div className={ProfileActionButton()}>
+        <InfiniteScroll
+            initialLoad={false}
+            loadMore={loadMore}
+            hasMore={hasMore}
+            loader={
+                <div
+                    key="spinner-feed-generator"
+                    className="flex justify-center mt-2 mb-2"
+                >
+                    <Spinner />
+                </div>
+            }
+            threshold={700}
+            useWindow={false}
+        >
+            {feedInfo && (
+                <FeedHeaderComponent
+                    feedInfo={feedInfo}
+                    color={color}
+                    isSubscribed={isSubscribed}
+                    isPinned={isPinned}
+                />
+            )}
+            {(loading || !agent || !timeline) &&
+                Array.from({ length: 15 }, (_, index) => (
+                    <ViewPostCard
+                        key={`skeleton-${index}`}
+                        color={color}
+                        numbersOfImage={0}
+                        postJson={null}
+                        isMobile={isMobile}
+                        isSkeleton={true}
+                    />
+                ))}
+            {!loading &&
+                agent &&
+                timeline &&
+                timeline.map((post, index) => (
+                    <ViewPostCard
+                        key={`feed-${index}-${post.post.uri}`}
+                        color={color}
+                        numbersOfImage={0}
+                        postJson={post.post}
+                        json={post}
+                        isMobile={isMobile}
+                        now={now}
+                    />
+                ))}
+        </InfiniteScroll>
+    )
+}
+
+interface FeedProps {
+    feedInfo: any
+    color: "light" | "dark"
+    isSubscribed: boolean
+    isPinned: boolean
+}
+
+const FeedHeaderComponent = ({
+    feedInfo,
+    color,
+    isSubscribed,
+    isPinned,
+}: FeedProps) => {
+    const [onHoverButton, setOnHoverButton] = useState(false)
+
+    const {
+        background,
+        ProfileContainer,
+        ProfileInfoContainer,
+        HeaderImageContainer,
+        ProfileHeaderImage,
+        ProfileImage,
+        ProfileDisplayName,
+        ProfileHandle,
+        ProfileCopyButton,
+        ProfileActionButton,
+        FollowButton,
+        ProfileBio,
+        Buttons,
+        ShareButton,
+        PostContainer,
+        PinButton,
+        dropdown,
+    } = viewFeedPage()
+
+    return (
+        <div className={ProfileContainer({ color: color })}>
+            <div className={ProfileInfoContainer()}>
+                <img
+                    className={ProfileImage()}
+                    src={feedInfo.view?.avatar}
+                ></img>
+                <div className={Buttons()}>
+                    <div className={ProfileActionButton()}>
+                        <FontAwesomeIcon
+                            icon={
+                                feedInfo.view?.viewer?.like
+                                    ? faSolidHeart
+                                    : faRegularHeart
+                            }
+                            style={{
+                                color: feedInfo.view?.viewer?.like
+                                    ? "#ff0000"
+                                    : "#000000",
+                            }}
+                        />
+                    </div>
+                    <Dropdown className={dropdown({ color: color })}>
+                        <DropdownTrigger>
+                            <div className={ProfileCopyButton()}>
                                 <FontAwesomeIcon
-                                    icon={
-                                        feedInfo.view?.viewer?.like
-                                            ? faSolidHeart
-                                            : faRegularHeart
-                                    }
-                                    style={{
-                                        color: feedInfo.view?.viewer?.like
-                                            ? "#ff0000"
-                                            : "#000000",
-                                    }}
-                                />
-                            </div>
-                            <Dropdown className={dropdown({ color: color })}>
-                                <DropdownTrigger>
-                                    <div className={ProfileCopyButton()}>
-                                        <FontAwesomeIcon
-                                            icon={faArrowUpFromBracket}
-                                            className={ShareButton({
-                                                color: color,
-                                            })}
-                                        />
-                                    </div>
-                                </DropdownTrigger>
-                                <DropdownMenu>
-                                    <DropdownItem key="new">
-                                        Copy feed url
-                                    </DropdownItem>
-                                    <DropdownItem key="copy">
-                                        Post this feed
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                            <div className={ProfileActionButton()}>
-                                <FontAwesomeIcon
-                                    icon={faThumbTack}
-                                    className={PinButton({
-                                        isPinned: isPinned,
+                                    icon={faArrowUpFromBracket}
+                                    className={ShareButton({
+                                        color: color,
                                     })}
                                 />
                             </div>
-                            <Button
-                                className={FollowButton({ color: color })}
-                                onMouseLeave={() => {
-                                    setOnHoverButton(false)
-                                }}
-                                onMouseEnter={() => {
-                                    setOnHoverButton(true)
-                                }}
-                            >
-                                {isSubscribed ? "UnSubscribe" : "Subscribe"}
-                            </Button>
-                        </div>
-                        <div className={ProfileDisplayName({ color: color })}>
-                            {feedInfo.view?.displayName}
-                        </div>
-                        <div className={ProfileHandle()}>
-                            created by @{feedInfo.view.creator.handle}
-                        </div>
-                        <div className={ProfileBio()}>
-                            {feedInfo.view?.description}
-                        </div>
+                        </DropdownTrigger>
+                        <DropdownMenu>
+                            <DropdownItem key="new">Copy feed url</DropdownItem>
+                            <DropdownItem key="copy">
+                                Post this feed
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                    <div className={ProfileActionButton()}>
+                        <FontAwesomeIcon
+                            icon={faThumbTack}
+                            className={PinButton({
+                                isPinned: isPinned,
+                            })}
+                        />
                     </div>
+                    <Button
+                        className={FollowButton({ color: color })}
+                        onMouseLeave={() => {
+                            setOnHoverButton(false)
+                        }}
+                        onMouseEnter={() => {
+                            setOnHoverButton(true)
+                        }}
+                    >
+                        {isSubscribed ? "UnSubscribe" : "Subscribe"}
+                    </Button>
                 </div>
-                <InfiniteScroll
-                    loadMore={loadMore} //項目を読み込む際に処理するコールバック関数
-                    hasMore={!loading && !loading2 && !hasMoreLimit} //読み込みを行うかどうかの判定
-                    // loader={<Spinner key="spinner-profile-feed"/>}
-                    threshold={300}
-                    useWindow={false}
-                >
-                    {(loading || !agent || !timeline) &&
-                        Array.from({ length: 15 }, (_, index) => (
-                            <ViewPostCard
-                                key={`skeleton-${index}`}
-                                color={color}
-                                numbersOfImage={0}
-                                postJson={null}
-                                isMobile={isMobile}
-                                isSkeleton={true}
-                            />
-                        ))}
-                    {!loading &&
-                        agent &&
-                        timeline &&
-                        timeline.map((post, index) => (
-                            <ViewPostCard
-                                key={`feed-${index}-${post.post.uri}`}
-                                color={color}
-                                numbersOfImage={0}
-                                postJson={post.post}
-                                json={post}
-                                isMobile={isMobile}
-                            />
-                        ))}
-                </InfiniteScroll>
-            </>
-        )
+                <div className={ProfileDisplayName({ color: color })}>
+                    {feedInfo.view?.displayName}
+                </div>
+                <div className={ProfileHandle()}>
+                    created by @{feedInfo.view.creator.handle}
+                </div>
+                <div className={ProfileBio()}>{feedInfo.view?.description}</div>
+            </div>
+        </div>
     )
 }
