@@ -22,7 +22,7 @@ export default function Root(props: any) {
     const [appearanceColor] = useAppearanceColor()
     const [muteWords] = useWordMutes()
     const [loading, setLoading] = useState(false)
-    const [loading2, setLoading2] = useState(false)
+    //const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
