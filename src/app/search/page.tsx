@@ -11,6 +11,8 @@ import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/
 import InfiniteScroll from "react-infinite-scroller"
 import { useRouter } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faUser } from "@fortawesome/free-solid-svg-icons"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -401,11 +403,18 @@ const userComponent = ({ actor, onClick }: userProps) => {
                     "h-[50px] w-[50px] rounded-[10px] ml-[10px] mr-[10px]"
                 }
             >
-                <Image
-                    className={"h-full w-full"}
-                    src={actor?.avatar}
-                    alt={"avatar image"}
-                />
+                {actor?.avatar ? (
+                    <Image
+                        className={"h-full w-full z-[0]"}
+                        src={actor.avatar}
+                        alt={"avatar image"}
+                    />
+                ) : (
+                    <FontAwesomeIcon
+                        className={`z-[0] h-full w-full`}
+                        icon={faUser}
+                    />
+                )}
             </div>
             <div className={"h-[50px]"}>
                 <div className={"flex w-full"}>
