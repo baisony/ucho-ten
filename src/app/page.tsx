@@ -21,6 +21,7 @@ export default function Root(props: any) {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords] = useWordMutes()
+
     const [loading, setLoading] = useState(false)
     //const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
@@ -31,6 +32,7 @@ export default function Root(props: any) {
     const [now, setNow] = useState<Date>(new Date())
     const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
 
+    const currentFeed = useRef<string>("")
     const newCursor = useRef<string>("")
     const cursor = useRef<string>("")
 
@@ -146,8 +148,16 @@ export default function Root(props: any) {
     }
 
     const fetchTimeline = async (loadingFlag: boolean = true) => {
+        console.log("selectedFeed", selectedFeed)
+        console.log("cursor.current", cursor.current)
+
         if (!agent) {
             return
+        }
+
+        if (currentFeed.current !== selectedFeed) {
+            currentFeed.current = selectedFeed
+            cursor.current = ""
         }
 
         try {
@@ -172,6 +182,8 @@ export default function Root(props: any) {
             if (response.data) {
                 const { feed } = response.data
                 const filteredData = formattingTimeline(feed)
+
+                if (currentFeed.current !== selectedFeed) { return }
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
@@ -279,7 +291,9 @@ export default function Root(props: any) {
     // )
 
     const checkNewTimeline = async () => {
-        if (!agent) return
+        if (!agent) {
+            return
+        }
 
         try {
             let response: AppBskyFeedGetTimeline.Response
@@ -325,7 +339,14 @@ export default function Root(props: any) {
     }
 
     useEffect(() => {
-        if (!agent) return
+        cursor.current = ""
+        setLoading(true)
+        setTimeline(null)
+        setShouldScrollToTop(true)
+
+        if (!agent) {
+            return
+        }
 
         fetchTimeline()
     }, [agent, selectedFeed])
@@ -338,7 +359,7 @@ export default function Root(props: any) {
         return () => {
             clearInterval(interval)
         }
-    }, [agent, cursor.current, selectedFeed])
+    }, [agent, selectedFeed])
 
     return (
         <>
