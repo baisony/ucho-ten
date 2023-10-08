@@ -1,17 +1,14 @@
 "use client"
 import React, { useEffect, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark as faRegularBookmark,
     faComment,
-    faImage,
     faStar as faRegularStar,
-    faTrashCan,
 } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
@@ -20,41 +17,38 @@ import {
     faCircleQuestion,
     faCircleXmark,
     faCode,
-    faCopy,
     faEllipsis,
     faFlag,
     faHashtag,
     faLanguage,
+    faLink,
     faQuoteLeft,
     faRetweet,
     faStar as faSolidStar,
     faTrash,
     faU,
     faUser,
-    faLink,
 } from "@fortawesome/free-solid-svg-icons"
 import {
+    Chip,
     Dropdown,
-    DropdownTrigger,
+    DropdownItem,
     DropdownMenu,
     DropdownSection,
-    DropdownItem,
-    Link,
-    Chip,
-    Tooltip,
-    ModalContent,
+    DropdownTrigger,
     Modal,
+    ModalContent,
+    Tooltip,
     useDisclosure,
-    Image,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { PostModal } from "@/app/components/PostModal"
-import { useRouter } from "next/navigation"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AtUri } from "@atproto/api"
+import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -83,6 +77,7 @@ export default function Root() {
     const [isReposted, setIsReposted] = useState<boolean>(false)
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [isPostMine, setIsPostMine] = useState<boolean>(false)
+    const [bookmarks, setBookmarks] = useBookmarks()
     const color = darkMode ? "dark" : "light"
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
@@ -465,7 +460,38 @@ export default function Root() {
         }
         setLoading(false)
     }
+    const handleBookmark = async () => {
+        const createdAt = new Date().getTime()
+        const json: Bookmark = {
+            uri: post.post.uri,
+            category: null,
+            createdAt: createdAt,
+            updatedAt: createdAt,
+            deletedAt: null,
+        }
+        const isDuplicate = bookmarks.some(
+            (bookmark) => bookmark.uri === json.uri
+        )
+
+        if (!isDuplicate) {
+            setBookmarks([...bookmarks, json])
+            setIsBookmarked(true)
+        } else {
+            setBookmarks(
+                bookmarks.filter((bookmark) => bookmark.uri !== json.uri)
+            )
+            setIsBookmarked(false)
+        }
+    }
     console.log(post)
+
+    useEffect(() => {
+        if (!post?.post?.uri) return
+        const isBookmarked = bookmarks.some(
+            (bookmark) => bookmark.uri === post.post.uri
+        )
+        setIsBookmarked(isBookmarked)
+    }, [post])
     return (
         post && (
             <>
@@ -601,7 +627,10 @@ export default function Root() {
                                         : faSolidBookmark
                                 }
                                 className={ReactionButton()}
-                            ></FontAwesomeIcon>
+                                onClick={() => {
+                                    handleBookmark()
+                                }}
+                            />
                             <Dropdown className={dropdown({ color: color })}>
                                 <DropdownTrigger>
                                     <FontAwesomeIcon
