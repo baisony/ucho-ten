@@ -9,18 +9,20 @@ import InfiniteScroll from "react-infinite-scroller"
 import { Spinner } from "@nextui-org/react"
 // import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useSearchParams } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { useWordMutes } from "@/app/_atoms/wordMute"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 
 export default function Root(props: any) {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
-
-    const [loading, setLoading] = useState(true)
-    // const [loading2, setLoading2] = useState(false)
+    const [muteWords] = useWordMutes()
+    const [loading, setLoading] = useState(false)
+    //const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -382,23 +384,42 @@ export default function Root(props: any) {
                         ))}
                     {!loading &&
                         timeline &&
-                        timeline.map((post, index) => (
-                            <ViewPostCard
-                                key={`${
-                                    post?.reason
-                                        ? `reason-${
-                                              (post.reason as any).by.did
-                                          }`
-                                        : `post`
-                                }-${post.post.uri}`}
-                                color={color}
-                                numbersOfImage={0}
-                                postJson={post.post}
-                                json={post}
-                                isMobile={isMobile}
-                                now={now}
-                            />
-                        ))}
+                        timeline.map((post, index) => {
+                            // Check if post.record.text contains muteWords
+                            const isMuted =
+                                (post.post.record as PostView)?.text &&
+                                muteWords.some((muteWord) => {
+                                    //console.log(muteWord)
+                                    return (
+                                        muteWord.isActive &&
+                                        muteWord.targets.includes("timeline") &&
+                                        (
+                                            (post.post.record as PostView)
+                                                ?.text as string
+                                        )?.includes(muteWord.word)
+                                    )
+                                })
+                            if (!isMuted) {
+                                // Render the post if it's not muted
+                                return (
+                                    <ViewPostCard
+                                        key={`${
+                                            post?.reason
+                                                ? `reason-${
+                                                      (post.reason as any).by
+                                                          .did
+                                                  }`
+                                                : `post`
+                                        }-${post.post.uri}`}
+                                        color={color}
+                                        numbersOfImage={0}
+                                        postJson={post.post}
+                                        json={post}
+                                        isMobile={isMobile}
+                                    />
+                                )
+                            }
+                        })}
                 </InfiniteScroll>
             </>
         </>
