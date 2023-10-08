@@ -91,11 +91,15 @@ export default function Root(props: any) {
             )
         })
 
-        if (timeline) {
-            setTimeline([...diffTimeline, ...timeline])
-        } else {
-            setTimeline([...diffTimeline])
-        }
+        setTimeline((currentTimeline) => {
+            if (currentTimeline !== null) {
+                const newTimeline = [...diffTimeline, ...currentTimeline]
+
+                return newTimeline
+            } else {
+                return [...diffTimeline]
+            }
+        })
 
         // cursor.current = newCursor.current
 
