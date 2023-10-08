@@ -59,7 +59,7 @@ export default function Root() {
                         notification.reason === "mention"
                 )
 
-                const hoge = await agent.getPosts({
+                const posts = await agent.getPosts({
                     uris: replyNotifications.map(
                         (notification: any) => notification.uri
                     ),
@@ -71,14 +71,14 @@ export default function Root() {
                     if (currentNotifications !== null) {
                         const notifications = [
                             ...currentNotifications,
-                            ...hoge.data.posts,
+                            ...posts.data.posts,
                         ]
                         notificationsLength = notifications.length
 
                         return notifications
                     } else {
-                        notificationsLength = hoge.data.posts.length
-                        return [...hoge.data.posts]
+                        notificationsLength = posts.data.posts.length
+                        return [...posts.data.posts]
                     }
                 })
             } else {
