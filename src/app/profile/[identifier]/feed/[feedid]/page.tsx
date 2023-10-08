@@ -237,10 +237,7 @@ export default function Root() {
 
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
-                    const newTimeline = [
-                        ...currentTimeline,
-                        ...diffTimeline,
-                    ]
+                    const newTimeline = [...currentTimeline, ...diffTimeline]
 
                     return newTimeline
                 } else {
