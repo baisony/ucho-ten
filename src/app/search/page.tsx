@@ -1,10 +1,10 @@
 "use client"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { Image, Spinner } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -15,22 +15,28 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 export default function Root() {
     const [agent, setAgent] = useAgent()
     const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const searchWord = searchParams.get("word") || ""
+    const target = searchParams.get("target") || "posts"
+
     const [loading, setLoading] = useState(false)
-    const [loading2, setLoading2] = useState(false)
+    const [hasMore, setHasMore] = useState(false)
     const [searchPostsResult, setSearchPostsResult] = useState<
         PostView[] | null
     >(null)
     const [searchUsersResult, setSearchUsersResult] = useState<
         ProfileView[] | null
     >(null)
-    const searchParams = useSearchParams()
-    const searchWord = searchParams.get("word") || ""
-    const target = searchParams.get("target") || "posts"
     const [searchText, setSearchText] = useState(searchWord)
     const [searchTarget, setSearchTarget] = useState(target)
     const [darkMode, setDarkMode] = useState(false)
-    const [numOfResult, setNumOfResult] = useState(0)
     const [now, setNow] = useState<Date>(new Date())
+    const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
+
+    const numOfResult = useRef<number>(0)
+    const cursor = useRef<string>("")
+
     const [appearanceColor] = useAppearanceColor()
     const color = darkMode ? "dark" : "light"
 
@@ -63,24 +69,48 @@ export default function Root() {
         }
     }, [])
 
-    const fetchSearchResult = async (query: string) => {
+    useEffect(() => {
+        if (shouldScrollToTop) {
+            const infiniteScroll = document.getElementById("infinite-scroll")
+
+            if (infiniteScroll?.parentElement) {
+                infiniteScroll.parentElement.scrollTop = 0
+            }
+
+            setShouldScrollToTop(false)
+        }
+    }, [searchPostsResult, searchUsersResult])
+
+    const fetchSearchPostsResult = async () => {
+        if (!agent) {
+            return
+        }
+
+        if (searchText === "") {
+            return
+        }
+
         try {
-            if (!agent) return
-            setLoading(true)
-            if (query === "") return
             const res = await fetch(
                 `https://search.bsky.social/search/posts?q=${encodeURIComponent(
-                    query
-                )}&offset=0`
+                    searchText
+                )}&offset=${numOfResult.current}`
             )
+
             const json = await res.json()
-            setNumOfResult(json.length)
+
+            numOfResult.current += json.length
+
             const outputArray = json.map(
                 (item: any) =>
                     `at://${item.user.did as string}/${item.tid as string}`
             )
 
-            if (outputArray.length === 0) return
+            if (outputArray.length === 0) {
+                setLoading(false)
+                setHasMore(false)
+                return
+            }
 
             const maxBatchSize = 25 // 1つのリクエストに許容される最大数
             const batches = []
@@ -90,112 +120,187 @@ export default function Root() {
                 batches.push(batch)
             }
 
-            const results = []
+            const results: PostView[] = []
 
             for (const batch of batches) {
                 const { data } = await agent?.getPosts({ uris: batch })
                 const { posts } = data
+
                 results.push(...posts)
             }
-            //console.log(results)
 
-            setSearchPostsResult(results)
+            setSearchPostsResult((currentSearchResults) => {
+                if (currentSearchResults !== null) {
+                    const newSearchResults = [
+                        ...currentSearchResults,
+                        ...results,
+                    ]
+
+                    return newSearchResults
+                } else {
+                    return [...results]
+                }
+            })
+
+            if (results.length > 0) {
+                setHasMore(true) // 違う
+            } else {
+                setHasMore(false)
+            }
         } catch (error) {
+            setHasMore(false)
             console.error("Error fetching data:", error)
         } finally {
             setLoading(false)
         }
     }
 
-    const fetchSearchUsers = async (term: string) => {
+    const fetchSearchUsersResult = async () => {
+        setHasMore(false)
+
+        if (!agent) {
+            return
+        }
+
         try {
-            if (!agent) return
-            setLoading(true)
-            const { data } = await agent.searchActors({ term: term })
-            setSearchUsersResult(data.actors)
+            const { data } = await agent.searchActors({
+                term: searchText,
+                cursor: cursor.current,
+            })
+
+            setSearchUsersResult((currentSearchResults) => {
+                if (currentSearchResults !== null) {
+                    const newSearchResults = [
+                        ...currentSearchResults,
+                        ...data.actors,
+                    ]
+
+                    return newSearchResults
+                } else {
+                    return [...data.actors]
+                }
+            })
+
+            if (data.cursor) {
+                cursor.current = data.cursor
+                setHasMore(true)
+            } else {
+                cursor.current = ""
+                setHasMore(false)
+            }
         } catch (e) {
+            setHasMore(false)
             console.error(e)
         } finally {
             setLoading(false)
         }
     }
 
-    const loadMore = async (page: any) => {
-        if (!agent) return
-        if (numOfResult === 0) return
-        if (loading) return
-        if (loading2) return
-        try {
-            setLoading2(true)
-            const res = await fetch(
-                `https://search.bsky.social/search/posts?q=${encodeURIComponent(
-                    searchText
-                )}&offset=${numOfResult}`
-            )
-            console.log(res)
-            const json = await res.json()
-            const outputArray = json.map(
-                (item: any) =>
-                    `at://${item.user.did as string}/${item.tid as string}`
-            )
-
-            if (outputArray.length === 0) return
-
-            const maxBatchSize = 25 // 1つのリクエストに許容される最大数
-            const batches = []
-            for (let i = 0; i < outputArray.length; i += maxBatchSize) {
-                const batch = outputArray.slice(i, i + maxBatchSize)
-                batches.push(batch)
-            }
-
-            const results = []
-            for (const batch of batches) {
-                const { data } = await agent?.getPosts({ uris: batch })
-                const { posts } = data
-                results.push(...posts)
-            }
-            //重複する投稿を削除
-            const diffTimeline = results.filter((newItem) => {
-                if (!searchPostsResult) {
-                    return true
-                }
-
-                return !searchPostsResult.some(
-                    (oldItem) => oldItem.uri === newItem.uri
-                )
-            })
-
-            if (searchPostsResult) {
-                setSearchPostsResult([...searchPostsResult, ...diffTimeline])
-            } else {
-                setSearchPostsResult([...diffTimeline])
-            }
-            setNumOfResult(json.length === 30 ? numOfResult + json.length : 0)
-
-            setLoading2(false)
-        } catch (e) {
-            setLoading2(false)
-            console.log(e)
-        }
+    const loadPostsMore = async (page: number) => {
+        await fetchSearchPostsResult()
     }
+
+    const loadUsersMore = async (page: number) => {
+        await fetchSearchUsersResult()
+    }
+
+    // const loadMore = async (page: any) => {
+    //     if (!agent) return
+    //     if (numOfResult.current === 0) return
+    //     if (loading) return
+
+    //     if (hasMore === false) {
+    //         return
+    //     }
+
+    //     try {
+    //         const res = await fetch(
+    //             `https://search.bsky.social/search/posts?q=${encodeURIComponent(
+    //                 searchText
+    //             )}&offset=${numOfResult}`
+    //         )
+    //         console.log(res)
+    //         const json = await res.json()
+    //         const outputArray = json.map(
+    //             (item: any) =>
+    //                 `at://${item.user.did as string}/${item.tid as string}`
+    //         )
+
+    //         if (outputArray.length === 0) {
+    //             throw new Error("No Search Results")
+    //         }
+
+    //         const maxBatchSize = 25 // 1つのリクエストに許容される最大数
+    //         const batches = []
+    //         for (let i = 0; i < outputArray.length; i += maxBatchSize) {
+    //             const batch = outputArray.slice(i, i + maxBatchSize)
+    //             batches.push(batch)
+    //         }
+
+    //         const results = []
+    //         for (const batch of batches) {
+    //             const { data } = await agent?.getPosts({ uris: batch })
+    //             const { posts } = data
+    //             results.push(...posts)
+    //         }
+    //         //重複する投稿を削除
+    //         const diffTimeline = results.filter((newItem) => {
+    //             if (!searchPostsResult) {
+    //                 return true
+    //             }
+
+    //             return !searchPostsResult.some(
+    //                 (oldItem) => oldItem.uri === newItem.uri
+    //             )
+    //         })
+
+    //         if (searchPostsResult) {
+    //             setSearchPostsResult([...searchPostsResult, ...diffTimeline])
+    //         } else {
+    //             setSearchPostsResult([...diffTimeline])
+    //         }
+
+    //         numOfResult.current =
+    //             json.length === 30 ? numOfResult + json.length : 0
+    //     } catch (e) {
+    //         console.log(e)
+    //     }
+    // }
 
     useEffect(() => {
         setSearchText(searchWord)
+
+        numOfResult.current = 0
+        cursor.current = ""
+        setSearchPostsResult(null)
+        setSearchUsersResult(null)
     }, [searchWord])
+
     useEffect(() => {
         setSearchTarget(target)
+
+        numOfResult.current = 0
+        cursor.current = ""
+        setSearchPostsResult(null)
+        setSearchUsersResult(null)
     }, [target])
 
     useEffect(() => {
-        console.log("Effect")
-        //console.log(searchText)
-        if (searchText === "" || !searchText) return
+        if (searchText === "" || !searchText) {
+            setLoading(false)
+            return
+        }
+
         switch (searchTarget) {
             case "posts":
-                fetchSearchResult(searchText)
+                setLoading(true)
+                setShouldScrollToTop(true)
+                fetchSearchPostsResult()
                 break
             case "users":
-                fetchSearchUsers(searchText)
+                setLoading(true)
+                setShouldScrollToTop(true)
+                fetchSearchUsersResult()
                 break
         }
     }, [agent, searchText, searchTarget])
@@ -203,9 +308,19 @@ export default function Root() {
     return (
         <>
             <InfiniteScroll
-                loadMore={loadMore}
-                hasMore={!loading2 && numOfResult !== 0}
-                threshold={300}
+                id="infinite-scroll"
+                initialLoad={false}
+                loadMore={target === "posts" ? loadPostsMore : loadUsersMore}
+                hasMore={hasMore}
+                loader={
+                    <div
+                        key="spinner-home"
+                        className="flex justify-center mt-2 mb-2"
+                    >
+                        <Spinner />
+                    </div>
+                }
+                threshold={700}
                 useWindow={false}
             >
                 {target === "posts" && searchText && (
@@ -233,9 +348,6 @@ export default function Root() {
                                     now={now}
                                 />
                             ))}
-                        {!loading && loading2 && (
-                            <Spinner className={"flex justify-center "} />
-                        )}
                     </>
                 )}
                 {target === "users" && searchText && (
