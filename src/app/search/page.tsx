@@ -326,6 +326,51 @@ export default function Root() {
                 threshold={700}
                 useWindow={false}
             >
+                {searchText === "" && (
+                    <div className={"w-full h-full text-white"}>
+                        <div className={"absolute bottom-[50px] w-full"}>
+                            他ユーザーを見つけよう
+                            <div
+                                className={
+                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center cursor-pointer"
+                                }
+                                onClick={() => {
+                                    router.push(
+                                        "/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese"
+                                    )
+                                }}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>Japanese Cluster</div>
+                                    <div>by @jaz.bsky.social</div>
+                                </div>
+                            </div>
+                            <div
+                                className={
+                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center"
+                                }
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>English Cluster</div>
+                                    <div>by @jaz.bsky.social</div>
+                                </div>
+                            </div>
+                            <div
+                                className={
+                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center"
+                                }
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>Korean Cluster</div>
+                                    <div>by @jaz.bsky.social</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {target === "posts" && searchText && (
                     <>
                         {(loading || !searchPostsResult) &&
