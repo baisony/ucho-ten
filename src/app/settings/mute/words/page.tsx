@@ -46,7 +46,7 @@ export default function Root() {
     const [newCategoryName, setNewCategoryName] = useState<string>("")
 
     function groupMuteWordsByCategory(muteWords: MuteWord[]) {
-        const categories = {}
+        const categories: { [key: string]: MuteWord[] } = {} // Type annotation added
 
         for (const muteWord of muteWords) {
             const category =
@@ -433,7 +433,7 @@ export default function Root() {
                                                             setSelectedMuteWord(
                                                                 categorizedMuteWords[
                                                                     category
-                                                                ][key]
+                                                                ][Number(key)]
                                                             )
                                                             onOpen()
                                                         }}
@@ -501,36 +501,32 @@ export default function Root() {
                         <TableColumn> </TableColumn>
                     </TableHeader>
                     <TableBody>
-                        {muteWords.map((muteWord, index) => {
-                            // muteWord.endがnullの場合のみTableRowを出力
-                            if (
-                                muteWord.end !== null &&
-                                muteWord.category === null
-                            ) {
-                                return (
-                                    <TableRow
-                                        key={index}
-                                        className={"cursor-pointer "}
-                                    >
-                                        <TableCell>{muteWord.word}</TableCell>
-                                        <TableCell>
-                                            <FontAwesomeIcon
-                                                icon={faChevronRight}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            }
-                            // 条件を満たさない場合はnullを返す
-                            return null
-                        })}
+                        {muteWords
+                            .filter(
+                                (muteWord) =>
+                                    muteWord.end !== null &&
+                                    muteWord.category === null
+                            )
+                            .map((muteWord, index) => (
+                                <TableRow
+                                    key={index}
+                                    className="cursor-pointer"
+                                >
+                                    <TableCell>{muteWord.word}</TableCell>
+                                    <TableCell>
+                                        <FontAwesomeIcon
+                                            icon={faChevronRight}
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                     </TableBody>
                 </Table>
                 <Table
                     removeWrapper
                     aria-label="Example static collection table"
                     onRowAction={(key) => {
-                        setSelectedMuteWord(muteWords[key])
+                        setSelectedMuteWord(muteWords[Number(key)])
                         onOpen()
                     }}
                     className={color}
@@ -540,29 +536,33 @@ export default function Root() {
                         <TableColumn> </TableColumn>
                     </TableHeader>
                     <TableBody>
-                        {muteWords.map((muteWord, index) => {
-                            // muteWord.endがnullの場合のみTableRowを出力
-                            if (
-                                muteWord.end === null &&
-                                muteWord.category === null
-                            ) {
-                                return (
-                                    <TableRow
-                                        key={index}
-                                        className={"cursor-pointer "}
-                                    >
-                                        <TableCell>{muteWord.word}</TableCell>
-                                        <TableCell>
-                                            <FontAwesomeIcon
-                                                icon={faChevronRight}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            }
-                            // 条件を満たさない場合はnullを返す
-                            return null
-                        })}
+                        {
+                            muteWords.map((muteWord, index) => {
+                                // muteWord.endがnullの場合のみTableRowを出力
+                                if (
+                                    muteWord.end === null &&
+                                    muteWord.category === null
+                                ) {
+                                    return (
+                                        <TableRow
+                                            key={index}
+                                            className={"cursor-pointer "}
+                                        >
+                                            <TableCell>
+                                                {muteWord.word}
+                                            </TableCell>
+                                            <TableCell>
+                                                <FontAwesomeIcon
+                                                    icon={faChevronRight}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                }
+                                // 条件を満たさない場合はnullを返す
+                                return null
+                            }) as JSX.Element[]
+                        }
                     </TableBody>
                 </Table>
                 <div

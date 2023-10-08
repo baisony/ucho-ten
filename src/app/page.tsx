@@ -309,8 +309,9 @@ export default function Root(props: any) {
                                         muteWord.isActive &&
                                         muteWord.targets.includes("timeline") &&
                                         (
-                                            post.post.record as PostView
-                                        )?.text?.includes(muteWord.word)
+                                            (post.post.record as PostView)
+                                                ?.text as string
+                                        )?.includes(muteWord.word)
                                     )
                                 })
                             if (!isMuted) {
