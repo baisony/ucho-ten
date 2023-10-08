@@ -5,9 +5,6 @@ import {
     Accordion,
     AccordionItem,
     Button,
-    Dropdown,
-    DropdownMenu,
-    DropdownTrigger,
     Modal,
     ModalBody,
     ModalContent,
@@ -86,6 +83,7 @@ export default function Root() {
         const json: MuteWord = {
             category: null,
             word: muteText,
+            selectPeriod: null,
             end: null,
             isActive: true,
             targets: ["timeline"],
@@ -157,6 +155,24 @@ export default function Root() {
                     : prevSelectedMuteWord.targets.filter(
                           (target) => target !== "notification"
                       ),
+            }
+        })
+    }
+
+    const handleTimePeriodChange = (value: number) => {
+        console.log(value)
+        const currentDate = new Date() // 現在の日付と時刻を取得
+        const later = new Date(
+            currentDate.getTime() + value * 24 * 60 * 60 * 1000
+        )
+        const timestamp = later.getTime()
+        console.log(timestamp)
+        setSelectedMuteWord((prevSelectedMuteWord) => {
+            if (!prevSelectedMuteWord) return
+            return {
+                ...prevSelectedMuteWord,
+                end: timestamp,
+                selectPeriod: value,
             }
         })
     }
@@ -275,29 +291,39 @@ export default function Root() {
                                     }
                                 >
                                     <div>period</div>
-                                    <Dropdown
-                                        className={`${modal({
-                                            color: color,
-                                        })}`}
+                                    <Select
+                                        size={"sm"}
+                                        className={"w-[200px]"}
+                                        defaultSelectedKeys={[
+                                            selectedMuteWord?.selectPeriod?.toString() ||
+                                                "",
+                                        ]}
+                                        onChange={(e) => {
+                                            if (e.target.value === "") return
+                                            handleTimePeriodChange(
+                                                Number(e.target.value)
+                                            )
+                                        }}
+                                        aria-label={"period"}
                                     >
-                                        <DropdownTrigger>
-                                            <Button>Select times</Button>
-                                        </DropdownTrigger>
-                                        <DropdownMenu>
-                                            <SelectItem key={"day"}>
+                                        <SelectSection>
+                                            <SelectItem key={""}>
+                                                forever
+                                            </SelectItem>
+                                            <SelectItem key={"1"}>
                                                 24 hours
                                             </SelectItem>
-                                            <SelectItem key={"week"}>
+                                            <SelectItem key={"7"}>
                                                 7 days
                                             </SelectItem>
-                                            <SelectItem key={"month"}>
-                                                1 month
+                                            <SelectItem key={"30"}>
+                                                a month
                                             </SelectItem>
-                                            <SelectItem key={"year"}>
-                                                1 year
+                                            <SelectItem key={"365"}>
+                                                a year
                                             </SelectItem>
-                                        </DropdownMenu>
-                                    </Dropdown>
+                                        </SelectSection>
+                                    </Select>
                                 </div>
                                 <div>Mute Category</div>
                                 <div
@@ -320,16 +346,21 @@ export default function Root() {
                                                 return
                                             handleCategoryChange(e.target.value)
                                         }}
+                                        aria-label={"category"}
                                     >
-                                        <SelectSection className={"bg-black"}>
-                                            {newCategoryName !== "" && (
-                                                <SelectItem
-                                                    value={newCategoryName}
-                                                    key={`${newCategoryName}`}
-                                                >
-                                                    {newCategoryName}
-                                                </SelectItem>
-                                            )}
+                                        {/*@ts-ignore*/}
+                                        <SelectSection>
+                                            {newCategoryName !== "" &&
+                                                !muteWordCategories.includes(
+                                                    newCategoryName
+                                                ) && (
+                                                    <SelectItem
+                                                        value={newCategoryName}
+                                                        key={`${newCategoryName}`}
+                                                    >
+                                                        {newCategoryName}
+                                                    </SelectItem>
+                                                )}
                                             {muteWordCategories.map(
                                                 (category) => (
                                                     <SelectItem
@@ -367,6 +398,7 @@ export default function Root() {
                                         "w-full h-[40px] cursor-pointer flex items-center justify-center bg-red-500 rounded-[10px] mt-[10px] text-white"
                                     }
                                     onClick={() => {
+                                        console.log(selectedMuteWord)
                                         setMuteWords(
                                             muteWords.filter(
                                                 (muteWord) =>
@@ -416,8 +448,10 @@ export default function Root() {
                         <TableRow key="1" className={"cursor-pointer"}>
                             <TableCell>
                                 <Accordion>
+                                    {/*@ts-ignore*/}
                                     {Object.keys(categorizedMuteWords).map(
                                         (category) => {
+                                            if (category === "null") return null
                                             return (
                                                 <AccordionItem
                                                     key={category}
@@ -442,6 +476,9 @@ export default function Root() {
                                                             <TableColumn>
                                                                 Forever Mute
                                                                 Words
+                                                            </TableColumn>
+                                                            <TableColumn>
+                                                                period
                                                             </TableColumn>
                                                             <TableColumn>
                                                                 {" "}
@@ -469,6 +506,21 @@ export default function Root() {
                                                                             }
                                                                         </TableCell>
                                                                         <TableCell>
+                                                                            {muteWord?.end && (
+                                                                                <>
+                                                                                    {new Date(
+                                                                                        muteWord.end
+                                                                                    ).toLocaleDateString()}
+                                                                                    {
+                                                                                        " - "
+                                                                                    }
+                                                                                    {new Date(
+                                                                                        muteWord.end
+                                                                                    ).toLocaleTimeString()}
+                                                                                </>
+                                                                            )}
+                                                                        </TableCell>
+                                                                        <TableCell>
                                                                             <FontAwesomeIcon
                                                                                 icon={
                                                                                     faChevronRight
@@ -492,7 +544,10 @@ export default function Root() {
                 <Table
                     removeWrapper
                     aria-label="Example static collection table"
-                    onRowAction={(key) => onOpen()}
+                    onRowAction={(key) => {
+                        setSelectedMuteWord(muteWords[Number(key)])
+                        onOpen()
+                    }}
                     className={color}
                 >
                     <TableHeader>
@@ -513,6 +568,21 @@ export default function Root() {
                                     className="cursor-pointer"
                                 >
                                     <TableCell>{muteWord.word}</TableCell>
+                                    <TableCell>
+                                        {muteWord.end !== null ? (
+                                            <>
+                                                {new Date(
+                                                    muteWord.end
+                                                ).toLocaleDateString()}{" "}
+                                                -{" "}
+                                                {new Date(
+                                                    muteWord.end
+                                                ).toLocaleTimeString()}
+                                            </>
+                                        ) : (
+                                            "N/A" // Handle the case where muteWord.end is null
+                                        )}
+                                    </TableCell>
                                     <TableCell>
                                         <FontAwesomeIcon
                                             icon={faChevronRight}
