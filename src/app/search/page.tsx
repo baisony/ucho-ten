@@ -317,7 +317,7 @@ export default function Root() {
                 hasMore={hasMore}
                 loader={
                     <div
-                        key="spinner-home"
+                        key="spinner-search"
                         className="flex justify-center mt-2 mb-2"
                     >
                         <Spinner />
