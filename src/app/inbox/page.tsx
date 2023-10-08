@@ -1,6 +1,6 @@
 "use client"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
@@ -12,14 +12,15 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 export default function Root() {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
-    const [loading, setLoading] = useState(false)
-    const [loading2, setLoading2] = useState(false)
+
+    const [loading, setLoading] = useState(true)
     const [notification, setNotification] = useState<PostView[] | null>(null)
-    const [list, setList] = useState([]) //表示するデータ
-    const [hasMore, setHasMore] = useState(true) //再読み込み判定
-    const [cursor, setCursor] = useState<string>("")
+    const [hasMore, setHasMore] = useState(false)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
+
+    const cursor = useRef<string>("")
+
     const color = darkMode ? "dark" : "light"
 
     useEffect(() => {
@@ -32,71 +33,117 @@ export default function Root() {
         }
     }, [])
 
-    const fetchNotification = async () => {
+    const fetchNotification = async (loadingFlag: boolean = true) => {
         try {
             if (!agent) return
-            setLoading(true)
-            const { data } = await agent.listNotifications()
+
+            setLoading(loadingFlag)
+
+            const { data } = await agent.listNotifications({
+                cursor: cursor.current,
+            })
+            let notificationHasMore = false
+            let notificationsLength = 0
+
             if (data) {
                 if (data.cursor) {
-                    setCursor(data.cursor)
+                    cursor.current = data.cursor
+                    notificationHasMore = true
                 }
+
+                console.log("notifications", data.notifications)
+
                 const replyNotifications = data.notifications.filter(
                     (notification) =>
                         notification.reason === "reply" ||
                         notification.reason === "mention"
                 )
+
                 const hoge = await agent.getPosts({
                     uris: replyNotifications.map(
                         (notification: any) => notification.uri
                     ),
                 })
-                setNotification(hoge.data.posts)
+
+                console.log("replyNotifications", replyNotifications)
+
+                setNotification((currentNotifications) => {
+                    if (currentNotifications !== null) {
+                        const notifications = [
+                            ...currentNotifications,
+                            ...hoge.data.posts,
+                        ]
+                        notificationsLength = notifications.length
+
+                        return notifications
+                    } else {
+                        notificationsLength = hoge.data.posts.length
+                        return [...hoge.data.posts]
+                    }
+                })
             } else {
+                setNotification([])
                 // もしresがundefinedだった場合の処理
                 console.log("Responseがundefinedです。")
             }
+
             setLoading(false)
+
+            if (notificationHasMore && notificationsLength < 15) {
+                await fetchNotification(false)
+            } else {
+                setHasMore(notificationHasMore)
+            }
+
             console.log(notification)
         } catch (e) {
             setLoading(false)
-            console.log(e)
-        }
-    }
-    const loadMore = async (page: any) => {
-        if (!agent) return
-        if (cursor === "") return
-        try {
-            setLoading2(true)
-            const { data } = await agent.listNotifications({ cursor: cursor })
-            const { notifications } = data
-            console.log(data.cursor)
-            if (data.cursor) {
-                setCursor(data.cursor)
-            }
-            const replyNotifications = notifications.filter(
-                (notification) =>
-                    notification.reason === "reply" ||
-                    notification.reason === "mention"
-            )
-            const hoge = await agent.getPosts({
-                uris: replyNotifications.map(
-                    (notification: any) => notification.uri
-                ),
-            })
 
-            //取得データをリストに追加
-            if (notification) {
-                setNotification([...notification, ...hoge.data.posts])
-            } else {
-                setNotification([...hoge.data.posts])
-            }
-            setLoading2(false)
-        } catch (e) {
-            setLoading2(false)
             console.log(e)
         }
     }
+
+    const loadMore = async (page: number) => {
+        await fetchNotification(false)
+    }
+
+    // const loadMore = async (page: any) => {
+    //     if (!agent) return
+    //     if (cursor.current === "") return
+
+    //     try {
+    //         const { data } = await agent.listNotifications({ cursor: cursor.current })
+    //         const { notifications } = data
+
+    //         console.log("notifications", notifications)
+
+    //         console.log(data.cursor)
+    //         if (data.cursor) {
+    //             cursor.current = data.cursor
+    //         }
+    //         const replyNotifications = notifications.filter(
+    //             (notification) =>
+    //                 notification.reason === "reply" ||
+    //                 notification.reason === "mention"
+    //         )
+    //         const hoge = await agent.getPosts({
+    //             uris: replyNotifications.map(
+    //                 (notification: any) => notification.uri
+    //             ),
+    //         })
+
+    //         //取得データをリストに追加
+    //         setNotification((currentNotifications) => {
+    //             if (currentNotifications !== null) {
+    //                 return [...currentNotifications, ...hoge.data.posts]
+    //             } else {
+    //                 return [...hoge.data.posts]
+    //             }
+    //         })
+    //     } catch (e) {
+    //         console.log(e)
+    //     }
+    // }
 
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
@@ -119,16 +166,24 @@ export default function Root() {
 
     useEffect(() => {
         if (!agent) return
-        console.log("Effect")
+
         fetchNotification()
     }, [agent])
 
     return (
         <>
             <InfiniteScroll
-                loadMore={loadMore} //項目を読み込む際に処理するコールバック関数
-                hasMore={loading2} //読み込みを行うかどうかの判定
-                loader={<Spinner key="spinner-inbox" />}
+                initialLoad={false}
+                loadMore={loadMore}
+                hasMore={hasMore}
+                loader={
+                    <div
+                        key="spinner-inbox"
+                        className="flex justify-center mt-2 mb-2"
+                    >
+                        <Spinner />
+                    </div>
+                }
                 threshold={700}
                 useWindow={false}
             >
@@ -144,7 +199,7 @@ export default function Root() {
                         />
                     ))}
                 {!loading &&
-                    notification &&
+                    notification !== null &&
                     notification.map((post, index) => (
                         <ViewPostCard
                             key={post.uri}
