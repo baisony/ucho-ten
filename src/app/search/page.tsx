@@ -329,7 +329,7 @@ export default function Root() {
                 {searchText === "" && (
                     <div className={"w-full h-full text-white"}>
                         <div className={"absolute bottom-[50px] w-full"}>
-                            他ユーザーを見つけよう
+                            自分らしく、探そう。
                             <div
                                 className={
                                     "h-[80px] w-full bg-[#2C2C2C] flex items-center cursor-pointer"
@@ -348,13 +348,18 @@ export default function Root() {
                             </div>
                             <div
                                 className={
-                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center"
+                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center cursor-pointer"
                                 }
+                                onClick={() => {
+                                    router.push(
+                                        "/search?word=フィード%20bsky.app&target=posts"
+                                    )
+                                }}
                             >
                                 <div className={"h-[50px] w-[50px]"}></div>
                                 <div>
-                                    <div>English Cluster</div>
-                                    <div>by @jaz.bsky.social</div>
+                                    <div>日本語フィードを探す</div>
+                                    <div>by @Ucho-ten</div>
                                 </div>
                             </div>
                             <div
@@ -364,8 +369,8 @@ export default function Root() {
                             >
                                 <div className={"h-[50px] w-[50px]"}></div>
                                 <div>
-                                    <div>Korean Cluster</div>
-                                    <div>by @jaz.bsky.social</div>
+                                    <div>test</div>
+                                    <div>by @Ucho-ten</div>
                                 </div>
                             </div>
                         </div>
