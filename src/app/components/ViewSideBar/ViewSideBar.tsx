@@ -1,39 +1,36 @@
-import React, { useState, useRef, useCallback } from "react"
+import React, { useEffect, useState } from "react"
 import { viewSideBar } from "./styles"
-import { BrowserView, MobileView, isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import {
     faBookmark,
-    faVolumeXmark,
+    faCircleCheck,
+    faCircleQuestion,
+    faFlag,
+    faGear,
+    faHand,
+    faRightFromBracket,
     faRss,
     faUser,
-    faHand,
-    faGear,
-    faFlag,
-    faCircleQuestion,
     faUsers,
-    faRightFromBracket,
+    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
-import data from "@emoji-mart/data"
-import Picker from "@emoji-mart/react"
-import { Button, Link } from "@nextui-org/react"
-
 import {
+    Button,
     Modal,
-    ModalContent,
-    ModalHeader,
     ModalBody,
+    ModalContent,
     ModalFooter,
+    ModalHeader,
+    Spinner,
     useDisclosure,
 } from "@nextui-org/react"
-
-import Textarea from "react-textarea-autosize" // 追加
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
+import { useAccounts, UserAccount } from "@/app/_atoms/accounts"
+import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { BskyAgent } from "@atproto/api"
 
 interface Props {
     className?: string
@@ -45,6 +42,7 @@ interface Props {
     isSideBarOpen?: boolean
     setSideBarOpen?: any
 }
+
 export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const {
         className,
@@ -58,8 +56,18 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const reg =
         /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
     const router = useRouter()
+    const [accounts] = useAccounts()
+    const userList = Object.entries(accounts).map(([key, value]) => ({
+        key,
+        value,
+    }))
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [loading, setLoading] = useState(false)
+    const [openModalReason, setOpenModalReason] = useState<
+        "switching" | "logout" | ""
+    >("")
+    const [categorization, setCategorization] = useState([])
+    const [isSwitching, setIsSwitching] = useState(false)
     const {
         background,
         AuthorIconContainer,
@@ -72,7 +80,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         bg,
         modal,
     } = viewSideBar()
-    const [agent] = useAgent()
+    const [agent, setAgent] = useAgent()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
     const handleDeleteSession = () => {
@@ -80,7 +88,110 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         localStorage.removeItem("session")
         router.push("/login")
     }
+    useEffect(() => {
+        console.log(userList)
+        const serviceData: { [key: string]: any[] } = {}
 
+        userList.forEach((item) => {
+            const service = item.value.service
+
+            if (service !== undefined) {
+                if (!serviceData[service]) {
+                    serviceData[service] = []
+                }
+
+                serviceData[service].push(item.value)
+            }
+        })
+
+        console.log(serviceData)
+        setCategorization(serviceData)
+        Object.entries(serviceData).forEach(([key, value]) => {
+            console.log(key, value)
+        })
+    }, [accounts])
+
+    const AccountComponent = () => {
+        return (
+            <>
+                {Object.entries(categorization).map(([key, value]) => (
+                    <div key={key} className={"select-none"}>
+                        {key}
+                        {value.map((item: UserAccount) => (
+                            <div
+                                key={item.profile.did}
+                                className={
+                                    "justify-between flex items-center w-full cursor-pointer"
+                                }
+                                onClick={async () => {
+                                    if (
+                                        item.session.did === agent?.session?.did
+                                    )
+                                        return
+                                    try {
+                                        setIsSwitching(true)
+                                        const { session } = item
+                                        const agent = new BskyAgent({
+                                            service: `https://${key}`,
+                                        })
+                                        const res =
+                                            await agent.resumeSession(session)
+                                        setAgent(agent)
+                                        const json = {
+                                            server: key,
+                                            session: session,
+                                        }
+                                        localStorage.setItem(
+                                            "session",
+                                            JSON.stringify(json)
+                                        )
+                                        //router.push("/")
+                                        setIsSwitching(false)
+                                        window.location.reload()
+                                    } catch (e) {
+                                        console.log(e)
+                                    }
+                                }}
+                            >
+                                <div className={"flex items-center mb-[10px]"}>
+                                    <div className={"w-[50px] h-[50px]"}>
+                                        {item.profile?.avatar ? (
+                                            <img
+                                                src={item.profile.avatar}
+                                                className={"h-full w-full"}
+                                            />
+                                        ) : (
+                                            <FontAwesomeIcon
+                                                icon={faUser}
+                                                className={"h-full w-full"}
+                                            />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <div>{item.profile.displayName}</div>
+                                        <div>@{item.profile.handle}</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    {agent?.session?.did ===
+                                    item.profile.did ? (
+                                        <div>
+                                            <FontAwesomeIcon
+                                                icon={faCircleCheck}
+                                                className={"text-[#00D315]"}
+                                            />
+                                        </div>
+                                    ) : (
+                                        isSwitching && <Spinner />
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </>
+        )
+    }
     return (
         <>
             <Modal
@@ -91,28 +202,59 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader>
-                                Would you like to log out?
-                            </ModalHeader>
-                            <ModalFooter>
-                                <Button
-                                    color="danger"
-                                    variant="light"
-                                    onClick={onClose}
-                                >
-                                    No
-                                </Button>
-                                <Button
-                                    color="primary"
-                                    onClick={() => {
-                                        handleDeleteSession()
-                                        onClose()
-                                        props.setSideBarOpen(false)
-                                    }}
-                                >
-                                    Yes
-                                </Button>
-                            </ModalFooter>
+                            {openModalReason === "switching" ? (
+                                <>
+                                    <ModalHeader>
+                                        Would you like to switching Account?
+                                    </ModalHeader>
+                                    <ModalBody>{AccountComponent()}</ModalBody>
+                                    <ModalFooter>
+                                        <Button
+                                            color="danger"
+                                            variant="light"
+                                            onClick={onClose}
+                                        >
+                                            No
+                                        </Button>
+                                        <Button
+                                            color="primary"
+                                            onClick={() => {
+                                                onClose()
+                                                props.setSideBarOpen(false)
+                                            }}
+                                        >
+                                            Yes
+                                        </Button>
+                                    </ModalFooter>
+                                </>
+                            ) : (
+                                openModalReason === "logout" && (
+                                    <>
+                                        <ModalHeader>
+                                            Would you like to log out?
+                                        </ModalHeader>
+                                        <ModalFooter>
+                                            <Button
+                                                color="danger"
+                                                variant="light"
+                                                onClick={onClose}
+                                            >
+                                                No
+                                            </Button>
+                                            <Button
+                                                color="primary"
+                                                onClick={() => {
+                                                    handleDeleteSession()
+                                                    onClose()
+                                                    props.setSideBarOpen(false)
+                                                }}
+                                            >
+                                                Yes
+                                            </Button>
+                                        </ModalFooter>
+                                    </>
+                                )
+                            )}
                         </>
                     )}
                 </ModalContent>
@@ -136,13 +278,29 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             router.push(`/profile/${agent.session.did}`)
                         }}
                     >
-                        <img
-                            className={"h-[64px] w-[64px] rounded-[10px]"}
-                            src={userProfileDetailed?.avatar}
-                        />
+                        <div
+                            className={
+                                "h-[64px] w-[64px] rounded-[10px] overflow-hidden"
+                            }
+                        >
+                            {userProfileDetailed?.avatar ? (
+                                <img
+                                    className={
+                                        "h-[64px] w-[64px] rounded-[10px]"
+                                    }
+                                    src={userProfileDetailed?.avatar}
+                                />
+                            ) : (
+                                <FontAwesomeIcon
+                                    icon={faUser}
+                                    className={"h-full w-full"}
+                                />
+                            )}
+                        </div>
                         <div className={"ml-[12px]"}>
                             <div className={AuthorDisplayName()}>
-                                {userProfileDetailed?.displayName}
+                                {userProfileDetailed?.displayName ||
+                                    userProfileDetailed?.handle}
                             </div>
                             <div className={AuthorHandle({ color: color })}>
                                 @{userProfileDetailed?.handle}
@@ -263,7 +421,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             className={NavBarItem()}
                             onClick={() => {
                                 props.setSideBarOpen(false)
-                                router.push("/settings")
+                                setOpenModalReason("switching")
+                                onOpen()
+                                //router.push("/settings")
                             }}
                         >
                             <FontAwesomeIcon
@@ -285,6 +445,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         router.push("/login")
                                     }
                                 } else {
+                                    setOpenModalReason("logout")
                                     onOpen()
                                 }
                             }}
@@ -302,4 +463,18 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     )
 }
 
-export default ViewSideBar
+interface UserProps {
+    actor: ProfileView
+    onClick: () => void
+    skeleton?: boolean
+    index?: number
+    color: string
+}
+
+const UserComponent = ({
+    actor,
+    onClick,
+    skeleton,
+    index,
+    color,
+}: UserProps) => {}

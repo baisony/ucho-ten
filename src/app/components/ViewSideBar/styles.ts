@@ -22,7 +22,7 @@ export const viewSideBar = tv({
         color: {
             light: {
                 footer: "bg-[#DADADA]",
-                AuthorHandle: "text-[#767676]",
+                AuthorHandle: "text-white",
                 modal: "light text-black",
             },
             dark: {

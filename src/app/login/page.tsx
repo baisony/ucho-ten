@@ -132,7 +132,7 @@ export default function CreateLoginPage() {
                 const storedData = localStorage.getItem("session")
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
-                    await agent.resumeSession(session)
+                    console.log(await agent.resumeSession(session))
 
                     if (toRedirect) {
                         const url = `/${toRedirect}${
