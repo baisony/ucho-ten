@@ -66,7 +66,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const [openModalReason, setOpenModalReason] = useState<
         "switching" | "logout" | ""
     >("")
-    const [categorization, setCategorization] = useState([])
+    const [categorization, setCategorization] = useState<{
+        [key: string]: UserAccount[]
+    }>({})
     const [isSwitching, setIsSwitching] = useState(false)
     const {
         background,
@@ -93,7 +95,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         const serviceData: { [key: string]: any[] } = {}
 
         userList.forEach((item) => {
-            const service = item.value.service
+            const service: string = item.value.service as any
 
             if (service !== undefined) {
                 if (!serviceData[service]) {
