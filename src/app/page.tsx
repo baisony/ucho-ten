@@ -2,7 +2,7 @@
 
 // import { TabBar } from "@/app/components/TabBar"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
@@ -21,17 +21,18 @@ export default function Root(props: any) {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords] = useWordMutes()
+
     const [loading, setLoading] = useState(false)
     //const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
     const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
 
-    const newCursor = useRef<string>("")
+    const currentFeed = useRef<string>("")
+    // const newCursor = useRef<string>("")
     const cursor = useRef<string>("")
 
     const color = darkMode ? "dark" : "light"
@@ -81,29 +82,19 @@ export default function Root(props: any) {
     }, [])
 
     const handleRefresh = () => {
-        const diffTimeline = newTimeline.filter((newItem) => {
-            if (!timeline) {
-                return true
-            }
-
-            return !timeline.some(
-                (oldItem) => oldItem.post.uri === newItem.post.uri
-            )
-        })
-
         setTimeline((currentTimeline) => {
             if (currentTimeline !== null) {
-                const newTimeline = [...diffTimeline, ...currentTimeline]
+                const timeline = [...newTimeline, ...currentTimeline]
 
-                return newTimeline
+                return timeline
             } else {
-                return [...diffTimeline]
+                return [...newTimeline]
             }
         })
 
         // cursor.current = newCursor.current
 
-        setAvailableNewTimeline(false)
+        setNewTimeline([])
         setShouldScrollToTop(true)
     }
 
@@ -112,9 +103,9 @@ export default function Root(props: any) {
         const filteredData = timeline.filter((item) => {
             const uri = item.post.uri
 
-            if (item.post.embed) {
-                console.log(item.post.embed)
-            }
+            // if (item.post.embed) {
+            //     console.log(item.post.embed)
+            // }
 
             if (item.reply) {
                 if (item.reason) return true
@@ -150,6 +141,11 @@ export default function Root(props: any) {
             return
         }
 
+        if (currentFeed.current !== selectedFeed) {
+            currentFeed.current = selectedFeed
+            cursor.current = ""
+        }
+
         try {
             setLoading(loadingFlag)
 
@@ -172,6 +168,10 @@ export default function Root(props: any) {
             if (response.data) {
                 const { feed } = response.data
                 const filteredData = formattingTimeline(feed)
+
+                if (currentFeed.current !== selectedFeed) {
+                    return
+                }
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
@@ -279,7 +279,9 @@ export default function Root(props: any) {
     // )
 
     const checkNewTimeline = async () => {
-        if (!agent) return
+        if (!agent) {
+            return
+        }
 
         try {
             let response: AppBskyFeedGetTimeline.Response
@@ -293,16 +295,20 @@ export default function Root(props: any) {
                 })
             }
 
+            if (currentFeed.current !== selectedFeed) {
+                return
+            }
+
             if (response.data) {
                 const { feed } = response.data
                 const filteredData = formattingTimeline(feed)
 
                 if (
                     response.data.cursor &&
-                    response.data.cursor !== cursor.current &&
-                    response.data.cursor !== newCursor.current
+                    response.data.cursor !== cursor.current
+                    //&& response.data.cursor !== newCursor.current
                 ) {
-                    newCursor.current = response.data.cursor
+                    // newCursor.current = response.data.cursor
 
                     const diffTimeline = filteredData.filter((newItem) => {
                         if (!timeline) {
@@ -315,22 +321,28 @@ export default function Root(props: any) {
                     })
 
                     setNewTimeline(diffTimeline)
-
-                    if (diffTimeline.length > 0) {
-                        setAvailableNewTimeline(true)
-                    }
                 }
             }
         } catch (e) {}
     }
 
     useEffect(() => {
-        if (!agent) return
+        cursor.current = ""
+        setLoading(true)
+        setTimeline(null)
+        setShouldScrollToTop(true)
+
+        setNewTimeline([])
+
+        if (!agent) {
+            return
+        }
 
         fetchTimeline()
     }, [agent, selectedFeed])
 
     useEffect(() => {
+        console.log("here")
         const interval = setInterval(() => {
             checkNewTimeline()
         }, 15000)
@@ -338,11 +350,11 @@ export default function Root(props: any) {
         return () => {
             clearInterval(interval)
         }
-    }, [agent, cursor.current, selectedFeed])
+    }, [agent, selectedFeed])
 
     return (
         <>
-            {availavleNewTimeline && (
+            {newTimeline.length > 0 && (
                 <div
                     className={
                         " absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
@@ -420,6 +432,7 @@ export default function Root(props: any) {
                                         postJson={post.post}
                                         json={post}
                                         isMobile={isMobile}
+                                        now={now}
                                     />
                                 )
                             }
