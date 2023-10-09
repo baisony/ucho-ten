@@ -17,12 +17,11 @@ import { layout } from "@/app/search/styles"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const { searchSupportCard } = layout()
     const router = useRouter()
     const searchParams = useSearchParams()
-
     const searchWord = searchParams.get("word") || ""
     const target = searchParams.get("target") || "posts"
-
     const [loading, setLoading] = useState(false)
     const [hasMore, setHasMore] = useState(false)
     const [searchPostsResult, setSearchPostsResult] = useState<
@@ -326,6 +325,50 @@ export default function Root() {
                 threshold={700}
                 useWindow={false}
             >
+                {searchText === "" && (
+                    <div className={"w-full h-full text-white"}>
+                        <div className={"absolute bottom-[50px] w-full"}>
+                            自分らしく、探そう。
+                            <div
+                                className={searchSupportCard({ color: color })}
+                                onClick={() => {
+                                    router.push(
+                                        "/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese"
+                                    )
+                                }}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>Japanese Cluster</div>
+                                    <div>by @jaz.bsky.social</div>
+                                </div>
+                            </div>
+                            <div
+                                className={searchSupportCard({ color: color })}
+                                onClick={() => {
+                                    router.push(
+                                        "/search?word=フィード%20bsky.app&target=posts"
+                                    )
+                                }}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>日本語フィードを探す</div>
+                                    <div>by @Ucho-ten</div>
+                                </div>
+                            </div>
+                            <div
+                                className={searchSupportCard({ color: color })}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>test</div>
+                                    <div>by @Ucho-ten</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {target === "posts" && searchText && (
                     <>
                         {(loading || !searchPostsResult) &&
