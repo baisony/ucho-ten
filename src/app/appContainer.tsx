@@ -1,6 +1,6 @@
 "use client"
 import { ViewHeader } from "@/app/components/ViewHeader"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { layout } from "@/app/styles"
 import { TabBar } from "@/app/components/TabBar"
 import { isMobile } from "react-device-detect"
@@ -17,11 +17,11 @@ import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "./_atoms/preferences"
 import { useImageGalleryAtom } from "./_atoms/imageGallery"
 import Lightbox, {
+    CaptionsRef,
     Slide,
     ZoomRef,
-    CaptionsRef,
 } from "yet-another-react-lightbox"
-import { Zoom, Captions, Counter } from "yet-another-react-lightbox/plugins"
+import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
 import "yet-another-react-lightbox/styles.css"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import "yet-another-react-lightbox/plugins/captions.css"
@@ -289,34 +289,58 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 </div>
             </main>
             {imageSlides && imageSlideIndex !== null && (
-                <Lightbox
-                    open={true}
-                    index={imageSlideIndex}
-                    plugins={[Zoom, Captions, Counter]}
-                    zoom={{
-                        ref: zoomRef,
-                        scrollToZoom: true,
+                <div
+                    onClick={(e) => {
+                        const clickedElement = e.target as HTMLDivElement
+
+                        console.log(e.target)
+                        if (
+                            clickedElement.classList.contains(
+                                "yarl__fullsize"
+                            ) ||
+                            clickedElement.classList.contains(
+                                "yarl__flex_center"
+                            )
+                        ) {
+                            setImageGallery(null)
+                            setImageSlides(null)
+                            setImageSlideIndex(null)
+                        }
                     }}
-                    captions={{
-                        ref: captionsRef,
-                        showToggle: true,
-                        descriptionMaxLines: 2,
-                        descriptionTextAlign: "start",
-                    }}
-                    close={() => {
-                        setImageGallery(null)
-                        setImageSlides(null)
-                        setImageSlideIndex(null)
-                    }}
-                    slides={imageSlides}
-                    carousel={{ finite: imageSlides.length <= 1 }}
-                    render={{
-                        buttonPrev:
-                            imageSlides.length <= 1 ? () => null : undefined,
-                        buttonNext:
-                            imageSlides.length <= 1 ? () => null : undefined,
-                    }}
-                />
+                >
+                    <Lightbox
+                        open={true}
+                        index={imageSlideIndex}
+                        plugins={[Zoom, Captions, Counter]}
+                        zoom={{
+                            ref: zoomRef,
+                            scrollToZoom: true,
+                        }}
+                        captions={{
+                            ref: captionsRef,
+                            showToggle: true,
+                            descriptionMaxLines: 2,
+                            descriptionTextAlign: "start",
+                        }}
+                        close={() => {
+                            setImageGallery(null)
+                            setImageSlides(null)
+                            setImageSlideIndex(null)
+                        }}
+                        slides={imageSlides}
+                        carousel={{ finite: imageSlides.length <= 5 }}
+                        render={{
+                            buttonPrev:
+                                imageSlides.length <= 1
+                                    ? () => null
+                                    : undefined,
+                            buttonNext:
+                                imageSlides.length <= 1
+                                    ? () => null
+                                    : undefined,
+                        }}
+                    />
+                </div>
             )}
         </>
     )
