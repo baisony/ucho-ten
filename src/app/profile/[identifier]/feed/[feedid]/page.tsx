@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
@@ -12,30 +11,15 @@ import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
     faHeart as faSolidHeart,
-    faCheckCircle,
-    faCircleQuestion,
-    faCircleXmark,
-    faHashtag,
-    faLink,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
 import {
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownSection,
-    DropdownItem,
     Button,
-    Image,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
     Spinner,
-    Input,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-    useDisclosure,
-    Link,
-    Chip,
-    Tooltip,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
@@ -74,7 +58,7 @@ export default function Root() {
     // const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    // const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
+    const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [userPreference, setUserPreference] = useState<any>(null)
@@ -278,6 +262,37 @@ export default function Root() {
     //     } catch (e) {}
     // }
 
+    const handlePinnedClick = async () => {
+        if (!agent) return
+        if (!feedInfo) return
+        try {
+            if (isPinned) {
+                const res = await agent.removePinnedFeed(feedInfo.view.uri)
+                setIsPinned(false)
+            } else if (!isPinned) {
+                const res = await agent.addPinnedFeed(feedInfo.view.uri)
+                setIsPinned(true)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    const handleSubscribeClick = async () => {
+        if (!agent) return
+        if (!feedInfo) return
+        try {
+            if (isSubscribed) {
+                const res = await agent.removeSavedFeed(feedInfo.view.uri)
+                setIsSubscribed(false)
+            } else if (!isSubscribed) {
+                const res = await agent.addSavedFeed(feedInfo.view.uri)
+                setIsSubscribed(true)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     return (
         <InfiniteScroll
             initialLoad={false}
@@ -300,6 +315,7 @@ export default function Root() {
                     color={color}
                     isSubscribed={isSubscribed}
                     isPinned={isPinned}
+                    onClick={handleSubscribeClick}
                 />
             )}
             {(loading || !agent || !timeline) &&
@@ -336,6 +352,7 @@ interface FeedProps {
     color: "light" | "dark"
     isSubscribed: boolean
     isPinned: boolean
+    onClick?: () => void
 }
 
 const FeedHeaderComponent = ({
@@ -343,6 +360,7 @@ const FeedHeaderComponent = ({
     color,
     isSubscribed,
     isPinned,
+    onClick,
 }: FeedProps) => {
     const [onHoverButton, setOnHoverButton] = useState(false)
 
@@ -422,8 +440,13 @@ const FeedHeaderComponent = ({
                         onMouseEnter={() => {
                             setOnHoverButton(true)
                         }}
+                        onClick={onClick}
                     >
-                        {isSubscribed ? "UnSubscribe" : "Subscribe"}
+                        {isSubscribed
+                            ? !onHoverButton
+                                ? "Subscribed"
+                                : "UnSubscribe"
+                            : "Subscribe"}
                     </Button>
                 </div>
                 <div className={ProfileDisplayName({ color: color })}>
