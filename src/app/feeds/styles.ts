@@ -3,7 +3,7 @@ import { tv } from "@nextui-org/react"
 export const layout = tv({
     slots: {
         FeedCard:
-            "flex items-center w-full h-[80px] justify-between select-none",
+            "flex items-center w-full h-[80px] justify-between select-none cursor-pointer",
     },
     variants: {
         color: {

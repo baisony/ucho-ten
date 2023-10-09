@@ -12,9 +12,12 @@ import {
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { layout } from "./styles"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { AtUri } from "@atproto/api"
+import { useRouter } from "next/navigation"
 
 export default function Root() {
     const [agent] = useAgent()
+    const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
     const { FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
@@ -68,9 +71,18 @@ export default function Root() {
             {/*@ts-ignore*/}
             {savedFeeds.map((feed: GeneratorView, index) => {
                 return (
-                    <div className={FeedCard({ color: color })} key={index}>
+                    <div
+                        className={FeedCard({ color: color })}
+                        key={index}
+                        onClick={() => {
+                            const uri = new AtUri(feed.uri)
+                            router.push(
+                                `/profile/${uri.hostname}/feed/${uri.rkey}`
+                            )
+                        }}
+                    >
                         <div className={"flex items-center ml-[12px]"}>
-                            <div>
+                            <div className={"hidden"}>
                                 <FontAwesomeIcon
                                     icon={faBars}
                                     className={"text-gray-400"}
