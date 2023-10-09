@@ -317,7 +317,7 @@ export default function Root() {
                 hasMore={hasMore}
                 loader={
                     <div
-                        key="spinner-home"
+                        key="spinner-search"
                         className="flex justify-center mt-2 mb-2"
                     >
                         <Spinner />
@@ -357,7 +357,7 @@ export default function Root() {
                     <>
                         {(loading || !searchUsersResult) &&
                             Array.from({ length: 15 }, (_, index) => {
-                                return userComponent({
+                                return UserComponent({
                                     actor: {
                                         did: "",
                                         displayName: "",
@@ -374,7 +374,7 @@ export default function Root() {
                             searchUsersResult &&
                             searchUsersResult.map(
                                 (actor: ProfileView, index) => {
-                                    return userComponent({
+                                    return UserComponent({
                                         actor,
                                         onClick: () => {
                                             router.push(`/profile/${actor.did}`)
@@ -390,7 +390,7 @@ export default function Root() {
     )
 }
 
-interface userProps {
+interface UserProps {
     actor: ProfileView
     onClick: () => void
     skeleton?: boolean
@@ -398,13 +398,13 @@ interface userProps {
     color: string
 }
 
-const userComponent = ({
+const UserComponent = ({
     actor,
     onClick,
     skeleton,
     index,
     color,
-}: userProps) => {
+}: UserProps) => {
     const { userCard } = layout()
 
     return (
