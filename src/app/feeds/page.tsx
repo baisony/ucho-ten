@@ -114,7 +114,8 @@ export default function Root() {
                                             ? `text-[#016EFF]`
                                             : `text-[#929292]`
                                     }`}
-                                    onClick={async () => {
+                                    onClick={async (e) => {
+                                        e.stopPropagation()
                                         if (
                                             userPreferences.pinned.includes(
                                                 feed.uri
