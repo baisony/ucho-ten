@@ -167,7 +167,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             className={NavBarItem()}
                             onClick={() => {
                                 props.setSideBarOpen(false)
-                                router.push("/settings")
+                                router.push("/settings#mute")
                             }}
                         >
                             <FontAwesomeIcon
@@ -207,7 +207,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             className={NavBarItem()}
                             onClick={() => {
                                 props.setSideBarOpen(false)
-                                router.push("/settings")
+                                router.push("/settings#filtering")
                             }}
                         >
                             <FontAwesomeIcon

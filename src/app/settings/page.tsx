@@ -1,18 +1,14 @@
 "use client"
-import { isMobile } from "react-device-detect"
-
 import {
     Accordion,
     AccordionItem,
     Button,
     ButtonGroup,
-    Switch,
     Select,
     SelectItem,
-    Spinner,
+    Switch,
 } from "@nextui-org/react"
-import { useCallback, useEffect, useState } from "react"
-import { viewProfilePage } from "@/app/profile/[identifier]/styles"
+import { useEffect, useState } from "react"
 import { viewSettingsPage } from "@/app/settings/styles"
 import { useRouter } from "next/navigation"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
@@ -38,6 +34,7 @@ export default function Root() {
     }
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()
+    const [hashFlagment, setHashFlagment] = useState<string | null>(null)
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
@@ -64,6 +61,14 @@ export default function Root() {
             setDarkMode(false)
         }
     }, [appearanceColor])
+
+    useEffect(() => {
+        if (location.hash !== "") {
+            setHashFlagment(location.hash?.replace("#", ""))
+        } else {
+            setHashFlagment("general")
+        }
+    }, [])
 
     const { contentLabels } = userPreferences || {}
 
@@ -93,253 +98,272 @@ export default function Root() {
     }
 
     return (
-        <>
-            <div className={`w-full ${background({ color: color })}`}>
-                <Accordion
-                    variant="light"
-                    defaultExpandedKeys={["general"]}
-                    className={accordion({ color: color })}
+        hashFlagment && (
+            <>
+                <div
+                    className={`w-full h-full ${background({ color: color })}`}
                 >
-                    <AccordionItem
-                        key="general"
-                        aria-label="General"
-                        title={<span className={"font-[600]"}>General</span>}
+                    <Accordion
+                        variant="light"
+                        defaultExpandedKeys={[
+                            hashFlagment !== "" ? `${hashFlagment}` : "general",
+                        ]}
                         className={accordion({ color: color })}
                     >
-                        <div className={"pt-[5px] pb-[7px]"}>
-                            <div className={"font-[900]"}>Appearance</div>
-                            <div
-                                className={
-                                    "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                                }
-                            >
-                                <div>Theme Color</div>
-                                <ButtonGroup>
-                                    <Button
-                                        isDisabled={
-                                            appearanceColor === "system"
-                                        }
-                                        onClick={() => {
-                                            setAppearanceColor("system")
-                                        }}
-                                    >
-                                        System
-                                    </Button>
-                                    <Button
-                                        isDisabled={appearanceColor === "light"}
-                                        onClick={() => {
-                                            setAppearanceColor("light")
-                                        }}
-                                    >
-                                        Light
-                                    </Button>
-                                    <Button
-                                        isDisabled={appearanceColor === "dark"}
-                                        onClick={() => {
-                                            setAppearanceColor("dark")
-                                        }}
-                                    >
-                                        Dark
-                                    </Button>
-                                </ButtonGroup>
-                            </div>
-                            <div
-                                className={
-                                    "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                                }
-                            >
-                                <div>Display Language</div>
-                                <Select
-                                    size={"sm"}
-                                    label="Languages"
-                                    selectedKeys={displayLanguage}
-                                    className={`${accordion({
-                                        color: color,
-                                    })} max-w-xs`}
-                                    onChange={(event) => {
-                                        handleDisplayLanguageSelectionChange(
-                                            event
-                                        )
-                                    }}
+                        <AccordionItem
+                            key="general"
+                            aria-label="General"
+                            title={
+                                <span className={"font-[600]"}>General</span>
+                            }
+                            className={accordion({ color: color })}
+                        >
+                            <div className={"pt-[5px] pb-[7px]"}>
+                                <div className={"font-[900]"}>Appearance</div>
+                                <div
+                                    className={
+                                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
+                                    }
                                 >
-                                    {Object.entries(
-                                        ToTranslateLanguages || {}
-                                    ).map(([key, value]) => {
-                                        return (
-                                            <SelectItem key={value}>
-                                                {key}
-                                            </SelectItem>
-                                        )
-                                    })}
-                                </Select>
-                            </div>
-                        </div>
-                        <div className={"pt-[5px] pb-[7px]"}>
-                            <div className={"font-[600]"}>Notification</div>
-                            <div
-                                className={
-                                    "flex justify-between items-center h-[40px]"
-                                }
-                            >
-                                <div>
-                                    FF外からの引用リポスト通知を受け取らない
-                                </div>
-                                <Switch></Switch>
-                            </div>
-                        </div>
-                        <div className={"pt-[5px] pb-[7px]"}>
-                            <div className={"font-[600]"}>Translate</div>
-                            <div
-                                className={
-                                    "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                                }
-                            >
-                                <div>Translate To</div>
-                                <Select
-                                    size={"sm"}
-                                    label="Select a Language"
-                                    className={`${accordion({
-                                        color: color,
-                                    })} max-w-xs`}
-                                    selectedKeys={translateTo}
-                                    onChange={(event) => {
-                                        handleTranslateToSelectionChange(event)
-                                    }}
-                                >
-                                    {Object.entries(
-                                        ToTranslateLanguages || {}
-                                    ).map(([key, value]) => {
-                                        return (
-                                            <SelectItem
-                                                key={value}
-                                                className={color}
-                                            >
-                                                {key}
-                                            </SelectItem>
-                                        )
-                                    })}
-                                </Select>
-                            </div>
-                        </div>
-                    </AccordionItem>
-                    <AccordionItem
-                        key="contentFiltering"
-                        aria-label="Accordion 1"
-                        title={
-                            <span className={"font-bold"}>
-                                Content Filtering
-                            </span>
-                        }
-                        className={`${accordion({ color: color })} relative`}
-                    >
-                        {Object.entries(
-                            userPreferences?.contentLabels || {}
-                        ).map(([key, value]) => (
-                            <div
-                                key={key}
-                                className={
-                                    "flex justify-between items-center pt-[5px] pb-[5px]"
-                                }
-                            >
-                                <div>
-                                    {key === "nsfw"
-                                        ? "Explicit Sexual Images"
-                                        : key === "nudity"
-                                        ? "Other Nudity"
-                                        : key === "spam"
-                                        ? "Spam"
-                                        : key === "gore"
-                                        ? "Violent / Bloody"
-                                        : key === "hate"
-                                        ? "Hate Group Iconography"
-                                        : key === "impersonation"
-                                        ? "Impersonation"
-                                        : key === "suggestive"
-                                        ? "Sexually Suggestive"
-                                        : key}
-                                </div>
-                                <div className={""}>
+                                    <div>Theme Color</div>
                                     <ButtonGroup>
                                         <Button
-                                            size="sm"
                                             isDisabled={
-                                                contentLabels &&
-                                                contentLabels[key] === "hide"
+                                                appearanceColor === "system"
                                             }
-                                            onClick={async () => {
-                                                await handleButtonClick(
-                                                    key,
-                                                    "hide"
-                                                )
+                                            onClick={() => {
+                                                setAppearanceColor("system")
                                             }}
                                         >
-                                            Hide
+                                            System
                                         </Button>
                                         <Button
-                                            size="sm"
                                             isDisabled={
-                                                contentLabels &&
-                                                contentLabels[key] === "warn"
+                                                appearanceColor === "light"
                                             }
-                                            onClick={async () => {
-                                                await handleButtonClick(
-                                                    key,
-                                                    "warn"
-                                                )
+                                            onClick={() => {
+                                                setAppearanceColor("light")
                                             }}
                                         >
-                                            Warn
+                                            Light
                                         </Button>
                                         <Button
-                                            size="sm"
                                             isDisabled={
-                                                contentLabels &&
-                                                contentLabels[key] === "ignore"
+                                                appearanceColor === "dark"
                                             }
-                                            onClick={async () => {
-                                                await handleButtonClick(
-                                                    key,
-                                                    "ignore"
-                                                )
+                                            onClick={() => {
+                                                setAppearanceColor("dark")
                                             }}
                                         >
-                                            Show
+                                            Dark
                                         </Button>
                                     </ButtonGroup>
                                 </div>
+                                <div
+                                    className={
+                                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
+                                    }
+                                >
+                                    <div>Display Language</div>
+                                    <Select
+                                        size={"sm"}
+                                        label="Languages"
+                                        selectedKeys={displayLanguage}
+                                        className={`${accordion({
+                                            color: color,
+                                        })} max-w-xs`}
+                                        onChange={(event) => {
+                                            handleDisplayLanguageSelectionChange(
+                                                event
+                                            )
+                                        }}
+                                    >
+                                        {Object.entries(
+                                            ToTranslateLanguages || {}
+                                        ).map(([key, value]) => {
+                                            return (
+                                                <SelectItem key={value}>
+                                                    {key}
+                                                </SelectItem>
+                                            )
+                                        })}
+                                    </Select>
+                                </div>
                             </div>
-                        ))}
-                    </AccordionItem>
-                    <AccordionItem
-                        key="mute"
-                        aria-label={"Mute"}
-                        title={<span className={"font-bold"}>Mute</span>}
-                        className={accordion({ color: color })}
-                    >
-                        <div
-                            className={
-                                "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
+                            <div className={"pt-[5px] pb-[7px]"}>
+                                <div className={"font-[600]"}>Notification</div>
+                                <div
+                                    className={
+                                        "flex justify-between items-center h-[40px]"
+                                    }
+                                >
+                                    <div>
+                                        FF外からの引用リポスト通知を受け取らない
+                                    </div>
+                                    <Switch></Switch>
+                                </div>
+                            </div>
+                            <div className={"pt-[5px] pb-[7px]"}>
+                                <div className={"font-[600]"}>Translate</div>
+                                <div
+                                    className={
+                                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
+                                    }
+                                >
+                                    <div>Translate To</div>
+                                    <Select
+                                        size={"sm"}
+                                        label="Select a Language"
+                                        className={`${accordion({
+                                            color: color,
+                                        })} max-w-xs`}
+                                        selectedKeys={translateTo}
+                                        onChange={(event) => {
+                                            handleTranslateToSelectionChange(
+                                                event
+                                            )
+                                        }}
+                                    >
+                                        {Object.entries(
+                                            ToTranslateLanguages || {}
+                                        ).map(([key, value]) => {
+                                            return (
+                                                <SelectItem
+                                                    key={value}
+                                                    className={color}
+                                                >
+                                                    {key}
+                                                </SelectItem>
+                                            )
+                                        })}
+                                    </Select>
+                                </div>
+                            </div>
+                        </AccordionItem>
+                        <AccordionItem
+                            key="filtering"
+                            aria-label="Accordion 1"
+                            title={
+                                <span className={"font-bold"}>
+                                    Content Filtering
+                                </span>
                             }
-                            onClick={() => {
-                                router.push("/settings/mute/words")
-                            }}
+                            className={`${accordion({
+                                color: color,
+                            })} relative`}
                         >
-                            Mute Words
-                        </div>
-                        <div
-                            className={
-                                "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
-                            }
-                            onClick={() => {
-                                router.push("/settings/mute/accounts")
-                            }}
+                            {Object.entries(
+                                userPreferences?.contentLabels || {}
+                            ).map(([key, value]) => (
+                                <div
+                                    key={key}
+                                    className={
+                                        "flex justify-between items-center pt-[5px] pb-[5px]"
+                                    }
+                                >
+                                    <div>
+                                        {key === "nsfw"
+                                            ? "Explicit Sexual Images"
+                                            : key === "nudity"
+                                            ? "Other Nudity"
+                                            : key === "spam"
+                                            ? "Spam"
+                                            : key === "gore"
+                                            ? "Violent / Bloody"
+                                            : key === "hate"
+                                            ? "Hate Group Iconography"
+                                            : key === "impersonation"
+                                            ? "Impersonation"
+                                            : key === "suggestive"
+                                            ? "Sexually Suggestive"
+                                            : key}
+                                    </div>
+                                    <div className={""}>
+                                        <ButtonGroup>
+                                            <Button
+                                                size="sm"
+                                                isDisabled={
+                                                    contentLabels &&
+                                                    contentLabels[key] ===
+                                                        "hide"
+                                                }
+                                                onClick={async () => {
+                                                    await handleButtonClick(
+                                                        key,
+                                                        "hide"
+                                                    )
+                                                }}
+                                            >
+                                                Hide
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                isDisabled={
+                                                    contentLabels &&
+                                                    contentLabels[key] ===
+                                                        "warn"
+                                                }
+                                                onClick={async () => {
+                                                    await handleButtonClick(
+                                                        key,
+                                                        "warn"
+                                                    )
+                                                }}
+                                            >
+                                                Warn
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                isDisabled={
+                                                    contentLabels &&
+                                                    contentLabels[key] ===
+                                                        "ignore"
+                                                }
+                                                onClick={async () => {
+                                                    await handleButtonClick(
+                                                        key,
+                                                        "ignore"
+                                                    )
+                                                }}
+                                            >
+                                                Show
+                                            </Button>
+                                        </ButtonGroup>
+                                    </div>
+                                </div>
+                            ))}
+                        </AccordionItem>
+                        <AccordionItem
+                            key="mute"
+                            aria-label={"Mute"}
+                            title={<span className={"font-bold"}>Mute</span>}
+                            className={accordion({ color: color })}
                         >
-                            Mute Accounts
-                        </div>
-                    </AccordionItem>
-                </Accordion>
-            </div>
-        </>
+                            <div
+                                className={
+                                    "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
+                                }
+                                onClick={() => {
+                                    router.push("/settings/mute/words")
+                                }}
+                            >
+                                Mute Words
+                            </div>
+                            <div
+                                className={
+                                    "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
+                                }
+                                onClick={() => {
+                                    router.push("/settings/mute/accounts")
+                                }}
+                            >
+                                Mute Accounts
+                            </div>
+                        </AccordionItem>
+                    </Accordion>
+                </div>
+            </>
+        )
     )
 }
 
