@@ -103,9 +103,9 @@ export default function Root(props: any) {
         const filteredData = timeline.filter((item) => {
             const uri = item.post.uri
 
-            if (item.post.embed) {
-                console.log(item.post.embed)
-            }
+            // if (item.post.embed) {
+            //     console.log(item.post.embed)
+            // }
 
             if (item.reply) {
                 if (item.reason) return true
@@ -137,9 +137,6 @@ export default function Root(props: any) {
     }
 
     const fetchTimeline = async (loadingFlag: boolean = true) => {
-        console.log("selectedFeed", selectedFeed)
-        console.log("cursor.current", cursor.current)
-
         if (!agent) {
             return
         }
@@ -321,8 +318,8 @@ export default function Root(props: any) {
                         return !timeline.some(
                             (oldItem) => oldItem.post.uri === newItem.post.uri
                         )
-                    })            
-            
+                    })
+
                     setNewTimeline(diffTimeline)
                 }
             }
