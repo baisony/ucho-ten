@@ -2,15 +2,18 @@ import { tv } from "@nextui-org/react"
 
 export const layout = tv({
     slots: {
+        background: "",
         FeedCard:
             "flex items-center w-full h-[80px] justify-between select-none cursor-pointer",
     },
     variants: {
         color: {
             light: {
+                background: "bg-white",
                 FeedCard: "bg-white text-black",
             },
             dark: {
+                background: "bg-[#2C2C2C]",
                 FeedCard: "bg-[#2C2C2C] text-white",
             },
         },

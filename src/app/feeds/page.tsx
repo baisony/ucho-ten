@@ -1,29 +1,25 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
 import { useEffect, useState } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUser } from "@fortawesome/free-solid-svg-icons"
-import {
-    faPlus,
-    faThumbTack,
-    faBars,
-    faGear,
-} from "@fortawesome/free-solid-svg-icons"
-import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { layout } from "./styles"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
-import { AtUri } from "@atproto/api"
 import { useRouter } from "next/navigation"
+import { Spinner } from "@nextui-org/react"
+import { AtUri } from "@atproto/api"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 export default function Root() {
     const [agent] = useAgent()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
-    const { FeedCard } = layout()
+    const { background, FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
+    const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<string[]>([])
     const [pinnedFeeds, setPinnedFeeds] = useState<string[]>([])
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [darkMode, setDarkMode] = useState(false)
     const color = darkMode ? "dark" : "light"
     const modeMe = (e: any) => {
@@ -47,6 +43,7 @@ export default function Root() {
     const fetchFeeds = async () => {
         if (!agent) return
         try {
+            setIsFetching(true)
             const { feeds } = await agent.getPreferences()
             setUserPreferences(feeds)
             const saved = await agent.app.bsky.feed.getFeedGenerators({
@@ -57,6 +54,7 @@ export default function Root() {
             })
             setSavedFeeds((saved.data as any).feeds || [])
             setPinnedFeeds((pinned.data as any).feeds || [])
+            setIsFetching(false)
         } catch (e) {
             console.log(e)
         }
@@ -68,93 +66,124 @@ export default function Root() {
 
     return (
         <>
-            {/*@ts-ignore*/}
-            {savedFeeds.map((feed: GeneratorView, index) => {
-                return (
-                    <div
-                        className={FeedCard({ color: color })}
-                        key={index}
-                        onClick={() => {
-                            const uri = new AtUri(feed.uri)
-                            router.push(
-                                `/profile/${uri.hostname}/feed/${uri.rkey}`
-                            )
-                        }}
-                    >
-                        <div className={"flex items-center ml-[12px]"}>
-                            <div className={"hidden"}>
-                                <FontAwesomeIcon
-                                    icon={faBars}
-                                    className={"text-gray-400"}
-                                />
-                            </div>
+            {savedFeeds.length === 0 && (
+                <div
+                    className={`${background({
+                        color: color,
+                    })} w-full h-full flex items-center justify-center`}
+                >
+                    {isFetching ? (
+                        <div>
+                            <Spinner />
+                        </div>
+                    ) : (
+                        !isFetching ?? (
                             <div
-                                className={
-                                    "h-[50px] w-[50px] overflow-hidden rounded-[10px] ml-[12px]"
-                                }
+                                className={`${
+                                    color === `dark`
+                                        ? `text-white`
+                                        : `text-black`
+                                }`}
                             >
-                                <img src={feed?.avatar} />
+                                ないよー
                             </div>
-                            <div className={"ml-[12px]"}>
-                                <div>{feed?.displayName}</div>
-                                <div className={"text-[12px]"}>
-                                    by @{feed?.creator?.handle}
+                        )
+                    )}
+                </div>
+            )}
+            {savedFeeds.length !== 0 && (
+                <div
+                    className={`${background({ color: color })} w-full h-full`}
+                >
+                    {/*@ts-ignore*/}
+                    {savedFeeds.map((feed: GeneratorView, index) => {
+                        return (
+                            <div
+                                className={FeedCard({ color: color })}
+                                key={index}
+                                onClick={() => {
+                                    const uri = new AtUri(feed.uri)
+                                    router.push(
+                                        `/profile/${uri.hostname}/feed/${uri.rkey}`
+                                    )
+                                }}
+                            >
+                                <div className={"flex items-center ml-[12px]"}>
+                                    <div className={"hidden"}>
+                                        <FontAwesomeIcon
+                                            icon={faBars}
+                                            className={"text-gray-400"}
+                                        />
+                                    </div>
+                                    <div
+                                        className={
+                                            "h-[50px] w-[50px] overflow-hidden rounded-[10px] ml-[12px]"
+                                        }
+                                    >
+                                        <img src={feed?.avatar} />
+                                    </div>
+                                    <div className={"ml-[12px]"}>
+                                        <div>{feed?.displayName}</div>
+                                        <div className={"text-[12px]"}>
+                                            by @{feed?.creator?.handle}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={"mr-[28px] flex items-center"}>
+                                    <div className={"mr-[28px] cursor-pointer"}>
+                                        <FontAwesomeIcon
+                                            icon={faThumbTack}
+                                            size={"lg"}
+                                            className={` ${
+                                                userPreferences.pinned.includes(
+                                                    feed.uri
+                                                )
+                                                    ? `text-[#016EFF]`
+                                                    : `text-[#929292]`
+                                            }`}
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                if (
+                                                    userPreferences.pinned.includes(
+                                                        feed.uri
+                                                    )
+                                                ) {
+                                                    if (isLoading) return
+                                                    setIsLoading(true)
+                                                    const res =
+                                                        await agent?.removePinnedFeed(
+                                                            feed.uri
+                                                        )
+                                                    fetchFeeds()
+                                                    setIsLoading(false)
+                                                    console.log(res)
+                                                } else {
+                                                    if (isLoading) return
+                                                    setIsLoading(true)
+                                                    const res =
+                                                        await agent?.addPinnedFeed(
+                                                            feed.uri
+                                                        )
+                                                    fetchFeeds()
+                                                    setIsLoading(false)
+                                                    console.log(res)
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div className={"cursor-pointer"}>
+                                        <FontAwesomeIcon
+                                            icon={faGear}
+                                            size={"lg"}
+                                            className={"text-[#929292]"}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className={"mr-[28px] flex items-center"}>
-                            <div className={"mr-[28px] cursor-pointer"}>
-                                <FontAwesomeIcon
-                                    icon={faThumbTack}
-                                    size={"lg"}
-                                    className={` ${
-                                        userPreferences.pinned.includes(
-                                            feed.uri
-                                        )
-                                            ? `text-[#016EFF]`
-                                            : `text-[#929292]`
-                                    }`}
-                                    onClick={async (e) => {
-                                        e.stopPropagation()
-                                        if (
-                                            userPreferences.pinned.includes(
-                                                feed.uri
-                                            )
-                                        ) {
-                                            if (isLoading) return
-                                            setIsLoading(true)
-                                            const res =
-                                                await agent?.removePinnedFeed(
-                                                    feed.uri
-                                                )
-                                            fetchFeeds()
-                                            setIsLoading(false)
-                                            console.log(res)
-                                        } else {
-                                            if (isLoading) return
-                                            setIsLoading(true)
-                                            const res =
-                                                await agent?.addPinnedFeed(
-                                                    feed.uri
-                                                )
-                                            fetchFeeds()
-                                            setIsLoading(false)
-                                            console.log(res)
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className={"cursor-pointer"}>
-                                <FontAwesomeIcon
-                                    icon={faGear}
-                                    size={"lg"}
-                                    className={"text-[#929292]"}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )
-            })}
+                        )
+                    })}
+                </div>
+            )}
         </>
     )
 }
