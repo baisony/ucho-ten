@@ -1,10 +1,18 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { layout } from "./styles"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useRouter } from "next/navigation"
-import { Spinner } from "@nextui-org/react"
+import {
+    Button,
+    Modal,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    Spinner,
+    useDisclosure,
+} from "@nextui-org/react"
 import { AtUri } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
@@ -14,14 +22,17 @@ export default function Root() {
     const [agent] = useAgent()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
-    const { background, FeedCard } = layout()
+    const { background, FeedCard, modal } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<string[]>([])
     const [pinnedFeeds, setPinnedFeeds] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [darkMode, setDarkMode] = useState(false)
+    const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
     const color = darkMode ? "dark" : "light"
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
     }
@@ -59,6 +70,19 @@ export default function Root() {
             console.log(e)
         }
     }
+    const handleFeedDelete = async () => {
+        if (!agent) return
+        if (!selectedFeed) return
+        try {
+            setIsLoading(true)
+            const res = await agent.removeSavedFeed(selectedFeed.uri)
+            fetchFeeds()
+            setIsLoading(false)
+            console.log(res)
+        } catch (e) {
+            console.log(e)
+        }
+    }
 
     useEffect(() => {
         fetchFeeds()
@@ -66,6 +90,41 @@ export default function Root() {
 
     return (
         <>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                className={modal({ color: color })}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader>
+                                Would you like to delete{" "}
+                                {selectedFeed?.displayName}
+                                {" ?"}
+                            </ModalHeader>
+                            <ModalFooter>
+                                <Button
+                                    color="danger"
+                                    variant="light"
+                                    onClick={onClose}
+                                >
+                                    No
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    onClick={() => {
+                                        handleFeedDelete()
+                                        onClose()
+                                    }}
+                                >
+                                    Yes
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
             {savedFeeds.length === 0 && (
                 <div
                     className={`${background({
@@ -171,7 +230,14 @@ export default function Root() {
                                             }}
                                         />
                                     </div>
-                                    <div className={"cursor-pointer"}>
+                                    <div
+                                        className={"cursor-pointer"}
+                                        onClick={async (e) => {
+                                            e.stopPropagation()
+                                            setSelectedFeed(feed)
+                                            onOpen()
+                                        }}
+                                    >
                                         <FontAwesomeIcon
                                             icon={faGear}
                                             size={"lg"}
