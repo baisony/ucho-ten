@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
@@ -11,30 +10,14 @@ import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
     faHeart as faSolidHeart,
-    faCheckCircle,
-    faCircleQuestion,
-    faCircleXmark,
-    faHashtag,
-    faLink,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
 import {
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownSection,
-    DropdownItem,
     Button,
-    Image,
-    Spinner,
-    Input,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-    useDisclosure,
-    Link,
-    Chip,
-    Tooltip,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
@@ -245,6 +228,37 @@ export default function Root() {
         } catch (e) {}
     }
 
+    const handlePinnedClick = async () => {
+        if (!agent) return
+        if (!feedInfo) return
+        try {
+            if (isPinned) {
+                const res = await agent.removePinnedFeed(feedInfo.view.uri)
+                setIsPinned(false)
+            } else if (!isPinned) {
+                const res = await agent.addPinnedFeed(feedInfo.view.uri)
+                setIsPinned(true)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    const handleSubscribeClick = async () => {
+        if (!agent) return
+        if (!feedInfo) return
+        try {
+            if (isSubscribed) {
+                const res = await agent.removeSavedFeed(feedInfo.view.uri)
+                setIsSubscribed(false)
+            } else if (!isSubscribed) {
+                const res = await agent.addSavedFeed(feedInfo.view.uri)
+                setIsSubscribed(true)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     return (
         feedInfo && (
             <>
@@ -289,7 +303,12 @@ export default function Root() {
                                     </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
-                            <div className={ProfileActionButton()}>
+                            <div
+                                className={ProfileActionButton()}
+                                onClick={() => {
+                                    handlePinnedClick()
+                                }}
+                            >
                                 <FontAwesomeIcon
                                     icon={faThumbTack}
                                     className={PinButton({
@@ -305,8 +324,15 @@ export default function Root() {
                                 onMouseEnter={() => {
                                     setOnHoverButton(true)
                                 }}
+                                onClick={() => {
+                                    handleSubscribeClick()
+                                }}
                             >
-                                {isSubscribed ? "UnSubscribe" : "Subscribe"}
+                                {isSubscribed
+                                    ? !onHoverButton
+                                        ? "Subscribed"
+                                        : "UnSubscribe"
+                                    : "Subscribe"}
                             </Button>
                         </div>
                         <div className={ProfileDisplayName({ color: color })}>
