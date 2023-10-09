@@ -17,12 +17,11 @@ import { layout } from "@/app/search/styles"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const { searchSupportCard } = layout()
     const router = useRouter()
     const searchParams = useSearchParams()
-
     const searchWord = searchParams.get("word") || ""
     const target = searchParams.get("target") || "posts"
-
     const [loading, setLoading] = useState(false)
     const [hasMore, setHasMore] = useState(false)
     const [searchPostsResult, setSearchPostsResult] = useState<
@@ -331,9 +330,7 @@ export default function Root() {
                         <div className={"absolute bottom-[50px] w-full"}>
                             自分らしく、探そう。
                             <div
-                                className={
-                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center cursor-pointer"
-                                }
+                                className={searchSupportCard({ color: color })}
                                 onClick={() => {
                                     router.push(
                                         "/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese"
@@ -347,9 +344,7 @@ export default function Root() {
                                 </div>
                             </div>
                             <div
-                                className={
-                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center cursor-pointer"
-                                }
+                                className={searchSupportCard({ color: color })}
                                 onClick={() => {
                                     router.push(
                                         "/search?word=フィード%20bsky.app&target=posts"
@@ -363,9 +358,7 @@ export default function Root() {
                                 </div>
                             </div>
                             <div
-                                className={
-                                    "h-[80px] w-full bg-[#2C2C2C] flex items-center"
-                                }
+                                className={searchSupportCard({ color: color })}
                             >
                                 <div className={"h-[50px] w-[50px]"}></div>
                                 <div>
