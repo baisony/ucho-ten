@@ -19,6 +19,7 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
+    Spinner,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
@@ -57,7 +58,7 @@ export default function Root() {
     // const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    // const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
+    const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [userPreference, setUserPreference] = useState<any>(null)
@@ -314,6 +315,7 @@ export default function Root() {
                     color={color}
                     isSubscribed={isSubscribed}
                     isPinned={isPinned}
+                    onClick={handleSubscribeClick}
                 />
             )}
             {(loading || !agent || !timeline) &&
@@ -350,6 +352,7 @@ interface FeedProps {
     color: "light" | "dark"
     isSubscribed: boolean
     isPinned: boolean
+    onClick?: () => void
 }
 
 const FeedHeaderComponent = ({
@@ -357,6 +360,7 @@ const FeedHeaderComponent = ({
     color,
     isSubscribed,
     isPinned,
+    onClick,
 }: FeedProps) => {
     const [onHoverButton, setOnHoverButton] = useState(false)
 
@@ -429,23 +433,21 @@ const FeedHeaderComponent = ({
                         />
                     </div>
                     <Button
-                                className={FollowButton({ color: color })}
-                                onMouseLeave={() => {
-                                    setOnHoverButton(false)
-                                }}
-                                onMouseEnter={() => {
-                                    setOnHoverButton(true)
-                                }}
-                                onClick={() => {
-                                    handleSubscribeClick()
-                                }}
-                            >
-                                {isSubscribed
-                                    ? !onHoverButton
-                                        ? "Subscribed"
-                                        : "UnSubscribe"
-                                    : "Subscribe"}
-                            </Button>
+                        className={FollowButton({ color: color })}
+                        onMouseLeave={() => {
+                            setOnHoverButton(false)
+                        }}
+                        onMouseEnter={() => {
+                            setOnHoverButton(true)
+                        }}
+                        onClick={onClick}
+                    >
+                        {isSubscribed
+                            ? !onHoverButton
+                                ? "Subscribed"
+                                : "UnSubscribe"
+                            : "Subscribe"}
+                    </Button>
                 </div>
                 <div className={ProfileDisplayName({ color: color })}>
                     {feedInfo.view?.displayName}
