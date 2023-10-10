@@ -1,44 +1,46 @@
-import React, { useCallback, useState, useMemo, useEffect } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import { viewPostCard } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faComment } from "@fortawesome/free-regular-svg-icons"
 import {
-    faRetweet,
+    faComment,
+    faStar as faHeartRegular,
+} from "@fortawesome/free-regular-svg-icons"
+import {
+    faCheckCircle,
+    faCircleQuestion,
+    faCircleXmark,
+    faCode,
     faEllipsis,
     faFlag,
+    faHashtag,
     faLink,
-    faCode,
+    faReply,
+    faRetweet,
+    faStar as faHeartSolid,
     faTrash,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
-import { faStar as faHeartRegular } from "@fortawesome/free-regular-svg-icons"
-import {
-    faStar as faHeartSolid,
-    faHashtag,
-    faCheckCircle,
-    faCircleXmark,
-    faCircleQuestion,
-    faReply,
-} from "@fortawesome/free-solid-svg-icons"
 import { PostModal } from "../PostModal"
+import { Linkcard } from "../Linkcard"
 import "react-circular-progressbar/dist/styles.css"
 import {
+    Chip,
     Dropdown,
-    DropdownTrigger,
+    DropdownItem,
     DropdownMenu,
     DropdownSection,
-    DropdownItem,
-    Link,
-    Skeleton,
-    Chip,
-    Tooltip,
-    ScrollShadow,
+    DropdownTrigger,
     Image,
+    Modal,
+    ModalContent,
+    ScrollShadow,
+    Skeleton,
+    Tooltip,
+    useDisclosure,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { useAgent } from "@/app/_atoms/agent"
 import { useRouter } from "next/navigation"
-import { Modal, ModalContent, useDisclosure } from "@nextui-org/react"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
     ImageGalleryObject,
@@ -60,6 +62,7 @@ interface Props {
     isEmbedToModal?: boolean
     now?: Date
 }
+
 export const ViewPostCard: React.FC<Props> = (props: Props) => {
     const [agent] = useAgent()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
@@ -819,101 +822,12 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                         ) : (
                                             postJson.embed.$type ===
                                                 "app.bsky.embed.external#view" && (
-                                                <a
-                                                    href={
+                                                <Linkcard
+                                                    color={color}
+                                                    OGPData={
                                                         postJson.embed.external
-                                                            ?.uri
                                                     }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    onMouseUp={(e) =>
-                                                        e.stopPropagation()
-                                                    }
-                                                >
-                                                    <div
-                                                        className={LinkCard({
-                                                            color: color,
-                                                        })}
-                                                    >
-                                                        <div
-                                                            className={LinkCardThumbnailContainer()}
-                                                        >
-                                                            <img
-                                                                src={
-                                                                    postJson
-                                                                        .embed
-                                                                        .external
-                                                                        ?.thumb
-                                                                }
-                                                                className={LinkCardThumbnail()}
-                                                                alt={
-                                                                    postJson
-                                                                        .embed
-                                                                        .external
-                                                                        ?.alt
-                                                                }
-                                                            />
-                                                        </div>
-                                                        <div
-                                                            className={LinkCardContent()}
-                                                        >
-                                                            <div className="w-full min-w-0">
-                                                                <div
-                                                                    className={LinkCardTitle(
-                                                                        {
-                                                                            color: color,
-                                                                        }
-                                                                    )}
-                                                                >
-                                                                    {
-                                                                        postJson
-                                                                            .embed
-                                                                            .external
-                                                                            ?.title
-                                                                    }
-                                                                </div>
-                                                                <div
-                                                                    className={LinkCardDescription(
-                                                                        {
-                                                                            color: color,
-                                                                        }
-                                                                    )}
-                                                                    style={{
-                                                                        WebkitLineClamp: 2,
-                                                                        WebkitBoxOrient:
-                                                                            "vertical",
-                                                                        display:
-                                                                            "-webkit-box",
-                                                                        overflow:
-                                                                            "hidden",
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        postJson
-                                                                            .embed
-                                                                            .external
-                                                                            ?.description
-                                                                    }
-                                                                </div>
-                                                                <div
-                                                                    className={LinkCardSiteName(
-                                                                        {
-                                                                            color: color,
-                                                                        }
-                                                                    )}
-                                                                >
-                                                                    <div className="text-gray-400">
-                                                                        {
-                                                                            postJson.embed.external?.uri.match(
-                                                                                /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
-                                                                            )[1]
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </a>
+                                                />
                                             )
                                         ))}
                                 </div>
