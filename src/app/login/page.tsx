@@ -1,8 +1,7 @@
 "use client"
-import { useAtom } from "jotai"
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { createLoginPage } from "./styles"
-import { BskyAgent } from "@atproto/api"
+import { AtpSessionData, BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faLink,
@@ -12,16 +11,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 //import { CircularProgressbar } from 'react-circular-progressbar';
 //import 'react-circular-progressbar/dist/styles.css';
-import { Button, Spinner, Image } from "@nextui-org/react"
+import { Button, Spinner } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
-
 import "./shakeButton.css"
+import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
 
 export default function CreateLoginPage() {
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
+    const [accounts, setAccounts] = useAccounts()
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
@@ -65,39 +65,37 @@ export default function CreateLoginPage() {
 
             setLoading(false)
             console.log(agent)
-            //const postres= await agent.post({text:'test'})
 
             if (agent.session) {
-                //現在使っているアカウントをsessionに格納
                 const json = {
                     server: server,
                     session: agent.session,
                 }
                 localStorage.setItem("session", JSON.stringify(json))
-                // 既存のlocalStorageからデータを取得
                 const storedData = localStorage.getItem("Accounts")
-
-                // データが存在する場合はパースしてオブジェクトに変換、存在しない場合は空のオブジェクトを作成
-                const accountsData: Record<string, any> = storedData
+                const existingAccountsData: UserAccountByDid = storedData
                     ? JSON.parse(storedData)
                     : {}
 
-                // サーバーキーを指定（例：bsky.social, ucho-ten.net）
-                const serverKey = server // 任意のサーバーキー
-
-                // サーバーキーごとにデータを分けて保存
-                if (!accountsData.service) {
-                    accountsData.service = {}
+                const { data } = await agent.getProfile({
+                    actor: agent.session.did,
+                })
+                const accountData: UserAccount = {
+                    service: server,
+                    session: agent.session,
+                    profile: {
+                        did: agent.session.did,
+                        displayName: data?.displayName || agent.session.handle,
+                        handle: agent.session.handle,
+                        avatar: data?.avatar || "",
+                    },
                 }
-                if (!accountsData.service[serverKey]) {
-                    accountsData.service[serverKey] = []
-                }
+                existingAccountsData[agent.session.did] = accountData
 
-                // 新しいデータを追加
-                accountsData.service[serverKey].push(agent.session)
-
-                // 更新されたデータをlocalStorageに保存
-                localStorage.setItem("Accounts", JSON.stringify(accountsData))
+                localStorage.setItem(
+                    "Accounts",
+                    JSON.stringify(existingAccountsData)
+                )
             }
 
             if (toRedirect) {
@@ -134,7 +132,7 @@ export default function CreateLoginPage() {
                 const storedData = localStorage.getItem("session")
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
-                    await agent.resumeSession(session)
+                    console.log(await agent.resumeSession(session))
 
                     if (toRedirect) {
                         const url = `/${toRedirect}${
@@ -275,17 +273,4 @@ export default function CreateLoginPage() {
             </div>
         </main>
     )
-}
-
-const localstorage = {
-    Accounts: {
-        service: {
-            "bsky.social": [
-                {
-                    identifier: "bisn.ucho-ten.net",
-                    jwt: "みたいな感じでlocalStorageを扱いたい",
-                },
-            ],
-        },
-    },
 }
