@@ -42,6 +42,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import Compressor from "compressorjs"
+import {
+    AppBskyEmbedImages,
+    AppBskyEmbedRecordWithMedia,
+    AppBskyFeedPost,
+    BlobRef,
+} from "@atproto/api"
 
 export default function Root() {
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -72,7 +79,11 @@ export default function Root() {
     // const isImageMaxLimited =
     //    contentImages.length >= 5 || contentImages.length === 4 // 4枚まで
     // const isImageMinLimited = contentImage.length === 0 // 4枚まで
-    const [compressProcessing, setCompressProcessing] = useState(false)
+    const [compressingFilesCount, setCompressingFilesCount] =
+        useState<number>(0)
+    const imageProcessErrors = useRef<Error[]>([])
+    const uploadBlobs = useRef<Blob[]>([])
+    const [imageProcessDone, setImageProcessDone] = useState<boolean>(false)
     const {
         background,
         backgroundColor,
@@ -112,12 +123,12 @@ export default function Root() {
         ImageEditButton,
     } = createPostPage()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
-    const {
-        isOpen: isModalOpen,
-        onOpen: onModalOpen,
-        onClose: onModalClose,
-        onOpenChange: onModalOpenChange,
-    } = useDisclosure()
+    // const {
+    //     isOpen: isModalOpen,
+    //     onOpen: onModalOpen,
+    //     onClose: onModalClose,
+    //     onOpenChange: onModalOpenChange,
+    // } = useDisclosure()
 
     const [darkMode, setDarkMode] = useState(false)
     const color = darkMode ? "dark" : "light"
@@ -140,6 +151,23 @@ export default function Root() {
         }
     }, [appearanceColor])
 
+    // useEffect(() => {
+    //     if (imageProcessDone) {
+    //         setImageProcessDone(false)
+
+    //         setContentImages((currentImages) => [
+    //             ...currentImages,
+    //             ...processedImages.current,
+    //         ])
+
+    //         processedImages.current = []
+
+    //         if (imageProcessErrors.current.length > 0) {
+    //             onModalOpen()
+    //         }
+    //     }
+    // }, [imageProcessDone])
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
             handlePostClick()
@@ -147,35 +175,41 @@ export default function Root() {
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        if (contentImages.length + files.length > 4) {
-            return
-        }
-        const maxFileSize = 975 * 1024 // 975KB
+        addImages(files)
 
-        const compressedImages = await Promise.all(
-            Array.from(files).map(async (file) => {
-                if (file.size > maxFileSize) {
-                    try {
-                        setCompressProcessing(true)
-                        const compressedFile = file
-                        setCompressProcessing(false)
+        // if (contentImages.length + files.length > 4) {
+        //     return
+        // }
 
-                        return compressedFile
-                    } catch (error) {
-                        console.error(error)
-                        return file
-                    }
-                } else {
-                    return file
-                }
-            })
-        )
-        setContentImages((b) => [...b, ...compressedImages])
+        // const maxFileSize = 975 * 1024 // 975KB
+
+        // const compressedImages = await Promise.all(
+        //     Array.from(files).map(async (file) => {
+        //         if (file.size > maxFileSize) {
+        //             try {
+        //                 setCompressProcessing(true)
+        //                 const compressedFile = file
+        //                 setCompressProcessing(false)
+
+        //                 return compressedFile
+        //             } catch (error) {
+        //                 console.error(error)
+        //                 return file
+        //             }
+        //         } else {
+        //             return file
+        //         }
+        //     })
+        // )
+        // setContentImages((b) => [...b, ...compressedImages])
 
         // 5. 圧縮されたファイルをsetContentImagesで設定する
     }, [])
+
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
+
     //const filesUpdated: FileWithPath[] = acceptedFiles;
+
     const handleDrop = (e: any) => {
         e.preventDefault()
         //const file = e.dataTransfer.files[0];
@@ -193,13 +227,51 @@ export default function Root() {
         if (contentText.trim() === "") return
         setLoading(true)
         try {
-            const res = await agent.post({
+            const blobRefs: BlobRef[] = []
+
+            for (const image of contentImages) {
+                const uint8array = new Uint8Array(await image.arrayBuffer())
+                const res = await agent.uploadBlob(uint8array, {
+                    encoding: "image/jpeg",
+                })
+
+                const blobRef = res.data.blob
+                blobRefs.push(blobRef)
+            }
+
+            const postObj: Partial<AppBskyFeedPost.Record> &
+                Omit<AppBskyFeedPost.Record, "createdAt"> = {
                 text: contentText.trim(),
                 langs: Array.from(PostContentLanguage),
-            })
+            }
+
+            if (blobRefs.length > 0) {
+                const images: AppBskyEmbedImages.Image[] = []
+
+                for (const blobRef of blobRefs) {
+                    const image: AppBskyEmbedImages.Image = {
+                        image: blobRef,
+                        alt: "",
+                    }
+
+                    images.push(image)
+                }
+
+                const embed = {
+                    $type: "app.bsky.embed.images",
+                    images,
+                } as AppBskyEmbedImages.Main
+
+                postObj.embed = embed
+            }
+
+            const res = await agent.post(postObj)
+
             console.log(res)
             console.log("hoge")
+
             setLoading(false)
+
             router.push("/")
         } catch (e) {
             console.log(e)
@@ -207,13 +279,14 @@ export default function Root() {
             setLoading(false)
         }
     }
+
     const handleOnRemoveImage = (index: number) => {
         const newImages = [...contentImages]
         newImages.splice(index, 1)
         setContentImages(newImages)
     }
+
     const handleOnAddImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        let shouldShowAttachImageOverLimitAlert = false
         const currentImagesCount = contentImages.length
 
         if (!e.target.files) {
@@ -222,36 +295,77 @@ export default function Root() {
 
         const imageFiles = Array.from(e.target.files)
 
+        addImages(imageFiles)
+    }
+
+    // const compressImage = (file: File): Promise<Blob> => {
+    //     return new Promise((resolve, reject) => {
+    //         new Compressor(file, {
+    //             quality: 0.8,
+    //             success(result) {
+    //                 resolve(result)
+    //             },
+    //             error(err) {
+    //                 reject(err)
+    //             },
+    //         })
+    //     })
+    // }
+
+    const addImages = async (imageFiles: File[]) => {
+        let shouldShowAttachImageOverLimitAlert = false
+
+        const currentImagesCount = contentImages.length
+
         if (currentImagesCount + imageFiles.length > 4) {
             imageFiles.slice(0, 4 - currentImagesCount)
 
             shouldShowAttachImageOverLimitAlert = true
         }
 
-        const compressedImages = await Promise.all(
-            imageFiles.map(async (file) => {
-                if (file.size > 975000) {
-                    try {
-                        setCompressProcessing(true)
-                        const compressedFile = file
-                        setCompressProcessing(false)
+        // await Promise.all(
+        //     imageFiles.map(async (file, index) => {
+        //         if (file.size > 975000) {
+        //             try {
+        //                 const maxFileSize = 975 * 1024 // 975KB
 
-                        return compressedFile
-                    } catch (error) {
-                        console.error(error)
-                        return file
-                    }
-                } else {
-                    return file
-                }
-            })
-        )
+        //                 setCompressingFilesCount(
+        //                     (currentCount) => currentCount + 1
+        //                 )
 
-        setContentImages((b) => [...b, ...compressedImages])
+        //                 new Compressor(file, {
+        //                     convertSize: maxFileSize,
+        //                     success: (file) => {
+        //                         if (file instanceof File) {
+        //                             processedImages.current[index] = file
+        //                         }
+        //                     },
+        //                     error: (error: Error) => {
+        //                         imageProcessErrors.current.push(error)
+        //                     },
+        //                 })
 
-        if (shouldShowAttachImageOverLimitAlert) {
-            onModalOpen()
-        }
+        //                 setCompressingFilesCount(
+        //                     (currentCount) => currentCount - 1
+        //                 )
+        //             } catch (error) {
+        //                 console.error(error)
+        //                 return true
+        //             }
+        //         } else {
+        //             return true
+        //         }
+        //     })
+        // )
+
+        setContentImages((currentImageFiles) => [
+            ...currentImageFiles,
+            ...imageFiles,
+        ])
+
+        // if (shouldShowAttachImageOverLimitAlert) {
+        //     onModalOpen()
+        // }
     }
 
     const AppearanceColor = color
@@ -360,8 +474,8 @@ export default function Root() {
                         isDisabled={
                             loading ||
                             contentText.trim().length === 0 ||
-                            contentText.trim().length > 300 ||
-                            isImageMaxLimited
+                            contentText.trim().length > 300 // ||
+                            // isImageMaxLimited
                         }
                         isLoading={loading}
                     >
@@ -416,7 +530,8 @@ export default function Root() {
                     <div className={contentRight()}>
                         <Textarea
                             className={contentRightTextArea({
-                                uploadImageAvailable: contentImages.length !== 0,
+                                uploadImageAvailable:
+                                    contentImages.length !== 0,
                             })}
                             aria-label="post input area"
                             placeholder={"Yo, Do you do Brusco?"}
@@ -684,7 +799,7 @@ export default function Root() {
                             <Button
                                 disabled={
                                     loading ||
-                                    compressProcessing ||
+                                    compressingFilesCount > 0 ||
                                     contentImages.length > 4 ||
                                     // isImageMaxLimited ||
                                     getOGPData ||
@@ -714,7 +829,7 @@ export default function Root() {
                                 ) => handleOnAddImage(e)}
                                 disabled={
                                     loading ||
-                                    compressProcessing ||
+                                    compressingFilesCount > 0 ||
                                     contentImages.length > 4 ||
                                     // isImageMaxLimited ||
                                     getOGPData ||
@@ -880,7 +995,7 @@ export default function Root() {
                 </div>
             </div>
 
-            <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange}>
+            {/* <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -902,7 +1017,7 @@ export default function Root() {
                         </>
                     )}
                 </ModalContent>
-            </Modal>
+            </Modal> */}
         </main>
     )
 }
