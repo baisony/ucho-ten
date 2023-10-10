@@ -26,6 +26,7 @@
     "@types/react-dom": "18.2.7",
     "@use-gesture/react": "^10.3.0",
     "autoprefixer": "10.4.16",
+    "compressorjs": "^1.2.1",
     "eslint-config-next": "13.5.2",
     "framer-motion": "^10.16.4",
     "jotai": "^2.4.2",
