@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react"
 import { viewSideBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
+    faAt,
     faBookmark,
     faCircleCheck,
     faCircleQuestion,
     faFlag,
     faGear,
     faHand,
+    faLock,
     faRightFromBracket,
     faRss,
     faUser,
@@ -17,6 +19,7 @@ import {
 import "react-circular-progressbar/dist/styles.css"
 import {
     Button,
+    Input,
     Modal,
     ModalBody,
     ModalContent,
@@ -28,8 +31,11 @@ import {
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { useAccounts, UserAccount } from "@/app/_atoms/accounts"
-import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import {
+    useAccounts,
+    UserAccount,
+    UserAccountByDid,
+} from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
 
 interface Props {
@@ -64,12 +70,16 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [loading, setLoading] = useState(false)
     const [openModalReason, setOpenModalReason] = useState<
-        "switching" | "logout" | ""
+        "switching" | "logout" | "relogin" | ""
     >("")
     const [categorization, setCategorization] = useState<{
         [key: string]: UserAccount[]
     }>({})
     const [isSwitching, setIsSwitching] = useState(false)
+    const [authenticationRequired, setAuthenticationRequired] = useState<
+        boolean | null
+    >(null)
+    const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
     const {
         background,
         AuthorIconContainer,
@@ -84,6 +94,10 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     } = viewSideBar()
     const [agent, setAgent] = useAgent()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const [server, setServer] = useState<string>("")
+    const [identity, setIdentity] = useState<string>("")
+    const [password, setPassword] = useState<string>("")
+    const [isLogging, setIsLogging] = useState<boolean>(false)
 
     const handleDeleteSession = () => {
         console.log("delete session")
@@ -113,6 +127,61 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         })
     }, [accounts])
 
+    const handleRelogin = async () => {
+        if (server === "" || identity === "" || password === "") return
+        try {
+            setIsSwitching(true)
+            setAuthenticationRequired(false)
+            setIsLogging(true)
+            const agent = new BskyAgent({
+                service: `https://${server}`,
+            })
+            const { data } = await agent.login({
+                identifier: identity,
+                password: password,
+            })
+            if (agent.session) {
+                const json = {
+                    server: server,
+                    session: agent.session,
+                }
+                localStorage.setItem("session", JSON.stringify(json))
+                const storedData = localStorage.getItem("Accounts")
+                const existingAccountsData: UserAccountByDid = storedData
+                    ? JSON.parse(storedData)
+                    : {}
+
+                const { data } = await agent.getProfile({
+                    actor: agent.session.did,
+                })
+                const accountData: UserAccount = {
+                    service: server,
+                    session: agent.session,
+                    profile: {
+                        did: agent.session.did,
+                        displayName: data?.displayName || agent.session.handle,
+                        handle: agent.session.handle,
+                        avatar: data?.avatar || "",
+                    },
+                }
+                existingAccountsData[agent.session.did] = accountData
+
+                localStorage.setItem(
+                    "Accounts",
+                    JSON.stringify(existingAccountsData)
+                )
+            }
+            //router.push("/")
+            setIsLogging(false)
+            setIsSwitching(false)
+            window.location.reload()
+        } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.log(e.message)
+            }
+        }
+    }
+
     const AccountComponent = () => {
         return (
             <>
@@ -132,6 +201,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         return
                                     try {
                                         setIsSwitching(true)
+                                        setAuthenticationRequired(false)
+                                        setSelectedAccountInfo(item)
                                         const { session } = item
                                         const agent = new BskyAgent({
                                             service: `https://${key}`,
@@ -150,8 +221,17 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         //router.push("/")
                                         setIsSwitching(false)
                                         window.location.reload()
-                                    } catch (e) {
-                                        console.log(e)
+                                    } catch (e: unknown) {
+                                        if (e instanceof Error) {
+                                            if (
+                                                e.message.includes(
+                                                    "Authentication"
+                                                )
+                                            ) {
+                                                setIsSwitching(false)
+                                                setAuthenticationRequired(true)
+                                            }
+                                        }
                                     }
                                 }}
                             >
@@ -183,8 +263,26 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 className={"text-[#00D315]"}
                                             />
                                         </div>
+                                    ) : isSwitching ? (
+                                        <Spinner />
                                     ) : (
-                                        isSwitching && <Spinner />
+                                        authenticationRequired && (
+                                            <span className={"text-[#FF0000]"}>
+                                                <Button
+                                                    onClick={() => {
+                                                        setServer(key)
+                                                        setIdentity(
+                                                            item.profile.handle
+                                                        )
+                                                        setOpenModalReason(
+                                                            "relogin"
+                                                        )
+                                                    }}
+                                                >
+                                                    再ログインが必要です
+                                                </Button>
+                                            </span>
+                                        )
                                     )}
                                 </div>
                             </div>
@@ -212,6 +310,23 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                     <ModalBody>{AccountComponent()}</ModalBody>
                                     <ModalFooter>
                                         <Button
+                                            color="primary"
+                                            onClick={() => {
+                                                onClose()
+                                                props.setSideBarOpen(false)
+                                            }}
+                                        >
+                                            Close
+                                        </Button>
+                                    </ModalFooter>
+                                </>
+                            ) : openModalReason === "logout" ? (
+                                <>
+                                    <ModalHeader>
+                                        Would you like to log out?
+                                    </ModalHeader>
+                                    <ModalFooter>
+                                        <Button
                                             color="danger"
                                             variant="light"
                                             onClick={onClose}
@@ -221,6 +336,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         <Button
                                             color="primary"
                                             onClick={() => {
+                                                handleDeleteSession()
                                                 onClose()
                                                 props.setSideBarOpen(false)
                                             }}
@@ -230,28 +346,78 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                     </ModalFooter>
                                 </>
                             ) : (
-                                openModalReason === "logout" && (
+                                openModalReason === "relogin" && (
                                     <>
-                                        <ModalHeader>
-                                            Would you like to log out?
+                                        <ModalHeader className="flex flex-col gap-1">
+                                            Log in
                                         </ModalHeader>
+                                        <ModalBody>
+                                            <Input
+                                                defaultValue={
+                                                    selectedAccountInfo.service
+                                                }
+                                                onValueChange={(e) => {
+                                                    setServer(e)
+                                                }}
+                                                label="Service"
+                                                placeholder="Enter connect server"
+                                                variant="bordered"
+                                            />
+                                            <Input
+                                                autoFocus
+                                                endContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faAt}
+                                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                                                    />
+                                                }
+                                                defaultValue={
+                                                    selectedAccountInfo.session
+                                                        ?.handle
+                                                }
+                                                onValueChange={(e) => {
+                                                    setIdentity(e)
+                                                }}
+                                                label="Email"
+                                                placeholder="Enter your email"
+                                                variant="bordered"
+                                            />
+                                            <Input
+                                                endContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faLock}
+                                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                                                    />
+                                                }
+                                                onValueChange={(e) => {
+                                                    setPassword(e)
+                                                }}
+                                                label="Password"
+                                                placeholder="Enter your password"
+                                                type="password"
+                                                variant="bordered"
+                                            />
+                                        </ModalBody>
                                         <ModalFooter>
                                             <Button
                                                 color="danger"
-                                                variant="light"
-                                                onClick={onClose}
+                                                variant="flat"
+                                                onPress={onClose}
                                             >
-                                                No
+                                                Close
                                             </Button>
                                             <Button
                                                 color="primary"
                                                 onClick={() => {
-                                                    handleDeleteSession()
-                                                    onClose()
-                                                    props.setSideBarOpen(false)
+                                                    handleRelogin()
+                                                    //onClose()
                                                 }}
                                             >
-                                                Yes
+                                                {!isLogging ? (
+                                                    "Sign In"
+                                                ) : (
+                                                    <Spinner />
+                                                )}
                                             </Button>
                                         </ModalFooter>
                                     </>
@@ -464,19 +630,3 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         </>
     )
 }
-
-interface UserProps {
-    actor: ProfileView
-    onClick: () => void
-    skeleton?: boolean
-    index?: number
-    color: string
-}
-
-const UserComponent = ({
-    actor,
-    onClick,
-    skeleton,
-    index,
-    color,
-}: UserProps) => {}
