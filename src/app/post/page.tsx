@@ -750,10 +750,10 @@ export default function Root() {
                             className={footerTooltipStyle()}
                         >
                             <Button
-                                disabled={
+                                isDisabled={
                                     loading ||
                                     // imageProcessing ||
-                                    contentImages.length > 4 ||
+                                    contentImages.length >= 4 ||
                                     // isImageMaxLimited ||
                                     getOGPData ||
                                     isOGPGetProcessing
@@ -783,7 +783,7 @@ export default function Root() {
                                 disabled={
                                     loading ||
                                     // imageProcessing ||
-                                    contentImages.length > 4 ||
+                                    contentImages.length >= 4 ||
                                     // isImageMaxLimited ||
                                     getOGPData ||
                                     isOGPGetProcessing
