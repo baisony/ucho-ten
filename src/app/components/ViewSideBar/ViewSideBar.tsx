@@ -98,6 +98,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLogging, setIsLogging] = useState<boolean>(false)
+    const [loginError, setLoginError] = useState<boolean>(false)
 
     const handleDeleteSession = () => {
         console.log("delete session")
@@ -131,6 +132,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         if (server === "" || identity === "" || password === "") return
         try {
             setIsSwitching(true)
+            setLoginError(false)
             setAuthenticationRequired(false)
             setIsLogging(true)
             const agent = new BskyAgent({
@@ -178,6 +180,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         } catch (e: unknown) {
             if (e instanceof Error) {
                 console.log(e.message)
+                setLoginError(true)
             }
         }
     }
@@ -362,6 +365,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 label="Service"
                                                 placeholder="Enter connect server"
                                                 variant="bordered"
+                                                isInvalid={loginError}
                                             />
                                             <Input
                                                 autoFocus
@@ -381,6 +385,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 label="Email"
                                                 placeholder="Enter your email"
                                                 variant="bordered"
+                                                isInvalid={loginError}
                                             />
                                             <Input
                                                 endContent={
@@ -396,6 +401,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 placeholder="Enter your password"
                                                 type="password"
                                                 variant="bordered"
+                                                isInvalid={loginError}
                                             />
                                         </ModalBody>
                                         <ModalFooter>
