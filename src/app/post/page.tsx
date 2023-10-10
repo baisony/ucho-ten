@@ -27,6 +27,12 @@ import {
     Popover,
     PopoverTrigger,
     PopoverContent,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    UseDisclosureProps,
 } from "@nextui-org/react"
 
 import { useDisclosure } from "@nextui-org/react"
@@ -52,7 +58,7 @@ export default function Root() {
     )
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
-    const [contentImage, setContentImages] = useState<File[]>([])
+    const [contentImages, setContentImages] = useState<File[]>([])
     const [loading, setLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const hiddenInput = useRef<HTMLDivElement>(null)
@@ -63,9 +69,9 @@ export default function Root() {
     const [isSetURLCard, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
     const [isGetOGPFetchError, setIsGetOGPFetchError] = useState(false)
-    const isImageMaxLimited =
-        contentImage.length >= 5 || contentImage.length === 4 // 4枚まで
-    const isImageMinLimited = contentImage.length === 0 // 4枚まで
+    // const isImageMaxLimited =
+    //    contentImages.length >= 5 || contentImages.length === 4 // 4枚まで
+    // const isImageMinLimited = contentImage.length === 0 // 4枚まで
     const [compressProcessing, setCompressProcessing] = useState(false)
     const {
         background,
@@ -106,6 +112,13 @@ export default function Root() {
         ImageEditButton,
     } = createPostPage()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const {
+        isOpen: isModalOpen,
+        onOpen: onModalOpen,
+        onClose: onModalClose,
+        onOpenChange: onModalOpenChange,
+    } = useDisclosure()
+
     const [darkMode, setDarkMode] = useState(false)
     const color = darkMode ? "dark" : "light"
     const modeMe = (e: any) => {
@@ -134,7 +147,7 @@ export default function Root() {
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        if (contentImage.length + files.length > 4) {
+        if (contentImages.length + files.length > 4) {
             return
         }
         const maxFileSize = 975 * 1024 // 975KB
@@ -195,15 +208,28 @@ export default function Root() {
         }
     }
     const handleOnRemoveImage = (index: number) => {
-        const newImages = [...contentImage]
+        const newImages = [...contentImages]
         newImages.splice(index, 1)
         setContentImages(newImages)
     }
     const handleOnAddImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files) return
+        let shouldShowAttachImageOverLimitAlert = false
+        const currentImagesCount = contentImages.length
+
+        if (!e.target.files) {
+            return
+        }
+
+        const imageFiles = Array.from(e.target.files)
+
+        if (currentImagesCount + imageFiles.length > 4) {
+            imageFiles.slice(0, 4 - currentImagesCount)
+
+            shouldShowAttachImageOverLimitAlert = true
+        }
 
         const compressedImages = await Promise.all(
-            Array.from(e.target.files).map(async (file) => {
+            imageFiles.map(async (file) => {
                 if (file.size > 975000) {
                     try {
                         setCompressProcessing(true)
@@ -222,6 +248,10 @@ export default function Root() {
         )
 
         setContentImages((b) => [...b, ...compressedImages])
+
+        if (shouldShowAttachImageOverLimitAlert) {
+            onModalOpen()
+        }
     }
 
     const AppearanceColor = color
@@ -386,7 +416,7 @@ export default function Root() {
                     <div className={contentRight()}>
                         <Textarea
                             className={contentRightTextArea({
-                                uploadImageAvailable: contentImage.length !== 0,
+                                uploadImageAvailable: contentImages.length !== 0,
                             })}
                             aria-label="post input area"
                             placeholder={"Yo, Do you do Brusco?"}
@@ -406,9 +436,9 @@ export default function Root() {
                                 )
                             }
                         />
-                        {contentImage.length > 0 && (
+                        {contentImages.length > 0 && (
                             <div className={contentRightImagesContainer()}>
-                                {contentImage.map((image, index) => (
+                                {contentImages.map((image, index) => (
                                     <div
                                         key={index}
                                         className={"relative w-1/4 h-full flex"}
@@ -655,7 +685,8 @@ export default function Root() {
                                 disabled={
                                     loading ||
                                     compressProcessing ||
-                                    isImageMaxLimited ||
+                                    contentImages.length > 4 ||
+                                    // isImageMaxLimited ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
@@ -684,7 +715,8 @@ export default function Root() {
                                 disabled={
                                     loading ||
                                     compressProcessing ||
-                                    isImageMaxLimited ||
+                                    contentImages.length > 4 ||
+                                    // isImageMaxLimited ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
@@ -847,6 +879,30 @@ export default function Root() {
                     </div>
                 </div>
             </div>
+
+            <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                Error
+                            </ModalHeader>
+                            <ModalBody>
+                                <p>You can not attach more than 4 images.</p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button
+                                    color="danger"
+                                    variant="light"
+                                    onPress={onModalClose}
+                                >
+                                    Close
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </main>
     )
 }
