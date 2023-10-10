@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useRef, useCallback, useEffect } from "react"
 import { createPostPage } from "./styles"
 import { BrowserView, MobileView, isMobile } from "react-device-detect"
@@ -42,30 +43,34 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
-import Compressor from "compressorjs"
-import {
-    AppBskyEmbedImages,
-    AppBskyEmbedRecordWithMedia,
-    AppBskyFeedPost,
-    BlobRef,
-} from "@atproto/api"
+// import Compressor from "compressorjs"
+import imageCompression, {
+    Options as ImageCompressionOptions,
+} from "browser-image-compression"
+
+import { AppBskyEmbedImages, AppBskyFeedPost, BlobRef } from "@atproto/api"
+
+interface AttachmentImage {
+    blob: Blob
+    type: string
+    isFailed?: boolean
+}
 
 export default function Root() {
-    const [userProfileDetailed, setUserProfileDetailed] =
-        useUserProfileDetailedAtom()
+    const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [agent, setAgent] = useAgent()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
-    const reg =
-        /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
+    // const reg =
+    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
     const [PostContentLanguage, setPostContentLanguage] = useState(
         new Set<string>([])
     )
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
-    const [contentImages, setContentImages] = useState<File[]>([])
+    const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
     const [loading, setLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const hiddenInput = useRef<HTMLDivElement>(null)
@@ -79,11 +84,7 @@ export default function Root() {
     // const isImageMaxLimited =
     //    contentImages.length >= 5 || contentImages.length === 4 // 4枚まで
     // const isImageMinLimited = contentImage.length === 0 // 4枚まで
-    const [compressingFilesCount, setCompressingFilesCount] =
-        useState<number>(0)
-    const imageProcessErrors = useRef<Error[]>([])
-    const uploadBlobs = useRef<Blob[]>([])
-    const [imageProcessDone, setImageProcessDone] = useState<boolean>(false)
+    // const [imageProcessing, setImageProcessing] = useState<boolean>(false)
     const {
         background,
         backgroundColor,
@@ -117,7 +118,6 @@ export default function Root() {
         footerTooltipStyle,
         dropdown,
         popover,
-
         ImageDeleteButton,
         ImageAddALTButton,
         ImageEditButton,
@@ -151,23 +151,6 @@ export default function Root() {
         }
     }, [appearanceColor])
 
-    // useEffect(() => {
-    //     if (imageProcessDone) {
-    //         setImageProcessDone(false)
-
-    //         setContentImages((currentImages) => [
-    //             ...currentImages,
-    //             ...processedImages.current,
-    //         ])
-
-    //         processedImages.current = []
-
-    //         if (imageProcessErrors.current.length > 0) {
-    //             onModalOpen()
-    //         }
-    //     }
-    // }, [imageProcessDone])
-
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
             handlePostClick()
@@ -176,34 +159,6 @@ export default function Root() {
 
     const onDrop = useCallback(async (files: File[]) => {
         addImages(files)
-
-        // if (contentImages.length + files.length > 4) {
-        //     return
-        // }
-
-        // const maxFileSize = 975 * 1024 // 975KB
-
-        // const compressedImages = await Promise.all(
-        //     Array.from(files).map(async (file) => {
-        //         if (file.size > maxFileSize) {
-        //             try {
-        //                 setCompressProcessing(true)
-        //                 const compressedFile = file
-        //                 setCompressProcessing(false)
-
-        //                 return compressedFile
-        //             } catch (error) {
-        //                 console.error(error)
-        //                 return file
-        //             }
-        //         } else {
-        //             return file
-        //         }
-        //     })
-        // )
-        // setContentImages((b) => [...b, ...compressedImages])
-
-        // 5. 圧縮されたファイルをsetContentImagesで設定する
     }, [])
 
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
@@ -230,7 +185,9 @@ export default function Root() {
             const blobRefs: BlobRef[] = []
 
             for (const image of contentImages) {
-                const uint8array = new Uint8Array(await image.arrayBuffer())
+                const uint8array = new Uint8Array(
+                    await image.blob.arrayBuffer()
+                )
                 const res = await agent.uploadBlob(uint8array, {
                     encoding: "image/jpeg",
                 })
@@ -298,74 +255,68 @@ export default function Root() {
         addImages(imageFiles)
     }
 
-    // const compressImage = (file: File): Promise<Blob> => {
-    //     return new Promise((resolve, reject) => {
-    //         new Compressor(file, {
-    //             quality: 0.8,
-    //             success(result) {
-    //                 resolve(result)
-    //             },
-    //             error(err) {
-    //                 reject(err)
-    //             },
-    //         })
-    //     })
-    // }
-
     const addImages = async (imageFiles: File[]) => {
-        let shouldShowAttachImageOverLimitAlert = false
-
         const currentImagesCount = contentImages.length
 
         if (currentImagesCount + imageFiles.length > 4) {
             imageFiles.slice(0, 4 - currentImagesCount)
-
-            shouldShowAttachImageOverLimitAlert = true
         }
 
-        // await Promise.all(
-        //     imageFiles.map(async (file, index) => {
-        //         if (file.size > 975000) {
-        //             try {
-        //                 const maxFileSize = 975 * 1024 // 975KB
+        const maxFileSize = 975 * 1024 // 975KB
 
-        //                 setCompressingFilesCount(
-        //                     (currentCount) => currentCount + 1
-        //                 )
+        const imageBlobs: AttachmentImage[] = await Promise.all(
+            imageFiles.map(async (file, index) => {
+                if (file.size > maxFileSize) {
+                    try {
+                        const options: ImageCompressionOptions = {
+                            maxSizeMB: maxFileSize / 1024 / 1024,
+                            maxWidthOrHeight: 4096,
+                            useWebWorker: true,
+                            maxIteration: 20,
+                        }
 
-        //                 new Compressor(file, {
-        //                     convertSize: maxFileSize,
-        //                     success: (file) => {
-        //                         if (file instanceof File) {
-        //                             processedImages.current[index] = file
-        //                         }
-        //                     },
-        //                     error: (error: Error) => {
-        //                         imageProcessErrors.current.push(error)
-        //                     },
-        //                 })
+                        const compressedFile = await imageCompression(
+                            file,
+                            options
+                        )
 
-        //                 setCompressingFilesCount(
-        //                     (currentCount) => currentCount - 1
-        //                 )
-        //             } catch (error) {
-        //                 console.error(error)
-        //                 return true
-        //             }
-        //         } else {
-        //             return true
-        //         }
-        //     })
-        // )
+                        console.log("圧縮後", compressedFile.size)
 
-        setContentImages((currentImageFiles) => [
-            ...currentImageFiles,
-            ...imageFiles,
-        ])
+                        if (compressedFile.size > maxFileSize) {
+                            throw new Error("Image compression failure")
+                        }
 
-        // if (shouldShowAttachImageOverLimitAlert) {
-        //     onModalOpen()
-        // }
+                        return {
+                            blob: compressedFile,
+                            type: file.type,
+                        }
+                    } catch (error) {
+                        console.log("圧縮失敗", file.size)
+                        console.error(error)
+
+                        return {
+                            blob: file,
+                            type: file.type,
+                            isFailed: true,
+                        }
+                    }
+                } else {
+                    console.log("圧縮しなーい", file.size)
+                    return {
+                        blob: file,
+                        type: file.type,
+                    }
+                }
+            })
+        )
+
+        const addingImages: AttachmentImage[] = imageBlobs.filter(
+            (imageBlob) => {
+                return !imageBlob.isFailed
+            }
+        )
+
+        setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
     const AppearanceColor = color
@@ -559,7 +510,9 @@ export default function Root() {
                                         className={"relative w-1/4 h-full flex"}
                                     >
                                         <Image
-                                            src={URL.createObjectURL(image)}
+                                            src={URL.createObjectURL(
+                                                image.blob
+                                            )}
                                             alt="image"
                                             style={{
                                                 borderRadius: "10px",
@@ -799,7 +752,7 @@ export default function Root() {
                             <Button
                                 disabled={
                                     loading ||
-                                    compressingFilesCount > 0 ||
+                                    // imageProcessing ||
                                     contentImages.length > 4 ||
                                     // isImageMaxLimited ||
                                     getOGPData ||
@@ -829,7 +782,7 @@ export default function Root() {
                                 ) => handleOnAddImage(e)}
                                 disabled={
                                     loading ||
-                                    compressingFilesCount > 0 ||
+                                    // imageProcessing ||
                                     contentImages.length > 4 ||
                                     // isImageMaxLimited ||
                                     getOGPData ||
@@ -994,30 +947,6 @@ export default function Root() {
                     </div>
                 </div>
             </div>
-
-            {/* <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange}>
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                Error
-                            </ModalHeader>
-                            <ModalBody>
-                                <p>You can not attach more than 4 images.</p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button
-                                    color="danger"
-                                    variant="light"
-                                    onPress={onModalClose}
-                                >
-                                    Close
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal> */}
         </main>
     )
 }
