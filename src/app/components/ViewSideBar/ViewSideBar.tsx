@@ -89,7 +89,6 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
-        bg,
         modal,
     } = viewSideBar()
     const [agent, setAgent] = useAgent()
