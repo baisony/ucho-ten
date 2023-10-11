@@ -30,7 +30,7 @@ export const postModal = tv({
             "w-[100%] h-[40px] whitespace-nowrap flex flex-wrap flex-col",
         contentRightUrlCard: "w-full",
         contentRightUrlCardDeleteButton:
-            "w-[calc(100%-485px)] bg-red bg-opacity-10 rounded-[10px] cursor-pointer",
+            "w-[40px] h-[40px] bg-black bg-opacity-20 rounded-full cursor-pointer flex justify-center items-center",
         URLCard:
             "h-full w-[485px] rounded-[10px] overflow-hidden border-[1px] border-[#808080] bg-[#FFFFFF] flex items-center cursor-pointer",
         URLCardThumbnail:
