@@ -490,9 +490,9 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                 <>
                     <>
                         <div
-                            className={`${PostCardContainer()} ${
-                                isEmbedToModal && `pt-[0px]`
-                            }`}
+                            className={`${PostCardContainer({
+                                isMobile: isMobile,
+                            })} ${isEmbedToModal && `pt-[0px]`}`}
                             onMouseEnter={() => {
                                 setIsHover(true)
                             }}

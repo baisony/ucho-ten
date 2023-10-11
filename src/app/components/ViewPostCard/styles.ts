@@ -3,12 +3,12 @@ import { tv } from "@nextui-org/react"
 export const viewPostCard = tv({
     slots: {
         PostCard: "w-full min-w-[350px] border-b-[1px] ",
-        PostCardContainer: "pl-[8px] pt-[11px] pb-[24px] w-full",
+        PostCardContainer: "pl-[8px] pt-[11px] w-full",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
         PostAuthorIcon:
             "h-[28px] w-[28px] rounded-[10px] object-cover overflow-hidden hover:cursor-pointer",
-        PostAuthorDisplayName: "ml-[9px] hover:cursor-pointer",
+        PostAuthorDisplayName: "ml-[9px] hover:cursor-pointer font-[600]",
         PostAuthorHandle:
             "text-[#909090] font-light text-[12px] hover:cursor-pointer",
         PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
@@ -25,7 +25,7 @@ export const viewPostCard = tv({
         skeletonTime: "",
         skeletonText1line: "h-3 w-3/5 rounded-lg ",
         skeletonText2line: "h-3 w-4/5 rounded-lg ",
-        chip: "overflow-clip max-w-full",
+        chip: "overflow-hidden max-w-full",
         isEmbedToModal: "",
         LinkCard:
             "h-[100px] w-full rounded-lg overflow-hidden border border-gray-600 flex items-center text-gray-800",
@@ -72,11 +72,13 @@ export const viewPostCard = tv({
                 PostModal: "rounded-none",
                 background: "",
                 PostContent: "text-[14px] mb-[6px]",
+                PostCardContainer: "pb-[18px]",
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
                 background: "relative flex justify-center items-center",
                 PostContent: "text-[15px] mb-[6px]",
+                PostCardContainer: "pb-[24px]",
             },
         },
         isEmbedToModal: {
