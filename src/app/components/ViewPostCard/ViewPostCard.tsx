@@ -47,8 +47,9 @@ import {
     ImageObject,
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
+import "react-window"
 
-interface Props {
+export interface ViewPostCardProps {
     className?: string
     color: "light" | "dark"
     isMobile?: boolean
@@ -63,9 +64,9 @@ interface Props {
     now?: Date
 }
 
-export const ViewPostCard: React.FC<Props> = (props: Props) => {
+export const ViewPostCard: React.FC<ViewPostCardProps> = (props: ViewPostCardProps) => {
     const [agent] = useAgent()
-    const [imageGallery, setImageGallery] = useImageGalleryAtom()
+    const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
     const {
         className,
@@ -202,8 +203,10 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
 
     const renderTextWithLinks = useMemo(() => {
         if (!postJson?.record) return
+        
         const encoder = new TextEncoder()
         const decoder = new TextDecoder()
+
         if (!postJson.record?.facets) {
             const post: any[] = []
             postJson.record.text.split("\n").map((line: any, i: number) => {
@@ -216,10 +219,13 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
             })
             return post
         }
+
         const { text, facets } = postJson.record
         const text_bytes = encoder.encode(text)
         const result: any[] = []
+
         let lastOffset = 0
+        
         facets.forEach((facet: any, index: number) => {
             const { byteStart, byteEnd } = facet.index
 
@@ -421,6 +427,7 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     //         ).padStart(2, "0")}`;
     //     }
     // }
+
     const handleMouseUp = (e: any) => {
         // マウスダウンしていない状態でクリックされた場合は何もしない
         if (startX === null || startY === null) return
@@ -455,7 +462,7 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
 
     return (
         <>
-            <Modal
+            {/* <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
@@ -471,7 +478,7 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                         />
                     )}
                 </ModalContent>
-            </Modal>
+            </Modal> */}
             <main
                 className={`${PostCard({ color: color })} ${
                     isEmbedToModal

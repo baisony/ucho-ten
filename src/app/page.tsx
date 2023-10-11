@@ -16,6 +16,15 @@ import { useSearchParams } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
+import LazyViewPostCard from "./components/ViewPostCard/LazyViewPostCard"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Pagination } from "swiper/modules"
+
+import "swiper/css"
+import "swiper/css/pagination"
+import FeedPage from "./components/FeedPage/FeedPage"
+import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
+import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
 
 export default function Root(props: any) {
     const [agent, setAgent] = useAgent()
@@ -34,6 +43,8 @@ export default function Root(props: any) {
     const currentFeed = useRef<string>("")
     // const newCursor = useRef<string>("")
     const cursor = useRef<string>("")
+
+    const [pinnedFeeds] = useFeedGeneratorsAtom()
 
     const color = darkMode ? "dark" : "light"
 
@@ -220,64 +231,6 @@ export default function Root(props: any) {
         await fetchTimeline(false)
     }
 
-    // const loadMore = useCallback(
-    //     async (page: any) => {
-    //         if (!agent) return
-    //         if (!cursor.current) return
-
-    //         console.log("loadMore")
-
-    //         try {
-    //             setLoading2(true)
-    //             let data
-    //             if (selectedFeed === "following") {
-    //                 ;({ data } = await agent.getTimeline({
-    //                     cursor: !hasCursor ? cursor.current : hasCursor,
-    //                     limit: 30,
-    //                 }))
-    //             } else {
-    //                 ;({ data } = await agent.app.bsky.feed.getFeed({
-    //                     feed: selectedFeed,
-    //                     cursor: !hasCursor ? cursor.current : hasCursor,
-    //                     limit: 30,
-    //                 }))
-    //             }
-
-    //             const { feed } = data
-
-    //             if (data.cursor) {
-    //                 setHasCursor(data.cursor)
-    //             }
-
-    //             const filteredData = FormattingTimeline(feed)
-    //             const diffTimeline = filteredData.filter((newItem) => {
-    //                 if (!timeline) {
-    //                     return true
-    //                 }
-
-    //                 return !timeline.some(
-    //                     (oldItem) => oldItem.post === newItem.post
-    //                 )
-    //             })
-
-    //             console.log(timeline)
-    //             console.log(diffTimeline)
-
-    //             //取得データをリストに追加
-    //             if (timeline) {
-    //                 setTimeline([...timeline, ...diffTimeline])
-    //             } else {
-    //                 setTimeline([...diffTimeline])
-    //             }
-    //             setLoading2(false)
-    //         } catch (e) {
-    //             setLoading2(false)
-    //             console.log(e)
-    //         }
-    //     },
-    //     [agent, timeline, hasCursor, selectedFeed]
-    // )
-
     const checkNewTimeline = async () => {
         if (!agent) {
             return
@@ -354,91 +307,59 @@ export default function Root(props: any) {
 
     return (
         <>
-            {newTimeline.length > 0 && (
-                <div
-                    className={
-                        " absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
-                    }
-                >
+            <Swiper
+                pagination={true}
+                hidden={true}
+                modules={[Pagination]}
+                className="mySwiper"
+                style={{height: "100%"}}
+            >
+                <SwiperSlide key="following">
                     <div
-                        className={
-                            "text-black  bg-blue-50 rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px]"
-                        }
-                        onClick={handleRefresh}
+                        id={`swiperIndex-div-following`}
+                        style={{ overflowY: "auto", height: "100%" }}
                     >
-                        <FontAwesomeIcon icon={faArrowsRotate} /> New Posts
+                        <FeedPage
+                            {...{
+                                feedKey: "following",
+                                loading,
+                                hasMore,
+                                loadMore,
+                                color,
+                                timeline,
+                                now,
+                            }}
+                        />
                     </div>
-                </div>
-            )}
-            <>
-                <InfiniteScroll
-                    id="infinite-scroll"
-                    initialLoad={false}
-                    loadMore={loadMore}
-                    hasMore={hasMore}
-                    loader={
-                        <div
-                            key="spinner-home"
-                            className="flex justify-center mt-2 mb-2"
-                        >
-                            <Spinner />
-                        </div>
-                    }
-                    threshold={700}
-                    useWindow={false}
-                >
-                    {(loading || !timeline) &&
-                        Array.from({ length: 15 }, (_, index) => (
-                            <ViewPostCard
-                                key={`skeleton-${index}`}
-                                color={color}
-                                numbersOfImage={0}
-                                postJson={null}
-                                isMobile={isMobile}
-                                isSkeleton={true}
-                            />
-                        ))}
-                    {!loading &&
-                        timeline &&
-                        timeline.map((post, index) => {
-                            // Check if post.record.text contains muteWords
-                            const isMuted =
-                                (post.post.record as PostView)?.text &&
-                                muteWords.some((muteWord) => {
-                                    //console.log(muteWord)
-                                    return (
-                                        muteWord.isActive &&
-                                        muteWord.targets.includes("timeline") &&
-                                        (
-                                            (post.post.record as PostView)
-                                                ?.text as string
-                                        )?.includes(muteWord.word)
-                                    )
-                                })
-                            if (!isMuted) {
-                                // Render the post if it's not muted
-                                return (
-                                    <ViewPostCard
-                                        key={`${
-                                            post?.reason
-                                                ? `reason-${
-                                                      (post.reason as any).by
-                                                          .did
-                                                  }`
-                                                : `post`
-                                        }-${post.post.uri}`}
-                                        color={color}
-                                        numbersOfImage={0}
-                                        postJson={post.post}
-                                        json={post}
-                                        isMobile={isMobile}
-                                        now={now}
+                </SwiperSlide>
+                {pinnedFeeds &&
+                    pinnedFeeds.map((feed, swiperIndex) => {
+                        return (
+                            <SwiperSlide key={`swiperslide-${swiperIndex}`}>
+                                <div
+                                    id={`swiperIndex-div-${swiperIndex}`}
+                                    key={swiperIndex}
+                                    style={{
+                                        overflowY: "auto",
+                                        height: "100%",
+                                    }}
+                                >
+                                    <FeedPage
+                                        {...{
+                                            feedKey: feed.uri,
+                                            loading,
+                                            hasMore,
+                                            loadMore,
+                                            color,
+                                            timeline,
+                                            now,
+                                        }}
                                     />
-                                )
-                            }
-                        })}
-                </InfiniteScroll>
-            </>
+                                </div>
+                            </SwiperSlide>
+                        )
+                    })}
+            </Swiper>
         </>
     )
 }

@@ -25,3 +25,8 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.swiper-slide {
+  height: 100%;
+  overflow-y: scroll;
+}
