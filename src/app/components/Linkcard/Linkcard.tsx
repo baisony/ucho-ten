@@ -2,6 +2,7 @@ import { BskyAgent } from "@atproto/api"
 import React from "react"
 import { linkcard } from "./styles"
 import "react-circular-progressbar/dist/styles.css"
+import { Spinner } from "@nextui-org/react"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -11,10 +12,11 @@ interface Props {
     type?: "Post" | "Reply" | `Quote`
     postData?: any
     OGPData?: any
+    skeleton?: boolean
 }
 
 export const Linkcard: React.FC<Props> = (props: Props) => {
-    const { color, type, postData, OGPData } = props
+    const { color, type, postData, OGPData, skeleton } = props
     const {
         LinkCard,
         LinkCardThumbnailContainer,
@@ -38,6 +40,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onMouseUp={(e) => e.stopPropagation()}
+                className={"w-full"}
             >
                 <div
                     className={LinkCard({
@@ -45,11 +48,28 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                     })}
                 >
                     <div className={LinkCardThumbnailContainer()}>
-                        <img
-                            src={generatedURL}
-                            className={LinkCardThumbnail()}
-                            alt={OGPData?.alt}
-                        />
+                        {!skeleton ? (
+                            <img
+                                src={generatedURL}
+                                className={LinkCardThumbnail()}
+                                alt={OGPData?.alt}
+                            />
+                        ) : (
+                            <div
+                                style={{
+                                    position: "relative",
+                                    textAlign: "center",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform:
+                                        "translateY(-50%) translateX(-50%)",
+                                    WebkitTransform:
+                                        "translateY(-50%) translateX(-50%)",
+                                }}
+                            >
+                                <Spinner size="md" />
+                            </div>
+                        )}
                     </div>
                     <div className={LinkCardContent()}>
                         <div className="w-full min-w-0">
@@ -58,7 +78,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                     color: color,
                                 })}
                             >
-                                {OGPData?.title || "No Title"}
+                                {OGPData && (OGPData?.title || "No Title")}
                             </div>
                             <div
                                 className={LinkCardDescription({
@@ -71,7 +91,8 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                     overflow: "hidden",
                                 }}
                             >
-                                {OGPData?.description || "No Description"}
+                                {OGPData &&
+                                    (OGPData?.description || "No Description")}
                             </div>
                             <div
                                 className={LinkCardSiteName({

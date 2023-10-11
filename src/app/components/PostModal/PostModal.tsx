@@ -1,36 +1,37 @@
-import { BskyAgent } from "@atproto/api"
-export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
-import React, {
-    useState,
-    useRef,
-    useCallback,
-    useEffect,
-    useLayoutEffect,
-} from "react"
-import { postModal } from "./styles"
-import { BrowserView, MobileView, isMobile } from "react-device-detect"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import {
-    faXmark,
-    faPen,
+    AppBskyEmbedImages,
+    AppBskyFeedPost,
+    BlobRef,
+    BskyAgent,
+    RichText,
+} from "@atproto/api"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { postModal } from "./styles"
+import { BrowserView, isMobile } from "react-device-detect"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faImage } from "@fortawesome/free-regular-svg-icons"
+import {
     faCirclePlus,
     faFaceLaughBeam,
+    faPen,
+    faPlus,
     faUser,
+    faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
 import {
+    Button,
+    Chip,
     Dropdown,
-    DropdownTrigger,
+    DropdownItem,
     DropdownMenu,
     DropdownSection,
-    DropdownItem,
-    Button,
+    DropdownTrigger,
     Image,
-    Spinner,
     Popover,
-    PopoverTrigger,
     PopoverContent,
+    PopoverTrigger,
+    Spinner,
     useDisclosure,
 } from "@nextui-org/react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -42,6 +43,18 @@ import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
 import { useDropzone } from "react-dropzone"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
+import { Linkcard } from "@/app/components/Linkcard"
+import imageCompression, {
+    Options as ImageCompressionOptions,
+} from "browser-image-compression"
+
+export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
+
+interface AttachmentImage {
+    blob: Blob
+    type: string
+    isFailed?: boolean
+}
 
 interface Props {
     children?: React.ReactNode
@@ -50,6 +63,7 @@ interface Props {
     postData?: any
     onClose: (isClosed: boolean) => void
 }
+
 export const PostModal: React.FC<Props> = (props: Props) => {
     const { color, type, postData } = props
     const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
@@ -65,7 +79,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     )
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
-    const [contentImage, setContentImages] = useState<File[]>([])
+    const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
     const [loading, setLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const hiddenInput = useRef<HTMLDivElement>(null)
@@ -76,10 +90,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [isSetURLCard, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
     const [isGetOGPFetchError, setIsGetOGPFetchError] = useState(false)
-    const isImageMaxLimited =
-        contentImage.length >= 5 || contentImage.length === 4 // 4枚まで
-    const isImageMinLimited = contentImage.length === 0 // 4枚まで
     const [compressProcessing, setCompressProcessing] = useState(false)
+    const [isCompressing, setIsCompressing] = useState(false)
+    const [OGPImage, setOGPImage] = useState<any>([])
     const {
         PostModal,
         header,
@@ -136,31 +149,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        if (contentImage.length + files.length > 4) {
-            return
-        }
-        const maxFileSize = 975 * 1024 // 975KB
-        const compressedImages = await Promise.all(
-            Array.from(files).map(async (file) => {
-                if (file.size > maxFileSize) {
-                    try {
-                        setCompressProcessing(true)
-                        const compressedFile = file
-                        setCompressProcessing(false)
-
-                        return compressedFile
-                    } catch (error) {
-                        console.error(error)
-                        return file
-                    }
-                } else {
-                    return file
-                }
-            })
-        )
-        setContentImages((b) => [...b, ...compressedImages])
-
-        // 5. 圧縮されたファイルをsetContentImagesで設定する
+        addImages(files)
     }, [])
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
     //const filesUpdated: FileWithPath[] = acceptedFiles;
@@ -181,31 +170,90 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         if (contentText.trim() === "") return
         setLoading(true)
         try {
-            let postContent: PostRecordPost = {}
+            const blobRefs: BlobRef[] = []
+            const images = contentImages.length > 0 ? contentImages : OGPImage
+            let uploadBlobRes
+            for (const image of images) {
+                const uint8array = new Uint8Array(
+                    await image.blob.arrayBuffer()
+                )
+                uploadBlobRes = await agent.uploadBlob(uint8array, {
+                    encoding: "image/jpeg",
+                })
+
+                const blobRef = uploadBlobRes.data.blob
+                blobRefs.push(blobRef)
+            }
+
+            const rt = new RichText({ text: contentText })
+            await rt.detectFacets(agent)
+
+            const postObj: Partial<AppBskyFeedPost.Record> &
+                Omit<AppBskyFeedPost.Record, "createdAt"> = {
+                text: rt.text.trimStart().trimEnd(),
+                facets: rt.facets,
+                langs: Array.from(PostContentLanguage),
+            }
+
             if (type === "Reply") {
-                postContent = {
-                    text: contentText.trim(),
-                    langs: Array.from(PostContentLanguage),
-                    reply: {
-                        root: {
-                            uri: postData.uri,
-                            cid: postData.cid,
-                        },
-                        parent: {
-                            uri: postData.uri,
-                            cid: postData.cid,
-                        },
+                const reply = {
+                    root: {
+                        uri: postData.uri,
+                        cid: postData.cid,
                     },
-                    createdAt: new Date().toISOString(),
-                }
-                if (contentImage.length <= 4 && contentImage.length >= 1) {
-                    postContent.embed = {
-                        $type: "",
+                    parent: {
+                        uri: postData.uri,
+                        cid: postData.cid,
+                    },
+                } as any
+                postObj.reply = reply
+            } else if (type === "Quote") {
+                console.log("hoge")
+            }
+            if (blobRefs.length > 0) {
+                const images: AppBskyEmbedImages.Image[] = []
+
+                for (const blobRef of blobRefs) {
+                    const image: AppBskyEmbedImages.Image = {
+                        image: blobRef,
+                        alt: "",
                     }
+
+                    images.push(image)
+                }
+                if (getOGPData) {
+                    const embed = {
+                        $type: "app.bsky.embed.external",
+                        external: {
+                            uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
+                            title: getOGPData?.title
+                                ? getOGPData.title
+                                : selectedURL,
+                            description: getOGPData?.description
+                                ? getOGPData.description
+                                : "No Description.",
+                            thumb: {
+                                $type: "blob",
+                                ref: {
+                                    $link: uploadBlobRes?.data?.blob.ref.toString(),
+                                },
+                                mimeType: uploadBlobRes?.data?.blob.mimeType,
+                                size: uploadBlobRes?.data?.blob.size,
+                            },
+                        },
+                    } as any
+                    postObj.embed = embed
+                } else {
+                    const embed = {
+                        $type: "app.bsky.embed.images",
+                        images,
+                    } as AppBskyEmbedImages.Main
+
+                    postObj.embed = embed
                 }
             }
-            const res = await agent.post(postContent)
-            console.log(res)
+            console.log(postObj)
+            const res = await agent.post(postObj)
             props.onClose(true)
             console.log("hoge")
         } catch (e) {
@@ -215,33 +263,90 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }
     const handleOnRemoveImage = (index: number) => {
-        const newImages = [...contentImage]
+        const newImages = [...contentImages]
         newImages.splice(index, 1)
         setContentImages(newImages)
     }
     const handleOnAddImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files) return
+        const currentImagesCount = contentImages.length
+        console.log("add image")
+        if (!e.target.files) {
+            return
+        }
 
-        const compressedImages = await Promise.all(
-            Array.from(e.target.files).map(async (file) => {
-                if (file.size > 975000) {
+        const imageFiles = Array.from(e.target.files)
+        console.log(imageFiles)
+        if (!(imageFiles.length + currentImagesCount > 4)) {
+            addImages(imageFiles)
+        }
+    }
+
+    const addImages = async (imageFiles: File[]) => {
+        const currentImagesCount = contentImages.length
+
+        if (currentImagesCount + imageFiles.length > 4) {
+            imageFiles.slice(0, 4 - currentImagesCount)
+        }
+        console.log(imageFiles)
+
+        const maxFileSize = 975 * 1024 // 975KB
+
+        const imageBlobs: AttachmentImage[] = await Promise.all(
+            imageFiles.map(async (file, index) => {
+                if (file.size > maxFileSize) {
                     try {
-                        setCompressProcessing(true)
-                        const compressedFile = file
-                        setCompressProcessing(false)
+                        setIsCompressing(true)
+                        const options: ImageCompressionOptions = {
+                            maxSizeMB: maxFileSize / 1024 / 1024,
+                            maxWidthOrHeight: 4096,
+                            useWebWorker: true,
+                            maxIteration: 20,
+                        }
 
-                        return compressedFile
+                        const compressedFile = await imageCompression(
+                            file,
+                            options
+                        )
+
+                        console.log("圧縮後", compressedFile.size)
+
+                        if (compressedFile.size > maxFileSize) {
+                            throw new Error("Image compression failure")
+                        }
+                        setIsCompressing(false)
+
+                        return {
+                            blob: compressedFile,
+                            type: file.type,
+                        }
                     } catch (error) {
+                        setIsCompressing(false)
+                        console.log("圧縮失敗", file.size)
                         console.error(error)
-                        return file
+
+                        return {
+                            blob: file,
+                            type: file.type,
+                            isFailed: true,
+                        }
                     }
                 } else {
-                    return file
+                    console.log("圧縮しなーい", file.size)
+                    return {
+                        blob: file,
+                        type: file.type,
+                    }
                 }
             })
         )
 
-        setContentImages((b) => [...b, ...compressedImages])
+        const addingImages: AttachmentImage[] = imageBlobs.filter(
+            (imageBlob) => {
+                return !imageBlob.isFailed
+            }
+        )
+
+        setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
     const onEmojiClick = (event: any) => {
@@ -311,8 +416,25 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 throw new Error("HTTP status " + response.status)
             }
             const res = await response.json()
-            setGetOGPData(res)
-            console.log(res)
+            const thumb = res?.image
+            const uri = url
+            const generatedURL = thumb?.startsWith("http")
+                ? thumb
+                : uri && thumb?.startsWith("/")
+                ? `${uri.replace(/\/$/, "")}${thumb}`
+                : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
+            const json = {
+                title: res?.title,
+                description: res?.description,
+                thumb: generatedURL,
+                uri: url,
+                alt: "",
+            }
+            setGetOGPData(json)
+            const image = await fetch(
+                `https://ucho-ten-image-api.vercel.app/api/image?url=${generatedURL}`
+            )
+            setOGPImage([{ blob: image, type: "image/jpeg" }])
             setIsOGPGetProcessing(false)
             return res
         } catch (e) {
@@ -350,8 +472,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         isDisabled={
                             loading ||
                             contentText.trim().length === 0 ||
-                            contentText.trim().length > 300 ||
-                            isImageMaxLimited
+                            contentText.trim().length > 300
                         }
                         isLoading={loading}
                     >
@@ -456,9 +577,19 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     )
                                 }
                             />
-                            {contentImage.length > 0 && (
+                            {(contentImages.length > 0 || isCompressing) && (
                                 <div className={contentRightImagesContainer()}>
-                                    {contentImage.map((image, index) => (
+                                    {isCompressing && (
+                                        <div
+                                            className={
+                                                "relative w-full h-full z-10 flex justify-center items-center"
+                                            }
+                                        >
+                                            Compressing...
+                                            <Spinner />
+                                        </div>
+                                    )}
+                                    {contentImages.map((image, index) => (
                                         <div
                                             key={index}
                                             className={
@@ -466,7 +597,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             }
                                         >
                                             <Image
-                                                src={URL.createObjectURL(image)}
+                                                src={URL.createObjectURL(
+                                                    image.blob
+                                                )}
                                                 alt="image"
                                                 style={{
                                                     borderRadius: "10px",
@@ -508,7 +641,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                 }}
                                             >
                                                 <button
-                                                    className={ImageAddALTButton()}
+                                                    className={`${ImageAddALTButton()} flex justify-center items-center`}
                                                     onClick={() =>
                                                         handleOnRemoveImage(
                                                             index
@@ -545,176 +678,61 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     ))}
                                 </div>
                             )}
+                            {isDetectedURL && !getOGPData && (
+                                <div className={"w-full"}>
+                                    {detectedURLs.map((url, index) => (
+                                        <div className={"mb-[5px]"}>
+                                            <Chip
+                                                key={index}
+                                                className={`w-full ${color}`}
+                                                style={{
+                                                    textAlign: "left",
+                                                    cursor: "pointer",
+                                                }}
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faPlus}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    setSelectedURL(url)
+                                                    setIsSetURLCard(true)
+                                                    getOGP(url)
+                                                }}
+                                            >
+                                                {url}
+                                            </Chip>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                             {isOGPGetProcessing && (
                                 <div className={contentRightUrlCard()}>
-                                    <div
-                                        className={contentRightUrlCardDeleteButton()}
-                                    ></div>
-                                    <div>
-                                        <div
-                                            onClick={() => {
-                                                setIsSetURLCard(false)
-                                                setGetOGPData(undefined)
-                                            }}
-                                            style={{
-                                                textAlign: "left",
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            <div className={URLCardThumbnail()}>
-                                                <div
-                                                    style={{
-                                                        position: "relative",
-                                                        textAlign: "center",
-                                                        top: "50%",
-                                                        left: "50%",
-                                                        transform:
-                                                            "translateY(-50%) translateX(-50%)",
-                                                        WebkitTransform:
-                                                            "translateY(-50%) translateX(-50%)",
-                                                    }}
-                                                >
-                                                    <Spinner
-                                                        color="white"
-                                                        size="md"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className={URLCardDetail()}>
-                                                <div
-                                                    className={URLCardDetailContent()}
-                                                >
-                                                    <div
-                                                        className={URLCardTitle()}
-                                                        style={{
-                                                            color: "black",
-                                                        }}
-                                                    >
-                                                        {undefined}
-                                                    </div>
-                                                    <div
-                                                        className={URLCardDescription()}
-                                                        style={{
-                                                            fontSize: "small",
-                                                        }}
-                                                    >
-                                                        <div
-                                                            style={{
-                                                                textAlign:
-                                                                    "center",
-                                                            }}
-                                                        >
-                                                            <Spinner
-                                                                color="white"
-                                                                size="md"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        className={URLCardLink()}
-                                                    >
-                                                        {undefined}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Linkcard color={color} skeleton={true} />
                                 </div>
                             )}
                             {isSetURLCard &&
                                 getOGPData &&
                                 !isOGPGetProcessing && (
-                                    <div className={contentRightUrlCard()}>
+                                    <div
+                                        className={`${contentRightUrlCard()} flex relative`}
+                                    >
                                         <div
-                                            className={contentRightUrlCardDeleteButton()}
+                                            className={`${contentRightUrlCardDeleteButton()} absolute z-10 right-[10px] top-[10px]`}
                                             onClick={() => {
                                                 setIsSetURLCard(false)
                                                 setGetOGPData(undefined)
                                             }}
                                         >
-                                            <div
-                                                style={{
-                                                    width: "100%",
-                                                    textAlign: "center",
-                                                    marginTop: "50%",
-                                                }}
-                                            >
-                                                <div className={"text-red"}>
-                                                    <FontAwesomeIcon
-                                                        icon={faTrashCan}
-                                                        size="lg"
-                                                    />
-                                                </div>
-                                            </div>
+                                            <FontAwesomeIcon
+                                                icon={faXmark}
+                                                size={"lg"}
+                                            />
                                         </div>
-                                        <div>
-                                            <div
-                                                className={URLCard()}
-                                                style={{
-                                                    textAlign: "left",
-                                                    cursor: "pointer",
-                                                }}
-                                            >
-                                                <div
-                                                    className={URLCardThumbnail()}
-                                                >
-                                                    <img
-                                                        src={
-                                                            getOGPData?.image
-                                                                ? getOGPData?.image
-                                                                : undefined
-                                                        }
-                                                        style={{
-                                                            objectFit: "cover",
-                                                            width: "100%",
-                                                            height: "100%",
-                                                        }}
-                                                        alt={
-                                                            getOGPData?.title &&
-                                                            getOGPData?.image
-                                                                ? getOGPData.title
-                                                                : undefined
-                                                        }
-                                                    ></img>
-                                                </div>
-                                                <div
-                                                    className={URLCardDetail()}
-                                                >
-                                                    <div
-                                                        className={URLCardDetailContent()}
-                                                    >
-                                                        <div
-                                                            className={URLCardTitle()}
-                                                            style={{
-                                                                color: "black",
-                                                            }}
-                                                        >
-                                                            {getOGPData?.title
-                                                                ? getOGPData.title
-                                                                : selectedURL}
-                                                        </div>
-                                                        <div
-                                                            className={URLCardDescription()}
-                                                            style={{
-                                                                fontSize:
-                                                                    "small",
-                                                            }}
-                                                        >
-                                                            {getOGPData?.description
-                                                                ? getOGPData.description
-                                                                : "Sorry, no description available."}
-                                                        </div>
-                                                        <div
-                                                            className={URLCardLink()}
-                                                        >
-                                                            {getOGPData?.url
-                                                                ? getOGPData.url
-                                                                : selectedURL}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <Linkcard
+                                            color={color}
+                                            OGPData={getOGPData}
+                                        />
                                     </div>
                                 )}
                         </div>
@@ -730,7 +748,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 disabled={
                                     loading ||
                                     compressProcessing ||
-                                    isImageMaxLimited ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
@@ -759,7 +776,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 disabled={
                                     loading ||
                                     compressProcessing ||
-                                    isImageMaxLimited ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
