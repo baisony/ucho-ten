@@ -772,6 +772,11 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                         )}
                                         <div
                                             style={{ wordBreak: "break-word" }}
+                                            className={`${
+                                                isMobile
+                                                    ? `text-[14px]`
+                                                    : `text-[15px]`
+                                            }`}
                                         >
                                             {renderTextWithLinks}
                                         </div>
