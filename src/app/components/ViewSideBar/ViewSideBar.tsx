@@ -265,7 +265,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 className={"text-[#00D315]"}
                                             />
                                         </div>
-                                    ) : isSwitching ? (
+                                    ) : isSwitching &&
+                                      item.profile.did ===
+                                          selectedAccountInfo.session.did ? (
                                         <Spinner />
                                     ) : (
                                         authenticationRequired && (
