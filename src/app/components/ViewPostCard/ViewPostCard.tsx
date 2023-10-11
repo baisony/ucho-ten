@@ -755,10 +755,14 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                 ) : (
                                     <>
                                         {json?.reply && (
-                                            <div>
+                                            <div
+                                                className={
+                                                    "text-[#BABABA] text-[12px]"
+                                                }
+                                            >
                                                 <FontAwesomeIcon
                                                     icon={faReply}
-                                                ></FontAwesomeIcon>
+                                                />{" "}
                                                 Reply to{" "}
                                                 {
                                                     json.reply.parent.author
