@@ -267,10 +267,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         </div>
                                     ) : isSwitching &&
                                       item.profile.did ===
-                                          selectedAccountInfo.session.did ? (
+                                          selectedAccountInfo.profile.did ? (
                                         <Spinner />
                                     ) : (
-                                        authenticationRequired && (
+                                        authenticationRequired &&
+                                        item.profile.did ===
+                                            selectedAccountInfo.profile.did && (
                                             <span className={"text-[#FF0000]"}>
                                                 <Button
                                                     onClick={() => {
