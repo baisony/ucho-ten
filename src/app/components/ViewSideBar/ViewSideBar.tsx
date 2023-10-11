@@ -274,7 +274,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                           selectedAccountInfo.profile.did ? (
                                         <Spinner />
                                     ) : (
-                                        authenticationRequired && (
+                                        authenticationRequired &&
+                                        item.profile.did ===
+                                            selectedAccountInfo.profile.did && (
                                             <span className={"text-[#FF0000]"}>
                                                 <Button
                                                     onClick={() => {

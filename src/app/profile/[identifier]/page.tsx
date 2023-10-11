@@ -2,36 +2,36 @@
 // import { RichText, UnicodeString } from "@atproto/api"
 // import { TabBar } from "@/app/components/TabBar"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
 // import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 // import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import { faCopy, faEllipsis, faUser } from "@fortawesome/free-solid-svg-icons"
 import {
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownSection,
-    DropdownItem,
     Button,
-    Image,
-    Spinner,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
     Input,
-    Link,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    Spinner,
+    Textarea,
     useDisclosure,
 } from "@nextui-org/react"
 import reactStringReplace from "react-string-replace"
-import { useRouter } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -297,9 +297,10 @@ export default function Root() {
         >
             {profile && (
                 <UserProfileComponent
+                    agent={agent}
                     profile={profile}
                     color={color}
-                    isProfileMine={profile.did !== agent?.session?.did}
+                    isProfileMine={profile.did === agent?.session?.did}
                     onClickDomain={onClickDomain}
                 />
             )}
@@ -332,20 +333,27 @@ export default function Root() {
 }
 
 interface userProfileProps {
+    agent: BskyAgent | null
     profile: any
-    color: "light" | "dark" | undefined
+    color: "light" | "dark"
     isProfileMine: boolean
     onClickDomain: (url: string) => void
 }
 
 const UserProfileComponent = ({
+    agent,
     profile,
     color,
     isProfileMine,
     onClickDomain,
 }: userProfileProps) => {
     const [onHoverButton, setOnHoverButton] = useState(false)
-
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const [displayName, setDisplayName] = useState(profile?.displayName)
+    const [description, setDescription] = useState(profile?.description)
+    const [avatar, setAvatar] = useState(profile?.avatar)
+    const [banner, setBanner] = useState(profile?.banner)
+    const [isUploading, setIsUploading] = useState(false)
     const {
         background,
         ProfileContainer,
@@ -365,166 +373,404 @@ const UserProfileComponent = ({
         dropdown,
     } = viewProfilePage()
 
+    const bannerInputRef = useRef<HTMLInputElement | null>(null)
+    const avatarInputRef = useRef<HTMLInputElement | null>(null)
+
+    const handleBannerFileSelect = useCallback(() => {
+        if (bannerInputRef.current) {
+            bannerInputRef.current.click()
+        }
+    }, [])
+    const handleAvatarFileSelect = useCallback(() => {
+        if (avatarInputRef.current) {
+            avatarInputRef.current.click()
+        }
+    }, [])
+
+    const handleBannerClick = (event: any) => {
+        // 選択されたファイルを取得
+        const selectedFile = event.target.files[0]
+
+        // 選択されたファイルに対する処理を行うことができます
+        console.log("選択されたファイル:", selectedFile)
+        setBanner(selectedFile)
+    }
+    const handleAvatarClick = (event: any) => {
+        // 選択されたファイルを取得
+        const selectedFile = event.target.files[0]
+
+        // 選択されたファイルに対する処理を行うことができます
+        console.log("選択されたファイル:", selectedFile)
+        setAvatar(selectedFile)
+    }
+    const handleSaveClick = async () => {
+        if (!agent) {
+            return
+        }
+        console.log(banner)
+        console.log(avatar)
+
+        try {
+            setIsUploading(true)
+            let avatarBlob: BlobRef | undefined
+
+            if (avatar !== profile?.avatar) {
+                const result = await agent.uploadBlob(
+                    new Uint8Array(await avatar.arrayBuffer()),
+                    {
+                        encoding: avatar.type,
+                    }
+                )
+                avatarBlob = result.data.blob
+            }
+
+            let bannerBlob: BlobRef | undefined
+
+            if (banner !== profile?.banner) {
+                const result = await agent.uploadBlob(
+                    new Uint8Array(await banner.arrayBuffer()),
+                    {
+                        encoding: banner.type,
+                    }
+                )
+                bannerBlob = result.data.blob
+            }
+            await agent.upsertProfile((old) => {
+                const profile: AppBskyActorProfile.Record = {
+                    ...old,
+                    avatar: avatarBlob ?? old?.avatar,
+                    banner: bannerBlob ?? old?.banner,
+                    displayName: displayName || undefined,
+                    description: description || undefined,
+                }
+                return profile
+            })
+            setIsUploading(false)
+        } catch (e) {
+            console.log(e)
+        }
+    }
     return (
-        <div className={ProfileContainer()}>
-            <div className={HeaderImageContainer()}>
-                <img className={ProfileHeaderImage()} src={profile?.banner} />
-            </div>
-            <div className={ProfileInfoContainer({ color: color })}>
-                {profile?.avatar ? (
-                    <img className={ProfileImage()} src={profile.avatar} />
-                ) : (
-                    <div className={`${ProfileImage()} bg-white`}>
-                        <FontAwesomeIcon
-                            icon={faUser}
-                            className={"w-full h-full"}
-                        />
-                    </div>
-                )}
-                <div className={Buttons()}>
-                    <Dropdown className={dropdown({ color: color })}>
-                        <DropdownTrigger>
-                            <div className={ProfileCopyButton()}>
-                                <FontAwesomeIcon
-                                    icon={faCopy}
-                                    className={PropertyButton()}
-                                />
-                            </div>
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                            <DropdownItem
-                                key="new"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(profile.did)
-                                }}
-                            >
-                                Copy DID
-                            </DropdownItem>
-                            <DropdownItem
-                                key="copy"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(
-                                        profile.handle
-                                    )
-                                }}
-                            >
-                                Copy Handle
-                            </DropdownItem>
-                            <DropdownItem
-                                key="edit"
-                                showDivider
-                                onClick={() => {
-                                    navigator.clipboard.writeText(
-                                        profile.displayName
-                                    )
-                                }}
-                            >
-                                Copy DisplayName
-                            </DropdownItem>
-                            <DropdownItem key="delete">
-                                Delete file
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                    {isProfileMine && (
+        <>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                placement={isMobile ? "top" : "center"}
+                className={`z-[100] max-w-[600px] ${color}`}
+                isDismissable={isUploading}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader>Edit Profile</ModalHeader>
+                            <ModalBody>
+                                <div
+                                    className="Header w-full relative"
+                                    onClick={handleBannerFileSelect}
+                                >
+                                    <img
+                                        src={
+                                            banner instanceof File
+                                                ? URL.createObjectURL(banner)
+                                                : profile?.banner
+                                        }
+                                        className="w-full h-[150px] object-cover opacity-100 hover:opacity-30 transition-opacity duration-300 hover:cursor-pointer"
+                                    />
+                                    <input
+                                        type="file"
+                                        accept="image/*,.png,.jpg,.jpeg"
+                                        style={{ display: "none" }}
+                                        onChange={(e) => {
+                                            handleBannerClick(e)
+                                        }}
+                                        ref={bannerInputRef}
+                                    />
+                                </div>
+
+                                <h3 className="text-default-500 text-small">
+                                    Icon
+                                </h3>
+                                <div
+                                    className="rounded-[10px] h-[80px] hover:z-10 relative"
+                                    onClick={handleAvatarFileSelect}
+                                >
+                                    <img
+                                        src={
+                                            avatar instanceof File
+                                                ? URL.createObjectURL(avatar)
+                                                : profile?.avatar
+                                        }
+                                        className="h-[80px] w-[80px] rounded-[10px] object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-30 hover:cursor-pointer"
+                                    />
+                                    <input
+                                        type="file"
+                                        accept="image/*,.png,.jpg,.jpeg"
+                                        style={{ display: "none" }}
+                                        onChange={(e) => {
+                                            handleAvatarClick(e)
+                                        }}
+                                        ref={avatarInputRef}
+                                    />
+                                </div>
+
+                                <h3 className="text-default-500 text-small">
+                                    Display Name
+                                </h3>
+                                <div className={"w-full"}>
+                                    <Input
+                                        size={"md"}
+                                        defaultValue={profile?.displayName}
+                                        onValueChange={setDisplayName}
+                                    />
+                                </div>
+                                <h3 className="text-default-500 text-small">
+                                    Bio
+                                </h3>
+                                <div className={"w-full"}>
+                                    <Textarea
+                                        defaultValue={profile?.description}
+                                        onValueChange={setDescription}
+                                    />
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button
+                                    onClick={() => {
+                                        setAvatar(profile?.avatar)
+                                        setBanner(profile?.banner)
+                                        setDisplayName(profile?.displayName)
+                                        setDescription(profile?.description)
+                                        onClose()
+                                    }}
+                                    color={
+                                        banner === profile?.banner &&
+                                        avatar === profile?.avatar &&
+                                        displayName === profile?.displayName &&
+                                        description === profile?.description
+                                            ? "default"
+                                            : "danger"
+                                    }
+                                    isDisabled={isUploading}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={async () => {
+                                        console.log("hoge")
+                                        await handleSaveClick()
+                                        onClose()
+                                    }}
+                                    isDisabled={
+                                        (banner === profile?.banner &&
+                                            avatar === profile?.avatar &&
+                                            displayName ===
+                                                profile?.displayName &&
+                                            description ===
+                                                profile?.description) ||
+                                        isUploading
+                                    }
+                                    color={
+                                        (banner === profile?.banner &&
+                                            avatar === profile?.avatar &&
+                                            displayName ===
+                                                profile?.displayName &&
+                                            description ===
+                                                profile?.description) ||
+                                        isUploading
+                                            ? "default"
+                                            : "success"
+                                    }
+                                >
+                                    {isUploading ? (
+                                        <Spinner size={"sm"} />
+                                    ) : (
+                                        "Save"
+                                    )}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <div className={ProfileContainer()}>
+                <div className={HeaderImageContainer()}>
+                    <img
+                        className={ProfileHeaderImage()}
+                        src={profile?.banner}
+                    />
+                </div>
+                <div className={ProfileInfoContainer({ color: color })}>
+                    {profile?.avatar ? (
+                        <img className={ProfileImage()} src={profile.avatar} />
+                    ) : (
+                        <div className={`${ProfileImage()} bg-white`}>
+                            <FontAwesomeIcon
+                                icon={faUser}
+                                className={"w-full h-full"}
+                            />
+                        </div>
+                    )}
+                    <div className={Buttons()}>
                         <Dropdown className={dropdown({ color: color })}>
                             <DropdownTrigger>
-                                <div className={ProfileActionButton()}>
+                                <div className={ProfileCopyButton()}>
                                     <FontAwesomeIcon
-                                        icon={faEllipsis}
+                                        icon={faCopy}
                                         className={PropertyButton()}
                                     />
                                 </div>
                             </DropdownTrigger>
                             <DropdownMenu>
-                                <DropdownItem key="report">
-                                    Mute {profile.handle}
+                                <DropdownItem
+                                    key="new"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(
+                                            profile.did
+                                        )
+                                    }}
+                                >
+                                    Copy DID
                                 </DropdownItem>
-                                <DropdownItem key="report">
-                                    Report @bisn.ucho-ten.net
+                                <DropdownItem
+                                    key="copy"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(
+                                            profile.handle
+                                        )
+                                    }}
+                                >
+                                    Copy Handle
+                                </DropdownItem>
+                                <DropdownItem
+                                    key="edit"
+                                    showDivider
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(
+                                            profile.displayName
+                                        )
+                                    }}
+                                >
+                                    Copy DisplayName
+                                </DropdownItem>
+                                <DropdownItem key="delete">
+                                    Delete file
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
-                    )}
-                    <Button
-                        className={FollowButton()}
-                        onMouseLeave={() => {
-                            setOnHoverButton(false)
-                        }}
-                        onMouseEnter={() => {
-                            setOnHoverButton(true)
-                        }}
+                        {isProfileMine && (
+                            <Dropdown className={dropdown({ color: color })}>
+                                <DropdownTrigger>
+                                    <div className={ProfileActionButton()}>
+                                        <FontAwesomeIcon
+                                            icon={faEllipsis}
+                                            className={PropertyButton()}
+                                        />
+                                    </div>
+                                </DropdownTrigger>
+                                <DropdownMenu>
+                                    <DropdownItem key="report">
+                                        Mute {profile.handle}
+                                    </DropdownItem>
+                                    <DropdownItem key="report">
+                                        Report @bisn.ucho-ten.net
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        )}
+                        <Button
+                            className={FollowButton()}
+                            onMouseLeave={() => {
+                                setOnHoverButton(false)
+                            }}
+                            onMouseEnter={() => {
+                                setOnHoverButton(true)
+                            }}
+                            onClick={() => {
+                                if (isProfileMine) {
+                                    onOpen()
+                                } else if (profile?.viewer?.following) {
+                                    // unfollow
+                                } else if (!profile?.viewer?.following) {
+                                    // follow
+                                }
+                            }}
+                        >
+                            {isProfileMine
+                                ? "Edit Profile"
+                                : profile?.viewer?.following
+                                ? !onHoverButton
+                                    ? "Following"
+                                    : "Un Follow"
+                                : "Follow"}
+                        </Button>
+                    </div>
+                    <div className={ProfileDisplayName()}>
+                        {profile.displayName}
+                    </div>
+                    <div
+                        className={ProfileHandle({
+                            isMobile: isMobile,
+                        })}
                     >
-                        {isProfileMine
-                            ? "Edit Profile"
-                            : profile?.viewer?.following
-                            ? !onHoverButton
-                                ? "Following"
-                                : "Un Follow"
-                            : "Follow"}
-                    </Button>
-                </div>
-                <div className={ProfileDisplayName()}>
-                    {profile.displayName}
-                </div>
-                <div
-                    className={ProfileHandle({
-                        isMobile: isMobile,
-                    })}
-                >
-                    @{profile.handle}
-                </div>
-                <div className={ProfileBio({ isMobile: isMobile })}>
-                    {profile?.description
-                        ?.split("\n")
-                        .map((line: any, i: number) => (
-                            <p key={i}>
-                                {reactStringReplace(
-                                    line,
-                                    /(@[a-zA-Z0-9-.]+|https?:\/\/[a-zA-Z0-9-./?=_%&:#@]+)/g,
-                                    (match, j) => {
-                                        if (match.startsWith("@")) {
-                                            let domain = match.substring(1) // remove "@" symbol from match
-                                            if (domain.endsWith(".")) {
-                                                domain = domain.slice(0, -1)
+                        @{profile.handle}
+                    </div>
+                    <div className={ProfileBio({ isMobile: isMobile })}>
+                        {profile?.description
+                            ?.split("\n")
+                            .map((line: any, i: number) => (
+                                <p key={i}>
+                                    {reactStringReplace(
+                                        line,
+                                        /(@[a-zA-Z0-9-.]+|https?:\/\/[a-zA-Z0-9-./?=_%&:#@]+)/g,
+                                        (match, j) => {
+                                            if (match.startsWith("@")) {
+                                                let domain = match.substring(1) // remove "@" symbol from match
+                                                if (domain.endsWith(".")) {
+                                                    domain = domain.slice(0, -1)
+                                                }
+                                                return (
+                                                    <div
+                                                        key={j}
+                                                        onClick={() => {
+                                                            onClickDomain(
+                                                                domain
+                                                            )
+                                                        }}
+                                                    >
+                                                        {match}
+                                                    </div>
+                                                )
+                                            } else if (
+                                                match.startsWith("http")
+                                            ) {
+                                                let url = match
+                                                if (url.endsWith(".")) {
+                                                    url = url.slice(0, -1)
+                                                }
+                                                return (
+                                                    <a
+                                                        key={j}
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {match.replace(
+                                                            /^(https?:\/\/)/,
+                                                            ""
+                                                        )}
+                                                    </a>
+                                                )
+                                            } else {
+                                                return match
                                             }
-                                            return (
-                                                <div
-                                                    key={j}
-                                                    onClick={() => {
-                                                        onClickDomain(domain)
-                                                    }}
-                                                >
-                                                    {match}
-                                                </div>
-                                            )
-                                        } else if (match.startsWith("http")) {
-                                            let url = match
-                                            if (url.endsWith(".")) {
-                                                url = url.slice(0, -1)
-                                            }
-                                            return (
-                                                <a
-                                                    key={j}
-                                                    href={url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    {match.replace(
-                                                        /^(https?:\/\/)/,
-                                                        ""
-                                                    )}
-                                                </a>
-                                            )
-                                        } else {
-                                            return match
                                         }
-                                    }
-                                )}
-                            </p>
-                        ))}
+                                    )}
+                                </p>
+                            ))}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }

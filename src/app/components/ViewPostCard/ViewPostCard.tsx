@@ -540,12 +540,12 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                     src={
                                                         postJson?.author?.avatar
                                                     }
-                                                    radius={"none"}
+                                                    //radius={"lg"}
                                                     className={`${
                                                         isEmbedToModal
                                                             ? `z-[2]`
                                                             : `z-[0]`
-                                                    }`}
+                                                    } rounded-[10px]`}
                                                     alt={postJson.author.did}
                                                 />
                                             ) : (
@@ -755,10 +755,14 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                 ) : (
                                     <>
                                         {json?.reply && (
-                                            <div>
+                                            <div
+                                                className={
+                                                    "text-[#BABABA] text-[12px]"
+                                                }
+                                            >
                                                 <FontAwesomeIcon
                                                     icon={faReply}
-                                                ></FontAwesomeIcon>
+                                                />{" "}
                                                 Reply to{" "}
                                                 {
                                                     json.reply.parent.author
@@ -768,6 +772,11 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                         )}
                                         <div
                                             style={{ wordBreak: "break-word" }}
+                                            className={`${
+                                                isMobile
+                                                    ? `text-[14px]`
+                                                    : `text-[15px]`
+                                            }`}
                                         >
                                             {renderTextWithLinks}
                                         </div>
