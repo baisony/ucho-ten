@@ -748,6 +748,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 isDisabled={
                                     loading ||
                                     isCompressing ||
+                                    contentImages.length >= 4 ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
