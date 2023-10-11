@@ -540,12 +540,12 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                     src={
                                                         postJson?.author?.avatar
                                                     }
-                                                    radius={"none"}
+                                                    //radius={"lg"}
                                                     className={`${
                                                         isEmbedToModal
                                                             ? `z-[2]`
                                                             : `z-[0]`
-                                                    }`}
+                                                    } rounded-[10px]`}
                                                     alt={postJson.author.did}
                                                 />
                                             ) : (

@@ -6,8 +6,7 @@ export const viewPostCard = tv({
         PostCardContainer: "pl-[8px] pt-[11px] w-full",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
-        PostAuthorIcon:
-            "h-[28px] w-[28px] rounded-[10px] object-cover overflow-hidden hover:cursor-pointer",
+        PostAuthorIcon: "h-[28px] w-[28px] object-cover hover:cursor-pointer",
         PostAuthorDisplayName: "ml-[9px] hover:cursor-pointer font-[600]",
         PostAuthorHandle:
             "text-[#909090] font-light text-[12px] hover:cursor-pointer",
@@ -19,7 +18,7 @@ export const viewPostCard = tv({
         PostReactionButton:
             "h-[16px] pl-[8px] pr-[8px] ml-[60px] text-[#909090] text-[14px] cursor-pointer select-none",
         dropdown: "",
-        skeletonIcon: "h-full w-full",
+        skeletonIcon: "h-full w-full rounded-[10px]",
         skeletonName: "h-3 w-2/5 rounded-lg ",
         skeletonHandle: "h-3 w-3/5 rounded-lg ",
         skeletonTime: "",
