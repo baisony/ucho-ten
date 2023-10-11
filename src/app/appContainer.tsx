@@ -263,7 +263,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         <div
                             className={`${
                                 isSideBarOpen && `openSideBar`
-                            } absolute h-[calc(100%-50px)] w-[70svw] min-w-[210px] max-w-[350px] bg-black bg-opacity-90 z-[12] left-[-300px]`}
+                            } absolute h-[calc(100%)] w-[70svw] min-w-[210px] max-w-[350px] backdrop-blur-[5px] bg-black/40 z-[12] left-[-300px]`}
                         >
                             <ViewSideBar
                                 color={color}
