@@ -745,9 +745,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             className={footerTooltipStyle()}
                         >
                             <Button
-                                disabled={
+                                isDisabled={
                                     loading ||
-                                    compressProcessing ||
+                                    isCompressing ||
+                                    contentImages.length >= 4 ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
@@ -775,7 +776,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 ) => handleOnAddImage(e)}
                                 disabled={
                                     loading ||
-                                    compressProcessing ||
+                                    isCompressing ||
+                                    contentImages.length >= 4 ||
                                     getOGPData ||
                                     isOGPGetProcessing
                                 }
