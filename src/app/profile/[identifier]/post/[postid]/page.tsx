@@ -57,6 +57,7 @@ import {
     ImageObject,
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
+import { ReportModal } from "@/app/components/ReportModal"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -89,6 +90,11 @@ export default function Root() {
     const [bookmarks, setBookmarks] = useBookmarks()
     const color = darkMode ? "dark" : "light"
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const {
+        isOpen: isOpenReport,
+        onOpen: onOpenReport,
+        onOpenChange: onOpenChangeReport,
+    } = useDisclosure()
 
     const {
         Container,
@@ -561,6 +567,15 @@ export default function Root() {
                         )}
                     </ModalContent>
                 </Modal>
+                <ReportModal
+                    isOpen={isOpenReport}
+                    onOpenChange={onOpenChangeReport}
+                    placement={isMobile ? "top" : "center"}
+                    className={"z-[100] max-w-[600px]"}
+                    color={color}
+                    target={"post"}
+                    post={post.post}
+                />
                 <main className={Container({ color: color })}>
                     {post?.parent && (
                         <>{renderNestedViewPostCards(post, color, isMobile)}</>
@@ -907,6 +922,9 @@ export default function Root() {
                                                         icon={faFlag}
                                                     />
                                                 }
+                                                onClick={() => {
+                                                    onOpenReport()
+                                                }}
                                             >
                                                 Report
                                             </DropdownItem>
