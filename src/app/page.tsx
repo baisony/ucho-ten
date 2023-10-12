@@ -63,11 +63,16 @@ export default function Root(props: any) {
     return (
         <>
             <Swiper
-                pagination={{clickable: false}}
+                pagination={{ type: "custom", clickable: false }}
                 hidden={true}
                 modules={[Pagination]}
-                className="mySwiper"
-                style={{height: "100%"}}
+                className="swiper-home"
+                style={{ height: "100%" }}
+                touchAngle={30}
+                touchRatio={0.8}
+                touchReleaseOnEdges={true}
+                touchMoveStopPropagation={true}
+                preventInteractionOnTransition={true}
             >
                 <SwiperSlide key="following">
                     <div

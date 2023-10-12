@@ -1,6 +1,6 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
-import { ViewPostCard, ViewPostCardProps } from "../ViewPostCard"
+import { ViewPostCard } from "../ViewPostCard"
 // import LazyViewPostCard from "../ViewPostCard/LazyViewPostCard"
 import { Spinner } from "@nextui-org/react"
 // import InfiniteScroll from "react-infinite-scroller"
@@ -10,6 +10,7 @@ import { Key, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { viewPostCard } from "../ViewPostCard/styles"
+import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 // import TestComponent from "../testComponent"
 
@@ -160,7 +161,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
 
     return (
         <>
-            {!timeline &&
+            {!timeline && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
@@ -171,17 +172,19 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
-                        <ViewPostCard
+                        <ViewPostCardCell
                             {...{
                                 color,
                                 isMobile,
-                                isSkeleton: true
+                                isSkeleton: true,
+                                isDummyHeader: index === 0,
                             }}
                         />
                     )}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
-            }
-            {timeline &&
+            )}
+            {timeline && (
                 <Virtuoso
                     overscan={200}
                     increaseViewportBy={200}
@@ -192,18 +195,20 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
-                        <ViewPostCard
+                        <ViewPostCardCell
                             {...{
                                 color,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: item.post || null,
                                 json: item,
+                                isDummyHeader: index === 0,
                             }}
                         />
                     )}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
-            }
+            )}
         </>
     )
 }
