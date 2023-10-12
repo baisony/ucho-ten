@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
@@ -38,6 +38,7 @@ import {
     DropdownTrigger,
     Modal,
     ModalContent,
+    ScrollShadow,
     Tooltip,
     useDisclosure,
 } from "@nextui-org/react"
@@ -49,9 +50,17 @@ import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AtUri } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
+import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+import { Linkcard } from "@/app/components/Linkcard"
+import {
+    ImageGalleryObject,
+    ImageObject,
+    useImageGalleryAtom,
+} from "@/app/_atoms/imageGallery"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
+    const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [translateTo] = useTranslationLanguage()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
@@ -193,6 +202,46 @@ export default function Root() {
         if (!agent) return
         fetchPost()
     }, [agent, atUri])
+
+    const handleImageClick = useCallback(
+        (index: number) => {
+            if (
+                post.post?.embed?.images &&
+                Array.isArray(post.post?.embed.images)
+            ) {
+                const images: ImageObject[] = []
+
+                for (const image of post.post.embed.images) {
+                    const currentImage: ImageObject = {
+                        fullsize: "",
+                        alt: "",
+                    }
+
+                    if (typeof image.fullsize === "string") {
+                        currentImage.fullsize = image.fullsize
+                    }
+
+                    if (typeof image.alt === "string") {
+                        currentImage.alt = image.alt
+                    }
+
+                    if (currentImage.fullsize.length > 0) {
+                        images.push(currentImage)
+                    }
+                }
+
+                if (images.length > 0) {
+                    const gelleryObject: ImageGalleryObject = {
+                        images,
+                        index,
+                    }
+
+                    setImageGallery(gelleryObject)
+                }
+            }
+        },
+        [post]
+    )
 
     const renderTextWithLinks = () => {
         const encoder = new TextEncoder()
@@ -581,6 +630,91 @@ export default function Root() {
                                     <div>{translatedText}</div>
                                 </>
                             )}
+                            <div className={"overflow-x-scroll"}>
+                                {post.post?.embed &&
+                                    (post.post?.embed?.$type ===
+                                        "app.bsky.embed.images#view" ||
+                                    post.post?.embed.$type ===
+                                        "app.bsky.embed.recordWithMedia#view" ? (
+                                        <>
+                                            <ScrollShadow
+                                                hideScrollBar
+                                                orientation="horizontal"
+                                            >
+                                                <div
+                                                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+                                                >
+                                                    {(post.post.embed.$type ===
+                                                    "app.bsky.embed.recordWithMedia#view"
+                                                        ? post.post.embed.media
+                                                              .images
+                                                        : post.post.embed.images
+                                                    ).map(
+                                                        (
+                                                            image: any,
+                                                            index: number
+                                                        ) => (
+                                                            <div
+                                                                className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                                                                key={`image-${index}`}
+                                                            >
+                                                                <img
+                                                                    className="w-full h-full z-0 object-cover"
+                                                                    src={
+                                                                        image.thumb
+                                                                    }
+                                                                    alt={
+                                                                        image?.alt
+                                                                    }
+                                                                    onMouseUp={(
+                                                                        e
+                                                                    ) =>
+                                                                        e.stopPropagation()
+                                                                    }
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        handleImageClick(
+                                                                            index
+                                                                        )
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </ScrollShadow>
+                                            {post.post?.embed.$type ===
+                                                "app.bsky.embed.recordWithMedia#view" && (
+                                                <>
+                                                    <ViewQuoteCard
+                                                        color={color}
+                                                        postJson={
+                                                            post.post.embed
+                                                                ?.record.record
+                                                        }
+                                                    />
+                                                </>
+                                            )}
+                                        </>
+                                    ) : post.post?.embed.$type ===
+                                      "app.bsky.embed.external#view" ? (
+                                        <Linkcard
+                                            color={color}
+                                            OGPData={post.post.embed.external}
+                                        />
+                                    ) : (
+                                        post.post?.embed.$type ===
+                                            "app.bsky.embed.record#view" && (
+                                            <ViewQuoteCard
+                                                color={color}
+                                                postJson={
+                                                    post.post.embed?.record
+                                                }
+                                            />
+                                        )
+                                    ))}
+                            </div>
                         </div>
                         <div className={PostCreatedAt()}>
                             {formatDate(post.post.indexedAt)}

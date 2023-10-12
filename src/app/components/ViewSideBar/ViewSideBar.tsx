@@ -37,7 +37,7 @@ import {
     UserAccountByDid,
 } from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
-
+import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 interface Props {
     className?: string
     color: "light" | "dark"
