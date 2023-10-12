@@ -1,6 +1,7 @@
+import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { ViewPostCard, ViewPostCardProps } from "../ViewPostCard"
-import LazyViewPostCard from "../ViewPostCard/LazyViewPostCard"
+// import LazyViewPostCard from "../ViewPostCard/LazyViewPostCard"
 import { Spinner } from "@nextui-org/react"
 // import InfiniteScroll from "react-infinite-scroller"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
@@ -9,42 +10,31 @@ import { Key, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { viewPostCard } from "../ViewPostCard/styles"
-import { useFeedsAtom } from "@/app/_atoms/feeds"
-import TestComponent from "../testComponent"
+// import { useFeedsAtom } from "@/app/_atoms/feeds"
+// import TestComponent from "../testComponent"
 
 export interface FeedPageProps {
     feedKey: string
-    color: string
+    color: "light" | "dark"
     now?: Date
 }
 
 const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
     const [agent, setAgent] = useAgent()
-    const [postsByFeed] = useFeedsAtom()
 
     const [loading, setLoading] = useState(false)
     //const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [darkMode, setDarkMode] = useState(false)
-
     const [wait, setWait] = useState<boolean>(true)
 
     const cursor = useRef<string>("")
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
 
     const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
         const filteredData = timeline.filter((item) => {
             const uri = item.post.uri
-
-            // if (item.post.embed) {
-            //     console.log(item.post.embed)
-            // }
 
             if (item.reply) {
                 if (item.reason) return true
@@ -168,99 +158,54 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
         }
     }, [agent])
 
-    const skeletons: any = Array.from({length: 20}).map((_, index) => {
-        return {
-            color: "light",
-            isMobile: true,
-            postJson: null,
-            isSkeleton: true,
-            json: null,
-        }
-    })
-
     return (
         <>
-            {timeline &&
-                <TestComponent data={timeline} />
+            {!timeline &&
+                <Virtuoso
+                    overscan={100}
+                    increaseViewportBy={200}
+                    // useWindowScroll={true}
+                    // overscan={50}
+                    totalCount={20}
+                    initialItemCount={20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <ViewPostCard
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: true
+                            }}
+                        />
+                    )}
+                />
             }
-            {(!timeline || wait) &&
-                <TestComponent data={skeletons} />
+            {timeline &&
+                <Virtuoso
+                    overscan={200}
+                    increaseViewportBy={200}
+                    // useWindowScroll={true}
+                    // overscan={50}
+                    data={timeline}
+                    initialItemCount={Math.min(18, timeline?.length || 0)}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <ViewPostCard
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: false,
+                                postJson: item.post || null,
+                                json: item,
+                            }}
+                        />
+                    )}
+                />
             }
         </>
     )
-
-    // return (
-    //     <>
-    //         {/* {timeline && (
-    //             <AutoSizer>
-    //                 {({ height, width }) => ( */}
-    //                     <List
-    //                         height={100}
-    //                         itemCount={99999}
-    //                         itemSize={35} // Adjust based on the height of your row
-    //                         width={50}
-    //                         itemData={timeline}
-    //                     >
-    //                         {Row}
-    //                     </List>
-    //                 {/* )}
-    //             </AutoSizer> */}
-    //         )}
-    //         {/* <InfiniteScroll
-    //             id={`id-${feedKey}`}
-    //             key={`key-${feedKey}`}
-    //             //id="infinite-scroll"
-    //             initialLoad={false}
-    //             loadMore={loadMore}
-    //             hasMore={hasMore}
-    //             loader={
-    //                 <div
-    //                     key="spinner-home"
-    //                     className="flex justify-center mt-2 mb-2"
-    //                 >
-    //                     <Spinner />
-    //                 </div>
-    //             }
-    //             threshold={700}
-    //             useWindow={false}
-    //         >
-    //             {(loading || !timeline) &&
-    //                 Array.from({ length: 15 }, (_, index) => (
-    //                     <LazyViewPostCard
-    //                         key={`skeleton-${index}`}
-    //                         // @ts-ignore
-    //                         color={color}
-    //                         numbersOfImage={0}
-    //                         postJson={null}
-    //                         isMobile={isMobile}
-    //                         isSkeleton={true}
-    //                     />
-    //                 ))}
-    //             {!loading &&
-    //                 timeline &&
-    //                 timeline.map((post, index) => {
-    //                     return (
-    //                         <ViewPostCard
-    //                             key={`${
-    //                                 post?.reason
-    //                                     ? `reason-${
-    //                                           (post.reason as any).by.did
-    //                                       }`
-    //                                     : `post`
-    //                             }-${post.post.uri}`}
-    //                             // @ts-ignore
-    //                             color={color}
-    //                             numbersOfImage={0}
-    //                             postJson={post.post}
-    //                             json={post}
-    //                             isMobile={isMobile}
-    //                             now={now}
-    //                         />
-    //                     )
-    //                 })}
-    //         </InfiniteScroll> */}
-    //     </>
-    // )
 }
 
 export default FeedPage

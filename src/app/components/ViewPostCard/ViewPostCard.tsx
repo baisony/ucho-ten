@@ -20,7 +20,7 @@ import {
     faTrash,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
-import { PostModal } from "../PostModal"
+// import { PostModal } from "../PostModal"
 import { Linkcard } from "../Linkcard"
 import "react-circular-progressbar/dist/styles.css"
 import {
@@ -912,5 +912,3 @@ export const ViewPostCard: React.FC<ViewPostCardProps> = (props: ViewPostCardPro
         </>
     )
 }
-
-export default ViewPostCard
