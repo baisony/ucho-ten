@@ -486,6 +486,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     {...getRootProps({
                         onDrop: handleDrop,
                         onDragOver: handleDragOver,
+                        onClick: (e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                        },
                     })}
                 >
                     <div className={"w-full"}>
