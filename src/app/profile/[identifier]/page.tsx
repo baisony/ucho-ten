@@ -18,7 +18,6 @@ import {
     faEllipsis,
     faFlag,
     faLink,
-    faTrash,
     faUser,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
@@ -60,7 +59,7 @@ export default function Root() {
     // const [hasCursor, setHasCursor] = useState<string | null>(null)
     const [darkMode, setDarkMode] = useState(false)
     // const [isProfileMine, setIsProfileMine] = useState(false)
-    // const [isFollowing, setIsFollowing] = useState(false)
+    const [isFollowing, setIsFollowing] = useState(profile?.viewer?.following)
     // const [isEditing, setIsEditing] = useState(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
@@ -366,6 +365,7 @@ const UserProfileComponent = ({
     const [avatar, setAvatar] = useState(profile?.avatar)
     const [banner, setBanner] = useState(profile?.banner)
     const [isUploading, setIsUploading] = useState(false)
+    const [isFollowing, setIsFollowing] = useState(profile?.viewer?.following)
     const {
         background,
         ProfileContainer,
@@ -786,26 +786,57 @@ const UserProfileComponent = ({
                             </Dropdown>
                         )}
                         <Button
-                            className={FollowButton()}
+                            className={`${FollowButton({
+                                color: color,
+                                hover: onHoverButton,
+                            })} `}
+                            color={
+                                isFollowing
+                                    ? onHoverButton && !isProfileMine
+                                        ? "danger"
+                                        : "default"
+                                    : "default"
+                            }
+                            variant={isProfileMine ? "ghost" : "solid"}
                             onMouseLeave={() => {
+                                if (isMobile) return
                                 setOnHoverButton(false)
                             }}
                             onMouseEnter={() => {
+                                if (isMobile) return
                                 setOnHoverButton(true)
                             }}
-                            onClick={() => {
+                            onClick={async () => {
                                 if (isProfileMine) {
                                     onOpen()
-                                } else if (profile?.viewer?.following) {
+                                } else if (isFollowing) {
+                                    if (!agent) return
+                                    try {
+                                        const res = await agent.deleteFollow(
+                                            profile.viewer.following
+                                        )
+                                        console.log(res)
+                                        setIsFollowing(false)
+                                    } catch (e) {}
                                     // unfollow
-                                } else if (!profile?.viewer?.following) {
+                                } else if (!isFollowing) {
+                                    if (!agent) return
                                     // follow
+                                    try {
+                                        const res = await agent.follow(
+                                            profile.did
+                                        )
+                                        console.log(res)
+                                        setIsFollowing(true)
+                                    } catch (e) {
+                                        console.log(e)
+                                    }
                                 }
                             }}
                         >
                             {isProfileMine
                                 ? "Edit Profile"
-                                : profile?.viewer?.following
+                                : isFollowing
                                 ? !onHoverButton
                                     ? "Following"
                                     : "Un Follow"
