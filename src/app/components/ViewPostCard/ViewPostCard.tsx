@@ -47,6 +47,7 @@ import {
     ImageObject,
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
+import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 
 interface Props {
     className?: string
@@ -785,56 +786,88 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                 <div className={"overflow-x-scroll"}>
                                     {postJson?.embed &&
                                         (postJson?.embed?.$type ===
-                                        "app.bsky.embed.images#view" ? (
-                                            <ScrollShadow
-                                                hideScrollBar
-                                                orientation="horizontal"
-                                            >
-                                                <div
-                                                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+                                            "app.bsky.embed.images#view" ||
+                                        postJson?.embed.$type ===
+                                            "app.bsky.embed.recordWithMedia#view" ? (
+                                            <>
+                                                <ScrollShadow
+                                                    hideScrollBar
+                                                    orientation="horizontal"
                                                 >
-                                                    {postJson.embed.images.map(
-                                                        (
-                                                            image: any,
-                                                            index: number
-                                                        ) => (
-                                                            <div
-                                                                className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover}`}
-                                                                key={`image-${index}`}
-                                                            >
-                                                                <img
-                                                                    className="w-full h-full z-0 object-cover"
-                                                                    src={
-                                                                        image.thumb
-                                                                    }
-                                                                    alt={
-                                                                        image?.alt
-                                                                    }
-                                                                    onMouseUp={(
-                                                                        e
-                                                                    ) =>
-                                                                        e.stopPropagation()
-                                                                    }
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        handleImageClick(
-                                                                            index
-                                                                        )
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        )
-                                                    )}
-                                                </div>
-                                            </ScrollShadow>
+                                                    <div
+                                                        className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+                                                    >
+                                                        {(postJson.embed
+                                                            .$type ===
+                                                        "app.bsky.embed.recordWithMedia#view"
+                                                            ? postJson.embed
+                                                                  .media.images
+                                                            : postJson.embed
+                                                                  .images
+                                                        ).map(
+                                                            (
+                                                                image: any,
+                                                                index: number
+                                                            ) => (
+                                                                <div
+                                                                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                                                                    key={`image-${index}`}
+                                                                >
+                                                                    <img
+                                                                        className="w-full h-full z-0 object-cover"
+                                                                        src={
+                                                                            image.thumb
+                                                                        }
+                                                                        alt={
+                                                                            image?.alt
+                                                                        }
+                                                                        onMouseUp={(
+                                                                            e
+                                                                        ) =>
+                                                                            e.stopPropagation()
+                                                                        }
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleImageClick(
+                                                                                index
+                                                                            )
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </ScrollShadow>
+                                                {postJson.embed.$type ===
+                                                    "app.bsky.embed.recordWithMedia#view" && (
+                                                    <>
+                                                        <ViewQuoteCard
+                                                            color={color}
+                                                            postJson={
+                                                                postJson.embed
+                                                                    ?.record
+                                                                    .record
+                                                            }
+                                                        />
+                                                    </>
+                                                )}
+                                            </>
+                                        ) : postJson.embed.$type ===
+                                          "app.bsky.embed.external#view" ? (
+                                            <Linkcard
+                                                color={color}
+                                                OGPData={
+                                                    postJson.embed.external
+                                                }
+                                            />
                                         ) : (
                                             postJson.embed.$type ===
-                                                "app.bsky.embed.external#view" && (
-                                                <Linkcard
+                                                "app.bsky.embed.record#view" && (
+                                                <ViewQuoteCard
                                                     color={color}
-                                                    OGPData={
-                                                        postJson.embed.external
+                                                    postJson={
+                                                        postJson.embed.record
                                                     }
                                                 />
                                             )
