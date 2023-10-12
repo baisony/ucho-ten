@@ -2,7 +2,7 @@
 // import { RichText, UnicodeString } from "@atproto/api"
 // import { TabBar } from "@/app/components/TabBar"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import InfiniteScroll from "react-infinite-scroller"
@@ -12,9 +12,16 @@ import { usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 // import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
-import { faCopy, faEllipsis, faUser } from "@fortawesome/free-solid-svg-icons"
+import {
+    faAt,
+    faCopy,
+    faEllipsis,
+    faLink,
+    faUser,
+} from "@fortawesome/free-solid-svg-icons"
 import {
     Button,
+    Chip,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -29,9 +36,9 @@ import {
     Textarea,
     useDisclosure,
 } from "@nextui-org/react"
-import reactStringReplace from "react-string-replace"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
+import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -347,6 +354,8 @@ const UserProfileComponent = ({
     isProfileMine,
     onClickDomain,
 }: userProfileProps) => {
+    const router = useRouter()
+    const [userPreferences] = useUserPreferencesAtom()
     const [onHoverButton, setOnHoverButton] = useState(false)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
@@ -450,20 +459,104 @@ const UserProfileComponent = ({
             console.log(e)
         }
     }
+
+    const renderTextWithLinks = useMemo(() => {
+        if (!description) return
+        const encoder = new TextEncoder()
+        const decoder = new TextDecoder()
+        if (true) {
+            const post: any[] = []
+            description.split("\n").map((line: string, i: number) => {
+                const words = line.split(" ")
+                const updatedLine = words.map((word, j: number) => {
+                    if (word.includes("http://") || word.includes("https://")) {
+                        const url = word.replace(/https?:\/\//, "") // http://またはhttps://を削除
+                        return (
+                            <Chip
+                                className={color}
+                                variant="faded"
+                                startContent={<FontAwesomeIcon icon={faLink} />}
+                            >
+                                {url.startsWith("bsky.app") ? (
+                                    <span
+                                        className={"cursor-pointer"}
+                                        onClick={() => {
+                                            router.push(
+                                                url.replace(
+                                                    "bsky.app",
+                                                    `${location.protocol}//${window.location.host}`
+                                                )
+                                            )
+                                        }}
+                                    >
+                                        {url}
+                                    </span>
+                                ) : (
+                                    <a
+                                        key={i + "_" + j}
+                                        href={word}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {url}
+                                    </a>
+                                )}
+                            </Chip>
+                        )
+                    } else if (word.startsWith("@")) {
+                        let handle = word.substring(1) // remove "@" symbol from match
+                        if (handle.endsWith(".")) {
+                            handle = handle.slice(0, -1)
+                        }
+                        return (
+                            <Chip
+                                className={`${color} cursor-pointer`}
+                                variant="faded"
+                                startContent={<FontAwesomeIcon icon={faAt} />}
+                            >
+                                <span
+                                    key={j}
+                                    onClick={() => {
+                                        router.push(`/profile/${handle}`)
+                                    }}
+                                >
+                                    {handle}
+                                </span>
+                            </Chip>
+                        )
+                    }
+                    return <span key={i + "_" + j}>{word} </span>
+                })
+
+                post.push(
+                    <p key={i}>
+                        {updatedLine}
+                        <br />
+                    </p>
+                )
+            })
+            return post
+        }
+    }, [description])
+
     return (
         <>
             <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
-                className={`z-[100] max-w-[600px] ${color}`}
+                className={`z-[100] max-w-[600px] ${color} ${
+                    color === `dark` ? `text-white` : `text-black`
+                }`}
                 isDismissable={isUploading}
                 hideCloseButton
             >
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader>Edit Profile</ModalHeader>
+                            <ModalHeader>
+                                Edit Profile @{agent?.session?.handle}
+                            </ModalHeader>
                             <ModalBody>
                                 <div
                                     className="Header w-full relative"
@@ -488,7 +581,7 @@ const UserProfileComponent = ({
                                     />
                                 </div>
 
-                                <h3 className="text-default-500 text-small">
+                                <h3 className="text-default-500 text-small select-none">
                                     Icon
                                 </h3>
                                 <div
@@ -514,7 +607,7 @@ const UserProfileComponent = ({
                                     />
                                 </div>
 
-                                <h3 className="text-default-500 text-small">
+                                <h3 className="text-default-500 text-small select-none">
                                     Display Name
                                 </h3>
                                 <div className={"w-full"}>
@@ -524,7 +617,7 @@ const UserProfileComponent = ({
                                         onValueChange={setDisplayName}
                                     />
                                 </div>
-                                <h3 className="text-default-500 text-small">
+                                <h3 className="text-default-500 text-small select-none">
                                     Bio
                                 </h3>
                                 <div className={"w-full"}>
@@ -716,58 +809,7 @@ const UserProfileComponent = ({
                         @{profile.handle}
                     </div>
                     <div className={ProfileBio({ isMobile: isMobile })}>
-                        {profile?.description
-                            ?.split("\n")
-                            .map((line: any, i: number) => (
-                                <p key={i}>
-                                    {reactStringReplace(
-                                        line,
-                                        /(@[a-zA-Z0-9-.]+|https?:\/\/[a-zA-Z0-9-./?=_%&:#@]+)/g,
-                                        (match, j) => {
-                                            if (match.startsWith("@")) {
-                                                let domain = match.substring(1) // remove "@" symbol from match
-                                                if (domain.endsWith(".")) {
-                                                    domain = domain.slice(0, -1)
-                                                }
-                                                return (
-                                                    <div
-                                                        key={j}
-                                                        onClick={() => {
-                                                            onClickDomain(
-                                                                domain
-                                                            )
-                                                        }}
-                                                    >
-                                                        {match}
-                                                    </div>
-                                                )
-                                            } else if (
-                                                match.startsWith("http")
-                                            ) {
-                                                let url = match
-                                                if (url.endsWith(".")) {
-                                                    url = url.slice(0, -1)
-                                                }
-                                                return (
-                                                    <a
-                                                        key={j}
-                                                        href={url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
-                                                        {match.replace(
-                                                            /^(https?:\/\/)/,
-                                                            ""
-                                                        )}
-                                                    </a>
-                                                )
-                                            } else {
-                                                return match
-                                            }
-                                        }
-                                    )}
-                                </p>
-                            ))}
+                        {renderTextWithLinks}
                     </div>
                 </div>
             </div>
