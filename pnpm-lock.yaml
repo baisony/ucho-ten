@@ -89,6 +89,9 @@ dependencies:
   react-dropzone:
     specifier: ^14.2.3
     version: 14.2.3(react@18.2.0)
+  react-infinite-scroller:
+    specifier: ^1.2.6
+    version: 1.2.6(react@18.2.0)
   react-string-replace:
     specifier: ^1.1.1
     version: 1.1.1
@@ -4707,6 +4710,15 @@ packages:
     dependencies:
       attr-accept: 2.2.2
       file-selector: 0.6.0
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
+  /react-infinite-scroller@1.2.6(react@18.2.0):
+    resolution: {integrity: sha512-mGdMyOD00YArJ1S1F3TVU9y4fGSfVVl6p5gh/Vt4u99CJOptfVu/q5V/Wlle72TMgYlBwIhbxK5wF0C/R33PXQ==}
+    peerDependencies:
+      react: ^0.14.9 || ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
