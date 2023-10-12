@@ -89,7 +89,6 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
-        bg,
         modal,
     } = viewSideBar()
     const [agent, setAgent] = useAgent()
@@ -135,8 +134,10 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
             setLoginError(false)
             setAuthenticationRequired(false)
             setIsLogging(true)
+            let result = server.replace(/(http:\/\/|https:\/\/)/g, "")
+            result = result.replace(/\/$/, "")
             const agent = new BskyAgent({
-                service: `https://${server}`,
+                service: `https://${result}`,
             })
             const { data } = await agent.login({
                 identifier: identity,
@@ -180,6 +181,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         } catch (e: unknown) {
             if (e instanceof Error) {
                 console.log(e.message)
+                setIsLogging(false)
+                setIsSwitching(false)
                 setLoginError(true)
             }
         }
@@ -266,10 +269,14 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 className={"text-[#00D315]"}
                                             />
                                         </div>
-                                    ) : isSwitching ? (
+                                    ) : isSwitching &&
+                                      item.profile.did ===
+                                          selectedAccountInfo.profile.did ? (
                                         <Spinner />
                                     ) : (
-                                        authenticationRequired && (
+                                        authenticationRequired &&
+                                        item.profile.did ===
+                                            selectedAccountInfo.profile.did && (
                                             <span className={"text-[#FF0000]"}>
                                                 <Button
                                                     onClick={() => {
@@ -292,6 +299,17 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         ))}
                     </div>
                 ))}
+                <div
+                    className={
+                        "h-[50px] w-full select-none flex justify-center items-center cursor-pointer"
+                    }
+                    onClick={() => {
+                        setSelectedAccountInfo(null)
+                        setOpenModalReason("relogin")
+                    }}
+                >
+                    Add Account
+                </div>
             </>
         )
     }
@@ -357,7 +375,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         <ModalBody>
                                             <Input
                                                 defaultValue={
-                                                    selectedAccountInfo.service
+                                                    selectedAccountInfo?.service
                                                 }
                                                 onValueChange={(e) => {
                                                     setServer(e)
@@ -376,7 +394,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                     />
                                                 }
                                                 defaultValue={
-                                                    selectedAccountInfo.session
+                                                    selectedAccountInfo?.session
                                                         ?.handle
                                                 }
                                                 onValueChange={(e) => {
@@ -422,7 +440,14 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 {!isLogging ? (
                                                     "Sign In"
                                                 ) : (
-                                                    <Spinner />
+                                                    <Spinner
+                                                        color={
+                                                            color === "dark"
+                                                                ? "white"
+                                                                : "default"
+                                                        }
+                                                        size={"sm"}
+                                                    />
                                                 )}
                                             </Button>
                                         </ModalFooter>

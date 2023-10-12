@@ -679,98 +679,24 @@ export default function Root() {
                         )}
                         {isOGPGetProcessing && (
                             <div className={contentRightUrlCard()}>
-                                <div
-                                    className={contentRightUrlCardDeleteButton()}
-                                ></div>
-                                <div>
-                                    <div
-                                        onClick={() => {
-                                            setIsSetURLCard(false)
-                                            setGetOGPData(undefined)
-                                        }}
-                                        style={{
-                                            textAlign: "left",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        <div className={URLCardThumbnail()}>
-                                            <div
-                                                style={{
-                                                    position: "relative",
-                                                    textAlign: "center",
-                                                    top: "50%",
-                                                    left: "50%",
-                                                    transform:
-                                                        "translateY(-50%) translateX(-50%)",
-                                                    WebkitTransform:
-                                                        "translateY(-50%) translateX(-50%)",
-                                                }}
-                                            >
-                                                <Spinner
-                                                    color="white"
-                                                    size="md"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className={URLCardDetail()}>
-                                            <div
-                                                className={URLCardDetailContent()}
-                                            >
-                                                <div
-                                                    className={URLCardTitle()}
-                                                    style={{ color: "black" }}
-                                                >
-                                                    {undefined}
-                                                </div>
-                                                <div
-                                                    className={URLCardDescription()}
-                                                    style={{
-                                                        fontSize: "small",
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            textAlign: "center",
-                                                        }}
-                                                    >
-                                                        <Spinner
-                                                            color="white"
-                                                            size="md"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className={URLCardLink()}>
-                                                    {undefined}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <Linkcard color={color} skeleton={true} />
                             </div>
                         )}
                         {isSetURLCard && getOGPData && !isOGPGetProcessing && (
-                            <div className={contentRightUrlCard()}>
+                            <div
+                                className={`${contentRightUrlCard()} flex relative`}
+                            >
                                 <div
-                                    className={contentRightUrlCardDeleteButton()}
+                                    className={`${contentRightUrlCardDeleteButton()} absolute z-10 right-[10px] top-[10px]`}
                                     onClick={() => {
                                         setIsSetURLCard(false)
                                         setGetOGPData(undefined)
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            width: "100%",
-                                            textAlign: "center",
-                                            marginTop: "50%",
-                                        }}
-                                    >
-                                        <div className={"text-red-500"}>
-                                            <FontAwesomeIcon
-                                                icon={faTrashCan}
-                                                size="lg"
-                                            />
-                                        </div>
-                                    </div>
+                                    <FontAwesomeIcon
+                                        icon={faXmark}
+                                        size={"lg"}
+                                    />
                                 </div>
                                 <Linkcard color={color} OGPData={getOGPData} />
                             </div>
