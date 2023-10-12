@@ -16,8 +16,11 @@ import {
     faAt,
     faCopy,
     faEllipsis,
+    faFlag,
     faLink,
+    faTrash,
     faUser,
+    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import {
     Button,
@@ -475,6 +478,7 @@ const UserProfileComponent = ({
                             <Chip
                                 className={color}
                                 variant="faded"
+                                key={i + "_" + j}
                                 startContent={<FontAwesomeIcon icon={faLink} />}
                             >
                                 {url.startsWith("bsky.app") ? (
@@ -493,7 +497,6 @@ const UserProfileComponent = ({
                                     </span>
                                 ) : (
                                     <a
-                                        key={i + "_" + j}
                                         href={word}
                                         target="_blank"
                                         rel="noopener noreferrer"
@@ -510,6 +513,7 @@ const UserProfileComponent = ({
                         }
                         return (
                             <Chip
+                                key={i + "_" + j}
                                 className={`${color} cursor-pointer`}
                                 variant="faded"
                                 startContent={<FontAwesomeIcon icon={faAt} />}
@@ -714,7 +718,7 @@ const UserProfileComponent = ({
                                     />
                                 </div>
                             </DropdownTrigger>
-                            <DropdownMenu>
+                            <DropdownMenu aria-label={"copy-dropdown"}>
                                 <DropdownItem
                                     key="new"
                                     onClick={() => {
@@ -737,7 +741,6 @@ const UserProfileComponent = ({
                                 </DropdownItem>
                                 <DropdownItem
                                     key="edit"
-                                    showDivider
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.displayName
@@ -746,12 +749,9 @@ const UserProfileComponent = ({
                                 >
                                     Copy DisplayName
                                 </DropdownItem>
-                                <DropdownItem key="delete">
-                                    Delete file
-                                </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
-                        {isProfileMine && (
+                        {!isProfileMine && (
                             <Dropdown className={dropdown({ color: color })}>
                                 <DropdownTrigger>
                                     <div className={ProfileActionButton()}>
@@ -761,12 +761,26 @@ const UserProfileComponent = ({
                                         />
                                     </div>
                                 </DropdownTrigger>
-                                <DropdownMenu>
-                                    <DropdownItem key="report">
-                                        Mute {profile.handle}
+                                <DropdownMenu aria-label={"option-dropdown"}>
+                                    <DropdownItem
+                                        key="mute"
+                                        startContent={
+                                            <FontAwesomeIcon
+                                                icon={faVolumeXmark}
+                                            />
+                                        }
+                                    >
+                                        Mute
                                     </DropdownItem>
-                                    <DropdownItem key="report">
-                                        Report @bisn.ucho-ten.net
+                                    <DropdownItem
+                                        key="report"
+                                        className="text-danger"
+                                        color="danger"
+                                        startContent={
+                                            <FontAwesomeIcon icon={faFlag} />
+                                        }
+                                    >
+                                        Report
                                     </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
