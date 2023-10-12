@@ -273,9 +273,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         </div>
                     </div>
                     <div
-                        className={`${
-                            showTabBar ? `pt-[0px]` : `pt-[100px]`
-                        } h-[calc(100%-50px)] overflow-y-scroll`}
+                        className={`${showTabBar ? `pt-[0px]` : `pt-[100px]`} 
+                        ${
+                            !isMatchingPath ? `h-[calc(100%-50px)]` : `h-full`
+                        } overflow-y-scroll`}
                     >
                         {children}
                     </div>
