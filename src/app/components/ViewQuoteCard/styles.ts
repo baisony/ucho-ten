@@ -2,7 +2,8 @@ import { tv } from "@nextui-org/react"
 
 export const viewQuoteCard = tv({
     slots: {
-        PostCard: "w-full min-w-[350px] border-[1.5px] rounded-[10px]",
+        PostCard:
+            "w-full min-w-[350px] border-[1.5px] rounded-[10px] hover:border-gray-600",
         PostCardContainer: "pl-[8px] pt-[11px] pb-[11px] w-full",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
@@ -41,14 +42,14 @@ export const viewQuoteCard = tv({
         color: {
             light: {
                 PostCard:
-                    "bg-white text-black border-[#E8E8E8] hover:bg-[#F5F5F5] hover:border-[#B8B8B8]",
+                    "bg-white text-black border-[#E8E8E8] hover:bg-[#F5F5F5]",
                 PostAuthorDisplayName: "text-black",
                 LinkCard: "bg-white text-black hover:bg-[#DBDBDB]",
                 LinkCardTitle: "text-black",
             },
             dark: {
                 PostCard:
-                    "bg-[#2C2C2C] text-[#D7D7D7] border-[#181818] hover:bg-[#1C1C1C] hover:border-[#B8B8B8]",
+                    "bg-[#2C2C2C] text-[#D7D7D7] border-[#181818] hover:bg-[#1C1C1C]",
                 PostAuthorDisplayName: "text-white",
                 PostAuthorHandle: "text-[#BABABA]",
                 PostCreatedAt: "text-[#B8B8B8]",
