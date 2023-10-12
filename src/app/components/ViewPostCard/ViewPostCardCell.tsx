@@ -19,5 +19,9 @@ interface Props {
 export const ViewPostCardCell = (props: Props) => {
     const { isDummyHeader } = props
 
-    return isDummyHeader ? <div style={{height: "100px"}}/> : <ViewPostCard {...props} />
+    return isDummyHeader ? (
+        <div style={{ height: "100px" }} />
+    ) : (
+        <ViewPostCard {...props} />
+    )
 }
