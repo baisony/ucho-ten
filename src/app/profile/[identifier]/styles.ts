@@ -14,12 +14,12 @@ export const viewProfilePage = tv({
         ProfileHandle: "",
         ProfileBio: "mt-[8px] ml-[4px] mr-[20px]",
         ProfileCopyButton:
-            "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[2px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
+            "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[1px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
         ProfileActionButton:
-            "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[2px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
-        FollowButton: "mr-[8px] ml-[10px]",
+            "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[1px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
+        FollowButton: "mr-[8px] ml-[10px] ",
         Buttons: "flex justify-end h-[56px] w-full flex items-center",
-        PropertyButton: "text-[#929292]",
+        PropertyButton: "",
         PostContainer: "w-full h-full",
 
         dropdown: "",
@@ -30,7 +30,7 @@ export const viewProfilePage = tv({
                 background: "",
                 dropdown: "light text-black",
                 ProfileInfoContainer: "text-black bg-white",
-                FollowButton: "text-black light",
+                FollowButton: "text-black light ",
             },
             dark: {
                 background: "",
@@ -48,6 +48,10 @@ export const viewProfilePage = tv({
             false: {
                 background: "relative justify-center",
             },
+        },
+        hover: {
+            true: {},
+            false: {},
         },
     },
 })

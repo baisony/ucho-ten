@@ -804,7 +804,7 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                                   .media.images
                                                             : postJson.embed
                                                                   .images
-                                                        ).map(
+                                                        )?.map(
                                                             (
                                                                 image: any,
                                                                 index: number
