@@ -272,6 +272,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             />
                         </div>
                     </div>
+                    {!pathName.startsWith("/login") && (
+                        <div
+                            className={`${
+                                color === "dark" ? "bg-[#2C2C2C] " : " bg-white"
+                            } fixed w-full max-w-[600px] h-[calc(100%-100px)]`}
+                            style={{ top: "100px" }}
+                        ></div>
+                    )}
                     <div
                         className={`${
                             pathName === "/"
