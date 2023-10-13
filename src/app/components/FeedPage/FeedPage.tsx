@@ -1,18 +1,12 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
-import { ViewPostCard } from "../ViewPostCard"
-// import LazyViewPostCard from "../ViewPostCard/LazyViewPostCard"
 import { Spinner } from "@nextui-org/react"
-// import InfiniteScroll from "react-infinite-scroller"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import exp from "constants"
-import { Key, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
-import { viewPostCard } from "../ViewPostCard/styles"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
-// import TestComponent from "../testComponent"
 
 export interface FeedPageProps {
     feedKey: string
@@ -21,10 +15,10 @@ export interface FeedPageProps {
 }
 
 const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
-    const [agent, setAgent] = useAgent()
+    const [agent] = useAgent()
 
-    const [loading, setLoading] = useState(false)
-    //const [loading2, setLoading2] = useState(false)
+    // const [loading, setLoading] = useState(false)
+    // const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
@@ -72,7 +66,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
         }
 
         try {
-            setLoading(loadingFlag)
+            // setLoading(loadingFlag)
 
             let response: AppBskyFeedGetTimeline.Response
             let timelineLength = 0
@@ -114,7 +108,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                 console.log("Responseがundefinedです。")
             }
 
-            setLoading(false)
+            // setLoading(false)
 
             cursor.current = response.data.cursor || ""
 
@@ -137,31 +131,27 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                 setWait(false)
             }, 0.4)
         } catch (e) {
-            setLoading(false)
+            // setLoading(false)
+            console.error(e)
         }
     }
 
-    const loadMore = async (page: number) => {
-        await fetchTimeline(false)
+    const loadMore = async (index: number) => {
+        if (agent && timeline && cursor.current != "") {
+            await fetchTimeline(false)
+        }
     }
 
     useEffect(() => {
-        cursor.current = ""
-        setLoading(true)
-        setTimeline(null)
-
-        setNewTimeline([])
-    }, [])
-
-    useEffect(() => {
-        if (agent) {
+        if (agent && cursor.current == "" && timeline == null) {
+            setNewTimeline([])
             fetchTimeline()
         }
     }, [agent])
 
     return (
         <>
-            {!timeline && (
+            {(!timeline || wait) && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
@@ -184,8 +174,9 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
-            {timeline && (
+            {(timeline && !wait) && (
                 <Virtuoso
+                    context={{ hasMore }}
                     overscan={200}
                     increaseViewportBy={200}
                     // useWindowScroll={true}
@@ -206,10 +197,28 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                             }}
                         />
                     )}
+                    components={{
+                        // @ts-ignore
+                        Footer: Footer,
+                    }}
+                    endReached={loadMore}
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
         </>
+    )
+}
+
+// @ts-ignore
+const Footer = ({ context: { hasMore } }) => {
+    if (!hasMore) {
+        return
+    }
+
+    return (
+        <div className="flex justify-center mt-4 mb-4">
+            <Spinner />
+        </div>
     )
 }
 
