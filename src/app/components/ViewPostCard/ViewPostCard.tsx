@@ -48,6 +48,7 @@ import {
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
 import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+import { ReportModal } from "@/app/components/ReportModal"
 
 interface Props {
     className?: string
@@ -123,12 +124,20 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     const [startX, setStartX] = useState(null)
     const [startY, setStartY] = useState(null)
     const [handleButtonClick, setHandleButtonClick] = useState(false)
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
-
+    const {
+        isOpen: isOpenReply,
+        onOpen: onOpenReply,
+        onOpenChange: onOpenChangeReply,
+    } = useDisclosure()
+    const {
+        isOpen: isOpenReport,
+        onOpen: onOpenReport,
+        onOpenChange: onOpenChangeReport,
+    } = useDisclosure()
     const handleReply = async () => {
         //setIsPostModalOpen(true)
         console.log("open")
-        onOpen()
+        onOpenReply()
     }
 
     const handleRepost = async () => {
@@ -457,8 +466,8 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     return (
         <>
             <Modal
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
+                isOpen={isOpenReply}
+                onOpenChange={onOpenChangeReply}
                 placement={isMobile ? "top" : "center"}
                 className={"z-[100] max-w-[600px]"}
             >
@@ -473,6 +482,15 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                     )}
                 </ModalContent>
             </Modal>
+            <ReportModal
+                isOpen={isOpenReport}
+                onOpenChange={onOpenChangeReport}
+                placement={isMobile ? "top" : "center"}
+                className={"z-[100] max-w-[600px]"}
+                color={color}
+                target={"post"}
+                post={postJson}
+            />
             <main
                 className={`${PostCard({ color: color })} ${
                     isEmbedToModal
@@ -701,6 +719,12 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                                     }
                                                                 />
                                                             }
+                                                            onClick={() => {
+                                                                console.log(
+                                                                    "hogehoge"
+                                                                )
+                                                                onOpenReport()
+                                                            }}
                                                         >
                                                             Report
                                                         </DropdownItem>
