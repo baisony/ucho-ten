@@ -22,7 +22,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [wait, setWait] = useState<boolean>(true)
+    // const [wait, setWait] = useState<boolean>(true)
 
     const cursor = useRef<string>("")
 
@@ -127,9 +127,9 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                 setHasMore(false)
             }
 
-            setTimeout(() => {
-                setWait(false)
-            }, 0.4)
+            // setTimeout(() => {
+            // setWait(false)
+            // }, 1.0)
         } catch (e) {
             // setLoading(false)
             console.error(e)
@@ -144,14 +144,15 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
 
     useEffect(() => {
         if (agent && cursor.current == "" && timeline == null) {
-            setNewTimeline([])
+            // setNewTimeline([])
             fetchTimeline()
         }
     }, [agent])
 
     return (
         <>
-            {(!timeline || wait) && (
+            {/* {(!timeline || wait) && ( */}
+            {!timeline && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
@@ -174,7 +175,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
-            {timeline && !wait && (
+            {timeline /* {timeline && !wait && ( */ && (
                 <Virtuoso
                     context={{ hasMore }}
                     overscan={200}
