@@ -14,6 +14,7 @@ import "swiper/css/pagination"
 import FeedPage from "./components/FeedPage/FeedPage"
 // import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
+import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
 
 export default function Root(props: any) {
     const [appearanceColor] = useAppearanceColor()
@@ -79,7 +80,7 @@ export default function Root(props: any) {
                         id={`swiperIndex-div-following`}
                         style={{ overflowY: "auto", height: "100%" }}
                     >
-                        <FeedPage
+                        <LazyFeedPage
                             {...{
                                 feedKey: "following",
                                 loading,
@@ -101,7 +102,7 @@ export default function Root(props: any) {
                                         height: "100%",
                                     }}
                                 >
-                                    <FeedPage
+                                    <LazyFeedPage
                                         {...{
                                             feedKey: feed.uri,
                                             loading,
