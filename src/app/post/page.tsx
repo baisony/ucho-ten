@@ -822,35 +822,35 @@ export default function Root() {
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
-                        <BrowserView>
-                            <div className={footerTooltipStyle()}>
-                                <Popover
-                                    placement="right-end"
-                                    className={popover({ color: color })}
-                                >
-                                    <PopoverTrigger>
-                                        <Button
-                                            isIconOnly
-                                            variant="light"
-                                            className={"h-[24px] text-white"}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faFaceLaughBeam}
-                                                className={"h-[20px] mb-[4px]"}
-                                            />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <Picker
-                                            data={data}
-                                            onEmojiSelect={onEmojiClick}
-                                            theme={color}
-                                            previewPosition="none"
+                        <div
+                            className={`${footerTooltipStyle()} invisible md:visible`}
+                        >
+                            <Popover
+                                placement="right-end"
+                                className={popover({ color: color })}
+                            >
+                                <PopoverTrigger>
+                                    <Button
+                                        isIconOnly
+                                        variant="light"
+                                        className={"h-[24px] text-white"}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faFaceLaughBeam}
+                                            className={"h-[20px] mb-[4px]"}
                                         />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </BrowserView>
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <Picker
+                                        data={data}
+                                        onEmojiSelect={onEmojiClick}
+                                        theme={color}
+                                        previewPosition="none"
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                         <div
                             className={`${footerTooltipStyle()} top-[-3px] h-full ${
                                 contentImages.length > 4 && "text-red"
