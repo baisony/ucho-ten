@@ -490,6 +490,10 @@ export default function Root() {
                     {...getRootProps({
                         onDrop: handleDrop,
                         onDragOver: handleDragOver,
+                        onClick: (e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                        },
                     })}
                 >
                     <div className={contentLeft()}>

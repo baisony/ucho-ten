@@ -1,4 +1,5 @@
 "use client"
+
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import React, { useEffect, useRef } from "react"
 import { useState } from "react"
