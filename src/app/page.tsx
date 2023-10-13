@@ -96,7 +96,7 @@ const Root = () => {
                             >
                                 <LazyFeedPage
                                     {...{
-                                        isActive: (menuIndex === index),
+                                        isActive: menuIndex === index,
                                         feedKey: menu.info,
                                         color,
                                         now,

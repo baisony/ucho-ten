@@ -1,8 +1,8 @@
 import { atom, useAtom } from "jotai"
 
 export interface HeaderMenu {
-  displayText: string
-  info: string
+    displayText: string
+    info: string
 }
 
 const menuIndex = atom<number>(0)

@@ -207,29 +207,31 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 orientation="horizontal"
                 hideScrollBar
             > */}
-                <Slider ref={sliderRef} {...sliderSettings} className={bottom({ page: page })}>
-                    {menus.map(
-                            (menu: HeaderMenu, index) => (
-                                <div
-                                    key={`view-header-menu-${index}`}
-                                    onClick={() => {
-                                        onChangeMenuIndex(index)
-                                    }}
-                                >
-                                    <div
-                                        className={`flex items-center pl-[15px] pr-[15px] ${
-                                            menuIndex === index
-                                                ? "text-white"
-                                                : "text-[#909090]"
-                                        }`}
-                                    >
-                                        {menu.displayText}
-                                    </div>
-                                </div>
-                            )
-                        )}
-                </Slider>
-                {/* {selectedTab === "home" && pinnedFeeds && (
+            <Slider
+                ref={sliderRef}
+                {...sliderSettings}
+                className={bottom({ page: page })}
+            >
+                {menus.map((menu: HeaderMenu, index) => (
+                    <div
+                        key={`view-header-menu-${index}`}
+                        onClick={() => {
+                            onChangeMenuIndex(index)
+                        }}
+                    >
+                        <div
+                            className={`flex items-center pl-[15px] pr-[15px] ${
+                                menuIndex === index
+                                    ? "text-white"
+                                    : "text-[#909090]"
+                            }`}
+                        >
+                            {menu.displayText}
+                        </div>
+                    </div>
+                ))}
+            </Slider>
+            {/* {selectedTab === "home" && pinnedFeeds && (
                     <Tabs
                         aria-label="Options"
                         color="primary"
