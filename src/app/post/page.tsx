@@ -453,7 +453,11 @@ export default function Root() {
     }
 
     return (
-        <main className={background({ color: color, isMobile: isMobile })}>
+        <main
+            className={`${background({ color: color })}
+            md:relative md:flex md:justify-center md:items-center
+        `}
+        >
             <div className={backgroundColor()}></div>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
             <div className={PostModal({ color: color, isMobile: isMobile })}>
