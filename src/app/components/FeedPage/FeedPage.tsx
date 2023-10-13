@@ -20,7 +20,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
     // const [loading, setLoading] = useState(false)
     // const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
+    // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [wait, setWait] = useState<boolean>(true)
 
@@ -174,7 +174,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
-            {(timeline && !wait) && (
+            {timeline && !wait && (
                 <Virtuoso
                     context={{ hasMore }}
                     overscan={200}
@@ -194,6 +194,7 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
                                 postJson: item.post || null,
                                 json: item,
                                 isDummyHeader: index === 0,
+                                now,
                             }}
                         />
                     )}
