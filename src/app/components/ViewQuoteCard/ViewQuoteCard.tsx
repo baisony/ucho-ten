@@ -148,7 +148,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
             //e.preventDefault();
             //e.stopPropagation();
         } else {
-            if (!isEmbedReportModal) return
+            e.preventDefault()
+            e.stopPropagation()
             router.push(
                 `/profile/${postJson?.author.did}/post/${
                     postJson?.uri.match(/\/(\w+)$/)?.[1] || ""
