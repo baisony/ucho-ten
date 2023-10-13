@@ -514,50 +514,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 }}
                             />
                             <div className={contentLeftAuthorIcon()}>
-                                <Dropdown
-                                    placement="right-start"
-                                    className={dropdown({ color: color })}
-                                >
-                                    <DropdownTrigger>
-                                        {userProfileDetailedAtom?.avatar ? (
-                                            <img
-                                                className={contentLeftAuthorIconImage()}
-                                                alt={"author icon"}
-                                                onDragStart={handleDragStart}
-                                                src={
-                                                    userProfileDetailedAtom?.avatar
-                                                }
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                className={contentLeftAuthorIconImage()}
-                                                onDragStart={handleDragStart}
-                                                icon={faUser}
-                                            />
-                                        )}
-                                    </DropdownTrigger>
-                                    <DropdownMenu>
-                                        <DropdownSection title="accounts">
-                                            {userList.map((user, index) => (
-                                                <DropdownItem
-                                                    key={index}
-                                                    description={user["did"]}
-                                                    startContent={
-                                                        <img
-                                                            style={{
-                                                                height: "30px",
-                                                                width: "30px",
-                                                            }}
-                                                            src={user["avatar"]}
-                                                        />
-                                                    }
-                                                >
-                                                    {user["name"]}
-                                                </DropdownItem>
-                                            ))}
-                                        </DropdownSection>
-                                    </DropdownMenu>
-                                </Dropdown>
+                                <img
+                                    className={contentLeftAuthorIconImage()}
+                                    alt={"author icon"}
+                                    onDragStart={handleDragStart}
+                                    src={userProfileDetailedAtom?.avatar}
+                                />
                             </div>
                         </div>
                         <div className={contentRight()}>
