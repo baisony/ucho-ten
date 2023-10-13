@@ -16,16 +16,19 @@ import { BskyAgent } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "./_atoms/preferences"
 import { useImageGalleryAtom } from "./_atoms/imageGallery"
+import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
 import Lightbox, {
     CaptionsRef,
     Slide,
     ZoomRef,
 } from "yet-another-react-lightbox"
-import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
+
 import "yet-another-react-lightbox/styles.css"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
+import { useCallback } from "react"
+import { useMemo } from "react"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
@@ -224,11 +227,25 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [imageGallery])
 
+    const shouldFillPageBackground = useMemo((): boolean => {
+        if (pathName.startsWith("/login")) {
+            return false
+        } else if (
+            pathName.startsWith("/search") &&
+            !searchParams.get("word")
+        ) {
+            return false
+        } else if (pathName.startsWith("/post")) {
+            return false
+        } else {
+            return true
+        }
+    }, [pathName, searchParams])
+
     /*const [{ x, y }, api] = useSpring(() => ({ x: 0, y: 0 }))
     const bind = useDrag(({ down, offset: [ox, oy] }) => api.start({ x: ox, y: oy, immediate: down }), {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
     })*/
-    console.log(isMatchingPath)
 
     return (
         <>
@@ -272,7 +289,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             />
                         </div>
                     </div>
-                    {!pathName.startsWith("/login") && (
+                    {shouldFillPageBackground === true && (
                         <div
                             className={`${
                                 color === "dark" ? "bg-[#2C2C2C] " : " bg-white"
