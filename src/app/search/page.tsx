@@ -14,14 +14,19 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
+import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
-    const { searchSupportCard } = layout()
+    const [agent] = useAgent()
+    const [menuIndex] = useMenuIndexAtom()
+    const [menus] = useHeaderMenusAtom()
+
     const router = useRouter()
     const searchParams = useSearchParams()
+
     const searchWord = searchParams.get("word") || ""
     const target = searchParams.get("target") || "posts"
+
     const [loading, setLoading] = useState(false)
     const [hasMore, setHasMore] = useState(false)
     const [searchPostsResult, setSearchPostsResult] = useState<
@@ -38,6 +43,8 @@ export default function Root() {
 
     const numOfResult = useRef<number>(0)
     const cursor = useRef<string>("")
+
+    const { searchSupportCard } = layout()
 
     const [appearanceColor] = useAppearanceColor()
     const color = darkMode ? "dark" : "light"
@@ -306,6 +313,18 @@ export default function Root() {
                 break
         }
     }, [agent, searchText, searchTarget])
+
+    useEffect(() => {
+        if (menus.length === 0) {
+            return
+        }
+
+        const target = menus[menuIndex].info
+
+        router.push(
+            `/search?word=${encodeURIComponent(searchText)}&target=${target}`
+        )
+    }, [menuIndex])
 
     return (
         <>

@@ -9,12 +9,13 @@ import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
+    isActive: boolean
     feedKey: string
     color: "light" | "dark"
     now?: Date
 }
 
-const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
+const FeedPage = ({ feedKey, color, now, isActive }: FeedPageProps) => {
     const [agent] = useAgent()
 
     // const [loading, setLoading] = useState(false)
@@ -62,6 +63,10 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
 
     const fetchTimeline = async (loadingFlag: boolean = true) => {
         if (!agent) {
+            return
+        }
+
+        if (feedKey === "") {
             return
         }
 
@@ -143,11 +148,11 @@ const FeedPage = ({ feedKey, color, now }: FeedPageProps) => {
     }
 
     useEffect(() => {
-        if (agent && cursor.current == "" && timeline == null) {
+        if (agent && cursor.current == "" && timeline == null && isActive) {
             // setNewTimeline([])
             fetchTimeline()
         }
-    }, [agent])
+    }, [agent, feedKey, isActive])
 
     return (
         <>

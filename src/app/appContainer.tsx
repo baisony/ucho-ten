@@ -1,6 +1,7 @@
 "use client"
+
 import { ViewHeader } from "@/app/components/ViewHeader"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState, useMemo } from "react"
 import { layout } from "@/app/styles"
 import { TabBar } from "@/app/components/TabBar"
 import { isMobile } from "react-device-detect"
@@ -27,11 +28,17 @@ import Lightbox, {
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
-import { useCallback } from "react"
-import { useMemo } from "react"
+import {
+    HeaderMenu,
+    useHeaderMenusAtom,
+    useMenuIndexAtom,
+} from "./_atoms/headerMenu"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
-    //ここでsession作っておかないとpost画面を直で行った時にpostできないため
+    const router = useRouter()
+    const pathName = usePathname()
+    const searchParams = useSearchParams()
+
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
@@ -39,9 +46,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [feedGenerators, setFeedGenerators] = useFeedGeneratorsAtom()
-    const router = useRouter()
-    const pathName = usePathname()
-    const searchParams = useSearchParams()
+
     const target = searchParams.get("target")
     const [value, setValue] = useState(false)
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
@@ -53,7 +58,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
               pathName === "/post"
             ? pathName.replace("/", "")
             : "home"
-    //@ts-ignore
+    const [menus, setMenus] = useHeaderMenusAtom()
+    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
     const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
@@ -61,15 +67,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(isMatchingPath)
-    const { background } = layout()
+    const [page, setPage] = useState<
+        "profile" | "home" | "inbox" | "post" | "search"
+    >("home")
     const [darkMode, setDarkMode] = useState(false)
+
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
     const color = darkMode ? "dark" : "light"
 
-    const [page, setPage] = useState<"profile" | "home" | "post" | "search">(
-        "home"
-    )
+    const { background } = layout()
 
     const modeMe = (e: any) => {
         if (appearanceColor !== "system") return
@@ -201,7 +208,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             setPage("post")
             setSelectedTab("post")
         } else if (pathName.startsWith("/inbox")) {
-            setPage("home") // TODO: ??
+            setPage("inbox") // TODO: ??
             setSelectedTab("inbox")
         } else {
             setPage("home")
@@ -247,6 +254,87 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
     })*/
 
+    const onChangeMenuIndex = (index: number) => {
+        setMenuIndex(index)
+    }
+
+    useEffect(() => {
+        if (!feedGenerators || pathName !== "/") {
+            return
+        }
+
+        const menus: HeaderMenu[] = feedGenerators.map((feed) => {
+            return {
+                displayText: feed.displayName,
+                info: feed.uri,
+            }
+        })
+
+        menus.unshift({
+            displayText: "Following",
+            info: "following",
+        })
+
+        setMenus(menus)
+
+        console.log(menus)
+
+        setMenuIndex(0)
+    }, [pathName, feedGenerators])
+
+    useEffect(() => {
+        if (pathName === "/search") {
+            const menus: HeaderMenu[] = [
+                {
+                    displayText: "Posts",
+                    info: "posts",
+                },
+                {
+                    displayText: "Feeds",
+                    info: "feeds",
+                },
+                {
+                    displayText: "Users",
+                    info: "users",
+                },
+            ]
+            setMenus(menus)
+
+            switch (searchParams.get("target")) {
+                case "posts":
+                    setMenuIndex(0)
+                    break
+                case "feed":
+                    setMenuIndex(1)
+                    break
+                case "users":
+                    setMenuIndex(2)
+                    break
+                default:
+                    setMenuIndex(0)
+                    break
+            }
+        } else if (pathName === "/inbox") {
+            const menus: HeaderMenu[] = [
+                {
+                    displayText: "Inbox",
+                    info: "inbox",
+                },
+            ]
+            setMenus(menus)
+            setMenuIndex(0)
+        } else if (pathName !== "/") {
+            const menus: HeaderMenu[] = [
+                {
+                    displayText: "",
+                    info: "",
+                },
+            ]
+            setMenus(menus)
+            setMenuIndex(0)
+        }
+    }, [pathName, searchParams])
+
     return (
         <>
             <main className={background({ color: color, isMobile: isMobile })}>
@@ -263,6 +351,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             setSideBarOpen={setIsSideBarOpen}
                             setSearchText={setSearchText}
                             selectedTab={selectedTab}
+                            menuIndex={menuIndex}
+                            menus={menus}
+                            onChangeMenuIndex={onChangeMenuIndex}
                         />
                     )}
                     <div
