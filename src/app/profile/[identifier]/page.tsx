@@ -41,6 +41,7 @@ import {
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import { ReportModal } from "@/app/components/ReportModal"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -367,6 +368,11 @@ const UserProfileComponent = ({
     const [isUploading, setIsUploading] = useState(false)
     const [isFollowing, setIsFollowing] = useState(profile?.viewer?.following)
     const {
+        isOpen: isOpenReport,
+        onOpen: onOpenReport,
+        onOpenChange: onOpenChangeReport,
+    } = useDisclosure()
+    const {
         background,
         ProfileContainer,
         ProfileInfoContainer,
@@ -690,6 +696,15 @@ const UserProfileComponent = ({
                     )}
                 </ModalContent>
             </Modal>
+            <ReportModal
+                isOpen={isOpenReport}
+                onOpenChange={onOpenChangeReport}
+                placement={isMobile ? "top" : "center"}
+                className={"z-[100] max-w-[600px]"}
+                color={color}
+                target={"account"}
+                profile={profile}
+            />
             <div className={ProfileContainer()}>
                 <div className={HeaderImageContainer()}>
                     <img
@@ -779,6 +794,9 @@ const UserProfileComponent = ({
                                         startContent={
                                             <FontAwesomeIcon icon={faFlag} />
                                         }
+                                        onClick={() => {
+                                            onOpenReport()
+                                        }}
                                     >
                                         Report
                                     </DropdownItem>

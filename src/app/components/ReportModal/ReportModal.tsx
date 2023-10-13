@@ -14,6 +14,7 @@ import React, { useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+import type { ComAtprotoModerationCreateReport } from "@atproto/api"
 
 /**
  * SetttingsModal props.
@@ -57,6 +58,10 @@ export const ReportModal = (props: ReportModalProps) => {
             reasonType: "com.atproto.moderation.defs#reasonSpam",
             reason: "スパム行為",
         },
+        misleading: {
+            reasonType: "com.atproto.moderation.defs#reasonMisleading",
+            reason: "誤解を招くコンテンツ",
+        },
         sexual: {
             reasonType: "com.atproto.moderation.defs#reasonSexual",
             reason: "望まない性的コンテンツ",
@@ -76,6 +81,7 @@ export const ReportModal = (props: ReportModalProps) => {
         },
     }
     const reasonTypeToReason: Record<string, string> = {
+        "com.atproto.moderation.defs#reasonMisleading": "misleading",
         "com.atproto.moderation.defs#reasonSpam": "spam",
         "com.atproto.moderation.defs#reasonSexual": "sexual",
         __copyright__: "copyRight",
@@ -86,16 +92,27 @@ export const ReportModal = (props: ReportModalProps) => {
 
     const submitReport = async () => {
         setIsReportSending(true)
+        console.log(profile)
         try {
-            const report = await agent?.createModerationReport({
+            const reportJson: ComAtprotoModerationCreateReport.InputSchema = {
                 reasonType: reportReasonType,
                 subject: {
-                    $type: "com.atproto.repo.strongRef",
-                    uri: postUri || post?.uri,
-                    cid: postCid || post?.cid,
+                    $type:
+                        target === "post"
+                            ? "com.atproto.repo.strongRef"
+                            : "com.atproto.admin.defs#repoRef",
                 },
                 reason: reportReasonText,
-            })
+            }
+            if (target === "post") {
+                reportJson.subject.cid = postCid || post?.cid
+                reportJson.subject.uri = postUri || post?.uri
+            } else if (target === "account") {
+                reportJson.subject.did = profile?.did
+            } else {
+                return undefined
+            }
+            const report = await agent?.createModerationReport(reportJson)
             setIsReportSending(false)
             console.log(report)
             return report
@@ -127,6 +144,7 @@ export const ReportModal = (props: ReportModalProps) => {
             className={`${className} ${color} ${
                 color === `dark` ? `text-white` : `text-black`
             }`}
+            hideCloseButton
         >
             <ModalContent>
                 {(onClose) => (
@@ -140,7 +158,10 @@ export const ReportModal = (props: ReportModalProps) => {
                                     "w-full h-[50%] max-h-[250px] overflow-y-scroll"
                                 }
                             >
-                                <ViewQuoteCard color={color} postJson={post} />
+                                <ViewQuoteCard
+                                    color={color}
+                                    profile={profile}
+                                />
                             </div>
                             <div
                                 className={"flex items-center justify-between"}
@@ -148,49 +169,6 @@ export const ReportModal = (props: ReportModalProps) => {
                                 <div className={"mr-[10px]"}>
                                     <span>Select reason</span>
                                 </div>
-                                {/*<Dropdown>
-                                    <DropdownTrigger>
-                                        <Button>
-                                            {reportReasonType
-                                                ? reasonTypeToReason[
-                                                      reportReasonType as keyof typeof reasonTypeToReason
-                                                  ]
-                                                : "----------"}
-                                        </Button>
-                                    </DropdownTrigger>
-                                    <DropdownMenu
-                                        aria-label="Single selection actions"
-                                        selectionMode="single"
-                                        disallowEmptySelection
-                                        selectedKeys={reportReasonType}
-                                        onSelectionChange={(e: Selection) => {
-                                            setReportReasonType(
-                                                //@ts-ignore
-                                                reasonList[e.currentKey]
-                                                    .reasonType
-                                            )
-                                        }}
-                                    >
-                                        <DropdownItem key="spam">
-                                            {reasonList.spam.reason}
-                                        </DropdownItem>
-                                        <DropdownItem key="sexual">
-                                            {reasonList.sexual.reason}
-                                        </DropdownItem>
-                                        <DropdownItem key="copyright">
-                                            {reasonList.copyright.reason}
-                                        </DropdownItem>
-                                        <DropdownItem key="rude">
-                                            {reasonList.rude.reason}
-                                        </DropdownItem>
-                                        <DropdownItem key="violation">
-                                            {reasonList.violation.reason}
-                                        </DropdownItem>
-                                        <DropdownItem key="other">
-                                            {reasonList.other.reason}
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </Dropdown>*/}
                                 <Select
                                     onSelectionChange={(e: any) => {
                                         setReportReasonType(
@@ -216,6 +194,9 @@ export const ReportModal = (props: ReportModalProps) => {
                                     </SelectItem>
                                     <SelectItem key={"violation"}>
                                         {reasonList.violation.reason}
+                                    </SelectItem>
+                                    <SelectItem key={"misleading"}>
+                                        {reasonList.misleading.reason}
                                     </SelectItem>
                                     <SelectItem key={"other"}>
                                         {reasonList.other.reason}
@@ -250,7 +231,11 @@ export const ReportModal = (props: ReportModalProps) => {
                         <ModalFooter>
                             <Button onPress={onClose}>cancel</Button>
                             <Button
-                                onPress={handleSendButtonPush}
+                                onPress={() => {
+                                    handleSendButtonPush
+                                    setIsReportSuccess(false)
+                                    onClose
+                                }}
                                 color={
                                     !isReportSending && isReportSuccess
                                         ? "success"
