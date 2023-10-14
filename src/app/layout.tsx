@@ -60,6 +60,7 @@ export default function RootLayout({
                 // className={`${noto.className}`}
                 style={{
                     overscrollBehaviorY: "none",
+                    overflowY: "auto",
                     WebkitOverflowScrolling: "touch",
                 }}
                 suppressHydrationWarning
