@@ -25,7 +25,7 @@ import Lightbox, {
     ZoomRef,
 } from "yet-another-react-lightbox"
 
-import { reveal as BurgerSiderBar } from "react-burger-menu"
+import { push as BurgerSiderBar } from "react-burger-menu"
 
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
@@ -381,7 +381,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             // padding: '0.8em'
         },
         bmItem: {},
-        bmOverlay: {},
+        bmOverlay: { background: "transparent" },
     }
 
     return (
@@ -395,7 +395,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         >
             <div id="burger-outer-container">
                 <BurgerSiderBar
-                    className={"bg-opacity-50"}
+                    className={"backdrop-blur-[5px]"}
                     outerContainerId="burger-outer-container"
                     pageWrapId="main-container"
                     styles={burgerMenuStyles}
@@ -403,9 +403,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     onClose={() => {
                         setDrawerOpen(false)
                     }}
-                />
+                >
+                    <ViewSideBar
+                        color={color}
+                        isSideBarOpen={drawerOpen}
+                        setSideBarOpen={setSideBarOpen}
+                        isMobile={isMobile}
+                    />
+                </BurgerSiderBar>
 
-                <div
+                {/* <div
                     style={{
                         position: "fixed",
                         top: "0",
@@ -417,14 +424,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         clipPath: drawerOpen ? "inset(0)" : "inset(0 100% 0 0)",
                         zIndex: drawerOpen ? "1401" : "0",
                     }}
-                >
-                    <ViewSideBar
-                        color={color}
-                        isSideBarOpen={drawerOpen}
-                        setSideBarOpen={setSideBarOpen}
-                        isMobile={isMobile}
-                    />
-                </div>
+                > */}
+                {/* </div> */}
 
                 <main
                     id="main-container"
