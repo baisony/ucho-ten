@@ -2,7 +2,7 @@ import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { Spinner } from "@nextui-org/react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useEffect, useRef, useState } from "react"
+import { UIEventHandler, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
@@ -12,10 +12,17 @@ export interface FeedPageProps {
     isActive: boolean
     feedKey: string
     color: "light" | "dark"
+    disableSlideVerticalScroll: boolean
     now?: Date
 }
 
-const FeedPage = ({ feedKey, color, now, isActive }: FeedPageProps) => {
+const FeedPage = ({
+    feedKey,
+    color,
+    now,
+    isActive,
+    disableSlideVerticalScroll,
+}: FeedPageProps) => {
     const [agent] = useAgent()
 
     // const [loading, setLoading] = useState(false)
@@ -24,6 +31,8 @@ const FeedPage = ({ feedKey, color, now, isActive }: FeedPageProps) => {
     // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     // const [wait, setWait] = useState<boolean>(true)
+
+    const currentScrollPosition = useRef<number>(0)
 
     const cursor = useRef<string>("")
 
@@ -147,12 +156,50 @@ const FeedPage = ({ feedKey, color, now, isActive }: FeedPageProps) => {
         }
     }
 
+    const checkNewTimeline = async () => {
+        if (!agent) return
+        try {
+            let response: AppBskyFeedGetTimeline.Response
+            let timelineLength = 0
+
+            if (feedKey === "following") {
+                response = await agent.getTimeline({
+                    limit: 30,
+                    cursor: cursor.current || "",
+                })
+            } else {
+                response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    cursor: cursor.current || "",
+                    limit: 30,
+                })
+            }
+        } catch (e) {}
+    }
+
     useEffect(() => {
         if (agent && cursor.current == "" && timeline == null && isActive) {
             // setNewTimeline([])
             fetchTimeline()
         }
+
+        setTimeout(() => {
+            checkNewTimeline()
+        }, 15 * 1000)
     }, [agent, feedKey, isActive])
+
+    const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
+        const newScrollPosition = e.currentTarget.scrollTop
+
+        if (disableSlideVerticalScroll) {
+            e.currentTarget.scrollTo({
+                top: currentScrollPosition.current,
+                left: 0,
+            })
+        }
+
+        currentScrollPosition.current = newScrollPosition
+    }
 
     return (
         <>
@@ -209,6 +256,7 @@ const FeedPage = ({ feedKey, color, now, isActive }: FeedPageProps) => {
                         Footer: Footer,
                     }}
                     endReached={loadMore}
+                    // onScroll={(e) => disableScrollIfNeeded(e)}
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}

@@ -66,7 +66,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState("")
     const target = searchParams.get("target")
-    const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
+    // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
 
     const sliderRef = useRef<Slider>(null)
@@ -126,9 +126,10 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         />
                     }
                     onClick={() => {
-                        setIsSideBarOpen(!isSideBarOpen)
+                        //setIsSideBarOpen(!isSideBarOpen)
                         //console.log(setValue)
-                        props.setSideBarOpen(true)
+                        setSideBarOpen(true)
+                        console.log("setSideBarOpen")
                     }}
                 />
                 {selectedTab === "search" && (

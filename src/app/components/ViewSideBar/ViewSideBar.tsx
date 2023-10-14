@@ -37,7 +37,7 @@ import {
     UserAccountByDid,
 } from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
-import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+// import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 interface Props {
     className?: string
     color: "light" | "dark"
@@ -45,8 +45,8 @@ interface Props {
     uploadImageAvailable?: boolean
     isDragActive?: boolean
     open?: boolean
-    isSideBarOpen?: boolean
-    setSideBarOpen?: any
+    isSideBarOpen: boolean
+    setSideBarOpen: (isOpen: boolean) => void
 }
 
 export const ViewSideBar: React.FC<Props> = (props: Props) => {
@@ -91,14 +91,16 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         NavBarItem,
         modal,
     } = viewSideBar()
+
     const [agent, setAgent] = useAgent()
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [server, setServer] = useState<string>("")
     const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLogging, setIsLogging] = useState<boolean>(false)
     const [loginError, setLoginError] = useState<boolean>(false)
 
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    
     const handleDeleteSession = () => {
         console.log("delete session")
         localStorage.removeItem("session")
@@ -314,7 +316,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         )
     }
     return (
-        <>
+        <div className="overflow-x-hidden">
             <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
@@ -334,7 +336,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             color="primary"
                                             onClick={() => {
                                                 onClose()
-                                                props.setSideBarOpen(false)
+                                                setSideBarOpen(false)
                                             }}
                                         >
                                             Close
@@ -359,7 +361,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             onClick={() => {
                                                 handleDeleteSession()
                                                 onClose()
-                                                props.setSideBarOpen(false)
+                                                setSideBarOpen(false)
                                             }}
                                         >
                                             Yes
@@ -458,22 +460,22 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     )}
                 </ModalContent>
             </Modal>
-            <main className={""}>
+            {/* <main className={""}> */}
                 <main
                     className={background({
                         color: color,
                         isMobile: isMobile,
-                        isBarOpen: props.isSideBarOpen,
+                        isBarOpen: isSideBarOpen,
                     })}
                     onClick={(e) => {
                         e.stopPropagation()
                     }}
                 >
                     <div
-                        className={AuthorIconContainer()}
+                        className={AuthorIconContainer({color})}
                         onClick={() => {
                             if (!agent?.session) return
-                            props.setSideBarOpen(false)
+                            setSideBarOpen(false)
                             router.push(`/profile/${agent.session.did}`)
                         }}
                     >
@@ -497,7 +499,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             )}
                         </div>
                         <div className={"ml-[12px]"}>
-                            <div className={AuthorDisplayName()}>
+                            <div className={AuthorDisplayName({color})}>
                                 {userProfileDetailed?.displayName ||
                                     userProfileDetailed?.handle}
                             </div>
@@ -506,120 +508,120 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             </div>
                         </div>
                     </div>
-                    <div className={Content()}>
+                    <div className={Content({color})}>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push("/bookmarks")
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faBookmark}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Bookmark</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push("/settings#mute")
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faVolumeXmark}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Mute</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push("/feeds")
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faRss}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Feeds</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
                                 if (!agent?.session) return
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push(`/profile/${agent.session.did}`)
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faUser}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Profile</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push("/settings#filtering")
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faHand}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Contents Filtering</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push("/settings")
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faGear}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Settings</div>
                         </div>
                         <a
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             href={"https://google.com/"}
                             target={"_blank"}
                             rel="noopener noreferrer"
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faFlag}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Bug Report</div>
                         </a>
                     </div>
-                    <div className={Footer()}>
+                    <div className={Footer({color})}>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 router.push("/about")
                             }}
                         >
                             <FontAwesomeIcon
                                 icon={faCircleQuestion}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>About</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
-                                props.setSideBarOpen(false)
+                                setSideBarOpen(false)
                                 setOpenModalReason("switching")
                                 onOpen()
                                 //router.push("/settings")
@@ -627,19 +629,19 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         >
                             <FontAwesomeIcon
                                 icon={faUsers}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Switching Account</div>
                         </div>
                         <div
-                            className={NavBarItem()}
+                            className={NavBarItem({color})}
                             onClick={() => {
                                 if (isMobile) {
                                     const res = window.confirm(
                                         "Would you like to log out?"
                                     )
                                     if (res) {
-                                        props.setSideBarOpen(false)
+                                        setSideBarOpen(false)
                                         handleDeleteSession()
                                         router.push("/login")
                                     }
@@ -651,13 +653,13 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         >
                             <FontAwesomeIcon
                                 icon={faRightFromBracket}
-                                className={NavBarIcon()}
+                                className={NavBarIcon({color})}
                             ></FontAwesomeIcon>
                             <div>Logout</div>
                         </div>
                     </div>
                 </main>
-            </main>
-        </>
+            {/* </main> */}
+        </div>
     )
 }

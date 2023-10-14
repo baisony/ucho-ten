@@ -10,16 +10,16 @@ export const layout = tv({
     variants: {
         color: {
             light: {
-                background:
-                    "bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)]",
+                // background:
+                //     "bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)]",
                 PostModal: "bg-[#DADADA] bg-opacity-70 text-white",
                 footer: "bg-[#DADADA]",
                 userCard: "bg-white text-black border-[#E8E8E8]",
                 searchSupportCard: "bg-white text-black border-[#E8E8E8]",
             },
             dark: {
-                background:
-                    "bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]",
+                // background:
+                //     "bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]",
                 PostModal: "bg-[#2C2C2C] bg-opacity-70 text-[#D7D7D7]",
                 footer: "bg-[#2C2C2C]",
                 dropdown: "dark text-white",

@@ -26,7 +26,7 @@ export default function Root() {
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<string[]>([])
-    const [pinnedFeeds, setPinnedFeeds] = useState<string[]>([])
+    const [, setPinnedFeeds] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [darkMode, setDarkMode] = useState(false)
     const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
@@ -51,6 +51,7 @@ export default function Root() {
             setDarkMode(false)
         }
     }, [appearanceColor])
+
     const fetchFeeds = async () => {
         if (!agent) return
         try {
