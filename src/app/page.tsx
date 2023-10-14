@@ -1,5 +1,5 @@
 "use client"
-
+import { isMobile } from "react-device-detect"
 import React, { lazy, useEffect, useRef, useState } from "react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
@@ -113,6 +113,7 @@ const Root = () => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
+                cssMode={isMobile}
                 virtual={true}
                 pagination={{ type: "custom", clickable: false }}
                 hidden={true} // ??
