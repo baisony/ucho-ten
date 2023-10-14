@@ -100,7 +100,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const [loginError, setLoginError] = useState<boolean>(false)
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
-    
+
     const handleDeleteSession = () => {
         console.log("delete session")
         localStorage.removeItem("session")
@@ -461,204 +461,202 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                 </ModalContent>
             </Modal>
             {/* <main className={""}> */}
-                <main
-                    className={background({
-                        color: color,
-                        isMobile: isMobile,
-                        isBarOpen: isSideBarOpen,
-                    })}
-                    onClick={(e) => {
-                        e.stopPropagation()
+            <main
+                className={background({
+                    color: color,
+                    isMobile: isMobile,
+                    isBarOpen: isSideBarOpen,
+                })}
+                onClick={(e) => {
+                    e.stopPropagation()
+                }}
+            >
+                <div
+                    className={AuthorIconContainer({ color })}
+                    onClick={() => {
+                        if (!agent?.session) return
+                        setSideBarOpen(false)
+                        router.push(`/profile/${agent.session.did}`)
                     }}
                 >
                     <div
-                        className={AuthorIconContainer({color})}
+                        className={
+                            "h-[64px] w-[64px] rounded-[10px] overflow-hidden"
+                        }
+                    >
+                        {userProfileDetailed?.avatar ? (
+                            <img
+                                className={"h-[64px] w-[64px] rounded-[10px]"}
+                                src={userProfileDetailed?.avatar}
+                            />
+                        ) : (
+                            <FontAwesomeIcon
+                                icon={faUser}
+                                className={"h-full w-full"}
+                            />
+                        )}
+                    </div>
+                    <div className={"ml-[12px]"}>
+                        <div className={AuthorDisplayName({ color })}>
+                            {userProfileDetailed?.displayName ||
+                                userProfileDetailed?.handle}
+                        </div>
+                        <div className={AuthorHandle({ color: color })}>
+                            @{userProfileDetailed?.handle}
+                        </div>
+                    </div>
+                </div>
+                <div className={Content({ color })}>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            router.push("/bookmarks")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faBookmark}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Bookmark</div>
+                    </div>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            router.push("/settings#mute")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faVolumeXmark}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Mute</div>
+                    </div>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            router.push("/feeds")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faRss}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Feeds</div>
+                    </div>
+                    <div
+                        className={NavBarItem({ color })}
                         onClick={() => {
                             if (!agent?.session) return
                             setSideBarOpen(false)
                             router.push(`/profile/${agent.session.did}`)
                         }}
                     >
-                        <div
-                            className={
-                                "h-[64px] w-[64px] rounded-[10px] overflow-hidden"
-                            }
-                        >
-                            {userProfileDetailed?.avatar ? (
-                                <img
-                                    className={
-                                        "h-[64px] w-[64px] rounded-[10px]"
-                                    }
-                                    src={userProfileDetailed?.avatar}
-                                />
-                            ) : (
-                                <FontAwesomeIcon
-                                    icon={faUser}
-                                    className={"h-full w-full"}
-                                />
-                            )}
-                        </div>
-                        <div className={"ml-[12px]"}>
-                            <div className={AuthorDisplayName({color})}>
-                                {userProfileDetailed?.displayName ||
-                                    userProfileDetailed?.handle}
-                            </div>
-                            <div className={AuthorHandle({ color: color })}>
-                                @{userProfileDetailed?.handle}
-                            </div>
-                        </div>
+                        <FontAwesomeIcon
+                            icon={faUser}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Profile</div>
                     </div>
-                    <div className={Content({color})}>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                router.push("/bookmarks")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faBookmark}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Bookmark</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                router.push("/settings#mute")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faVolumeXmark}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Mute</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                router.push("/feeds")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faRss}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Feeds</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                if (!agent?.session) return
-                                setSideBarOpen(false)
-                                router.push(`/profile/${agent.session.did}`)
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faUser}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Profile</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                router.push("/settings#filtering")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faHand}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Contents Filtering</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                router.push("/settings")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faGear}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Settings</div>
-                        </div>
-                        <a
-                            className={NavBarItem({color})}
-                            href={"https://google.com/"}
-                            target={"_blank"}
-                            rel="noopener noreferrer"
-                            onClick={() => {
-                                setSideBarOpen(false)
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faFlag}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Bug Report</div>
-                        </a>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            router.push("/settings#filtering")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faHand}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Contents Filtering</div>
                     </div>
-                    <div className={Footer({color})}>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                router.push("/about")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faCircleQuestion}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>About</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                setSideBarOpen(false)
-                                setOpenModalReason("switching")
-                                onOpen()
-                                //router.push("/settings")
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faUsers}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Switching Account</div>
-                        </div>
-                        <div
-                            className={NavBarItem({color})}
-                            onClick={() => {
-                                if (isMobile) {
-                                    const res = window.confirm(
-                                        "Would you like to log out?"
-                                    )
-                                    if (res) {
-                                        setSideBarOpen(false)
-                                        handleDeleteSession()
-                                        router.push("/login")
-                                    }
-                                } else {
-                                    setOpenModalReason("logout")
-                                    onOpen()
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            router.push("/settings")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faGear}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Settings</div>
+                    </div>
+                    <a
+                        className={NavBarItem({ color })}
+                        href={"https://google.com/"}
+                        target={"_blank"}
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                            setSideBarOpen(false)
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faFlag}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Bug Report</div>
+                    </a>
+                </div>
+                <div className={Footer({ color })}>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            router.push("/about")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faCircleQuestion}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>About</div>
+                    </div>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                            setOpenModalReason("switching")
+                            onOpen()
+                            //router.push("/settings")
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faUsers}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Switching Account</div>
+                    </div>
+                    <div
+                        className={NavBarItem({ color })}
+                        onClick={() => {
+                            if (isMobile) {
+                                const res = window.confirm(
+                                    "Would you like to log out?"
+                                )
+                                if (res) {
+                                    setSideBarOpen(false)
+                                    handleDeleteSession()
+                                    router.push("/login")
                                 }
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faRightFromBracket}
-                                className={NavBarIcon({color})}
-                            ></FontAwesomeIcon>
-                            <div>Logout</div>
-                        </div>
+                            } else {
+                                setOpenModalReason("logout")
+                                onOpen()
+                            }
+                        }}
+                    >
+                        <FontAwesomeIcon
+                            icon={faRightFromBracket}
+                            className={NavBarIcon({ color })}
+                        ></FontAwesomeIcon>
+                        <div>Logout</div>
                     </div>
-                </main>
+                </div>
+            </main>
             {/* </main> */}
         </div>
     )

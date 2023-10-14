@@ -160,7 +160,7 @@ const FeedPage = ({
         if (!agent) return
         try {
             let response: AppBskyFeedGetTimeline.Response
-            let timelineLength = 0
+            const timelineLength = 0
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
