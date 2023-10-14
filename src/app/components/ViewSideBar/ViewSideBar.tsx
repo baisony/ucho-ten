@@ -316,7 +316,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         )
     }
     return (
-        <div className="overflow-x-hidden">
+        <div>
             <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}

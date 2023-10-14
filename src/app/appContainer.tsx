@@ -364,9 +364,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             // background: '#bdc3c7'
         },
         bmMenuWrap: {
-            overflowX: "hidden",
-            //   position: 'fixed',
-            //   height: '100%'
+            // overflowX: "hidden",
+            // position: "fixed",
+            // height: "100%",
         },
         bmMenu: {
             // background: '#373a47',
@@ -403,6 +403,20 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     onClose={() => {
                         setDrawerOpen(false)
                     }}
+                />
+
+                <div
+                    style={{
+                        position: "fixed",
+                        top: "0",
+                        left: "0",
+                        height: "100%",
+                        width: "300px",
+                        backgroundColor: "transparent", // 背景色を透明に設定
+                        transition: "clip-path 0.5s ease",
+                        clipPath: drawerOpen ? "inset(0)" : "inset(0 100% 0 0)",
+                        zIndex: drawerOpen ? "1401" : "0",
+                    }}
                 >
                     <ViewSideBar
                         color={color}
@@ -410,7 +424,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         setSideBarOpen={setSideBarOpen}
                         isMobile={isMobile}
                     />
-                </BurgerSiderBar>
+                </div>
 
                 <main
                     id="main-container"
