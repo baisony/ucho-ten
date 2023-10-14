@@ -26,11 +26,14 @@ import "yet-another-react-lightbox/styles.css"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
+import { useWordMutes } from "@/app/_atoms/wordMute"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [muteWords, setMuteWords] = useWordMutes()
+
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
@@ -223,6 +226,46 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             setImageSlides(slides)
         }
     }, [imageGallery])
+
+    useEffect(() => {
+        if (muteWords.length === 0) return
+
+        let newMuteWords = [...muteWords]
+
+        for (const word of muteWords) {
+            if (typeof word === "string") {
+                const createdAt = new Date().getTime()
+                const json = {
+                    category: null,
+                    word: word,
+                    selectPeriod: null,
+                    end: null,
+                    isActive: true,
+                    targets: ["timeline"],
+                    muteAccountIncludesFollowing: true,
+                    updatedAt: createdAt,
+                    createdAt: createdAt,
+                    deletedAt: null,
+                }
+
+                const isDuplicate = muteWords.find(
+                    (muteWord) => muteWord.word === word
+                )
+
+                if (!isDuplicate) {
+                    console.log("add")
+                    newMuteWords.push(json)
+                } else {
+                    console.log("この単語は既に存在します")
+                }
+            }
+        }
+
+        newMuteWords = newMuteWords.filter(
+            (muteWord) => typeof muteWord !== "string"
+        )
+        setMuteWords(newMuteWords)
+    }, [JSON.stringify(muteWords)])
 
     /*const [{ x, y }, api] = useSpring(() => ({ x: 0, y: 0 }))
     const bind = useDrag(({ down, offset: [ox, oy] }) => api.start({ x: ox, y: oy, immediate: down }), {
