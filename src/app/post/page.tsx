@@ -516,7 +516,8 @@ export default function Root() {
                                 uploadImageAvailable:
                                     contentImages.length !== 0 ||
                                     isCompressing ||
-                                    detectedURLs.length !== 0,
+                                    detectedURLs.length !== 0 ||
+                                    getOGPData !== null,
                             })}
                             aria-label="post input area"
                             placeholder={"Yo, Do you do Brusco?"}
@@ -629,40 +630,42 @@ export default function Root() {
                                 ))}
                             </div>
                         )}
-                        {isDetectedURL && !getOGPData && (
-                            <div className={"w-full"}>
-                                {detectedURLs.map((url, index) => (
-                                    <div className={"mb-[5px]"}>
-                                        <Chip
-                                            key={index}
-                                            className={`w-full ${color}`}
-                                            style={{
-                                                textAlign: "left",
-                                                cursor: "pointer",
-                                            }}
-                                            startContent={
-                                                <FontAwesomeIcon
-                                                    icon={faPlus}
-                                                />
-                                            }
-                                            onClick={() => {
-                                                setSelectedURL(url)
-                                                setIsSetURLCard(true)
-                                                getOGP(url)
-                                            }}
-                                        >
-                                            {url}
-                                        </Chip>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        {isDetectedURL &&
+                            !getOGPData &&
+                            !isOGPGetProcessing && (
+                                <div className={"w-full"}>
+                                    {detectedURLs.map((url, index) => (
+                                        <div className={"mb-[5px]"}>
+                                            <Chip
+                                                key={index}
+                                                className={`w-full ${color}`}
+                                                style={{
+                                                    textAlign: "left",
+                                                    cursor: "pointer",
+                                                }}
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faPlus}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    setSelectedURL(url)
+                                                    setIsSetURLCard(true)
+                                                    getOGP(url)
+                                                }}
+                                            >
+                                                {url}
+                                            </Chip>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         {isOGPGetProcessing && (
                             <div className={contentRightUrlCard()}>
                                 <Linkcard color={color} skeleton={true} />
                             </div>
                         )}
-                        {isSetURLCard && getOGPData && !isOGPGetProcessing && (
+                        {getOGPData && !isOGPGetProcessing && (
                             <div
                                 className={`${contentRightUrlCard()} flex relative`}
                             >
