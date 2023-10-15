@@ -27,6 +27,7 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { useWordMutes } from "@/app/_atoms/wordMute"
+import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     //ここでsession作っておかないとpost画面を直で行った時にpostできないため
@@ -70,6 +71,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [page, setPage] = useState<"profile" | "home" | "post" | "search">(
         "home"
     )
+    const [history, setHistory] = useState([pathName, ""])
+
+    useEffect(() => {
+        setHistory([pathName, history[0]])
+    }, [pathName])
 
     const modeMe = (e: any) => {
         if (appearanceColor !== "system") return
@@ -274,7 +280,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     console.log(isMatchingPath)
 
     return (
-        <>
+        <HistoryContext.Provider value={history}>
             <main className={background({ color: color, isMobile: isMobile })}>
                 <div
                     className={
@@ -386,6 +392,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     />
                 </div>
             )}
-        </>
+        </HistoryContext.Provider>
     )
 }
