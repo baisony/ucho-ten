@@ -35,6 +35,8 @@ import {
     useHeaderMenusAtom,
     useMenuIndexAtom,
 } from "./_atoms/headerMenu"
+import { useWordMutes } from "@/app/_atoms/wordMute"
+import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -43,6 +45,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [muteWords, setMuteWords] = useWordMutes()
+
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
@@ -74,12 +78,17 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     >("home")
     const [darkMode, setDarkMode] = useState<boolean>(false)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
+    const [history, setHistory] = useState([pathName, ""])
 
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
     const color = darkMode ? "dark" : "light"
 
     const { background } = layout()
+
+    useEffect(() => {
+        setHistory([pathName, history[0]])
+    }, [pathName])
 
     const modeMe = (e: any) => {
         if (appearanceColor !== "system") return
@@ -252,6 +261,46 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [pathName, searchParams])
 
+    useEffect(() => {
+        if (muteWords.length === 0) return
+
+        let newMuteWords = [...muteWords]
+
+        for (const word of muteWords) {
+            if (typeof word === "string") {
+                const createdAt = new Date().getTime()
+                const json = {
+                    category: null,
+                    word: word,
+                    selectPeriod: null,
+                    end: null,
+                    isActive: true,
+                    targets: ["timeline"],
+                    muteAccountIncludesFollowing: true,
+                    updatedAt: createdAt,
+                    createdAt: createdAt,
+                    deletedAt: null,
+                }
+
+                const isDuplicate = muteWords.find(
+                    (muteWord) => muteWord.word === word
+                )
+
+                if (!isDuplicate) {
+                    console.log("add")
+                    newMuteWords.push(json)
+                } else {
+                    console.log("この単語は既に存在します")
+                }
+            }
+        }
+
+        newMuteWords = newMuteWords.filter(
+            (muteWord) => typeof muteWord !== "string"
+        )
+        setMuteWords(newMuteWords)
+    }, [JSON.stringify(muteWords)])
+
     /*const [{ x, y }, api] = useSpring(() => ({ x: 0, y: 0 }))
     const bind = useDrag(({ down, offset: [ox, oy] }) => api.start({ x: ox, y: oy, immediate: down }), {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
@@ -385,182 +434,190 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <div
-            // className={`${noto.className}`}
-            className={`${
-                color === "light"
-                    ? "bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)]"
-                    : "bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]"
-            }`}
-        >
-            <div id="burger-outer-container">
-                <BurgerSiderBar
-                    className={"backdrop-blur-[5px]"}
-                    outerContainerId="burger-outer-container"
-                    pageWrapId="main-container"
-                    styles={burgerMenuStyles}
-                    isOpen={drawerOpen}
-                    onClose={() => {
-                        setDrawerOpen(false)
-                    }}
-                >
-                    <ViewSideBar
-                        color={color}
-                        isSideBarOpen={drawerOpen}
-                        setSideBarOpen={setSideBarOpen}
-                        isMobile={isMobile}
-                    />
-                </BurgerSiderBar>
-
-                {/* <div
-                    style={{
-                        position: "fixed",
-                        top: "0",
-                        left: "0",
-                        height: "100%",
-                        width: "300px",
-                        backgroundColor: "transparent", // 背景色を透明に設定
-                        transition: "clip-path 0.5s ease",
-                        clipPath: drawerOpen ? "inset(0)" : "inset(0 100% 0 0)",
-                        zIndex: drawerOpen ? "1401" : "0",
-                    }}
-                > */}
-                {/* </div> */}
-
-                <main
-                    id="main-container"
-                    className={background({ color: color, isMobile: isMobile })}
-                    onClick={() => {
-                        setSideBarOpen(false)
-                    }}
-                >
-                    <div
-                        className={
-                            "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
-                        }
-                    >
-                        {!showTabBar && (
-                            <ViewHeader
-                                color={color}
-                                page={page}
-                                tab={selectedTab}
-                                setSideBarOpen={setSideBarOpen}
-                                setSearchText={setSearchText}
-                                selectedTab={selectedTab}
-                                menuIndex={menuIndex}
-                                menus={menus}
-                                onChangeMenuIndex={onChangeMenuIndex}
-                            />
-                        )}
-                        {/* <div
-                        className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${
-                            !isSideBarOpen && `hidden`
-                        }`}
-                        onClick={() => setIsSideBarOpen(false)}
-                    > */}
-                        {/*<animated.div
-                            className={`${isSideBarOpen && `openSideBar`} absolute h-full w-[70svw] min-w-[210px] max-w-[350px] bg-black z-[12] left-[-300px]`}
-                            style={{x: x}}
-                        >
-                            <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
-                        </animated.div>*/}
-                        {/* <div
-                            className={`${
-                                isSideBarOpen && `openSideBar`
-                            } absolute h-[calc(100%)] w-[70svw] min-w-[210px] max-w-[350px] backdrop-blur-[5px] bg-black/40 z-[12] left-[-300px]`}
-                        >
-                            <ViewSideBar
-                                color={color}
-                                setSideBarOpen={setIsSideBarOpen}
-                                isMobile={isMobile}
-                            />
-                        </div> */}
-                        {/* </div> */}
-                        {shouldFillPageBackground === true && (
-                            <div
-                                className={`${
-                                    color === "dark"
-                                        ? "bg-[#2C2C2C] "
-                                        : " bg-white"
-                                } fixed w-full max-w-[600px] h-[calc(100%-100px)]`}
-                                style={{ top: "100px" }}
-                            ></div>
-                        )}
-                        <div
-                            className={`${
-                                pathName === "/"
-                                    ? "h-[calc(100%)]"
-                                    : showTabBar
-                                    ? `pt-[0px] h-[calc(100%-50px)] overflow-y-scroll`
-                                    : `pt-[100px] h-[calc(100%-50px)] overflow-y-scroll`
-                            }`}
-                        >
-                            {children}
-                        </div>
-                        {!showTabBar && (
-                            <TabBar
-                                color={color}
-                                selected={selectedTab}
-                                setValue={setSelectedTab}
-                            />
-                        )}
-                    </div>
-                </main>
-                {imageSlides && imageSlideIndex !== null && (
-                    <div
-                        onClick={(e) => {
-                            const clickedElement = e.target as HTMLDivElement
-
-                            console.log(e.target)
-                            if (
-                                clickedElement.classList.contains(
-                                    "yarl__fullsize"
-                                ) ||
-                                clickedElement.classList.contains(
-                                    "yarl__flex_center"
-                                )
-                            ) {
-                                setImageGallery(null)
-                                setImageSlides(null)
-                                setImageSlideIndex(null)
-                            }
+        <HistoryContext.Provider value={history}>
+            <div
+                // className={`${noto.className}`}
+                className={`${
+                    color === "light"
+                        ? "bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)]"
+                        : "bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]"
+                }`}
+            >
+                <div id="burger-outer-container">
+                    <BurgerSiderBar
+                        className={"backdrop-blur-[5px]"}
+                        outerContainerId="burger-outer-container"
+                        pageWrapId="main-container"
+                        styles={burgerMenuStyles}
+                        isOpen={drawerOpen}
+                        onClose={() => {
+                            setDrawerOpen(false)
                         }}
                     >
-                        <Lightbox
-                            open={true}
-                            index={imageSlideIndex}
-                            plugins={[Zoom, Captions, Counter]}
-                            zoom={{
-                                ref: zoomRef,
-                                scrollToZoom: true,
-                            }}
-                            captions={{
-                                ref: captionsRef,
-                                showToggle: true,
-                                descriptionMaxLines: 2,
-                                descriptionTextAlign: "start",
-                            }}
-                            close={() => {
-                                setImageGallery(null)
-                                setImageSlides(null)
-                                setImageSlideIndex(null)
-                            }}
-                            slides={imageSlides}
-                            carousel={{ finite: imageSlides.length <= 5 }}
-                            render={{
-                                buttonPrev:
-                                    imageSlides.length <= 1
-                                        ? () => null
-                                        : undefined,
-                                buttonNext:
-                                    imageSlides.length <= 1
-                                        ? () => null
-                                        : undefined,
-                            }}
+                        <ViewSideBar
+                            color={color}
+                            isSideBarOpen={drawerOpen}
+                            setSideBarOpen={setSideBarOpen}
+                            isMobile={isMobile}
                         />
-                    </div>
-                )}
+                    </BurgerSiderBar>
+
+                    {/* <div
+                        style={{
+                            position: "fixed",
+                            top: "0",
+                            left: "0",
+                            height: "100%",
+                            width: "300px",
+                            backgroundColor: "transparent", // 背景色を透明に設定
+                            transition: "clip-path 0.5s ease",
+                            clipPath: drawerOpen ? "inset(0)" : "inset(0 100% 0 0)",
+                            zIndex: drawerOpen ? "1401" : "0",
+                        }}
+                    > */}
+                    {/* </div> */}
+
+                    <main
+                        id="main-container"
+                        className={background({
+                            color: color,
+                            isMobile: isMobile,
+                        })}
+                        onClick={() => {
+                            setSideBarOpen(false)
+                        }}
+                    >
+                        <div
+                            className={
+                                "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                            }
+                        >
+                            {!showTabBar && (
+                                <ViewHeader
+                                    color={color}
+                                    page={page}
+                                    tab={selectedTab}
+                                    setSideBarOpen={setSideBarOpen}
+                                    setSearchText={setSearchText}
+                                    selectedTab={selectedTab}
+                                    menuIndex={menuIndex}
+                                    menus={menus}
+                                    onChangeMenuIndex={onChangeMenuIndex}
+                                />
+                            )}
+                            {/* <div
+                            className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${
+                                !isSideBarOpen && `hidden`
+                            }`}
+                            onClick={() => setIsSideBarOpen(false)}
+                        > */}
+                            {/*<animated.div
+                                className={`${isSideBarOpen && `openSideBar`} absolute h-full w-[70svw] min-w-[210px] max-w-[350px] bg-black z-[12] left-[-300px]`}
+                                style={{x: x}}
+                            >
+                                <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
+                            </animated.div>*/}
+                            {/* <div
+                                className={`${
+                                    isSideBarOpen && `openSideBar`
+                                } absolute h-[calc(100%)] w-[70svw] min-w-[210px] max-w-[350px] backdrop-blur-[5px] bg-black/40 z-[12] left-[-300px]`}
+                            >
+                                <ViewSideBar
+                                    color={color}
+                                    setSideBarOpen={setIsSideBarOpen}
+                                    isMobile={isMobile}
+                                />
+                            </div> */}
+                            {/* </div> */}
+                            {shouldFillPageBackground === true && (
+                                <div
+                                    className={`${
+                                        color === "dark"
+                                            ? "bg-[#2C2C2C] "
+                                            : " bg-white"
+                                    } fixed w-full max-w-[600px] h-[calc(100%-100px)]`}
+                                    style={{ top: "100px" }}
+                                ></div>
+                            )}
+                            <div
+                                className={`${
+                                    pathName === "/"
+                                        ? "h-[calc(100%)]"
+                                        : showTabBar
+                                        ? `pt-[0px] h-[calc(100%-50px)] overflow-y-scroll`
+                                        : `pt-[100px] h-[calc(100%-50px)] overflow-y-scroll`
+                                }`}
+                            >
+                                {children}
+                            </div>
+                            {!showTabBar && (
+                                <TabBar
+                                    color={color}
+                                    selected={selectedTab}
+                                    setValue={setSelectedTab}
+                                />
+                            )}
+                        </div>
+                        {imageSlides && imageSlideIndex !== null && (
+                            <div
+                                onClick={(e) => {
+                                    const clickedElement =
+                                        e.target as HTMLDivElement
+
+                                    console.log(e.target)
+                                    if (
+                                        clickedElement.classList.contains(
+                                            "yarl__fullsize"
+                                        ) ||
+                                        clickedElement.classList.contains(
+                                            "yarl__flex_center"
+                                        )
+                                    ) {
+                                        setImageGallery(null)
+                                        setImageSlides(null)
+                                        setImageSlideIndex(null)
+                                    }
+                                }}
+                            >
+                                <Lightbox
+                                    open={true}
+                                    index={imageSlideIndex}
+                                    plugins={[Zoom, Captions, Counter]}
+                                    zoom={{
+                                        ref: zoomRef,
+                                        scrollToZoom: true,
+                                    }}
+                                    captions={{
+                                        ref: captionsRef,
+                                        showToggle: true,
+                                        descriptionMaxLines: 2,
+                                        descriptionTextAlign: "start",
+                                    }}
+                                    close={() => {
+                                        setImageGallery(null)
+                                        setImageSlides(null)
+                                        setImageSlideIndex(null)
+                                    }}
+                                    slides={imageSlides}
+                                    carousel={{
+                                        finite: imageSlides.length <= 5,
+                                    }}
+                                    render={{
+                                        buttonPrev:
+                                            imageSlides.length <= 1
+                                                ? () => null
+                                                : undefined,
+                                        buttonNext:
+                                            imageSlides.length <= 1
+                                                ? () => null
+                                                : undefined,
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </main>
+                </div>
             </div>
-        </div>
+        </HistoryContext.Provider>
     )
 }

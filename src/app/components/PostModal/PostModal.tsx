@@ -5,7 +5,13 @@ import {
     BskyAgent,
     RichText,
 } from "@atproto/api"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    useLayoutEffect,
+} from "react"
 import { postModal } from "./styles"
 import { BrowserView, isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -446,6 +452,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }
 
+    const scrollBottomRef = useRef<HTMLDivElement>(null)
+
+    useLayoutEffect(() => {
+        // 以下はtypescriptの書き方。jsの場合は
+        // if(scrollBottomRef && scrollBottomRef.current) {
+        //   scrollBottomRef.current.scrollIntoView()
+        // }
+        scrollBottomRef?.current?.scrollIntoView()
+    }, [])
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
@@ -500,7 +516,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             isEmbedToModal={true}
                         />
                     </div>
-                    <div className={contentContainer()}>
+                    <div
+                        className={`${contentContainer()} h-[90%]`}
+                        ref={scrollBottomRef}
+                    >
                         <div className={contentLeft()}>
                             <div
                                 style={{
@@ -509,7 +528,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     height: "999px",
                                     position: "relative",
                                     top: -990,
-                                    left: 12.5,
+                                    left: 14,
                                     zIndex: 1,
                                 }}
                             />
@@ -524,7 +543,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         </div>
                         <div className={contentRight()}>
                             <Textarea
-                                className={contentRightTextArea()}
+                                className={contentRightTextArea({
+                                    uploadImageAvailable:
+                                        contentImages.length !== 0 ||
+                                        isCompressing ||
+                                        detectedURLs.length !== 0 ||
+                                        getOGPData !== null,
+                                })}
                                 aria-label="post input area"
                                 placeholder={"Yo, Do you do Brusco?"}
                                 value={contentText}
@@ -644,34 +669,36 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     ))}
                                 </div>
                             )}
-                            {isDetectedURL && !getOGPData && (
-                                <div className={"w-full"}>
-                                    {detectedURLs.map((url, index) => (
-                                        <div className={"mb-[5px]"}>
-                                            <Chip
-                                                key={index}
-                                                className={`w-full ${color}`}
-                                                style={{
-                                                    textAlign: "left",
-                                                    cursor: "pointer",
-                                                }}
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faPlus}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    setSelectedURL(url)
-                                                    setIsSetURLCard(true)
-                                                    getOGP(url)
-                                                }}
-                                            >
-                                                {url}
-                                            </Chip>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                            {isDetectedURL &&
+                                !getOGPData &&
+                                !isOGPGetProcessing && (
+                                    <div className={"w-full"}>
+                                        {detectedURLs.map((url, index) => (
+                                            <div className={"mb-[5px]"}>
+                                                <Chip
+                                                    key={index}
+                                                    className={`w-full ${color}`}
+                                                    style={{
+                                                        textAlign: "left",
+                                                        cursor: "pointer",
+                                                    }}
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faPlus}
+                                                        />
+                                                    }
+                                                    onClick={() => {
+                                                        setSelectedURL(url)
+                                                        setIsSetURLCard(true)
+                                                        getOGP(url)
+                                                    }}
+                                                >
+                                                    {url}
+                                                </Chip>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             {isOGPGetProcessing && (
                                 <div className={contentRightUrlCard()}>
                                     <Linkcard color={color} skeleton={true} />

@@ -1,10 +1,16 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react"
 import { createPostPage } from "./styles"
-import { BrowserView, isMobile } from "react-device-detect"
+import { isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
+import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
     faCirclePlus,
     faFaceLaughBeam,
@@ -23,7 +29,6 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    DropdownSection,
     DropdownTrigger,
     Image,
     Popover,
@@ -51,6 +56,7 @@ import {
 } from "@atproto/api"
 
 import { Linkcard } from "@/app/components/Linkcard"
+import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 
 interface AttachmentImage {
     blob: Blob
@@ -130,6 +136,15 @@ export default function Root() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
     const [darkMode, setDarkMode] = useState(false)
+    const history = useContext(HistoryContext)
+
+    useEffect(() => {
+        // 遷移元URLのパスが「/unchi/」の場合
+        /*if (history[0] === "/login") {
+            console.log("うんち爆弾！！！")
+        }*/
+        console.log(history[0])
+    }, [])
     const color = darkMode ? "dark" : "light"
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
@@ -453,7 +468,11 @@ export default function Root() {
     }
 
     return (
-        <main className={background({ color: color, isMobile: isMobile })}>
+        <main
+            className={`${background({ color: color })}
+            md:relative md:flex md:justify-center md:items-center
+        `}
+        >
             <div className={backgroundColor()}></div>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
             <div className={PostModal({ color: color, isMobile: isMobile })}>
@@ -463,7 +482,11 @@ export default function Root() {
                         className={headerCancelButton()}
                         isDisabled={loading}
                         onClick={() => {
-                            router.back()
+                            if (history[0] === "/post" || history[0] === "") {
+                                router.push("/")
+                            } else {
+                                router.back()
+                            }
                         }}
                     >
                         cancel
@@ -512,7 +535,8 @@ export default function Root() {
                                 uploadImageAvailable:
                                     contentImages.length !== 0 ||
                                     isCompressing ||
-                                    detectedURLs.length !== 0,
+                                    detectedURLs.length !== 0 ||
+                                    getOGPData !== null,
                             })}
                             aria-label="post input area"
                             placeholder={"Yo, Do you do Brusco?"}
@@ -625,40 +649,42 @@ export default function Root() {
                                 ))}
                             </div>
                         )}
-                        {isDetectedURL && !getOGPData && (
-                            <div className={"w-full"}>
-                                {detectedURLs.map((url, index) => (
-                                    <div className={"mb-[5px]"}>
-                                        <Chip
-                                            key={index}
-                                            className={`w-full ${color}`}
-                                            style={{
-                                                textAlign: "left",
-                                                cursor: "pointer",
-                                            }}
-                                            startContent={
-                                                <FontAwesomeIcon
-                                                    icon={faPlus}
-                                                />
-                                            }
-                                            onClick={() => {
-                                                setSelectedURL(url)
-                                                setIsSetURLCard(true)
-                                                getOGP(url)
-                                            }}
-                                        >
-                                            {url}
-                                        </Chip>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        {isDetectedURL &&
+                            !getOGPData &&
+                            !isOGPGetProcessing && (
+                                <div className={"w-full"}>
+                                    {detectedURLs.map((url, index) => (
+                                        <div className={"mb-[5px]"}>
+                                            <Chip
+                                                key={index}
+                                                className={`w-full ${color}`}
+                                                style={{
+                                                    textAlign: "left",
+                                                    cursor: "pointer",
+                                                }}
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faPlus}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    setSelectedURL(url)
+                                                    setIsSetURLCard(true)
+                                                    getOGP(url)
+                                                }}
+                                            >
+                                                {url}
+                                            </Chip>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         {isOGPGetProcessing && (
                             <div className={contentRightUrlCard()}>
                                 <Linkcard color={color} skeleton={true} />
                             </div>
                         )}
-                        {isSetURLCard && getOGPData && !isOGPGetProcessing && (
+                        {getOGPData && !isOGPGetProcessing && (
                             <div
                                 className={`${contentRightUrlCard()} flex relative`}
                             >
@@ -822,35 +848,35 @@ export default function Root() {
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
-                        <BrowserView>
-                            <div className={footerTooltipStyle()}>
-                                <Popover
-                                    placement="right-end"
-                                    className={popover({ color: color })}
-                                >
-                                    <PopoverTrigger>
-                                        <Button
-                                            isIconOnly
-                                            variant="light"
-                                            className={"h-[24px] text-white"}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faFaceLaughBeam}
-                                                className={"h-[20px] mb-[4px]"}
-                                            />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <Picker
-                                            data={data}
-                                            onEmojiSelect={onEmojiClick}
-                                            theme={color}
-                                            previewPosition="none"
+                        <div
+                            className={`${footerTooltipStyle()} invisible md:visible`}
+                        >
+                            <Popover
+                                placement="right-end"
+                                className={popover({ color: color })}
+                            >
+                                <PopoverTrigger>
+                                    <Button
+                                        isIconOnly
+                                        variant="light"
+                                        className={"h-[24px] text-white"}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faFaceLaughBeam}
+                                            className={"h-[20px] mb-[4px]"}
                                         />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </BrowserView>
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <Picker
+                                        data={data}
+                                        onEmojiSelect={onEmojiClick}
+                                        theme={color}
+                                        previewPosition="none"
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                         <div
                             className={`${footerTooltipStyle()} top-[-3px] h-full ${
                                 contentImages.length > 4 && "text-red"
