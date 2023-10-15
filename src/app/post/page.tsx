@@ -1,10 +1,16 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react"
 import { createPostPage } from "./styles"
-import { BrowserView, isMobile } from "react-device-detect"
+import { isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
+import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
     faCirclePlus,
     faFaceLaughBeam,
@@ -23,7 +29,6 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    DropdownSection,
     DropdownTrigger,
     Image,
     Popover,
@@ -51,6 +56,7 @@ import {
 } from "@atproto/api"
 
 import { Linkcard } from "@/app/components/Linkcard"
+import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 
 interface AttachmentImage {
     blob: Blob
@@ -130,6 +136,15 @@ export default function Root() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
     const [darkMode, setDarkMode] = useState(false)
+    const history = useContext(HistoryContext)
+
+    useEffect(() => {
+        // 遷移元URLのパスが「/unchi/」の場合
+        /*if (history[0] === "/login") {
+            console.log("うんち爆弾！！！")
+        }*/
+        console.log(history[0])
+    }, [])
     const color = darkMode ? "dark" : "light"
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
@@ -467,7 +482,11 @@ export default function Root() {
                         className={headerCancelButton()}
                         isDisabled={loading}
                         onClick={() => {
-                            router.back()
+                            if (history[0] === "/post" || history[0] === "") {
+                                router.push("/")
+                            } else {
+                                router.back()
+                            }
                         }}
                     >
                         cancel
