@@ -23,7 +23,7 @@ export const postModal = tv({
         contentLeftAuthorIconImage: "w-full h-full drag-none",
         contentRight: "w-[calc(100%)] relative h-[calc(100%-10px)] ",
         contentRightTextArea:
-            "w-[calc(100%)] min-h-[calc(100%)] placeholder-[#808080] bg-transparent resize-none outline-none overflow-visible",
+            "w-[calc(100%)] placeholder-[#808080] bg-transparent resize-none outline-none overflow-visible",
         contentRightImagesContainer:
             "w-[100%] h-[105px] whitespace-nowrap flex flex-wrap flex-col b-0",
         contentRightUrlsContainer:
@@ -89,9 +89,11 @@ export const postModal = tv({
         uploadImageAvailable: {
             true: {
                 contentRightContainer: "h-[calc(100%-105px)]",
+                contentRightTextArea: "min-h-[calc(100%-105px)]",
             },
             false: {
                 contentRightContainer: "h-full",
+                contentRightTextArea: "min-h-full",
             },
         },
         urlCardAvailable: {
