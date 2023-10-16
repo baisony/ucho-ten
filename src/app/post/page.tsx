@@ -165,6 +165,10 @@ export default function Root() {
         }
     }, [appearanceColor])
 
+    const trimedContentText = (): string => {
+        return contentText.trim()
+    }
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
             handlePostClick()
@@ -193,7 +197,7 @@ export default function Root() {
     const handlePostClick = async () => {
         console.log(agent)
         if (!agent) return
-        if (contentText.trim() === "") return
+        if (trimedContentText() === "") return
         setLoading(true)
         try {
             const blobRefs: BlobRef[] = []
@@ -214,7 +218,7 @@ export default function Root() {
                 blobRefs.push(blobRef)
             }
 
-            const rt = new RichText({ text: contentText })
+            const rt = new RichText({ text: trimedContentText() })
             await rt.detectFacets(agent)
             const postObj: Partial<AppBskyFeedPost.Record> &
                 Omit<AppBskyFeedPost.Record, "createdAt"> = {
@@ -499,8 +503,8 @@ export default function Root() {
                         onPress={handlePostClick}
                         isDisabled={
                             loading ||
-                            contentText.trim().length === 0 ||
-                            contentText.trim().length > 300 // ||
+                            trimedContentText().length === 0 ||
+                            trimedContentText().length > 300 // ||
                             // isImageMaxLimited
                         }
                         isLoading={loading}
@@ -889,12 +893,12 @@ export default function Root() {
                                 className={footerCharacterCountText()}
                                 style={{
                                     color:
-                                        contentText.length >= 300
+                                        trimedContentText().length >= 300
                                             ? "red"
                                             : "white",
                                 }}
                             >
-                                {300 - contentText.trim().length}
+                                {300 - trimedContentText().length}
                             </div>
                             <div
                                 style={{
@@ -904,11 +908,11 @@ export default function Root() {
                                 }}
                             >
                                 <CircularProgressbar
-                                    value={contentText.trim().length}
+                                    value={trimedContentText().length}
                                     maxValue={300}
                                     styles={buildStyles({
                                         pathColor:
-                                            contentText.trim().length >= 300
+                                            trimedContentText().length >= 300
                                                 ? "red"
                                                 : "deepskyblue",
                                     })}
