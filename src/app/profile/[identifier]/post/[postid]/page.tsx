@@ -716,7 +716,7 @@ export default function Root() {
                                       "app.bsky.embed.external#view" ? (
                                         <Linkcard
                                             color={color}
-                                            OGPData={post.post.embed.external}
+                                            ogpData={post.post.embed.external}
                                         />
                                     ) : (
                                         post.post?.embed.$type ===

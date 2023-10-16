@@ -724,7 +724,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         </div>
                                         <Linkcard
                                             color={color}
-                                            OGPData={getOGPData}
+                                            ogpData={getOGPData}
                                         />
                                     </div>
                                 )}

@@ -700,7 +700,7 @@ export default function Root() {
                                         size={"lg"}
                                     />
                                 </div>
-                                <Linkcard color={color} OGPData={getOGPData} />
+                                <Linkcard color={color} ogpData={getOGPData} />
                             </div>
                         )}
                     </div>
