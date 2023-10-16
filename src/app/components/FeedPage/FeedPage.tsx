@@ -2,7 +2,7 @@ import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { Spinner } from "@nextui-org/react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { UIEventHandler, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
@@ -32,12 +32,24 @@ const FeedPage = ({
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     // const [wait, setWait] = useState<boolean>(true)
-
-    // const currentScrollPosition = useRef<number>(0)
+    // const [refreshKey, setRefreshKey] = useState(0)
 
     const cursor = useRef<string>("")
     const pollingCursor = useRef<string>("")
     const isPolling = useRef<boolean>(false)
+    const scrollRef = useRef<HTMLElement | null>(null)
+    const shouldScrollToTop = useRef<boolean>(false)
+    // const currentScrollPosition = useRef<number>(0)
+
+    useEffect(() => {
+        console.log(shouldScrollToTop.current, scrollRef.current)
+
+        if (shouldScrollToTop.current && scrollRef.current) {
+            scrollRef.current.scrollTop = 0
+
+            shouldScrollToTop.current = false
+        }
+    }, [timeline])
 
     const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -105,6 +117,8 @@ const FeedPage = ({
                 const { feed } = response.data
                 const filteredData = formattingTimeline(feed)
 
+                console.log(feed)
+
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
                         const newTimeline = [
@@ -170,12 +184,10 @@ const FeedPage = ({
             if (feedKey === "following") {
                 response = await agent.getTimeline({
                     limit: 30,
-                    cursor: cursor.current || "",
                 })
             } else {
                 response = await agent.app.bsky.feed.getFeed({
                     feed: feedKey,
-                    cursor: cursor.current || "",
                     limit: 30,
                 })
             }
@@ -205,6 +217,7 @@ const FeedPage = ({
                     isPolling.current = true
 
                     setTimeout(() => {
+                        console.log("setTimeout")
                         checkNewTimeline()
                     }, 5 * 1000)
                 } else {
@@ -228,11 +241,14 @@ const FeedPage = ({
         isPolling.current = true
 
         setTimeout(() => {
+            console.log("setTimeout")
             checkNewTimeline()
-        }, 5 * 1000)
+        }, 15 * 1000)
     }, [agent, feedKey, isActive])
 
     const handleRefresh = () => {
+        shouldScrollToTop.current = true
+
         setTimeline((prevTimeline) => {
             if (!prevTimeline) {
                 return [...newTimeline]
@@ -241,12 +257,15 @@ const FeedPage = ({
             }
         })
 
+        // setRefreshKey((prevKey) => prevKey + 1) // Reload Virtuoso
+
         setNewTimeline([])
 
         if (isPolling.current !== true) {
             setTimeout(() => {
+                console.log("setTimeout")
                 checkNewTimeline()
-            }, 1 * 1000)
+            }, 5 * 1000)
         }
     }
 
@@ -284,6 +303,7 @@ const FeedPage = ({
             {/* {(!timeline || wait) && ( */}
             {!timeline && (
                 <Virtuoso
+                    //key={refreshKey}
                     overscan={100}
                     increaseViewportBy={200}
                     // useWindowScroll={true}
@@ -307,6 +327,11 @@ const FeedPage = ({
             )}
             {timeline /* {timeline && !wait && ( */ && (
                 <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                        }
+                    }}
                     context={{ hasMore }}
                     overscan={200}
                     increaseViewportBy={200}
