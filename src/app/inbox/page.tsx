@@ -10,7 +10,7 @@ import { Spinner } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
+    const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
 
     const [loading, setLoading] = useState(true)
@@ -35,20 +35,19 @@ export default function Root() {
 
     const fetchNotification = async (loadingFlag: boolean = true) => {
         try {
-            if (!agent) return
+            if (!agent) {
+                return
+            }
 
             setLoading(loadingFlag)
 
             const { data } = await agent.listNotifications({
                 cursor: cursor.current,
             })
-            let notificationHasMore = false
-            let notificationsLength = 0
 
             if (data) {
                 if (data.cursor) {
                     cursor.current = data.cursor
-                    notificationHasMore = true
                 }
 
                 console.log("notifications", data.notifications)
@@ -73,33 +72,29 @@ export default function Root() {
                             ...currentNotifications,
                             ...posts.data.posts,
                         ]
-                        notificationsLength = notifications.length
 
                         return notifications
                     } else {
-                        notificationsLength = posts.data.posts.length
                         return [...posts.data.posts]
                     }
                 })
+
+                if (cursor.current.length > 0) {
+                    setHasMore(true)
+                } else {
+                    setHasMore(false)
+                }
             } else {
                 setNotification([])
+                setHasMore(false)
                 // もしresがundefinedだった場合の処理
                 console.log("Responseがundefinedです。")
             }
-
-            setLoading(false)
-
-            if (notificationHasMore && notificationsLength < 15) {
-                await fetchNotification(false)
-            } else {
-                setHasMore(notificationHasMore)
-            }
-
-            console.log(notification)
         } catch (e) {
-            setLoading(false)
-
+            setHasMore(false)
             console.log(e)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -107,43 +102,20 @@ export default function Root() {
         await fetchNotification(false)
     }
 
-    // const loadMore = async (page: any) => {
-    //     if (!agent) return
-    //     if (cursor.current === "") return
+    useEffect(() => {
+        const fetchIfNeeded = async () => {
+            if (
+                agent &&
+                notification &&
+                notification.length < 20 &&
+                cursor.current.length > 0
+            ) {
+                await fetchNotification(false)
+            }
+        }
 
-    //     try {
-    //         const { data } = await agent.listNotifications({ cursor: cursor.current })
-    //         const { notifications } = data
-
-    //         console.log("notifications", notifications)
-
-    //         console.log(data.cursor)
-    //         if (data.cursor) {
-    //             cursor.current = data.cursor
-    //         }
-    //         const replyNotifications = notifications.filter(
-    //             (notification) =>
-    //                 notification.reason === "reply" ||
-    //                 notification.reason === "mention"
-    //         )
-    //         const hoge = await agent.getPosts({
-    //             uris: replyNotifications.map(
-    //                 (notification: any) => notification.uri
-    //             ),
-    //         })
-
-    //         //取得データをリストに追加
-    //         setNotification((currentNotifications) => {
-    //             if (currentNotifications !== null) {
-    //                 return [...currentNotifications, ...hoge.data.posts]
-    //             } else {
-    //                 return [...hoge.data.posts]
-    //             }
-    //         })
-    //     } catch (e) {
-    //         console.log(e)
-    //     }
-    // }
+        fetchIfNeeded()
+    }, [notification, cursor.current])
 
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
