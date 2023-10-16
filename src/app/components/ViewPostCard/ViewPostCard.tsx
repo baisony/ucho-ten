@@ -131,11 +131,11 @@ export const ViewPostCard = (props: Props) => {
     const [isReposted, setIsReposted] = useState<boolean>(
         !!postJson?.viewer?.repost
     )
-    const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false)
-    const [isSwipeEnabled, setIsSwipeEnabled] = useState(true)
-    const [postInfo, setPostInfo] = useState<any>(null)
-    const [isTextSelectionInProgress, setIsTextSelectionInProgress] =
-        useState(false)
+    // const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false)
+    // const [isSwipeEnabled, setIsSwipeEnabled] = useState(true)
+    // const [postInfo, setPostInfo] = useState<any>(null)
+    // const [isTextSelectionInProgress, setIsTextSelectionInProgress] =
+    //     useState(false)
     const [startX, setStartX] = useState(null)
     const [startY, setStartY] = useState(null)
     const [handleButtonClick, setHandleButtonClick] = useState(false)
@@ -588,475 +588,427 @@ export const ViewPostCard = (props: Props) => {
                     handleMouseUp(e)
                 }}
             >
-                <>
-                    <>
-                        <div
-                            className={`${PostCardContainer({
-                                isMobile: isMobile,
-                            })} ${isEmbedToModal && `pt-[0px]`}`}
-                            onMouseEnter={() => {
-                                setIsHover(true)
-                            }}
-                            onMouseLeave={() => {
-                                setIsHover(false)
+                <div
+                    className={`${PostCardContainer({
+                        isMobile: isMobile,
+                    })} ${isEmbedToModal && `pt-[0px]`}`}
+                    onMouseEnter={() => {
+                        setIsHover(true)
+                    }}
+                    onMouseLeave={() => {
+                        setIsHover(false)
+                    }}
+                >
+                    {json?.reason && (
+                        <span
+                            className={
+                                "text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer"
+                            }
+                            onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(`/profile/${postJson?.author.did}`)
                             }}
                         >
-                            {json?.reason && (
-                                <span
-                                    className={
-                                        "text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer"
-                                    }
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author.did}`
-                                        )
-                                    }}
-                                >
-                                    Reposted by{" "}
-                                    {(json.reason.by as ProfileViewBasic)
-                                        .displayName || ""}
-                                </span>
-                            )}
-                            <div className={`${PostAuthor()}`}>
-                                <span
-                                    className={PostAuthorIcon()}
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author.did}`
-                                        )
-                                    }}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonIcon({
-                                                color: color,
-                                            })}
-                                        />
-                                    ) : (
-                                        <>
-                                            {postJson?.author?.avatar ? (
-                                                <Image
-                                                    src={
-                                                        postJson?.author?.avatar
-                                                    }
-                                                    //radius={"lg"}
-                                                    className={`${
-                                                        isEmbedToModal
-                                                            ? `z-[2]`
-                                                            : `z-[0]`
-                                                    } rounded-[10px]`}
-                                                    alt={postJson.author.did}
-                                                />
-                                            ) : (
-                                                <FontAwesomeIcon
-                                                    className={`${
-                                                        isEmbedToModal
-                                                            ? `z-[2]`
-                                                            : `z-[0]`
-                                                    } h-full w-full`}
-                                                    icon={faUser}
-                                                />
-                                            )}
-                                        </>
-                                    )}
-                                </span>
-                                <span
-                                    className={PostAuthorDisplayName({
+                            Reposted by{" "}
+                            {(json.reason.by as ProfileViewBasic).displayName ||
+                                ""}
+                        </span>
+                    )}
+                    <div className={`${PostAuthor()}`}>
+                        <span
+                            className={PostAuthorIcon()}
+                            onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(`/profile/${postJson?.author.did}`)
+                            }}
+                        >
+                            {isSkeleton ? (
+                                <Skeleton
+                                    className={skeletonIcon({
                                         color: color,
                                     })}
-                                    style={{ fontSize: "13px" }}
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author.did}`
-                                        )
-                                    }}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonName({
-                                                color: color,
-                                            })}
-                                        />
-                                    ) : (
-                                        <span>
-                                            {postJson?.author?.displayName}
-                                        </span>
-                                    )}
-                                </span>
-                                <div className={"text-[#BABABA]"}>
-                                    &nbsp;-&nbsp;
-                                </div>
-                                <span
-                                    className={PostAuthorHandle({
-                                        color: color,
-                                    })}
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author.did}`
-                                        )
-                                    }}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonHandle({
-                                                color: color,
-                                            })}
-                                        />
-                                    ) : (
-                                        <span>{postJson?.author?.handle}</span>
-                                    )}
-                                </span>
-                                <div
-                                    className={PostCreatedAt()}
-                                    style={{ fontSize: "12px" }}
-                                >
-                                    {!isEmbedToModal &&
-                                    !isMobile &&
-                                    isHover &&
-                                    !isSkeleton ? (
-                                        <Dropdown
-                                            className={dropdown({
-                                                color: color,
-                                            })}
-                                        >
-                                            <DropdownTrigger>
-                                                <FontAwesomeIcon
-                                                    icon={faEllipsis}
-                                                    className={
-                                                        "h-[20px] mb-[4px] cursor-pointer text-[#909090]"
-                                                    }
-                                                />
-                                            </DropdownTrigger>
-                                            <DropdownMenu
-                                                disallowEmptySelection
-                                                aria-label="Multiple selection actions"
-                                                selectionMode="multiple"
-                                            >
-                                                <DropdownItem
-                                                    key="1"
-                                                    startContent={
-                                                        <FontAwesomeIcon
-                                                            icon={faLink}
-                                                        />
-                                                    }
-                                                    onClick={() => {
-                                                        if (!postJson) {
-                                                            return
-                                                        }
-
-                                                        console.log(
-                                                            `https://bsky.app/profile/${
-                                                                postJson.author
-                                                                    .did
-                                                            }/post/${
-                                                                postJson.uri.match(
-                                                                    /\/(\w+)$/
-                                                                )?.[1] || ""
-                                                            }`
-                                                        )
-                                                        navigator.clipboard.writeText(
-                                                            `https://bsky.app/profile/${
-                                                                postJson.author
-                                                                    .did
-                                                            }/post/${
-                                                                postJson.uri.match(
-                                                                    /\/(\w+)$/
-                                                                )?.[1] || ""
-                                                            }`
-                                                        )
-                                                    }}
-                                                >
-                                                    Copy Post URL
-                                                </DropdownItem>
-                                                <DropdownItem
-                                                    key="2"
-                                                    startContent={
-                                                        <FontAwesomeIcon
-                                                            icon={faCode}
-                                                        />
-                                                    }
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(
-                                                            JSON.stringify(
-                                                                postJson
-                                                            )
-                                                        )
-                                                    }}
-                                                >
-                                                    Copy Post JSON
-                                                </DropdownItem>
-                                                <DropdownSection title="Danger zone">
-                                                    {postJson &&
-                                                    agent?.session?.did !==
-                                                        postJson.author.did ? (
-                                                        <DropdownItem
-                                                            key="delete"
-                                                            className="text-danger"
-                                                            color="danger"
-                                                            startContent={
-                                                                <FontAwesomeIcon
-                                                                    icon={
-                                                                        faFlag
-                                                                    }
-                                                                />
-                                                            }
-                                                            onClick={() => {
-                                                                console.log(
-                                                                    "hogehoge"
-                                                                )
-                                                                onOpenReport()
-                                                            }}
-                                                        >
-                                                            Report
-                                                        </DropdownItem>
-                                                    ) : (
-                                                        <DropdownItem
-                                                            key="delete"
-                                                            className="text-danger"
-                                                            color="danger"
-                                                            startContent={
-                                                                <FontAwesomeIcon
-                                                                    icon={
-                                                                        faTrash
-                                                                    }
-                                                                />
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </DropdownItem>
-                                                    )}
-                                                </DropdownSection>
-                                            </DropdownMenu>
-                                        </Dropdown>
-                                    ) : (
-                                        <>
-                                            {!isSkeleton && (
-                                                <div>
-                                                    {postJson &&
-                                                        formattedSimpleDate(
-                                                            postJson.indexedAt,
-                                                            now || new Date()
-                                                        )}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                            <div
-                                className={PostContent({ isMobile: isMobile })}
-                            >
-                                {isSkeleton ? (
-                                    <div className="w-full flex flex-col gap-2">
-                                        <Skeleton
-                                            className={skeletonText1line({
-                                                color: color,
-                                            })}
-                                        />
-                                        <Skeleton
-                                            className={skeletonText2line({
-                                                color: color,
-                                            })}
-                                        />
-                                    </div>
-                                ) : (
-                                    <>
-                                        {json?.reply && (
-                                            <div
-                                                className={
-                                                    "text-[#BABABA] text-[12px]"
-                                                }
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faReply}
-                                                />{" "}
-                                                Reply to{" "}
-                                                {
-                                                    (
-                                                        json.reply.parent
-                                                            .author as ProfileViewBasic
-                                                    )?.displayName
-                                                }
-                                            </div>
-                                        )}
-                                        <div
-                                            style={{ wordBreak: "break-word" }}
+                                />
+                            ) : (
+                                <>
+                                    {postJson?.author?.avatar ? (
+                                        <Image
+                                            src={postJson?.author?.avatar}
+                                            //radius={"lg"}
                                             className={`${
-                                                isMobile
-                                                    ? `text-[14px]`
-                                                    : `text-[15px]`
-                                            }`}
+                                                isEmbedToModal
+                                                    ? `z-[2]`
+                                                    : `z-[0]`
+                                            } rounded-[10px]`}
+                                            alt={postJson.author.did}
+                                        />
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            className={`${
+                                                isEmbedToModal
+                                                    ? `z-[2]`
+                                                    : `z-[0]`
+                                            } h-full w-full`}
+                                            icon={faUser}
+                                        />
+                                    )}
+                                </>
+                            )}
+                        </span>
+                        <span
+                            className={PostAuthorDisplayName({
+                                color: color,
+                            })}
+                            style={{ fontSize: "13px" }}
+                            onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(`/profile/${postJson?.author.did}`)
+                            }}
+                        >
+                            {isSkeleton ? (
+                                <Skeleton
+                                    className={skeletonName({
+                                        color: color,
+                                    })}
+                                />
+                            ) : (
+                                <span>{postJson?.author?.displayName}</span>
+                            )}
+                        </span>
+                        <div className={"text-[#BABABA]"}>&nbsp;-&nbsp;</div>
+                        <span
+                            className={PostAuthorHandle({
+                                color: color,
+                            })}
+                            onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(`/profile/${postJson?.author.did}`)
+                            }}
+                        >
+                            {isSkeleton ? (
+                                <Skeleton
+                                    className={skeletonHandle({
+                                        color: color,
+                                    })}
+                                />
+                            ) : (
+                                <span>{postJson?.author?.handle}</span>
+                            )}
+                        </span>
+                        <div
+                            className={PostCreatedAt()}
+                            style={{ fontSize: "12px" }}
+                        >
+                            {!isEmbedToModal &&
+                            !isMobile &&
+                            isHover &&
+                            !isSkeleton ? (
+                                <Dropdown
+                                    className={dropdown({
+                                        color: color,
+                                    })}
+                                >
+                                    <DropdownTrigger>
+                                        <FontAwesomeIcon
+                                            icon={faEllipsis}
+                                            className={
+                                                "h-[20px] mb-[4px] cursor-pointer text-[#909090]"
+                                            }
+                                        />
+                                    </DropdownTrigger>
+                                    <DropdownMenu
+                                        disallowEmptySelection
+                                        aria-label="Multiple selection actions"
+                                        selectionMode="multiple"
+                                    >
+                                        <DropdownItem
+                                            key="1"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faLink}
+                                                />
+                                            }
+                                            onClick={() => {
+                                                if (!postJson) {
+                                                    return
+                                                }
+
+                                                console.log(
+                                                    `https://bsky.app/profile/${
+                                                        postJson.author.did
+                                                    }/post/${
+                                                        postJson.uri.match(
+                                                            /\/(\w+)$/
+                                                        )?.[1] || ""
+                                                    }`
+                                                )
+                                                navigator.clipboard.writeText(
+                                                    `https://bsky.app/profile/${
+                                                        postJson.author.did
+                                                    }/post/${
+                                                        postJson.uri.match(
+                                                            /\/(\w+)$/
+                                                        )?.[1] || ""
+                                                    }`
+                                                )
+                                            }}
                                         >
-                                            {renderTextWithLinks}
+                                            Copy Post URL
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="2"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faCode}
+                                                />
+                                            }
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(
+                                                    JSON.stringify(postJson)
+                                                )
+                                            }}
+                                        >
+                                            Copy Post JSON
+                                        </DropdownItem>
+                                        <DropdownSection title="Danger zone">
+                                            {postJson &&
+                                            agent?.session?.did !==
+                                                postJson.author.did ? (
+                                                <DropdownItem
+                                                    key="delete"
+                                                    className="text-danger"
+                                                    color="danger"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faFlag}
+                                                        />
+                                                    }
+                                                    onClick={() => {
+                                                        console.log("hogehoge")
+                                                        onOpenReport()
+                                                    }}
+                                                >
+                                                    Report
+                                                </DropdownItem>
+                                            ) : (
+                                                <DropdownItem
+                                                    key="delete"
+                                                    className="text-danger"
+                                                    color="danger"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faTrash}
+                                                        />
+                                                    }
+                                                >
+                                                    Delete
+                                                </DropdownItem>
+                                            )}
+                                        </DropdownSection>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            ) : (
+                                <>
+                                    {!isSkeleton && (
+                                        <div>
+                                            {postJson &&
+                                                formattedSimpleDate(
+                                                    postJson.indexedAt,
+                                                    now || new Date()
+                                                )}
                                         </div>
-                                    </>
-                                )}
-                                {embedImages && (
-                                    <EmbedImages
-                                        color={color}
-                                        embedImages={embedImages}
-                                        onImageClick={(index: number) => {
-                                            handleImageClick(index)
-                                        }}
-                                    />
-                                )}
-                                {embedMedia && (
-                                    <EmbedMedia
-                                        color={color}
-                                        embedMedia={embedMedia}
-                                        onImageClick={(index: number) => {
-                                            handleImageClick(index)
-                                        }}
-                                    />
-                                )}
-                                {embedExternal && (
-                                    <Linkcard
-                                        color={color}
-                                        ogpData={embedExternal.external}
-                                    />
-                                )}
-                                {embedRecord && (
-                                    <ViewQuoteCard
-                                        color={color}
-                                        postJson={embedRecord.record}
-                                    />
-                                )}
-                            </div>
-                            <div className={PostReactionButtonContainer()}>
-                                <div className={`mr-[12px]`}>
-                                    {isMobile && !isEmbedToModal && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faComment}
-                                                className={PostReactionButton()}
-                                                onClick={() => {
-                                                    setHandleButtonClick(true)
-                                                    handleReply()
-                                                }}
-                                                onMouseUp={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={faRetweet}
-                                                style={{
-                                                    color: isReposted
-                                                        ? "#17BF63"
-                                                        : "#909090",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={() => {
-                                                    setHandleButtonClick(true)
-                                                    handleRepost()
-                                                }}
-                                                onMouseUp={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    isLiked
-                                                        ? faHeartSolid
-                                                        : faHeartRegular
-                                                }
-                                                style={{
-                                                    color: isLiked
-                                                        ? "#fd7e00"
-                                                        : "#909090",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={() => {
-                                                    setHandleButtonClick(true)
-                                                    handleLike()
-                                                }}
-                                                onMouseUp={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            />
-                                        </>
                                     )}
-                                    {!isMobile && !isEmbedToModal && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faComment}
-                                                style={{
-                                                    display:
-                                                        isHover && !isSkeleton
-                                                            ? undefined
-                                                            : "none",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={() => {
-                                                    setHandleButtonClick(true)
-                                                    handleReply()
-                                                }}
-                                                onMouseUp={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={faRetweet}
-                                                style={{
-                                                    color: isReposted
-                                                        ? "#17BF63"
-                                                        : "#909090",
-                                                    display:
-                                                        isHover && !isSkeleton
-                                                            ? undefined
-                                                            : isReposted
-                                                            ? undefined
-                                                            : "none",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={() => {
-                                                    setHandleButtonClick(true)
-                                                    handleRepost()
-                                                }}
-                                                onMouseUp={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    isLiked
-                                                        ? faHeartSolid
-                                                        : faHeartRegular
-                                                }
-                                                style={{
-                                                    color: isLiked
-                                                        ? "#fd7e00"
-                                                        : "#909090",
-                                                    display:
-                                                        isHover && !isSkeleton
-                                                            ? undefined
-                                                            : isLiked
-                                                            ? undefined
-                                                            : "none",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={() => {
-                                                    setHandleButtonClick(true)
-                                                    handleLike()
-                                                }}
-                                                onMouseUp={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            />
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+                                </>
+                            )}
                         </div>
-                    </>
-                </>
+                    </div>
+                    <div className={PostContent({ isMobile: isMobile })}>
+                        {isSkeleton ? (
+                            <div className="w-full flex flex-col gap-2">
+                                <Skeleton
+                                    className={skeletonText1line({
+                                        color: color,
+                                    })}
+                                />
+                                <Skeleton
+                                    className={skeletonText2line({
+                                        color: color,
+                                    })}
+                                />
+                            </div>
+                        ) : (
+                            <>
+                                {json?.reply && (
+                                    <div
+                                        className={"text-[#BABABA] text-[12px]"}
+                                    >
+                                        <FontAwesomeIcon icon={faReply} /> Reply
+                                        to{" "}
+                                        {
+                                            (
+                                                json.reply.parent
+                                                    .author as ProfileViewBasic
+                                            )?.displayName
+                                        }
+                                    </div>
+                                )}
+                                <div
+                                    style={{ wordBreak: "break-word" }}
+                                    className={`${
+                                        isMobile ? `text-[14px]` : `text-[15px]`
+                                    }`}
+                                >
+                                    {renderTextWithLinks}
+                                </div>
+                            </>
+                        )}
+                        {embedImages && (
+                            <EmbedImages
+                                color={color}
+                                embedImages={embedImages}
+                                onImageClick={(index: number) => {
+                                    handleImageClick(index)
+                                }}
+                            />
+                        )}
+                        {embedMedia && (
+                            <EmbedMedia
+                                color={color}
+                                embedMedia={embedMedia}
+                                onImageClick={(index: number) => {
+                                    handleImageClick(index)
+                                }}
+                            />
+                        )}
+                        {embedExternal && (
+                            <Linkcard
+                                color={color}
+                                ogpData={embedExternal.external}
+                            />
+                        )}
+                        {embedRecord && (
+                            <ViewQuoteCard
+                                color={color}
+                                postJson={embedRecord.record}
+                            />
+                        )}
+                    </div>
+                    <div className={PostReactionButtonContainer()}>
+                        <div className={`mr-[12px]`}>
+                            {isMobile && !isEmbedToModal && (
+                                <>
+                                    <FontAwesomeIcon
+                                        icon={faComment}
+                                        className={PostReactionButton()}
+                                        onClick={() => {
+                                            setHandleButtonClick(true)
+                                            handleReply()
+                                        }}
+                                        onMouseUp={(e) => e.stopPropagation()}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faRetweet}
+                                        style={{
+                                            color: isReposted
+                                                ? "#17BF63"
+                                                : "#909090",
+                                        }}
+                                        className={PostReactionButton()}
+                                        onClick={() => {
+                                            setHandleButtonClick(true)
+                                            handleRepost()
+                                        }}
+                                        onMouseUp={(e) => e.stopPropagation()}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={
+                                            isLiked
+                                                ? faHeartSolid
+                                                : faHeartRegular
+                                        }
+                                        style={{
+                                            color: isLiked
+                                                ? "#fd7e00"
+                                                : "#909090",
+                                        }}
+                                        className={PostReactionButton()}
+                                        onClick={() => {
+                                            setHandleButtonClick(true)
+                                            handleLike()
+                                        }}
+                                        onMouseUp={(e) => e.stopPropagation()}
+                                    />
+                                </>
+                            )}
+                            {!isMobile && !isEmbedToModal && (
+                                <>
+                                    <FontAwesomeIcon
+                                        icon={faComment}
+                                        style={{
+                                            display:
+                                                isHover && !isSkeleton
+                                                    ? undefined
+                                                    : "none",
+                                        }}
+                                        className={PostReactionButton()}
+                                        onClick={() => {
+                                            setHandleButtonClick(true)
+                                            handleReply()
+                                        }}
+                                        onMouseUp={(e) => e.stopPropagation()}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faRetweet}
+                                        style={{
+                                            color: isReposted
+                                                ? "#17BF63"
+                                                : "#909090",
+                                            display:
+                                                isHover && !isSkeleton
+                                                    ? undefined
+                                                    : isReposted
+                                                    ? undefined
+                                                    : "none",
+                                        }}
+                                        className={PostReactionButton()}
+                                        onClick={() => {
+                                            setHandleButtonClick(true)
+                                            handleRepost()
+                                        }}
+                                        onMouseUp={(e) => e.stopPropagation()}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={
+                                            isLiked
+                                                ? faHeartSolid
+                                                : faHeartRegular
+                                        }
+                                        style={{
+                                            color: isLiked
+                                                ? "#fd7e00"
+                                                : "#909090",
+                                            display:
+                                                isHover && !isSkeleton
+                                                    ? undefined
+                                                    : isLiked
+                                                    ? undefined
+                                                    : "none",
+                                        }}
+                                        className={PostReactionButton()}
+                                        onClick={() => {
+                                            setHandleButtonClick(true)
+                                            handleLike()
+                                        }}
+                                        onMouseUp={(e) => e.stopPropagation()}
+                                    />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </main>
         </>
     )
