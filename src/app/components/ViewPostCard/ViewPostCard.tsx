@@ -401,7 +401,7 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
             result.push(textWithLineBreaks)
         }
         return result
-    }, [])
+    }, [postJson])
 
     // function formatDate(inputDate: string): string {
     //     const date = new Date(inputDate);
