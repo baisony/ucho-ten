@@ -6,6 +6,8 @@ import { UIEventHandler, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
@@ -20,21 +22,22 @@ const FeedPage = ({
     feedKey,
     color,
     now,
-    isActive,
-    disableSlideVerticalScroll,
+    isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
     const [agent] = useAgent()
 
     // const [loading, setLoading] = useState(false)
     // const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
+    const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     // const [wait, setWait] = useState<boolean>(true)
 
-    const currentScrollPosition = useRef<number>(0)
+    // const currentScrollPosition = useRef<number>(0)
 
     const cursor = useRef<string>("")
+    const pollingCursor = useRef<string>("")
+    const isPolling = useRef<boolean>(false)
 
     const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -158,9 +161,11 @@ const FeedPage = ({
 
     const checkNewTimeline = async () => {
         if (!agent) return
+
+        isPolling.current = true
+
         try {
             let response: AppBskyFeedGetTimeline.Response
-            const timelineLength = 0
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
@@ -174,7 +179,44 @@ const FeedPage = ({
                     limit: 30,
                 })
             }
-        } catch (e) {}
+
+            const { data } = response
+
+            if (data) {
+                const { feed } = data
+                const filteredData = formattingTimeline(feed)
+
+                if (data.cursor && data.cursor !== pollingCursor.current) {
+                    pollingCursor.current = data.cursor
+
+                    const diffTimeline = filteredData.filter((newItem) => {
+                        if (!timeline) {
+                            return true
+                        } else {
+                            return !timeline.some(
+                                (oldItem) =>
+                                    oldItem.post.uri === newItem.post.uri
+                            )
+                        }
+                    })
+
+                    setNewTimeline(diffTimeline)
+
+                    isPolling.current = true
+
+                    setTimeout(() => {
+                        checkNewTimeline()
+                    }, 5 * 1000)
+                } else {
+                    isPolling.current = false
+                }
+            } else {
+                isPolling.current = false
+            }
+        } catch (e) {
+            isPolling.current = false
+            console.error(e)
+        }
     }
 
     useEffect(() => {
@@ -183,26 +225,62 @@ const FeedPage = ({
             fetchTimeline()
         }
 
+        isPolling.current = true
+
         setTimeout(() => {
             checkNewTimeline()
-        }, 15 * 1000)
+        }, 5 * 1000)
     }, [agent, feedKey, isActive])
 
-    const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
-        const newScrollPosition = e.currentTarget.scrollTop
+    const handleRefresh = () => {
+        setTimeline((prevTimeline) => {
+            if (!prevTimeline) {
+                return [...newTimeline]
+            } else {
+                return [...newTimeline, ...prevTimeline]
+            }
+        })
 
-        if (disableSlideVerticalScroll) {
-            e.currentTarget.scrollTo({
-                top: currentScrollPosition.current,
-                left: 0,
-            })
+        setNewTimeline([])
+
+        if (isPolling.current !== true) {
+            setTimeout(() => {
+                checkNewTimeline()
+            }, 1 * 1000)
         }
-
-        currentScrollPosition.current = newScrollPosition
     }
+
+    // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
+    //     const newScrollPosition = e.currentTarget.scrollTop
+
+    //     if (disableSlideVerticalScroll) {
+    //         e.currentTarget.scrollTo({
+    //             top: currentScrollPosition.current,
+    //             left: 0,
+    //         })
+    //     }
+
+    //     currentScrollPosition.current = newScrollPosition
+    // }
 
     return (
         <>
+            {newTimeline.length > 0 && (
+                <div
+                    className={
+                        " absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
+                    }
+                >
+                    <div
+                        className={
+                            "text-black  bg-blue-50 rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px]"
+                        }
+                        onClick={handleRefresh}
+                    >
+                        <FontAwesomeIcon icon={faArrowsRotate} /> New Posts
+                    </div>
+                </div>
+            )}
             {/* {(!timeline || wait) && ( */}
             {!timeline && (
                 <Virtuoso
