@@ -909,7 +909,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             : "white",
                                 }}
                             >
-                                {300 - contentText.length}
+                                {300 - contentText.trim().length}
                             </div>
                             <div
                                 style={{
