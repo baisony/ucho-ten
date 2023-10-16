@@ -148,6 +148,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         return () => matchMedia.removeEventListener("change", modeMe)
     }, [])
 
+    const trimedContentText = (): string => {
+        return contentText.trim()
+    }
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
             handlePostClick()
@@ -173,7 +177,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const handlePostClick = async () => {
         console.log(agent)
         if (!agent) return
-        if (contentText.trim() === "") return
+        if (trimedContentText() === "") return
         setLoading(true)
         try {
             const blobRefs: BlobRef[] = []
@@ -191,7 +195,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 blobRefs.push(blobRef)
             }
 
-            const rt = new RichText({ text: contentText })
+            const rt = new RichText({ text: trimedContentText() })
             await rt.detectFacets(agent)
 
             const postObj: Partial<AppBskyFeedPost.Record> &
@@ -487,8 +491,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         }}
                         isDisabled={
                             loading ||
-                            contentText.trim().length === 0 ||
-                            contentText.trim().length > 300
+                            trimedContentText().length === 0 ||
+                            trimedContentText().length > 300
                         }
                         isLoading={loading}
                     >
@@ -904,12 +908,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 className={footerCharacterCountText()}
                                 style={{
                                     color:
-                                        contentText.trim().length >= 300
+                                        trimedContentText().length >= 300
                                             ? "red"
                                             : "white",
                                 }}
                             >
-                                {300 - contentText.length}
+                                {300 - trimedContentText().length}
                             </div>
                             <div
                                 style={{
@@ -919,11 +923,11 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 }}
                             >
                                 <CircularProgressbar
-                                    value={contentText.trim().length}
+                                    value={trimedContentText().length}
                                     maxValue={300}
                                     styles={buildStyles({
                                         pathColor:
-                                            contentText.trim().length >= 300
+                                            trimedContentText().length >= 300
                                                 ? "red"
                                                 : "deepskyblue",
                                     })}
