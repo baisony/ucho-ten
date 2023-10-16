@@ -1,10 +1,11 @@
 "use client"
+
 import { isMobile } from "react-device-detect"
-import React, { lazy, useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Lazy, Pagination, Virtual } from "swiper/modules"
+import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "./components/FeedPage/FeedPage"
 // import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
 import { useHeaderMenusAtom, useMenuIndexAtom } from "./_atoms/headerMenu"

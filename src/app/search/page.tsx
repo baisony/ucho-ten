@@ -395,8 +395,6 @@ export default function Root() {
                                 <ViewPostCard
                                     key={`skeleton-${index}`}
                                     color={color}
-                                    numbersOfImage={0}
-                                    postJson={null}
                                     isMobile={isMobile}
                                     isSkeleton={true}
                                 />
@@ -407,7 +405,6 @@ export default function Root() {
                                 <ViewPostCard
                                     key={`search-post-${post.uri}`}
                                     color={color}
-                                    numbersOfImage={0}
                                     postJson={post}
                                     isMobile={isMobile}
                                     now={now}

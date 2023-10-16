@@ -324,7 +324,6 @@ export default function Root() {
                         key={`skeleton-${index}`}
                         color={color}
                         numbersOfImage={0}
-                        postJson={null}
                         isMobile={isMobile}
                         isSkeleton={true}
                     />

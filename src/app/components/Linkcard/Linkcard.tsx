@@ -11,12 +11,12 @@ interface Props {
     color: "light" | "dark"
     type?: "Post" | "Reply" | `Quote`
     postData?: any
-    OGPData?: any
+    ogpData?: any
     skeleton?: boolean
 }
 
 export const Linkcard: React.FC<Props> = (props: Props) => {
-    const { color, type, postData, OGPData, skeleton } = props
+    const { color, type, postData, ogpData, skeleton } = props
     const {
         LinkCard,
         LinkCardThumbnailContainer,
@@ -26,8 +26,8 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
         LinkCardDescription,
         LinkCardSiteName,
     } = linkcard()
-    const thumb = OGPData?.thumb
-    const uri = OGPData?.uri
+    const thumb = ogpData?.thumb
+    const uri = ogpData?.uri
     const generatedURL = thumb?.startsWith("http")
         ? thumb
         : uri && thumb?.startsWith("/")
@@ -36,7 +36,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
     return (
         <>
             <a
-                href={OGPData?.uri}
+                href={ogpData?.uri}
                 target="_blank"
                 rel="noopener noreferrer"
                 onMouseUp={(e) => e.stopPropagation()}
@@ -52,7 +52,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                             <img
                                 src={generatedURL}
                                 className={LinkCardThumbnail()}
-                                alt={OGPData?.alt}
+                                alt={ogpData?.alt}
                             />
                         ) : (
                             <div
@@ -78,7 +78,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                     color: color,
                                 })}
                             >
-                                {OGPData && (OGPData?.title || "No Title")}
+                                {ogpData && (ogpData?.title || "No Title")}
                             </div>
                             <div
                                 className={LinkCardDescription({
@@ -91,8 +91,8 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                     overflow: "hidden",
                                 }}
                             >
-                                {OGPData &&
-                                    (OGPData?.description || "No Description")}
+                                {ogpData &&
+                                    (ogpData?.description || "No Description")}
                             </div>
                             <div
                                 className={LinkCardSiteName({
@@ -101,7 +101,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                             >
                                 <div className="text-gray-400">
                                     {
-                                        OGPData?.uri.match(
+                                        ogpData?.uri.match(
                                             /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
                                         )[1]
                                     }

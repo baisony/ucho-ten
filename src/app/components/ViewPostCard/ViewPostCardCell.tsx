@@ -1,3 +1,7 @@
+import {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "."
 
 interface Props {
@@ -8,9 +12,9 @@ interface Props {
     isDragActive?: boolean
     open?: boolean
     numbersOfImage?: 0 | 1 | 2 | 3 | 4
-    postJson?: any
+    postJson?: PostView
     isSkeleton?: boolean
-    json?: any
+    json?: FeedViewPost
     isEmbedToModal?: boolean
     now?: Date
     isDummyHeader?: boolean

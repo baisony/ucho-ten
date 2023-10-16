@@ -1,5 +1,18 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { viewPostCard } from "./styles"
+import { useRouter } from "next/navigation"
+import {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    AppBskyEmbedExternal,
+    AppBskyEmbedImages,
+    AppBskyEmbedRecord,
+    AppBskyEmbedRecordWithMedia,
+    AppBskyFeedPost,
+} from "@atproto/api"
+import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faComment,
@@ -20,8 +33,11 @@ import {
     faTrash,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
+import { viewPostCard } from "./styles"
 import { PostModal } from "../PostModal"
 import { Linkcard } from "../Linkcard"
+import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+import { ReportModal } from "@/app/components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
 import {
     Chip,
@@ -38,52 +54,50 @@ import {
     Tooltip,
     useDisclosure,
 } from "@nextui-org/react"
-import "react-swipeable-list/dist/styles.css"
 import { useAgent } from "@/app/_atoms/agent"
-import { useRouter } from "next/navigation"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
     ImageGalleryObject,
     ImageObject,
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
-import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
-import { ReportModal } from "@/app/components/ReportModal"
+
+import "react-swipeable-list/dist/styles.css"
 
 interface Props {
-    className?: string
+    // className?: string
     color: "light" | "dark"
     isMobile?: boolean
-    uploadImageAvailable?: boolean
+    // uploadImageAvailable?: boolean
     isDragActive?: boolean
-    open?: boolean
-    numbersOfImage?: 0 | 1 | 2 | 3 | 4
-    postJson?: any
+    // open?: boolean
+    // numbersOfImage?: 0 | 1 | 2 | 3 | 4
+    postJson?: PostView
     isSkeleton?: boolean
-    json?: any
+    json?: FeedViewPost
     isEmbedToModal?: boolean
     now?: Date
 }
 
-export const ViewPostCard: React.FC<Props> = (props: Props) => {
+export const ViewPostCard = (props: Props) => {
     const [agent] = useAgent()
-    const [imageGallery, setImageGallery] = useImageGalleryAtom()
+    const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
     const {
-        className,
+        // className,
         color,
         isMobile,
-        uploadImageAvailable,
-        open,
-        numbersOfImage,
+        // uploadImageAvailable,
+        // open,
+        // numbersOfImage,
         postJson,
         isSkeleton,
         json,
         isEmbedToModal,
         now,
     } = props
-    const reg =
-        /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
+    // const reg =
+    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
     const [loading, setLoading] = useState(false)
     const [isHover, setIsHover] = useState<boolean>(false)
     const {
@@ -104,17 +118,18 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
         skeletonText1line,
         skeletonText2line,
         chip,
-        LinkCard,
-        LinkCardThumbnailContainer,
-        LinkCardThumbnail,
-        LinkCardContent,
-        LinkCardTitle,
-        LinkCardDescription,
-        LinkCardSiteName,
+        // LinkCard,
+        // LinkCardThumbnailContainer,
+        // LinkCardThumbnail,
+        // LinkCardContent,
+        // LinkCardTitle,
+        // LinkCardDescription,
+        // LinkCardSiteName,
     } = viewPostCard()
-    const [isLiked, setIsLiked] = useState<boolean>(postJson?.viewer?.like)
+
+    const [isLiked, setIsLiked] = useState<boolean>(!!postJson?.viewer?.like)
     const [isReposted, setIsReposted] = useState<boolean>(
-        postJson?.viewer?.repost
+        !!postJson?.viewer?.repost
     )
     const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false)
     const [isSwipeEnabled, setIsSwipeEnabled] = useState(true)
@@ -124,16 +139,19 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     const [startX, setStartX] = useState(null)
     const [startY, setStartY] = useState(null)
     const [handleButtonClick, setHandleButtonClick] = useState(false)
+
     const {
         isOpen: isOpenReply,
         onOpen: onOpenReply,
         onOpenChange: onOpenChangeReply,
     } = useDisclosure()
+
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
+
     const handleReply = async () => {
         //setIsPostModalOpen(true)
         console.log("open")
@@ -143,13 +161,13 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     const handleRepost = async () => {
         if (loading) return
         setLoading(true)
-        if (isReposted) {
+        if (isReposted && postJson?.viewer?.repost) {
             setIsReposted(!isReposted)
-            const res = await agent?.deleteRepost(postJson?.viewer?.repost)
+            const res = await agent?.deleteRepost(postJson.viewer.repost)
             console.log(res)
-        } else {
+        } else if (postJson?.uri && postJson?.cid) {
             setIsReposted(!isReposted)
-            const res = await agent?.repost(postJson?.uri, postJson?.cid)
+            const res = await agent?.repost(postJson.uri, postJson.cid)
             console.log(res)
         }
         setLoading(false)
@@ -158,43 +176,97 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     const handleLike = async () => {
         if (loading) return
         setLoading(true)
-        if (isLiked) {
+        if (isLiked && postJson?.viewer?.like) {
             setIsLiked(!isLiked)
-            const res = await agent?.deleteLike(postJson?.viewer?.like)
+            const res = await agent?.deleteLike(postJson.viewer.like)
             console.log(res)
-        } else {
+        } else if (postJson?.uri && postJson?.cid) {
             setIsLiked(!isLiked)
-            const res = await agent?.like(postJson?.uri, postJson?.cid)
+            const res = await agent?.like(postJson.uri, postJson.cid)
             console.log(res)
         }
         setLoading(false)
     }
 
+    const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
+        if (!postJson?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postJson.embed.$type
+
+        if (embedType === "app.bsky.embed.images#view") {
+            const embed = postJson.embed as AppBskyEmbedImages.View
+
+            return embed
+        } else {
+            return null
+        }
+    }, [postJson])
+
+    const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
+        if (!postJson?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postJson.embed.$type
+
+        if (embedType === "app.bsky.embed.recordWithMedia#view") {
+            const embed = postJson.embed as AppBskyEmbedRecordWithMedia.View
+
+            return embed
+        } else {
+            return null
+        }
+    }, [postJson])
+
+    const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
+        if (!postJson?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postJson.embed.$type
+
+        if (embedType === "app.bsky.embed.external#view") {
+            const embed = postJson.embed as AppBskyEmbedExternal.View
+
+            return embed
+        } else {
+            return null
+        }
+    }, [postJson])
+
+    const embedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (!postJson?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postJson.embed.$type
+
+        if (embedType === "app.bsky.embed.record#view") {
+            const embed = postJson.embed as AppBskyEmbedRecord.View
+
+            return embed
+        } else {
+            return null
+        }
+    }, [postJson])
+
     const handleImageClick = useCallback(
         (index: number) => {
-            if (
-                postJson?.embed?.images &&
-                Array.isArray(postJson.embed.images)
-            ) {
+            if (embedImages?.images) {
                 const images: ImageObject[] = []
 
-                for (const image of postJson.embed.images) {
+                for (const image of embedImages.images) {
                     const currentImage: ImageObject = {
                         fullsize: "",
                         alt: "",
                     }
 
-                    if (typeof image.fullsize === "string") {
-                        currentImage.fullsize = image.fullsize
-                    }
+                    currentImage.fullsize = image.fullsize
+                    currentImage.alt = image.alt
 
-                    if (typeof image.alt === "string") {
-                        currentImage.alt = image.alt
-                    }
-
-                    if (currentImage.fullsize.length > 0) {
-                        images.push(currentImage)
-                    }
+                    images.push(currentImage)
                 }
 
                 if (images.length > 0) {
@@ -211,12 +283,18 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     )
 
     const renderTextWithLinks = useMemo(() => {
-        if (!postJson?.record) return
+        if (!postJson?.record) {
+            return
+        }
+
+        const record = postJson?.record as AppBskyFeedPost.Record
+
         const encoder = new TextEncoder()
         const decoder = new TextDecoder()
-        if (!postJson.record?.facets) {
+
+        if (!record?.facets && record?.text) {
             const post: any[] = []
-            postJson.record.text.split("\n").map((line: any, i: number) => {
+            record.text.split("\n").map((line: any, i: number) => {
                 post.push(
                     <p key={i}>
                         {line}
@@ -226,11 +304,14 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
             })
             return post
         }
-        const { text, facets } = postJson.record
+
+        const { text, facets } = record
         const text_bytes = encoder.encode(text)
         const result: any[] = []
+
         let lastOffset = 0
-        facets.forEach((facet: any, index: number) => {
+
+        ;(facets || []).forEach((facet: any, index: number) => {
             const { byteStart, byteEnd } = facet.index
 
             const facetText = decoder.decode(
@@ -431,6 +512,7 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
     //         ).padStart(2, "0")}`;
     //     }
     // }
+
     const handleMouseUp = (e: any) => {
         // マウスダウンしていない状態でクリックされた場合は何もしない
         if (startX === null || startY === null) return
@@ -532,7 +614,9 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                         )
                                     }}
                                 >
-                                    Reposted by {json.reason.by.displayName}
+                                    Reposted by{" "}
+                                    {(json.reason.by as ProfileViewBasic)
+                                        .displayName || ""}
                                 </span>
                             )}
                             <div className={`${PostAuthor()}`}>
@@ -664,6 +748,10 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                         />
                                                     }
                                                     onClick={() => {
+                                                        if (!postJson) {
+                                                            return
+                                                        }
+
                                                         console.log(
                                                             `https://bsky.app/profile/${
                                                                 postJson.author
@@ -706,8 +794,9 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                     Copy Post JSON
                                                 </DropdownItem>
                                                 <DropdownSection title="Danger zone">
-                                                    {agent?.session?.did !==
-                                                    postJson.author.did ? (
+                                                    {postJson &&
+                                                    agent?.session?.did !==
+                                                        postJson.author.did ? (
                                                         <DropdownItem
                                                             key="delete"
                                                             className="text-danger"
@@ -751,10 +840,11 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                         <>
                                             {!isSkeleton && (
                                                 <div>
-                                                    {formattedSimpleDate(
-                                                        postJson?.indexedAt,
-                                                        now || new Date()
-                                                    )}
+                                                    {postJson &&
+                                                        formattedSimpleDate(
+                                                            postJson.indexedAt,
+                                                            now || new Date()
+                                                        )}
                                                 </div>
                                             )}
                                         </>
@@ -790,8 +880,10 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                                 />{" "}
                                                 Reply to{" "}
                                                 {
-                                                    json.reply.parent.author
-                                                        ?.displayName
+                                                    (
+                                                        json.reply.parent
+                                                            .author as ProfileViewBasic
+                                                    )?.displayName
                                                 }
                                             </div>
                                         )}
@@ -807,101 +899,38 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                                         </div>
                                     </>
                                 )}
-                                <div className={"overflow-x-scroll"}>
-                                    {postJson?.embed &&
-                                        (postJson?.embed?.$type ===
-                                            "app.bsky.embed.images#view" ||
-                                        postJson?.embed.$type ===
-                                            "app.bsky.embed.recordWithMedia#view" ? (
-                                            <>
-                                                <ScrollShadow
-                                                    hideScrollBar
-                                                    orientation="horizontal"
-                                                >
-                                                    <div
-                                                        className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-                                                    >
-                                                        {(postJson.embed
-                                                            .$type ===
-                                                        "app.bsky.embed.recordWithMedia#view"
-                                                            ? postJson.embed
-                                                                  .media.images
-                                                            : postJson.embed
-                                                                  .images
-                                                        )?.map(
-                                                            (
-                                                                image: any,
-                                                                index: number
-                                                            ) => (
-                                                                <div
-                                                                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
-                                                                    key={`image-${index}`}
-                                                                >
-                                                                    <img
-                                                                        className="w-full h-full z-0 object-cover"
-                                                                        src={
-                                                                            image.thumb
-                                                                        }
-                                                                        alt={
-                                                                            image?.alt
-                                                                        }
-                                                                        onMouseUp={(
-                                                                            e
-                                                                        ) =>
-                                                                            e.stopPropagation()
-                                                                        }
-                                                                        onClick={(
-                                                                            e
-                                                                        ) => {
-                                                                            handleImageClick(
-                                                                                index
-                                                                            )
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                </ScrollShadow>
-                                                {postJson.embed.$type ===
-                                                    "app.bsky.embed.recordWithMedia#view" && (
-                                                    <>
-                                                        <ViewQuoteCard
-                                                            color={color}
-                                                            postJson={
-                                                                postJson.embed
-                                                                    ?.record
-                                                                    .record
-                                                            }
-                                                        />
-                                                    </>
-                                                )}
-                                            </>
-                                        ) : postJson.embed.$type ===
-                                          "app.bsky.embed.external#view" ? (
-                                            <Linkcard
-                                                color={color}
-                                                OGPData={
-                                                    postJson.embed.external
-                                                }
-                                            />
-                                        ) : (
-                                            postJson.embed.$type ===
-                                                "app.bsky.embed.record#view" && (
-                                                <ViewQuoteCard
-                                                    color={color}
-                                                    postJson={
-                                                        postJson.embed.record
-                                                    }
-                                                />
-                                            )
-                                        ))}
-                                </div>
+                                {embedImages && (
+                                    <EmbedImages
+                                        color={color}
+                                        embedImages={embedImages}
+                                        onImageClick={(index: number) => {
+                                            handleImageClick(index)
+                                        }}
+                                    />
+                                )}
+                                {embedMedia && (
+                                    <EmbedMedia
+                                        color={color}
+                                        embedMedia={embedMedia}
+                                        onImageClick={(index: number) => {
+                                            handleImageClick(index)
+                                        }}
+                                    />
+                                )}
+                                {embedExternal && (
+                                    <Linkcard
+                                        color={color}
+                                        ogpData={embedExternal.external}
+                                    />
+                                )}
+                                {embedRecord && (
+                                    <ViewQuoteCard
+                                        color={color}
+                                        postJson={embedRecord.record}
+                                    />
+                                )}
                             </div>
-                            <div
-                                className={PostReactionButtonContainer()}
-                                style={{}}
-                            >
+                            <div className={PostReactionButtonContainer()}>
                                 <div className={`mr-[12px]`}>
                                     {isMobile && !isEmbedToModal && (
                                         <>
@@ -1029,6 +1058,84 @@ export const ViewPostCard: React.FC<Props> = (props: Props) => {
                     </>
                 </>
             </main>
+        </>
+    )
+}
+
+interface EmbedImagesProps {
+    color: "light" | "dark"
+    embedImages: AppBskyEmbedImages.View
+    onImageClick: (index: number) => void
+}
+
+const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
+    return (
+        <ScrollShadow
+            hideScrollBar={true}
+            orientation="horizontal"
+            className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+        >
+            {embedImages.images.map((image: ViewImage, index: number) => (
+                <div
+                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                    key={`image-${index}`}
+                >
+                    <img
+                        className="w-full h-full z-0 object-cover"
+                        src={image.thumb}
+                        alt={image.alt}
+                        onMouseUp={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            onImageClick(index)
+                        }}
+                    />
+                </div>
+            ))}
+        </ScrollShadow>
+    )
+}
+
+interface EmbedMediaProps {
+    color: "light" | "dark"
+    embedMedia: AppBskyEmbedRecordWithMedia.View
+    onImageClick: (index: number) => void
+}
+
+const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
+    const images = embedMedia.media.images
+
+    if (!images || !Array.isArray(images)) {
+        return
+    }
+
+    return (
+        <>
+            <ScrollShadow
+                hideScrollBar
+                orientation="horizontal"
+                className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+            >
+                {images.map((image: ViewImage, index: number) => (
+                    <div
+                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                        key={`image-${index}`}
+                    >
+                        <img
+                            className="w-full h-full z-0 object-cover"
+                            src={image.thumb}
+                            alt={image.alt}
+                            onMouseUp={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                onImageClick(index)
+                            }}
+                        />
+                    </div>
+                ))}
+                <ViewQuoteCard
+                    color={color}
+                    postJson={embedMedia.record.record}
+                />
+            </ScrollShadow>
         </>
     )
 }
