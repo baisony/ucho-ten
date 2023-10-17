@@ -617,7 +617,7 @@ export const ViewPostCard = (props: Props) => {
             <div
                 className={
                     quoteJson
-                        ? quoteCardStyles.PostCardContainer({ isMobile })
+                        ? quoteCardStyles.PostCardContainer({ color, isMobile })
                         : ""
                 }
             >
@@ -650,8 +650,8 @@ export const ViewPostCard = (props: Props) => {
                 <main
                     className={`${
                         quoteJson
-                            ? quoteCardStyles.PostCard({ color })
-                            : PostCard({ color })
+                            ? quoteCardStyles.PostCard({ color, isMobile })
+                            : PostCard({ color, isMobile })
                     } ${
                         isEmbedToModal
                             ? `bg-transparent border-none`
@@ -1200,10 +1200,7 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
                     </div>
                 ))}
             </ScrollShadow>
-            <ViewQuoteCard
-                    color={color}
-                    postJson={embedMedia.record.record}
-                />
+            <ViewQuoteCard color={color} postJson={embedMedia.record.record} />
         </>
     )
 }

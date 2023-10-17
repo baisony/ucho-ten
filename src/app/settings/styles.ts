@@ -26,7 +26,7 @@ export const viewSettingsPage = tv({
                 ProfileBio: "text-[12px]",
             },
             false: {
-                background: "relative justify-center",
+                background: "",
             },
         },
     },
