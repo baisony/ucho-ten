@@ -31,6 +31,8 @@ const Root = () => {
 
     const swiperRef = useRef<SwiperCore | null>(null)
 
+    const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
+
     const color: "dark" | "light" = darkMode ? "dark" : "light"
 
     const modeMe = (e: any) => {
@@ -108,57 +110,69 @@ const Root = () => {
     //     }
     // }, [swiperRef.current])
 
+    useEffect(() => {
+        const hasValidInfo = headerMenus.every(
+            (item) => item.info === "following" || item.info.startsWith("at://")
+        )
+
+        if (hasValidInfo) {
+            setIsAvailableMenus(true)
+        }
+    }, [headerMenus])
+
     return (
-        <>
-            <Swiper
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper
-                }}
-                cssMode={isMobile}
-                virtual={true}
-                pagination={{ type: "custom", clickable: false }}
-                hidden={true} // ??
-                modules={[Pagination]}
-                className="swiper-home"
-                style={{ height: "100%" }}
-                touchAngle={30}
-                touchRatio={0.8}
-                touchReleaseOnEdges={true}
-                touchMoveStopPropagation={true}
-                preventInteractionOnTransition={true}
-                onSlideChange={(swiper) => {
-                    setMenuIndex(swiper.activeIndex)
-                }}
-            >
-                {headerMenus.map((menu, index) => {
-                    return (
-                        <SwiperSlide
-                            key={`swiperslide-home-${index}`}
-                            virtualIndex={index}
-                        >
-                            <div
-                                id={`swiperIndex-div-${index}`}
-                                key={index}
-                                style={{
-                                    overflowY: "auto",
-                                    height: "100%",
-                                }}
+        isAvailableMenus && (
+            <>
+                <Swiper
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper
+                    }}
+                    cssMode={isMobile}
+                    virtual={true}
+                    pagination={{ type: "custom", clickable: false }}
+                    hidden={true} // ??
+                    modules={[Pagination]}
+                    className="swiper-home"
+                    style={{ height: "100%" }}
+                    touchAngle={30}
+                    touchRatio={0.8}
+                    touchReleaseOnEdges={true}
+                    touchMoveStopPropagation={true}
+                    preventInteractionOnTransition={true}
+                    onSlideChange={(swiper) => {
+                        setMenuIndex(swiper.activeIndex)
+                    }}
+                >
+                    {headerMenus.map((menu, index) => {
+                        return (
+                            <SwiperSlide
+                                key={`swiperslide-home-${index}`}
+                                virtualIndex={index}
                             >
-                                <FeedPage
-                                    {...{
-                                        isActive: menuIndex === index,
-                                        feedKey: menu.info,
-                                        color,
-                                        disableSlideVerticalScroll,
-                                        now,
+                                <div
+                                    id={`swiperIndex-div-${index}`}
+                                    key={index}
+                                    style={{
+                                        overflowY: "auto",
+                                        height: "100%",
                                     }}
-                                />
-                            </div>
-                        </SwiperSlide>
-                    )
-                })}
-            </Swiper>
-        </>
+                                >
+                                    <FeedPage
+                                        {...{
+                                            isActive: menuIndex === index,
+                                            feedKey: menu.info,
+                                            color,
+                                            disableSlideVerticalScroll,
+                                            now,
+                                        }}
+                                    />
+                                </div>
+                            </SwiperSlide>
+                        )
+                    })}
+                </Swiper>
+            </>
+        )
     )
 }
 
