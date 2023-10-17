@@ -551,67 +551,6 @@ export const ViewPostCard = (props: Props) => {
         return result
     }, [postJson, quoteJson])
 
-    // function formatDate(inputDate: string): string {
-    //     const date = new Date(inputDate);
-    //     if (isNaN(date.getTime())) return "Invalid date" // 無効な日付が与えられた場合
-    //     const now = new Date();
-    //     const year = date.getFullYear();
-    //     const month = date.getMonth() + 1; // 月は0から始まるため+1する
-    //     const day = date.getDate();
-
-    //     if (
-    //         year === now.getFullYear() &&
-    //         month === now.getMonth() + 1 &&
-    //         day === now.getDate()
-    //     ) {
-    //         // 今日の場合
-    //         const hours = date.getHours();
-    //         const minutes = date.getMinutes();
-    //         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-    //     } else if (year === now.getFullYear()) {
-    //         // 今年の場合
-    //         return `${String(month).padStart(2, "0")}/${String(day).padStart(2, "0")}`;
-    //     } else {
-    //         // 今年以外の場合
-    //         const shortYear = year % 100;
-    //         return `${String(shortYear).padStart(2, "0")}/${String(month).padStart(2, "0")}/${String(
-    //             day
-    //         ).padStart(2, "0")}`;
-    //     }
-    // }
-
-    const handleMouseUp = (e: any) => {
-        // マウスダウンしていない状態でクリックされた場合は何もしない
-        if (startX === null || startY === null) return
-
-        // マウスが動いた場合の座標
-        const currentX = e.clientX
-        const currentY = e.clientY
-
-        // クリックが発生した座標との差を計算
-        const deltaX = Math.abs(currentX - startX)
-        const deltaY = Math.abs(currentY - startY)
-
-        // カーソルが一定の閾値以上動いた場合にクリックをキャンセル
-        if (deltaX > 5 || deltaY > 5) {
-            console.log("cancel click")
-            //e.preventDefault();
-            //e.stopPropagation();
-        } else {
-            router.push(
-                `/profile/${postJsonData?.author.did}/post/${
-                    postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
-                }`
-            )
-        }
-    }
-
-    const handleMouseDown = (e: any) => {
-        // マウスダウン時の座標を記録
-        setStartX(e.clientX)
-        setStartY(e.clientY)
-    }
-
     return (
         !isDeleted && (
             <div
@@ -658,12 +597,12 @@ export const ViewPostCard = (props: Props) => {
                             : `cursor-pointer`
                     }`}
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
-                    onMouseDown={(e) => {
-                        handleMouseDown(e)
-                    }}
-                    onMouseUp={(e) => {
-                        if (isEmbedToModal) return
-                        handleMouseUp(e)
+                    onClick={() => {
+                        router.push(
+                            `/profile/${postJsonData?.author.did}/post/${
+                                postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
+                            }`
+                        )
                     }}
                 >
                     <div
