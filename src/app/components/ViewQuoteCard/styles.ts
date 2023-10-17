@@ -2,8 +2,7 @@ import { tv } from "@nextui-org/react"
 
 export const viewQuoteCard = tv({
     slots: {
-        PostCard:
-            "w-full border-[1.5px] rounded-[10px] hover:border-gray-600",
+        PostCard: "w-full border-[1.5px] rounded-[10px] hover:border-gray-600",
         PostCardContainer: "pl-[8px] pt-[11px] pb-[11px] w-full",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",

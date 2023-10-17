@@ -145,7 +145,7 @@ export const ViewPostCard = (props: Props) => {
         // LinkCardDescription,
         // LinkCardSiteName,
     } = viewPostCard()
-    
+
     const quoteCardStyles = viewQuoteCard()
 
     const [isLiked, setIsLiked] = useState<boolean>(!!postView?.viewer?.like)
@@ -215,7 +215,10 @@ export const ViewPostCard = (props: Props) => {
     }
 
     const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
-        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const quoteEmbed =
+            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
+                ? quoteJson?.embeds[0]
+                : null
         const embed = quoteEmbed || postView?.embed || null
 
         if (!embed?.$type) {
@@ -230,7 +233,10 @@ export const ViewPostCard = (props: Props) => {
     }, [postJson, quoteJson])
 
     const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
-        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const quoteEmbed =
+            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
+                ? quoteJson?.embeds[0]
+                : null
         const embed = quoteEmbed || postView?.embed || null
 
         if (!embed?.$type) {
@@ -245,7 +251,10 @@ export const ViewPostCard = (props: Props) => {
     }, [postJson, quoteJson])
 
     const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
-        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const quoteEmbed =
+            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
+                ? quoteJson?.embeds[0]
+                : null
         const embed = quoteEmbed || postView?.embed || null
 
         if (!embed?.$type) {
@@ -276,7 +285,10 @@ export const ViewPostCard = (props: Props) => {
     }, [postJson, quoteJson])
 
     const embedRecordViewRecord = useMemo((): ViewRecord | null => {
-        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const quoteEmbed =
+            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
+                ? quoteJson?.embeds[0]
+                : null
         const embed = quoteEmbed || postView?.embed || null
 
         if (!embed?.$type) {
@@ -325,7 +337,8 @@ export const ViewPostCard = (props: Props) => {
             return
         }
 
-        const record = (quoteJson?.value || postJsonData?.record) as AppBskyFeedPost.Record
+        const record = (quoteJson?.value ||
+            postJsonData?.record) as AppBskyFeedPost.Record
 
         const encoder = new TextEncoder()
         const decoder = new TextDecoder()
@@ -584,7 +597,11 @@ export const ViewPostCard = (props: Props) => {
     }
 
     return (
-        <div className={quoteJson ? quoteCardStyles.PostCardContainer({isMobile}) : ""}>
+        <div
+            className={
+                quoteJson ? quoteCardStyles.PostCardContainer({ isMobile }) : ""
+            }
+        >
             <Modal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}
@@ -612,7 +629,11 @@ export const ViewPostCard = (props: Props) => {
                 post={postJson}
             />
             <main
-                className={`${quoteJson ? quoteCardStyles.PostCard({ color }) : PostCard({ color })} ${
+                className={`${
+                    quoteJson
+                        ? quoteCardStyles.PostCard({ color })
+                        : PostCard({ color })
+                } ${
                     isEmbedToModal
                         ? `bg-transparent border-none`
                         : `cursor-pointer`
