@@ -77,7 +77,7 @@ export const viewQuoteCard = tv({
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
-                background: "relative flex justify-center items-center",
+                background: "",
                 PostContent: "text-[15px] mb-[6px]",
                 PostCardContainer: "pb-[24px]",
             },

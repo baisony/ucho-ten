@@ -33,7 +33,7 @@ export const tabBar = tv({
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
-                background: "relative flex justify-center items-center",
+                background: "",
             },
         },
     },

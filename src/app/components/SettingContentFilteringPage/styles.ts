@@ -21,7 +21,7 @@ export const settingContentFilteringPage = tv({
                 background: "",
             },
             false: {
-                background: "relative flex justify-center items-center",
+                background: "",
             },
         },
     },

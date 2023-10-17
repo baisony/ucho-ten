@@ -78,11 +78,11 @@ export const createPostPage = tv({
         isMobile: {
             true: {
                 PostModal: "rounded-none",
-                background: "flex justify-center",
+                background: "flex",
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px] ",
-                background: "relative flex justify-center items-center",
+                background: "flex",
             },
         },
         uploadImageAvailable: {

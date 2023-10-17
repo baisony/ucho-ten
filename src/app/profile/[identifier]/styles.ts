@@ -46,7 +46,7 @@ export const viewProfilePage = tv({
                 ProfileBio: "text-[12px]",
             },
             false: {
-                background: "relative justify-center",
+                background: "",
             },
         },
         hover: {

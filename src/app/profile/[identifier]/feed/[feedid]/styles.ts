@@ -45,7 +45,7 @@ export const viewFeedPage = tv({
                 ProfileBio: "text-[12px]",
             },
             false: {
-                background: "relative justify-center",
+                background: "",
             },
         },
         isPinned: {
