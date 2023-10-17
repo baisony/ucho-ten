@@ -87,6 +87,30 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
+        const handleKeyDown = (event: any) => {
+            // FIXME: do not use 'any'
+            if (
+                (event.key === "n" || event.key === "N") &&
+                pathName !== "/post"
+            ) {
+                event.preventDefault()
+                router.push("/post")
+            }
+
+            if (event.key === "Escape" && pathName === "/post") {
+                event.preventDefault()
+                router.back()
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [router, pathName])
+
+    useEffect(() => {
         setHistory([pathName, history[0]])
     }, [pathName])
 
