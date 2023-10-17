@@ -11,6 +11,7 @@ import {
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedPost,
 } from "@atproto/api"
+import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -34,6 +35,7 @@ import {
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
 import { viewPostCard } from "./styles"
+import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { PostModal } from "../PostModal"
 import { Linkcard } from "../Linkcard"
 import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
@@ -73,6 +75,7 @@ interface Props {
     // open?: boolean
     // numbersOfImage?: 0 | 1 | 2 | 3 | 4
     postJson?: PostView
+    quoteJson?: ViewRecord
     isSkeleton?: boolean
     json?: FeedViewPost
     isEmbedToModal?: boolean
@@ -80,9 +83,6 @@ interface Props {
 }
 
 export const ViewPostCard = (props: Props) => {
-    const [agent] = useAgent()
-    const [, setImageGallery] = useImageGalleryAtom()
-    const router = useRouter()
     const {
         // className,
         color,
@@ -91,11 +91,30 @@ export const ViewPostCard = (props: Props) => {
         // open,
         // numbersOfImage,
         postJson,
+        quoteJson,
         isSkeleton,
         json,
         isEmbedToModal,
         now,
     } = props
+
+    const postJsonData = useMemo((): ViewRecord | PostView | null => {
+        return quoteJson || postJson || null
+    }, [postJson, quoteJson])
+
+    const postView = useMemo((): PostView | null => {
+        if (quoteJson) {
+            return null
+        } else if (postJson) {
+            return postJson
+        } else {
+            return null
+        }
+    }, [postJson, quoteJson])
+
+    const [agent] = useAgent()
+    const [, setImageGallery] = useImageGalleryAtom()
+    const router = useRouter()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
     const [loading, setLoading] = useState(false)
@@ -126,10 +145,12 @@ export const ViewPostCard = (props: Props) => {
         // LinkCardDescription,
         // LinkCardSiteName,
     } = viewPostCard()
+    
+    const quoteCardStyles = viewQuoteCard()
 
-    const [isLiked, setIsLiked] = useState<boolean>(!!postJson?.viewer?.like)
+    const [isLiked, setIsLiked] = useState<boolean>(!!postView?.viewer?.like)
     const [isReposted, setIsReposted] = useState<boolean>(
-        !!postJson?.viewer?.repost
+        !!postView?.viewer?.repost
     )
     // const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false)
     // const [isSwipeEnabled, setIsSwipeEnabled] = useState(true)
@@ -138,7 +159,7 @@ export const ViewPostCard = (props: Props) => {
     //     useState(false)
     const [startX, setStartX] = useState(null)
     const [startY, setStartY] = useState(null)
-    const [handleButtonClick, setHandleButtonClick] = useState(false)
+    const [, setHandleButtonClick] = useState(false)
 
     const {
         isOpen: isOpenReply,
@@ -161,96 +182,113 @@ export const ViewPostCard = (props: Props) => {
     const handleRepost = async () => {
         if (loading) return
         setLoading(true)
-        if (isReposted && postJson?.viewer?.repost) {
+        if (isReposted && postView?.viewer?.repost) {
             setIsReposted(!isReposted)
-            const res = await agent?.deleteRepost(postJson.viewer.repost)
+            const res = await agent?.deleteRepost(postView.viewer.repost)
             console.log(res)
-        } else if (postJson?.uri && postJson?.cid) {
+        } else if (postJsonData?.uri && postJsonData?.cid) {
             setIsReposted(!isReposted)
-            const res = await agent?.repost(postJson.uri, postJson.cid)
+            const res = await agent?.repost(postJsonData.uri, postJsonData.cid)
             console.log(res)
         }
         setLoading(false)
     }
 
     const handleLike = async () => {
-        if (loading) return
+        if (loading) {
+            return
+        }
+
         setLoading(true)
-        if (isLiked && postJson?.viewer?.like) {
+
+        if (isLiked && postView?.viewer?.like) {
             setIsLiked(!isLiked)
-            const res = await agent?.deleteLike(postJson.viewer.like)
+            const res = await agent?.deleteLike(postView.viewer.like)
             console.log(res)
-        } else if (postJson?.uri && postJson?.cid) {
+        } else if (postJsonData?.uri && postJsonData?.cid) {
             setIsLiked(!isLiked)
-            const res = await agent?.like(postJson.uri, postJson.cid)
+            const res = await agent?.like(postJsonData.uri, postJsonData.cid)
             console.log(res)
         }
+
         setLoading(false)
     }
 
     const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
-        if (!postJson?.embed?.$type) {
+        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const embed = quoteEmbed || postView?.embed || null
+
+        if (!embed?.$type) {
             return null
         }
 
-        const embedType = postJson.embed.$type
-
-        if (embedType === "app.bsky.embed.images#view") {
-            const embed = postJson.embed as AppBskyEmbedImages.View
-
-            return embed
+        if (embed.$type === "app.bsky.embed.images#view") {
+            return embed as AppBskyEmbedImages.View
         } else {
             return null
         }
-    }, [postJson])
+    }, [postJson, quoteJson])
 
     const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
-        if (!postJson?.embed?.$type) {
+        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const embed = quoteEmbed || postView?.embed || null
+
+        if (!embed?.$type) {
             return null
         }
 
-        const embedType = postJson.embed.$type
-
-        if (embedType === "app.bsky.embed.recordWithMedia#view") {
-            const embed = postJson.embed as AppBskyEmbedRecordWithMedia.View
-
-            return embed
+        if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+            return embed as AppBskyEmbedRecordWithMedia.View
         } else {
             return null
         }
-    }, [postJson])
+    }, [postJson, quoteJson])
 
     const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
-        if (!postJson?.embed?.$type) {
+        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const embed = quoteEmbed || postView?.embed || null
+
+        if (!embed?.$type) {
             return null
         }
 
-        const embedType = postJson.embed.$type
-
-        if (embedType === "app.bsky.embed.external#view") {
-            const embed = postJson.embed as AppBskyEmbedExternal.View
-
-            return embed
+        if (embed.$type === "app.bsky.embed.external#view") {
+            return embed as AppBskyEmbedExternal.View
         } else {
             return null
         }
-    }, [postJson])
+    }, [postJson, quoteJson])
 
     const embedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
-        if (!postJson?.embed?.$type) {
+        if (!postView?.embed?.$type) {
             return null
         }
 
-        const embedType = postJson.embed.$type
+        const embedType = postView.embed.$type
 
         if (embedType === "app.bsky.embed.record#view") {
-            const embed = postJson.embed as AppBskyEmbedRecord.View
+            const embed = postView.embed as AppBskyEmbedRecord.View
 
             return embed
         } else {
             return null
         }
-    }, [postJson])
+    }, [postJson, quoteJson])
+
+    const embedRecordViewRecord = useMemo((): ViewRecord | null => {
+        const quoteEmbed = quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0 ? quoteJson?.embeds[0] : null
+        const embed = quoteEmbed || postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.record#view") {
+            return embed.record as ViewRecord
+        } else {
+            return null
+        }
+    }, [postJson, quoteJson])
 
     const handleImageClick = useCallback(
         (index: number) => {
@@ -283,11 +321,11 @@ export const ViewPostCard = (props: Props) => {
     )
 
     const renderTextWithLinks = useMemo(() => {
-        if (!postJson?.record) {
+        if (!postJsonData?.record && !quoteJson?.value) {
             return
         }
 
-        const record = postJson?.record as AppBskyFeedPost.Record
+        const record = (quoteJson?.value || postJsonData?.record) as AppBskyFeedPost.Record
 
         const encoder = new TextEncoder()
         const decoder = new TextDecoder()
@@ -482,7 +520,7 @@ export const ViewPostCard = (props: Props) => {
             result.push(textWithLineBreaks)
         }
         return result
-    }, [postJson])
+    }, [postJson, quoteJson])
 
     // function formatDate(inputDate: string): string {
     //     const date = new Date(inputDate);
@@ -532,8 +570,8 @@ export const ViewPostCard = (props: Props) => {
             //e.stopPropagation();
         } else {
             router.push(
-                `/profile/${postJson?.author.did}/post/${
-                    postJson?.uri.match(/\/(\w+)$/)?.[1] || ""
+                `/profile/${postJsonData?.author.did}/post/${
+                    postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
                 }`
             )
         }
@@ -546,7 +584,7 @@ export const ViewPostCard = (props: Props) => {
     }
 
     return (
-        <>
+        <div className={quoteJson ? quoteCardStyles.PostCardContainer({isMobile}) : ""}>
             <Modal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}
@@ -574,7 +612,7 @@ export const ViewPostCard = (props: Props) => {
                 post={postJson}
             />
             <main
-                className={`${PostCard({ color: color })} ${
+                className={`${quoteJson ? quoteCardStyles.PostCard({ color }) : PostCard({ color })} ${
                     isEmbedToModal
                         ? `bg-transparent border-none`
                         : `cursor-pointer`
@@ -607,7 +645,9 @@ export const ViewPostCard = (props: Props) => {
                             onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                router.push(`/profile/${postJson?.author.did}`)
+                                router.push(
+                                    `/profile/${postJsonData?.author.did}`
+                                )
                             }}
                         >
                             Reposted by{" "}
@@ -621,7 +661,9 @@ export const ViewPostCard = (props: Props) => {
                             onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                router.push(`/profile/${postJson?.author.did}`)
+                                router.push(
+                                    `/profile/${postJsonData?.author.did}`
+                                )
                             }}
                         >
                             {isSkeleton ? (
@@ -632,16 +674,16 @@ export const ViewPostCard = (props: Props) => {
                                 />
                             ) : (
                                 <>
-                                    {postJson?.author?.avatar ? (
+                                    {postJsonData?.author?.avatar ? (
                                         <Image
-                                            src={postJson?.author?.avatar}
+                                            src={postJsonData?.author?.avatar}
                                             //radius={"lg"}
                                             className={`${
                                                 isEmbedToModal
                                                     ? `z-[2]`
                                                     : `z-[0]`
                                             } rounded-[10px]`}
-                                            alt={postJson.author.did}
+                                            alt={postJsonData.author.did}
                                         />
                                     ) : (
                                         <FontAwesomeIcon
@@ -664,7 +706,9 @@ export const ViewPostCard = (props: Props) => {
                             onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                router.push(`/profile/${postJson?.author.did}`)
+                                router.push(
+                                    `/profile/${postJsonData?.author.did}`
+                                )
                             }}
                         >
                             {isSkeleton ? (
@@ -674,7 +718,7 @@ export const ViewPostCard = (props: Props) => {
                                     })}
                                 />
                             ) : (
-                                <span>{postJson?.author?.displayName}</span>
+                                <span>{postJsonData?.author?.displayName}</span>
                             )}
                         </span>
                         <div className={"text-[#BABABA]"}>&nbsp;-&nbsp;</div>
@@ -685,7 +729,9 @@ export const ViewPostCard = (props: Props) => {
                             onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                router.push(`/profile/${postJson?.author.did}`)
+                                router.push(
+                                    `/profile/${postJsonData?.author.did}`
+                                )
                             }}
                         >
                             {isSkeleton ? (
@@ -695,7 +741,7 @@ export const ViewPostCard = (props: Props) => {
                                     })}
                                 />
                             ) : (
-                                <span>{postJson?.author?.handle}</span>
+                                <span>{postJsonData?.author?.handle}</span>
                             )}
                         </span>
                         <div
@@ -732,24 +778,24 @@ export const ViewPostCard = (props: Props) => {
                                                 />
                                             }
                                             onClick={() => {
-                                                if (!postJson) {
+                                                if (!postJsonData) {
                                                     return
                                                 }
 
                                                 console.log(
                                                     `https://bsky.app/profile/${
-                                                        postJson.author.did
+                                                        postJsonData.author.did
                                                     }/post/${
-                                                        postJson.uri.match(
+                                                        postJsonData.uri.match(
                                                             /\/(\w+)$/
                                                         )?.[1] || ""
                                                     }`
                                                 )
                                                 navigator.clipboard.writeText(
                                                     `https://bsky.app/profile/${
-                                                        postJson.author.did
+                                                        postJsonData.author.did
                                                     }/post/${
-                                                        postJson.uri.match(
+                                                        postJsonData.uri.match(
                                                             /\/(\w+)$/
                                                         )?.[1] || ""
                                                     }`
@@ -774,9 +820,9 @@ export const ViewPostCard = (props: Props) => {
                                             Copy Post JSON
                                         </DropdownItem>
                                         <DropdownSection title="Danger zone">
-                                            {postJson &&
+                                            {postJsonData &&
                                             agent?.session?.did !==
-                                                postJson.author.did ? (
+                                                postJsonData.author.did ? (
                                                 <DropdownItem
                                                     key="delete"
                                                     className="text-danger"
@@ -814,9 +860,9 @@ export const ViewPostCard = (props: Props) => {
                                 <>
                                     {!isSkeleton && (
                                         <div>
-                                            {postJson &&
+                                            {postJsonData &&
                                                 formattedSimpleDate(
-                                                    postJson.indexedAt,
+                                                    postJsonData.indexedAt,
                                                     now || new Date()
                                                 )}
                                         </div>
@@ -889,10 +935,10 @@ export const ViewPostCard = (props: Props) => {
                                 ogpData={embedExternal.external}
                             />
                         )}
-                        {embedRecord && (
-                            <ViewQuoteCard
+                        {embedRecord && embedRecordViewRecord && (
+                            <ViewPostCard
                                 color={color}
-                                postJson={embedRecord.record}
+                                quoteJson={embedRecordViewRecord}
                             />
                         )}
                     </div>
@@ -1010,7 +1056,7 @@ export const ViewPostCard = (props: Props) => {
                     </div>
                 </div>
             </main>
-        </>
+        </div>
     )
 }
 
