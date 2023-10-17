@@ -505,30 +505,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     onChangeMenuIndex={onChangeMenuIndex}
                                 />
                             )}
-                            {/* <div
-                            className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${
-                                !isSideBarOpen && `hidden`
-                            }`}
-                            onClick={() => setIsSideBarOpen(false)}
-                        > */}
-                            {/*<animated.div
-                                className={`${isSideBarOpen && `openSideBar`} absolute h-full w-[70svw] min-w-[210px] max-w-[350px] bg-black z-[12] left-[-300px]`}
-                                style={{x: x}}
-                            >
-                                <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
-                            </animated.div>*/}
-                            {/* <div
-                                className={`${
-                                    isSideBarOpen && `openSideBar`
-                                } absolute h-[calc(100%)] w-[70svw] min-w-[210px] max-w-[350px] backdrop-blur-[5px] bg-black/40 z-[12] left-[-300px]`}
-                            >
-                                <ViewSideBar
-                                    color={color}
-                                    setSideBarOpen={setIsSideBarOpen}
-                                    isMobile={isMobile}
-                                />
-                            </div> */}
-                            {/* </div> */}
                             {shouldFillPageBackground === true && (
                                 <div
                                     className={`${
