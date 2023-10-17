@@ -1,15 +1,17 @@
-import "./globals.css"
 import type { Metadata } from "next"
-import { Noto_Sans_JP } from "next/font/google"
+// import { Noto_Sans_JP } from "next/font/google"
 import { Providers } from "./providers"
 import { AppConatiner } from "./appContainer"
 
-const noto = Noto_Sans_JP({
-    weight: ["400", "500", "600", "700", "900"],
-    subsets: ["latin"],
-    variable: "--font-noto-sans-jp",
-})
-export const metadata = {
+import "./globals.css"
+
+// const noto = Noto_Sans_JP({
+//     weight: ["400", "500", "600", "700", "900"],
+//     subsets: ["latin"],
+//     // variable: "--font-noto-sans-jp",
+// })
+
+export const metadata: Metadata = {
     title: "タイトル",
     description: "説明...",
     viewport: "width=device-width, initial-scale=1, maximum-scale=1",
@@ -55,9 +57,10 @@ export default function RootLayout({
                 <meta name="robots" content="noarchive,max-image-preview" />
             </head>
             <body
-                className={`${noto.className}`}
+                // className={`${noto.className}`}
                 style={{
                     overscrollBehaviorY: "none",
+                    overflowY: "auto",
                     WebkitOverflowScrolling: "touch",
                 }}
                 suppressHydrationWarning

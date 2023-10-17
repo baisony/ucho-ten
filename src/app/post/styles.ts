@@ -6,7 +6,7 @@ export const createPostPage = tv({
         backgroundColor: "w-full h-full absolute",
 
         PostModal:
-            "w-full min-w-[300px] max-w-[600px] h-full max-h-[350px] shadow-xl fontFamily-[Noto Sans JP] relative",
+            "w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
@@ -78,11 +78,11 @@ export const createPostPage = tv({
         isMobile: {
             true: {
                 PostModal: "rounded-none",
-                background: "flex justify-center",
+                background: "flex",
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px] ",
-                background: "relative flex justify-center items-center",
+                background: "flex",
             },
         },
         uploadImageAvailable: {

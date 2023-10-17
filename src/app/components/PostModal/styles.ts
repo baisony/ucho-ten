@@ -6,7 +6,7 @@ export const postModal = tv({
         backgroundColor: "w-full h-full bg-[#000000] bg-opacity-10 absolute",
 
         PostModal:
-            "w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl fontFamily-[Noto Sans JP] relative",
+            "w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
@@ -79,11 +79,11 @@ export const postModal = tv({
         isMobile: {
             true: {
                 PostModal: "rounded-none",
-                background: "flex justify-center",
+                background: "",
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px] ",
-                background: "relative flex justify-center items-center",
+                background: "",
             },
         },
         uploadImageAvailable: {

@@ -410,7 +410,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                                 "app.bsky.embed.external#view" && (
                                                 <Linkcard
                                                     color={color}
-                                                    OGPData={
+                                                    ogpData={
                                                         postJson.embed.external
                                                     }
                                                 />

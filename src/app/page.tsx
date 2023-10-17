@@ -1,60 +1,43 @@
 "use client"
 
-// import { TabBar } from "@/app/components/TabBar"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
-import { useAgent } from "@/app/_atoms/agent"
-import InfiniteScroll from "react-infinite-scroller"
-import { Spinner } from "@nextui-org/react"
-// import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
-import { useSearchParams } from "next/navigation"
+import React, { useEffect, useRef, useState } from "react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
-import { useWordMutes } from "@/app/_atoms/wordMute"
-import { AppBskyFeedGetTimeline } from "@atproto/api"
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination, Virtual } from "swiper/modules"
+import FeedPage from "./components/FeedPage/FeedPage"
+// import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
+import { useHeaderMenusAtom, useMenuIndexAtom } from "./_atoms/headerMenu"
 
-export default function Root(props: any) {
-    const [agent, setAgent] = useAgent()
+import "swiper/css"
+import "swiper/css/pagination"
+
+SwiperCore.use([Virtual])
+
+interface HTMLElementEvent<T extends HTMLElement> extends Event {
+    target: T
+}
+
+const Root = () => {
     const [appearanceColor] = useAppearanceColor()
-    const [muteWords] = useWordMutes()
+    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
+    const [headerMenus] = useHeaderMenusAtom()
 
-    const [loading, setLoading] = useState(false)
-    //const [loading2, setLoading2] = useState(false)
-    const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    const [hasMore, setHasMore] = useState<boolean>(false)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
-    const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
+    const [disableSlideVerticalScroll, setDisableSlideVerticalScroll] =
+        useState<boolean>(false)
 
-    const currentFeed = useRef<string>("")
-    // const newCursor = useRef<string>("")
-    const cursor = useRef<string>("")
+    const swiperRef = useRef<SwiperCore | null>(null)
 
-    const color = darkMode ? "dark" : "light"
+    const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
 
-    const searchParams = useSearchParams()
-    const selectedFeed = searchParams.get("feed") || "following"
+    const color: "dark" | "light" = darkMode ? "dark" : "light"
 
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
     }
-
-    useEffect(() => {
-        if (shouldScrollToTop) {
-            const infiniteScroll = document.getElementById("infinite-scroll")
-
-            if (infiniteScroll?.parentElement) {
-                infiniteScroll.parentElement.scrollTop = 0
-            }
-
-            setShouldScrollToTop(false)
-        }
-    }, [timeline])
 
     useEffect(() => {
         if (appearanceColor === "system") {
@@ -81,364 +64,116 @@ export default function Root(props: any) {
         }
     }, [])
 
-    const handleRefresh = () => {
-        setTimeline((currentTimeline) => {
-            if (currentTimeline !== null) {
-                const timeline = [...newTimeline, ...currentTimeline]
-
-                return timeline
-            } else {
-                return [...newTimeline]
-            }
-        })
-
-        // cursor.current = newCursor.current
-
-        setNewTimeline([])
-        setShouldScrollToTop(true)
-    }
-
-    const formattingTimeline = (timeline: FeedViewPost[]) => {
-        const seenUris = new Set<string>()
-        const filteredData = timeline.filter((item) => {
-            const uri = item.post.uri
-
-            // if (item.post.embed) {
-            //     console.log(item.post.embed)
-            // }
-
-            if (item.reply) {
-                if (item.reason) return true
-                if (
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                )
-                    return true
-                return false
-            }
-            //これはおそらくparentやrootがミュートユーザーの時、recordにreplyが入って、authorが自分ではない場合は非表示
-            if (
-                //@ts-ignore
-                item.post.record?.reply &&
-                item.post.author.did !== agent?.session?.did
-            )
-                return false
-            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
-            if (!seenUris.has(uri)) {
-                seenUris.add(uri)
-                return true
-            }
-            return false
-        })
-
-        return filteredData as FeedViewPost[]
-    }
-
-    const fetchTimeline = async (loadingFlag: boolean = true) => {
-        if (!agent) {
+    useEffect(() => {
+        if (!swiperRef.current) {
             return
         }
 
-        if (currentFeed.current !== selectedFeed) {
-            currentFeed.current = selectedFeed
-            cursor.current = ""
+        if (menuIndex !== swiperRef.current.activeIndex) {
+            swiperRef.current.slideTo(menuIndex)
         }
+    }, [menuIndex])
 
-        try {
-            setLoading(loadingFlag)
+    // useEffect(() => {
+    //     const handleTouchMove = (event: TouchEvent) => {
+    //         console.log("Scrolling")
+    //     }
 
-            let response: AppBskyFeedGetTimeline.Response
-            let timelineLength = 0
+    //     const handleTouchEnd = (event: TouchEvent) => {
+    //         console.log("Not Scrolling")
+    //     }
 
-            if (selectedFeed === "following") {
-                response = await agent.getTimeline({
-                    limit: 30,
-                    cursor: cursor.current || "",
-                })
-            } else {
-                response = await agent.app.bsky.feed.getFeed({
-                    feed: selectedFeed,
-                    cursor: cursor.current || "",
-                    limit: 30,
-                })
-            }
+    //     const swiperWrappers =
+    //         document.getElementsByClassName("swiper-wrapper")
 
-            if (response.data) {
-                const { feed } = response.data
-                const filteredData = formattingTimeline(feed)
-
-                if (currentFeed.current !== selectedFeed) {
-                    return
-                }
-
-                setTimeline((currentTimeline) => {
-                    if (currentTimeline !== null) {
-                        const newTimeline = [
-                            ...currentTimeline,
-                            ...filteredData,
-                        ]
-                        timelineLength = newTimeline.length
-
-                        return newTimeline
-                    } else {
-                        timelineLength = filteredData.length
-                        return [...filteredData]
-                    }
-                })
-            } else {
-                setTimeline([])
-                // もしresがundefinedだった場合の処理
-                console.log("Responseがundefinedです。")
-            }
-
-            setLoading(false)
-
-            cursor.current = response.data.cursor || ""
-
-            if (
-                response.data &&
-                cursor.current &&
-                cursor.current.length > 0 &&
-                timelineLength < 15
-            ) {
-                await fetchTimeline(false)
-            }
-
-            if (cursor.current.length > 0) {
-                setHasMore(true)
-            } else {
-                setHasMore(false)
-            }
-        } catch (e) {
-            setLoading(false)
-        }
-    }
-
-    const loadMore = async (page: number) => {
-        await fetchTimeline(false)
-    }
-
-    // const loadMore = useCallback(
-    //     async (page: any) => {
-    //         if (!agent) return
-    //         if (!cursor.current) return
-
-    //         console.log("loadMore")
-
-    //         try {
-    //             setLoading2(true)
-    //             let data
-    //             if (selectedFeed === "following") {
-    //                 ;({ data } = await agent.getTimeline({
-    //                     cursor: !hasCursor ? cursor.current : hasCursor,
-    //                     limit: 30,
-    //                 }))
-    //             } else {
-    //                 ;({ data } = await agent.app.bsky.feed.getFeed({
-    //                     feed: selectedFeed,
-    //                     cursor: !hasCursor ? cursor.current : hasCursor,
-    //                     limit: 30,
-    //                 }))
-    //             }
-
-    //             const { feed } = data
-
-    //             if (data.cursor) {
-    //                 setHasCursor(data.cursor)
-    //             }
-
-    //             const filteredData = FormattingTimeline(feed)
-    //             const diffTimeline = filteredData.filter((newItem) => {
-    //                 if (!timeline) {
-    //                     return true
-    //                 }
-
-    //                 return !timeline.some(
-    //                     (oldItem) => oldItem.post === newItem.post
-    //                 )
-    //             })
-
-    //             console.log(timeline)
-    //             console.log(diffTimeline)
-
-    //             //取得データをリストに追加
-    //             if (timeline) {
-    //                 setTimeline([...timeline, ...diffTimeline])
-    //             } else {
-    //                 setTimeline([...diffTimeline])
-    //             }
-    //             setLoading2(false)
-    //         } catch (e) {
-    //             setLoading2(false)
-    //             console.log(e)
+    //     Array.from(swiperWrappers).forEach((wrapper: Element) => {
+    //         if (wrapper instanceof HTMLDivElement) {
+    //             console.log("touch moving")
+    //             wrapper.addEventListener("touchmove", handleTouchMove)
     //         }
-    //     },
-    //     [agent, timeline, hasCursor, selectedFeed]
-    // )
+    //     })
 
-    const checkNewTimeline = async () => {
-        if (!agent) {
-            return
-        }
+    //     Array.from(swiperWrappers).forEach((wrapper: Element) => {
+    //         if (wrapper instanceof HTMLDivElement) {
+    //             console.log("touch end")
+    //             wrapper.addEventListener("touchend", handleTouchEnd)
+    //         }
+    //     })
 
-        try {
-            let response: AppBskyFeedGetTimeline.Response
-
-            if (selectedFeed === "following") {
-                response = await agent.getTimeline({ limit: 30 })
-            } else {
-                response = await agent.app.bsky.feed.getFeed({
-                    feed: selectedFeed,
-                    limit: 30,
-                })
-            }
-
-            if (currentFeed.current !== selectedFeed) {
-                return
-            }
-
-            if (response.data) {
-                const { feed } = response.data
-                const filteredData = formattingTimeline(feed)
-
-                if (
-                    response.data.cursor &&
-                    response.data.cursor !== cursor.current
-                    //&& response.data.cursor !== newCursor.current
-                ) {
-                    // newCursor.current = response.data.cursor
-
-                    const diffTimeline = filteredData.filter((newItem) => {
-                        if (!timeline) {
-                            return true
-                        }
-
-                        return !timeline.some(
-                            (oldItem) => oldItem.post.uri === newItem.post.uri
-                        )
-                    })
-
-                    setNewTimeline(diffTimeline)
-                }
-            }
-        } catch (e) {}
-    }
+    //     // Clean up event listeners
+    //     return () => {
+    //         Array.from(swiperWrappers).forEach((wrapper: Element) => {
+    //             if (wrapper instanceof HTMLDivElement) {
+    //                 wrapper.removeEventListener("touchmove", handleTouchMove)
+    //             }
+    //         })
+    //     }
+    // }, [swiperRef.current])
 
     useEffect(() => {
-        cursor.current = ""
-        setLoading(true)
-        setTimeline(null)
-        setShouldScrollToTop(true)
+        const hasValidInfo = headerMenus.every(
+            (item) => item.info === "following" || item.info.startsWith("at://")
+        )
 
-        setNewTimeline([])
-
-        if (!agent) {
-            return
+        if (hasValidInfo) {
+            setIsAvailableMenus(true)
         }
-
-        fetchTimeline()
-    }, [agent, selectedFeed])
-
-    useEffect(() => {
-        console.log("here")
-        const interval = setInterval(() => {
-            checkNewTimeline()
-        }, 15000)
-
-        return () => {
-            clearInterval(interval)
-        }
-    }, [agent, selectedFeed])
+    }, [headerMenus])
 
     return (
-        <>
-            {newTimeline.length > 0 && (
-                <div
-                    className={
-                        " absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
-                    }
-                >
-                    <div
-                        className={
-                            "text-black  bg-blue-50 rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px]"
-                        }
-                        onClick={handleRefresh}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} /> New Posts
-                    </div>
-                </div>
-            )}
+        isAvailableMenus && (
             <>
-                <InfiniteScroll
-                    id="infinite-scroll"
-                    initialLoad={false}
-                    loadMore={loadMore}
-                    hasMore={hasMore}
-                    loader={
-                        <div
-                            key="spinner-home"
-                            className="flex justify-center mt-2 mb-2"
-                        >
-                            <Spinner />
-                        </div>
-                    }
-                    threshold={700}
-                    useWindow={false}
+                <Swiper
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper
+                    }}
+                    cssMode={isMobile}
+                    virtual={true}
+                    pagination={{ type: "custom", clickable: false }}
+                    hidden={true} // ??
+                    modules={[Pagination]}
+                    className="swiper-home"
+                    style={{ height: "100%" }}
+                    touchAngle={30}
+                    touchRatio={0.8}
+                    touchReleaseOnEdges={true}
+                    touchMoveStopPropagation={true}
+                    preventInteractionOnTransition={true}
+                    onSlideChange={(swiper) => {
+                        setMenuIndex(swiper.activeIndex)
+                    }}
                 >
-                    {(loading || !timeline) &&
-                        Array.from({ length: 15 }, (_, index) => (
-                            <ViewPostCard
-                                key={`skeleton-${index}`}
-                                color={color}
-                                numbersOfImage={0}
-                                postJson={null}
-                                isMobile={isMobile}
-                                isSkeleton={true}
-                            />
-                        ))}
-                    {!loading &&
-                        timeline &&
-                        timeline.map((post, index) => {
-                            // Check if post.record.text contains muteWords
-                            const isMuted =
-                                (post.post.record as PostView)?.text &&
-                                muteWords.some((muteWord) => {
-                                    //console.log(muteWord)
-                                    return (
-                                        muteWord.isActive &&
-                                        muteWord.targets.includes("timeline") &&
-                                        (
-                                            (post.post.record as PostView)
-                                                ?.text as string
-                                        )?.includes(muteWord.word)
-                                    )
-                                })
-                            if (!isMuted) {
-                                // Render the post if it's not muted
-                                return (
-                                    <ViewPostCard
-                                        key={`${
-                                            post?.reason
-                                                ? `reason-${
-                                                      (post.reason as any).by
-                                                          .did
-                                                  }`
-                                                : `post`
-                                        }-${post.post.uri}`}
-                                        color={color}
-                                        numbersOfImage={0}
-                                        postJson={post.post}
-                                        json={post}
-                                        isMobile={isMobile}
-                                        now={now}
+                    {headerMenus.map((menu, index) => {
+                        return (
+                            <SwiperSlide
+                                key={`swiperslide-home-${index}`}
+                                virtualIndex={index}
+                            >
+                                <div
+                                    id={`swiperIndex-div-${index}`}
+                                    key={index}
+                                    style={{
+                                        overflowY: "auto",
+                                        height: "100%",
+                                    }}
+                                >
+                                    <FeedPage
+                                        {...{
+                                            isActive: menuIndex === index,
+                                            feedKey: menu.info,
+                                            color,
+                                            disableSlideVerticalScroll,
+                                            now,
+                                        }}
                                     />
-                                )
-                            }
-                        })}
-                </InfiniteScroll>
+                                </div>
+                            </SwiperSlide>
+                        )
+                    })}
+                </Swiper>
             </>
-        </>
+        )
     )
 }
+
+export default Root

@@ -1,6 +1,7 @@
 "use client"
+
 import { ViewHeader } from "@/app/components/ViewHeader"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState, useMemo } from "react"
 import { layout } from "@/app/styles"
 import { TabBar } from "@/app/components/TabBar"
 import { isMobile } from "react-device-detect"
@@ -16,21 +17,32 @@ import { BskyAgent } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "./_atoms/preferences"
 import { useImageGalleryAtom } from "./_atoms/imageGallery"
+import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
 import Lightbox, {
     CaptionsRef,
     Slide,
     ZoomRef,
 } from "yet-another-react-lightbox"
-import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
+
+import { push as BurgerPush, slide as BurgerSlide } from "react-burger-menu"
+
 import "yet-another-react-lightbox/styles.css"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
+import {
+    HeaderMenu,
+    useHeaderMenusAtom,
+    useMenuIndexAtom,
+} from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
-    //ここでsession作っておかないとpost画面を直で行った時にpostできないため
+    const router = useRouter()
+    const pathName = usePathname()
+    const searchParams = useSearchParams()
+
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords, setMuteWords] = useWordMutes()
@@ -40,9 +52,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [feedGenerators, setFeedGenerators] = useFeedGeneratorsAtom()
-    const router = useRouter()
-    const pathName = usePathname()
-    const searchParams = useSearchParams()
+
     const target = searchParams.get("target")
     const [value, setValue] = useState(false)
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
@@ -54,24 +64,55 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
               pathName === "/post"
             ? pathName.replace("/", "")
             : "home"
-    //@ts-ignore
+    const [menus, setMenus] = useHeaderMenusAtom()
+    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
     const [selectedTab, setSelectedTab] = useState<string>(tab)
-    const [searchText, setSearchText] = useState("")
+    const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(isMatchingPath)
-    const { background } = layout()
-    const [darkMode, setDarkMode] = useState(false)
+    const [page, setPage] = useState<
+        "profile" | "home" | "inbox" | "post" | "search"
+    >("home")
+    const [darkMode, setDarkMode] = useState<boolean>(false)
+    const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
+    const [history, setHistory] = useState([pathName, ""])
+
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
     const color = darkMode ? "dark" : "light"
 
-    const [page, setPage] = useState<"profile" | "home" | "post" | "search">(
-        "home"
-    )
-    const [history, setHistory] = useState([pathName, ""])
+    const { background } = layout()
+
+    useEffect(() => {
+        if (isMobile) {
+            return
+        }
+
+        const handleKeyDown = (event: any) => {
+            // FIXME: do not use 'any' as type
+            if (
+                (event.key === "n" || event.key === "N") &&
+                pathName !== "/post"
+            ) {
+                event.preventDefault()
+                router.push("/post")
+            }
+
+            if (event.key === "Escape" && pathName === "/post") {
+                event.preventDefault()
+                router.back()
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [router, pathName])
 
     useEffect(() => {
         setHistory([pathName, history[0]])
@@ -207,7 +248,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             setPage("post")
             setSelectedTab("post")
         } else if (pathName.startsWith("/inbox")) {
-            setPage("home") // TODO: ??
+            setPage("inbox") // TODO: ??
             setSelectedTab("inbox")
         } else {
             setPage("home")
@@ -232,6 +273,21 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             setImageSlides(slides)
         }
     }, [imageGallery])
+
+    const shouldFillPageBackground = useMemo((): boolean => {
+        if (pathName.startsWith("/login")) {
+            return false
+        } else if (
+            pathName.startsWith("/search") &&
+            !searchParams.get("word")
+        ) {
+            return false
+        } else if (pathName.startsWith("/post")) {
+            return false
+        } else {
+            return true
+        }
+    }, [pathName, searchParams])
 
     useEffect(() => {
         if (muteWords.length === 0) return
@@ -277,121 +333,369 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const bind = useDrag(({ down, offset: [ox, oy] }) => api.start({ x: ox, y: oy, immediate: down }), {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
     })*/
-    console.log(isMatchingPath)
+
+    const onChangeMenuIndex = (index: number) => {
+        setMenuIndex(index)
+    }
+
+    useEffect(() => {
+        if (!feedGenerators || pathName !== "/") {
+            return
+        }
+
+        const menus: HeaderMenu[] = feedGenerators.map((feed) => {
+            return {
+                displayText: feed.displayName,
+                info: feed.uri,
+            }
+        })
+
+        menus.unshift({
+            displayText: "Following",
+            info: "following",
+        })
+
+        setMenus(menus)
+
+        console.log(menus)
+
+        setMenuIndex(0)
+    }, [pathName, feedGenerators])
+
+    useEffect(() => {
+        if (pathName === "/search") {
+            const menus: HeaderMenu[] = [
+                {
+                    displayText: "Posts",
+                    info: "posts",
+                },
+                {
+                    displayText: "Feeds",
+                    info: "feeds",
+                },
+                {
+                    displayText: "Users",
+                    info: "users",
+                },
+            ]
+            setMenus(menus)
+
+            switch (searchParams.get("target")) {
+                case "posts":
+                    setMenuIndex(0)
+                    break
+                case "feed":
+                    setMenuIndex(1)
+                    break
+                case "users":
+                    setMenuIndex(2)
+                    break
+                default:
+                    setMenuIndex(0)
+                    break
+            }
+        } else if (pathName === "/inbox") {
+            const menus: HeaderMenu[] = [
+                {
+                    displayText: "Inbox",
+                    info: "inbox",
+                },
+            ]
+            setMenus(menus)
+            setMenuIndex(0)
+        } else if (pathName !== "/") {
+            const menus: HeaderMenu[] = [
+                {
+                    displayText: "",
+                    info: "",
+                },
+            ]
+            setMenus(menus)
+            setMenuIndex(0)
+        }
+    }, [pathName, searchParams])
+
+    const setSideBarOpen = (isOpen: boolean) => {
+        setDrawerOpen(isOpen)
+    }
+
+    const burgerMenuStyles = {
+        bmBurgerButton: {
+            position: "fixed",
+            width: "0",
+            height: "0",
+            left: "0",
+            top: "0",
+        },
+        bmBurgerBars: {
+            // background: '#373a47'
+        },
+        bmBurgerBarsHover: {
+            // background: '#a90000'
+        },
+        bmCrossButton: {
+            height: "0",
+            width: "0",
+        },
+        bmCross: {
+            // background: '#bdc3c7'
+        },
+        bmMenuWrap: {
+            // overflowX: "hidden",
+            // position: "fixed",
+            // height: "100%",
+        },
+        bmMenu: {
+            // background: '#373a47',
+            // padding: '2.5em 1.5em 0',
+            // fontSize: '1.15em'
+        },
+        bmMorphShape: {
+            // fill: '#373a47'
+        },
+        bmItemList: {
+            // color: '#b8b7ad',
+            // padding: '0.8em'
+        },
+        bmItem: {},
+        bmOverlay: { background: "transparent" },
+    }
 
     return (
         <HistoryContext.Provider value={history}>
-            <main className={background({ color: color, isMobile: isMobile })}>
-                <div
-                    className={
-                        "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
-                    }
-                >
-                    {!showTabBar && (
-                        <ViewHeader
-                            color={color}
-                            page={page}
-                            tab={selectedTab}
-                            setSideBarOpen={setIsSideBarOpen}
-                            setSearchText={setSearchText}
-                            selectedTab={selectedTab}
-                        />
-                    )}
-                    <div
-                        className={`z-[11] bg-black bg-opacity-50 absolute h-full w-full ${
-                            !isSideBarOpen && `hidden`
-                        }`}
-                        onClick={() => setIsSideBarOpen(false)}
-                    >
-                        {/*<animated.div
-                            className={`${isSideBarOpen && `openSideBar`} absolute h-full w-[70svw] min-w-[210px] max-w-[350px] bg-black z-[12] left-[-300px]`}
-                            style={{x: x}}
-                        >
-                            <ViewSideBar color={color} setSideBarOpen={setIsSideBarOpen} isMobile={isMobile}/>
-                        </animated.div>*/}
-                        <div
-                            className={`${
-                                isSideBarOpen && `openSideBar`
-                            } absolute h-[calc(100%)] w-[70svw] min-w-[210px] max-w-[350px] backdrop-blur-[5px] bg-black/40 z-[12] left-[-300px]`}
+            <div
+                // className={`${noto.className}`}
+                className={`${
+                    color === "light"
+                        ? "bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)]"
+                        : "bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]"
+                }`}
+            >
+                <div id="burger-outer-container">
+                    {isMobile ? (
+                        <BurgerPush
+                            className={"backdrop-blur-[5px]"}
+                            outerContainerId="burger-outer-container"
+                            pageWrapId="main-container"
+                            styles={burgerMenuStyles}
+                            isOpen={drawerOpen}
+                            onClose={() => {
+                                setDrawerOpen(false)
+                            }}
                         >
                             <ViewSideBar
                                 color={color}
-                                setSideBarOpen={setIsSideBarOpen}
+                                isSideBarOpen={drawerOpen}
+                                setSideBarOpen={setSideBarOpen}
                                 isMobile={isMobile}
                             />
-                        </div>
-                    </div>
-                    <div
-                        className={`${showTabBar ? `pt-[0px]` : `pt-[100px]`} 
-                        ${
-                            !isMatchingPath ? `h-[calc(100%-50px)]` : `h-full`
-                        } overflow-y-scroll`}
-                    >
-                        {children}
-                    </div>
-                    {!showTabBar && (
-                        <TabBar
-                            color={color}
-                            selected={selectedTab}
-                            setValue={setSelectedTab}
-                        />
+                        </BurgerPush>
+                    ) : (
+                        <BurgerSlide
+                            className={"backdrop-blur-[5px]"}
+                            outerContainerId="burger-outer-container"
+                            pageWrapId="main-container"
+                            styles={burgerMenuStyles}
+                            isOpen={drawerOpen}
+                            onClose={() => {
+                                setDrawerOpen(false)
+                            }}
+                        >
+                            <ViewSideBar
+                                color={color}
+                                isSideBarOpen={drawerOpen}
+                                setSideBarOpen={setSideBarOpen}
+                                isMobile={isMobile}
+                            />
+                        </BurgerSlide>
                     )}
-                </div>
-            </main>
-            {imageSlides && imageSlideIndex !== null && (
-                <div
-                    onClick={(e) => {
-                        const clickedElement = e.target as HTMLDivElement
 
-                        console.log(e.target)
-                        if (
-                            clickedElement.classList.contains(
-                                "yarl__fullsize"
-                            ) ||
-                            clickedElement.classList.contains(
-                                "yarl__flex_center"
-                            )
-                        ) {
-                            setImageGallery(null)
-                            setImageSlides(null)
-                            setImageSlideIndex(null)
-                        }
-                    }}
-                >
-                    <Lightbox
-                        open={true}
-                        index={imageSlideIndex}
-                        plugins={[Zoom, Captions, Counter]}
-                        zoom={{
-                            ref: zoomRef,
-                            scrollToZoom: true,
+                    <main
+                        id="main-container"
+                        className={background({
+                            color: color,
+                            isMobile: isMobile,
+                        })}
+                        onClick={() => {
+                            setSideBarOpen(false)
                         }}
-                        captions={{
-                            ref: captionsRef,
-                            showToggle: true,
-                            descriptionMaxLines: 2,
-                            descriptionTextAlign: "start",
-                        }}
-                        close={() => {
-                            setImageGallery(null)
-                            setImageSlides(null)
-                            setImageSlideIndex(null)
-                        }}
-                        slides={imageSlides}
-                        carousel={{ finite: imageSlides.length <= 5 }}
-                        render={{
-                            buttonPrev:
-                                imageSlides.length <= 1
-                                    ? () => null
-                                    : undefined,
-                            buttonNext:
-                                imageSlides.length <= 1
-                                    ? () => null
-                                    : undefined,
-                        }}
-                    />
+                    >
+                        {shouldFillPageBackground && (
+                            <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                <div
+                                    className={`${
+                                        color === "dark"
+                                            ? "bg-[#2C2C2C]"
+                                            : "bg-white"
+                                    } w-full max-w-[600px] mt-[100px] h-[calc(100%-100px)]`}
+                                />
+                            </div>
+                        )}
+                        <div
+                            className={
+                                "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                            }
+                        >
+                            {!showTabBar && (
+                                <ViewHeader
+                                    color={color}
+                                    page={page}
+                                    tab={selectedTab}
+                                    setSideBarOpen={setSideBarOpen}
+                                    setSearchText={setSearchText}
+                                    selectedTab={selectedTab}
+                                    menuIndex={menuIndex}
+                                    menus={menus}
+                                    onChangeMenuIndex={onChangeMenuIndex}
+                                />
+                            )}
+                            <div
+                                className={`${
+                                    pathName === "/" || pathName === "/login"
+                                        ? "h-[calc(100%)]"
+                                        : showTabBar
+                                        ? `pt-[0px] h-[calc(100%-50px)] mb-[50px]`
+                                        : `pt-[100px] h-[calc(100%-150px)]`
+                                }`}
+                            >
+                                {children}
+                            </div>
+                            {!showTabBar && (
+                                <TabBar
+                                    color={color}
+                                    selected={selectedTab}
+                                    setValue={setSelectedTab}
+                                />
+                            )}
+                        </div>
+                        {imageSlides && imageSlideIndex !== null && (
+                            <div
+                                onClick={(e) => {
+                                    const clickedElement =
+                                        e.target as HTMLDivElement
+
+                                    console.log(e.target)
+                                    if (
+                                        clickedElement.classList.contains(
+                                            "yarl__fullsize"
+                                        ) ||
+                                        clickedElement.classList.contains(
+                                            "yarl__flex_center"
+                                        )
+                                    ) {
+                                        setImageGallery(null)
+                                        setImageSlides(null)
+                                        setImageSlideIndex(null)
+                                    }
+                                }}
+                            >
+                                <Lightbox
+                                    open={true}
+                                    index={imageSlideIndex}
+                                    plugins={[Zoom, Captions, Counter]}
+                                    zoom={{
+                                        ref: zoomRef,
+                                        scrollToZoom: true,
+                                    }}
+                                    captions={{
+                                        ref: captionsRef,
+                                        showToggle: true,
+                                        descriptionMaxLines: 2,
+                                        descriptionTextAlign: "start",
+                                    }}
+                                    close={() => {
+                                        setImageGallery(null)
+                                        setImageSlides(null)
+                                        setImageSlideIndex(null)
+                                    }}
+                                    slides={imageSlides}
+                                    carousel={{
+                                        finite: imageSlides.length <= 5,
+                                    }}
+                                    render={{
+                                        buttonPrev:
+                                            imageSlides.length <= 1
+                                                ? () => null
+                                                : undefined,
+                                        buttonNext:
+                                            imageSlides.length <= 1
+                                                ? () => null
+                                                : undefined,
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </main>
                 </div>
-            )}
+            </div>
         </HistoryContext.Provider>
     )
 }
+
+// interface BurgerSiderBarProps {
+//     isMobile: boolean
+// }
+
+// const BurgerSiderBar: React.FC<BurgerSiderBarProps> = (
+//     children,
+//     { isMobile }
+// ) => {
+//     const burgerMenuStyles = {
+//         bmBurgerButton: {
+//             position: "fixed",
+//             width: "0",
+//             height: "0",
+//             left: "0",
+//             top: "0",
+//         },
+//         bmBurgerBars: {
+//             // background: '#373a47'
+//         },
+//         bmBurgerBarsHover: {
+//             // background: '#a90000'
+//         },
+//         bmCrossButton: {
+//             height: "0",
+//             width: "0",
+//         },
+//         bmCross: {
+//             // background: '#bdc3c7'
+//         },
+//         bmMenuWrap: {
+//             // overflowX: "hidden",
+//             // position: "fixed",
+//             // height: "100%",
+//         },
+//         bmMenu: {
+//             // background: '#373a47',
+//             // padding: '2.5em 1.5em 0',
+//             // fontSize: '1.15em'
+//         },
+//         bmMorphShape: {
+//             // fill: '#373a47'
+//         },
+//         bmItemList: {
+//             // color: '#b8b7ad',
+//             // padding: '0.8em'
+//         },
+//         bmItem: {},
+//         bmOverlay: { background: "transparent" },
+//     }
+
+//     return (
+//         <>
+//             <BurgerPush
+//                 className={"backdrop-blur-[5px]"}
+//                 outerContainerId="burger-outer-container"
+//                 pageWrapId="main-container"
+//                 // styles={burgerMenuStyles}
+//                 // isOpen={drawerOpen}
+//                 // onClose={() => {
+//                 //     setDrawerOpen(false)
+//                 // }}
+//             >
+//                 {children}
+//             </BurgerPush>
+//         </>
+//     )
+// }

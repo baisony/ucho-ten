@@ -9,13 +9,19 @@ import {
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
-import { Button, ScrollShadow } from "@nextui-org/react"
-import { Tabs, Tab, Chip } from "@nextui-org/react"
+import { Button, ScrollShadow, menu } from "@nextui-org/react"
+// import { Tabs, Tab, Chip } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useAgent } from "@/app/_atoms/agent"
-import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
-import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+// import { useAgent } from "@/app/_atoms/agent"
+// import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
+// import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import Slider, { Settings } from "react-slick"
+
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
+
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
+import { HeaderMenu } from "@/app/_atoms/headerMenu"
 
 interface Props {
     className?: string
@@ -28,13 +34,18 @@ interface Props {
     setSideBarOpen?: any
     selectedTab: string
     setSearchText?: any
+    menuIndex: number
+    menus: HeaderMenu[]
+    onChangeMenuIndex: (index: number) => void
 }
 
 export const ViewHeader: React.FC<Props> = (props: Props) => {
-    const [agent] = useAgent()
-    const [userPreferences] = useUserPreferencesAtom()
-    const [feedGenerators] = useFeedGeneratorsAtom()
-    const pathname = usePathname()
+    // const [agent] = useAgent()
+    // const [userPreferences] = useUserPreferencesAtom()
+    // const pathname = usePathname()
+    const router = useRouter()
+    // const [menus] = useHeaderMenusAtom()
+
     const {
         className,
         color,
@@ -45,18 +56,20 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         isNextPage,
         setSideBarOpen,
         selectedTab,
+        menuIndex,
+        onChangeMenuIndex,
+        menus,
     } = props
-    const router = useRouter()
+
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState("")
     const target = searchParams.get("target")
-    const selectedFeed = searchParams.get("feed") || "following"
-    // const [loading, setLoading] = useState(false)
-    const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
+    // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
-    const [pinnedFeeds, setPinnedFeeds] = useState<any[] | null>(null)
+
+    const sliderRef = useRef<Slider>(null)
 
     const {
         Header,
@@ -66,23 +79,39 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         bottom,
         HeaderInputArea,
     } = viewHeader()
+
     // const AppearanceColor = color
 
-    useEffect(() => {
-        if (feedGenerators) {
-            setPinnedFeeds(feedGenerators)
-        }
-    }, [feedGenerators])
+    const sliderSettings: Settings = {
+        // centerMode: true,
+        infinite: false,
+        centerPadding: "0",
+        // slidesToShow: 5,
+        // speed: 500,
+        // focusOnSelect: true,
+        slidesToScroll: 1,
+        variableWidth: true,
+        arrows: false,
+        focusOnSelect: true,
+    }
 
     useEffect(() => {
         const search = searchParams.get("word")
-        if (!search) return
+
+        if (!search) {
+            return
+        }
+
         setSearchText(search)
     }, [])
 
-    const handleHomeTopTabSelectionChange = (e: Key) => {
-        router.push(`/?feed=${e}`)
-    }
+    useEffect(() => {
+        if (!sliderRef.current) {
+            return
+        }
+
+        sliderRef.current.slickGoTo(menuIndex)
+    }, [menuIndex])
 
     return (
         <main className={Header()}>
@@ -97,9 +126,10 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         />
                     }
                     onClick={() => {
-                        setIsSideBarOpen(!isSideBarOpen)
+                        //setIsSideBarOpen(!isSideBarOpen)
                         //console.log(setValue)
-                        props.setSideBarOpen(true)
+                        setSideBarOpen(true)
+                        console.log("setSideBarOpen")
                     }}
                 />
                 {selectedTab === "search" && (
@@ -171,13 +201,38 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     />
                 )}
             </div>
-            <ScrollShadow
+            {/* <ScrollShadow
                 className={bottom({ page: page })}
-                style={{ overflowX: "scroll", overflowY: "hidden" }}
+                offset={100}
+                // style={{ overflowX: "scroll", overflowY: "hidden" }}
                 orientation="horizontal"
                 hideScrollBar
+            > */}
+            <Slider
+                ref={sliderRef}
+                {...sliderSettings}
+                className={bottom({ page: page })}
             >
-                {selectedTab === "home" && pinnedFeeds && (
+                {menus.map((menu: HeaderMenu, index) => (
+                    <div
+                        key={`view-header-menu-${index}`}
+                        onClick={() => {
+                            onChangeMenuIndex(index)
+                        }}
+                    >
+                        <div
+                            className={`flex items-center pl-[15px] pr-[15px] ${
+                                menuIndex === index
+                                    ? "text-white"
+                                    : "text-[#909090]"
+                            }`}
+                        >
+                            {menu.displayText}
+                        </div>
+                    </div>
+                ))}
+            </Slider>
+            {/* {selectedTab === "home" && pinnedFeeds && (
                     <Tabs
                         aria-label="Options"
                         color="primary"
@@ -347,8 +402,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             }
                         />
                     </Tabs>
-                )}
-            </ScrollShadow>
+                )} */}
+            {/* </ScrollShadow> */}
         </main>
     )
 }
