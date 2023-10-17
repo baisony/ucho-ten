@@ -408,7 +408,6 @@ export const ViewPostCard = (props: Props) => {
                             key={`link-${index}-${byteStart}`}
                             className={"text-blue-500"}
                             onClick={(e) => {
-                                e.preventDefault()
                                 e.stopPropagation()
                                 router.push(`/profile/${facet.features[0].did}`)
                             }}
@@ -474,7 +473,6 @@ export const ViewPostCard = (props: Props) => {
                                     <span
                                         key={`a-${index}-${byteStart}`}
                                         onClick={(e) => {
-                                            e.preventDefault()
                                             e.stopPropagation()
                                             router.push(
                                                 facet.features[0].uri.replace(
@@ -488,7 +486,7 @@ export const ViewPostCard = (props: Props) => {
                                     </span>
                                 ) : (
                                     <a
-                                        onMouseUp={(e) => e.stopPropagation()}
+                                        onClick={(e) => e.stopPropagation()}
                                         key={`a-${index}-${byteStart}`}
                                         href={facet.features[0].uri}
                                         target={"_blank"}
@@ -516,7 +514,6 @@ export const ViewPostCard = (props: Props) => {
                                 <span
                                     key={`a-${index}-${byteStart}`}
                                     onClick={(e) => {
-                                        e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
                                             `/search?word=%23${facet.features[0].tag.replace(
@@ -597,7 +594,8 @@ export const ViewPostCard = (props: Props) => {
                             : `cursor-pointer`
                     }`}
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.stopPropagation()
                         router.push(
                             `/profile/${postJsonData?.author.did}/post/${
                                 postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
@@ -622,7 +620,6 @@ export const ViewPostCard = (props: Props) => {
                                     "text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer"
                                 }
                                 onClick={(e) => {
-                                    e.preventDefault()
                                     e.stopPropagation()
                                     router.push(
                                         `/profile/${postJsonData?.author.did}`
@@ -638,7 +635,6 @@ export const ViewPostCard = (props: Props) => {
                             <span
                                 className={PostAuthorIcon()}
                                 onClick={(e) => {
-                                    e.preventDefault()
                                     e.stopPropagation()
                                     router.push(
                                         `/profile/${postJsonData?.author.did}`
@@ -685,7 +681,6 @@ export const ViewPostCard = (props: Props) => {
                                 })}
                                 style={{ fontSize: "13px" }}
                                 onClick={(e) => {
-                                    e.preventDefault()
                                     e.stopPropagation()
                                     router.push(
                                         `/profile/${postJsonData?.author.did}`
@@ -712,7 +707,6 @@ export const ViewPostCard = (props: Props) => {
                                     color: color,
                                 })}
                                 onClick={(e) => {
-                                    e.preventDefault()
                                     e.stopPropagation()
                                     router.push(
                                         `/profile/${postJsonData?.author.did}`
@@ -945,13 +939,11 @@ export const ViewPostCard = (props: Props) => {
                                         <FontAwesomeIcon
                                             icon={faComment}
                                             className={PostReactionButton()}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation()
                                                 setHandleButtonClick(true)
                                                 handleReply()
                                             }}
-                                            onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                            }
                                         />
                                         <FontAwesomeIcon
                                             icon={faRetweet}
@@ -961,13 +953,11 @@ export const ViewPostCard = (props: Props) => {
                                                     : "#909090",
                                             }}
                                             className={PostReactionButton()}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation()
                                                 setHandleButtonClick(true)
                                                 handleRepost()
                                             }}
-                                            onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                            }
                                         />
                                         <FontAwesomeIcon
                                             icon={
@@ -981,13 +971,11 @@ export const ViewPostCard = (props: Props) => {
                                                     : "#909090",
                                             }}
                                             className={PostReactionButton()}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation()
                                                 setHandleButtonClick(true)
                                                 handleLike()
                                             }}
-                                            onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                            }
                                         />
                                     </>
                                 )}
@@ -1002,13 +990,11 @@ export const ViewPostCard = (props: Props) => {
                                                         : "none",
                                             }}
                                             className={PostReactionButton()}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation()
                                                 setHandleButtonClick(true)
                                                 handleReply()
                                             }}
-                                            onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                            }
                                         />
                                         <FontAwesomeIcon
                                             icon={faRetweet}
@@ -1024,13 +1010,11 @@ export const ViewPostCard = (props: Props) => {
                                                         : "none",
                                             }}
                                             className={PostReactionButton()}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation()
                                                 setHandleButtonClick(true)
                                                 handleRepost()
                                             }}
-                                            onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                            }
                                         />
                                         <FontAwesomeIcon
                                             icon={
@@ -1050,13 +1034,11 @@ export const ViewPostCard = (props: Props) => {
                                                         : "none",
                                             }}
                                             className={PostReactionButton()}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation()
                                                 setHandleButtonClick(true)
                                                 handleLike()
                                             }}
-                                            onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                            }
                                         />
                                     </>
                                 )}
@@ -1091,8 +1073,8 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
                         className="w-full h-full z-0 object-cover"
                         src={image.thumb}
                         alt={image.alt}
-                        onMouseUp={(e) => e.stopPropagation()}
                         onClick={(e) => {
+                            e.stopPropagation()
                             onImageClick(index)
                         }}
                     />
@@ -1131,8 +1113,8 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
                             className="w-full h-full z-0 object-cover"
                             src={image.thumb}
                             alt={image.alt}
-                            onMouseUp={(e) => e.stopPropagation()}
                             onClick={(e) => {
+                                e.stopPropagation()
                                 onImageClick(index)
                             }}
                         />
