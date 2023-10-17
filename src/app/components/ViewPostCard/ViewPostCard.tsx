@@ -1199,11 +1199,11 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
                         />
                     </div>
                 ))}
-                <ViewQuoteCard
+            </ScrollShadow>
+            <ViewQuoteCard
                     color={color}
                     postJson={embedMedia.record.record}
                 />
-            </ScrollShadow>
         </>
     )
 }
