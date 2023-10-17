@@ -25,7 +25,7 @@ import Lightbox, {
     ZoomRef,
 } from "yet-another-react-lightbox"
 
-import { push as BurgerSiderBar } from "react-burger-menu"
+import { push as BurgerPush, slide as BurgerSlide } from "react-burger-menu"
 
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
@@ -87,8 +87,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
+        if (isMobile) {
+            return
+        }
+
         const handleKeyDown = (event: any) => {
-            // FIXME: do not use 'any'
+            // FIXME: do not use 'any' as type
             if (
                 (event.key === "n" || event.key === "N") &&
                 pathName !== "/post"
@@ -468,38 +472,43 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 }`}
             >
                 <div id="burger-outer-container">
-                    <BurgerSiderBar
-                        className={"backdrop-blur-[5px]"}
-                        outerContainerId="burger-outer-container"
-                        pageWrapId="main-container"
-                        styles={burgerMenuStyles}
-                        isOpen={drawerOpen}
-                        onClose={() => {
-                            setDrawerOpen(false)
-                        }}
-                    >
-                        <ViewSideBar
-                            color={color}
-                            isSideBarOpen={drawerOpen}
-                            setSideBarOpen={setSideBarOpen}
-                            isMobile={isMobile}
-                        />
-                    </BurgerSiderBar>
-
-                    {/* <div
-                        style={{
-                            position: "fixed",
-                            top: "0",
-                            left: "0",
-                            height: "100%",
-                            width: "300px",
-                            backgroundColor: "transparent", // 背景色を透明に設定
-                            transition: "clip-path 0.5s ease",
-                            clipPath: drawerOpen ? "inset(0)" : "inset(0 100% 0 0)",
-                            zIndex: drawerOpen ? "1401" : "0",
-                        }}
-                    > */}
-                    {/* </div> */}
+                    {isMobile ? (
+                        <BurgerPush
+                            className={"backdrop-blur-[5px]"}
+                            outerContainerId="burger-outer-container"
+                            pageWrapId="main-container"
+                            styles={burgerMenuStyles}
+                            isOpen={drawerOpen}
+                            onClose={() => {
+                                setDrawerOpen(false)
+                            }}
+                        >
+                            <ViewSideBar
+                                color={color}
+                                isSideBarOpen={drawerOpen}
+                                setSideBarOpen={setSideBarOpen}
+                                isMobile={isMobile}
+                            />
+                        </BurgerPush>
+                    ) : (
+                        <BurgerSlide
+                            className={"backdrop-blur-[5px]"}
+                            outerContainerId="burger-outer-container"
+                            pageWrapId="main-container"
+                            styles={burgerMenuStyles}
+                            isOpen={drawerOpen}
+                            onClose={() => {
+                                setDrawerOpen(false)
+                            }}
+                        >
+                            <ViewSideBar
+                                color={color}
+                                isSideBarOpen={drawerOpen}
+                                setSideBarOpen={setSideBarOpen}
+                                isMobile={isMobile}
+                            />
+                        </BurgerSlide>
+                    )}
 
                     <main
                         id="main-container"
@@ -511,6 +520,17 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             setSideBarOpen(false)
                         }}
                     >
+                        {shouldFillPageBackground && (
+                            <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                <div
+                                    className={`${
+                                        color === "dark"
+                                            ? "bg-[#2C2C2C]"
+                                            : "bg-white"
+                                    } w-full max-w-[600px] mt-[100px] h-[calc(100%-100px)]`}
+                                />
+                            </div>
+                        )}
                         <div
                             className={
                                 "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
@@ -529,23 +549,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     onChangeMenuIndex={onChangeMenuIndex}
                                 />
                             )}
-                            {shouldFillPageBackground === true && (
-                                <div
-                                    className={`${
-                                        color === "dark"
-                                            ? "bg-[#2C2C2C] "
-                                            : " bg-white"
-                                    } fixed w-full max-w-[600px] h-[calc(100%-100px)]`}
-                                    style={{ top: "100px" }}
-                                ></div>
-                            )}
                             <div
                                 className={`${
                                     pathName === "/" || pathName === "/login"
                                         ? "h-[calc(100%)]"
                                         : showTabBar
-                                        ? `pt-[0px] h-[calc(100%-50px)] overflow-y-scroll`
-                                        : `pt-[100px] h-[calc(100%-50px)] overflow-y-scroll`
+                                        ? `pt-[0px] h-[calc(100%-50px)] mb-[50px]`
+                                        : `pt-[100px] h-[calc(100%-150px)]`
                                 }`}
                             >
                                 {children}
@@ -621,3 +631,71 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         </HistoryContext.Provider>
     )
 }
+
+// interface BurgerSiderBarProps {
+//     isMobile: boolean
+// }
+
+// const BurgerSiderBar: React.FC<BurgerSiderBarProps> = (
+//     children,
+//     { isMobile }
+// ) => {
+//     const burgerMenuStyles = {
+//         bmBurgerButton: {
+//             position: "fixed",
+//             width: "0",
+//             height: "0",
+//             left: "0",
+//             top: "0",
+//         },
+//         bmBurgerBars: {
+//             // background: '#373a47'
+//         },
+//         bmBurgerBarsHover: {
+//             // background: '#a90000'
+//         },
+//         bmCrossButton: {
+//             height: "0",
+//             width: "0",
+//         },
+//         bmCross: {
+//             // background: '#bdc3c7'
+//         },
+//         bmMenuWrap: {
+//             // overflowX: "hidden",
+//             // position: "fixed",
+//             // height: "100%",
+//         },
+//         bmMenu: {
+//             // background: '#373a47',
+//             // padding: '2.5em 1.5em 0',
+//             // fontSize: '1.15em'
+//         },
+//         bmMorphShape: {
+//             // fill: '#373a47'
+//         },
+//         bmItemList: {
+//             // color: '#b8b7ad',
+//             // padding: '0.8em'
+//         },
+//         bmItem: {},
+//         bmOverlay: { background: "transparent" },
+//     }
+
+//     return (
+//         <>
+//             <BurgerPush
+//                 className={"backdrop-blur-[5px]"}
+//                 outerContainerId="burger-outer-container"
+//                 pageWrapId="main-container"
+//                 // styles={burgerMenuStyles}
+//                 // isOpen={drawerOpen}
+//                 // onClose={() => {
+//                 //     setDrawerOpen(false)
+//                 // }}
+//             >
+//                 {children}
+//             </BurgerPush>
+//         </>
+//     )
+// }
