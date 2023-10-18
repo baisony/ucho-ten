@@ -2,7 +2,8 @@ import { tv } from "@nextui-org/react"
 
 export const viewQuoteCard = tv({
     slots: {
-        PostCard: "w-full border-[1.5px] rounded-[10px] hover:border-gray-600",
+        PostCard:
+            "w-full border-[1.5px] rounded-[10px] border-b-[1px] pt-4 pb-4 pl-2 pr-2",
         PostCardContainer: "pl-[8px] pt-[11px] pb-[11px] w-full",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
@@ -16,7 +17,7 @@ export const viewQuoteCard = tv({
         PostContentText: "",
         PostReactionButtonContainer: "w-full h-[20px] text-right right-[17px] ",
         PostReactionButton:
-            "h-[16px] pl-[8px] pr-[8px] ml-[60px] text-[#909090] text-[14px] cursor-pointer select-none",
+            "h-[16px] pl-[8px] pr-[8px] ml-[60px] text-[#7dd3fc] text-[14px] cursor-pointer select-none",
         dropdown: "",
         skeletonIcon: "h-full w-full rounded-[10px]",
         skeletonName: "h-3 w-2/5 rounded-lg ",
@@ -70,12 +71,14 @@ export const viewQuoteCard = tv({
         },
         isMobile: {
             true: {
+                PostCard: "",
                 PostModal: "rounded-none",
                 background: "",
                 PostContent: "text-[14px] mb-[6px]",
                 PostCardContainer: "pb-[18px]",
             },
             false: {
+                PostCard: "hover:border-gray-600 ",
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
                 background: "",
                 PostContent: "text-[15px] mb-[6px]",

@@ -2,23 +2,24 @@ import { tv } from "@nextui-org/react"
 
 export const viewPostCard = tv({
     slots: {
-        PostCard: "w-full min-w-[350px] border-b-[1px] ",
-        PostCardContainer: "pl-[8px] pt-[11px] w-full ",
+        PostCard:
+            "w-full min-w-[350px] max-w-full border-b-[1px] pt-4 pb-4 pl-2 pr-2",
+        PostCardContainer: "w-full ",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
-        PostAuthorIcon: "h-[42px] w-[42px] object-cover hover:cursor-pointer",
-        PostAuthorDisplayName: "ml-[9px] hover:cursor-pointer font-[600]",
+        PostAuthorIcon: "h-[42px] w-[42px] hover:cursor-pointer",
+        PostAuthorDisplayName: "hover:cursor-pointer font-[600]",
         PostAuthorHandle:
             "text-[#909090] font-light text-[12px] hover:cursor-pointer",
         PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
-        PostContent: "w-[100%-5px] h-full ml-[25px] mr-[17px]",
+        PostContent: "w-full",
         PostContentText: "",
         PostReactionButtonContainer: "w-full h-[20px] text-right right-[17px] ",
         PostReactionButton:
-            "h-[16px] pl-[8px] pr-[8px] ml-[60px] text-[#909090] text-[14px] cursor-pointer select-none",
+            "h-[14px] pl-[8px] pr-[8px] ml-[40px] text-[#d1d5db] text-[14px] cursor-pointer select-none",
         dropdown: "",
-        skeletonIcon: "h-full w-full rounded-[10px]",
+        skeletonIcon: "h-[42px] w-[42px] rounded-full",
         skeletonName: "h-3 w-2/5 rounded-lg ",
         skeletonHandle: "h-3 w-3/5 rounded-lg ",
         skeletonTime: "",
@@ -71,13 +72,13 @@ export const viewPostCard = tv({
                 PostModal: "rounded-none",
                 background: "",
                 PostContent: "text-[14px] mb-[6px]",
-                PostCardContainer: "pb-[18px]",
+                PostCardContainer: "",
             },
             false: {
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
                 background: "",
                 PostContent: "text-[15px] mb-[6px]",
-                PostCardContainer: "pb-[24px]",
+                PostCardContainer: "",
             },
         },
         isEmbedToModal: {
