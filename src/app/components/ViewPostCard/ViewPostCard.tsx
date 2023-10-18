@@ -308,18 +308,21 @@ export const ViewPostCard = (props: Props) => {
     }, [postJson, quoteJson])
 
     const embedFeed = useMemo((): GeneratorView | null => {
-        if (!postView?.embed?.$type && !postView?.embed?.record?.$type) {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
             return null
         }
 
-        const embedType = postView.embed.$type
+        const embedType = postView?.embed?.$type
 
         if (
             embedType === "app.bsky.embed.record#view" &&
-            postView?.embed?.record?.$type ===
+            (postView?.embed?.record as GeneratorView)?.$type ===
                 "app.bsky.feed.defs#generatorView"
         ) {
-            const embed = postView.embed.record as GeneratorView
+            const embed = postView?.embed?.record as GeneratorView
 
             return embed
         } else {
