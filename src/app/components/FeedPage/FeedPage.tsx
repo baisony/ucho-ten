@@ -98,7 +98,7 @@ const FeedPage = ({
             // setLoading(loadingFlag)
 
             let response: AppBskyFeedGetTimeline.Response
-            let timelineLength = 0
+            // let timelineLength = 0
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
@@ -125,34 +125,36 @@ const FeedPage = ({
                             ...currentTimeline,
                             ...filteredData,
                         ]
-                        timelineLength = newTimeline.length
+                        // timelineLength = newTimeline.length
 
                         return newTimeline
                     } else {
-                        timelineLength = filteredData.length
+                        // timelineLength = filteredData.length
                         return [...filteredData]
                     }
                 })
             } else {
                 setTimeline([])
-                // もしresがundefinedだった場合の処理
-                console.log("Responseがundefinedです。")
+                setHasMore(false)
+                return
             }
 
             // setLoading(false)
 
             cursor.current = response.data.cursor || ""
 
-            if (
-                response.data &&
-                cursor.current &&
-                cursor.current.length > 0 &&
-                timelineLength < 15
-            ) {
-                await fetchTimeline(false)
-            }
+            // if (
+            //     response.data &&
+            //     cursor.current &&
+            //     cursor.current.length > 0 &&
+            //     timelineLength < 15
+            // ) {
+            //     await fetchTimeline(false)
+            //     setHasMore(false)
+            //     return
+            // }
 
-            if (cursor.current.length > 0) {
+            if (cursor.current !== "") {
                 setHasMore(true)
             } else {
                 setHasMore(false)
@@ -168,7 +170,7 @@ const FeedPage = ({
     }
 
     const loadMore = async (index: number) => {
-        if (agent && timeline && cursor.current != "") {
+        if (hasMore) {
             await fetchTimeline(false)
         }
     }
@@ -322,7 +324,7 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className="overflow-y-auto h-[calc(100%-50px)]"
                 />
             )}
             {timeline /* {timeline && !wait && ( */ && (
@@ -338,7 +340,7 @@ const FeedPage = ({
                     // useWindowScroll={true}
                     // overscan={50}
                     data={timeline}
-                    initialItemCount={Math.min(18, timeline?.length || 0)}
+                    // initialItemCount={Math.min(18, timeline?.length || 0)}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
@@ -369,14 +371,12 @@ const FeedPage = ({
 
 // @ts-ignore
 const Footer = ({ context: { hasMore } }) => {
-    if (!hasMore) {
-        return
-    }
-
     return (
-        <div className="flex justify-center mt-4 mb-4">
-            <Spinner />
-        </div>
+        hasMore && (
+            <div className="flex justify-center mt-4 mb-4">
+                <Spinner />
+            </div>
+        )
     )
 }
 

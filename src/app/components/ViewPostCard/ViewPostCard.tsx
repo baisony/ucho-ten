@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
@@ -43,6 +43,7 @@ import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 import { ReportModal } from "@/app/components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
 import {
+    Button,
     Chip,
     Dropdown,
     DropdownItem,
@@ -67,6 +68,7 @@ import {
 
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/components/ViewFeedCard"
+import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 
 interface Props {
     // className?: string
@@ -156,14 +158,11 @@ export const ViewPostCard = (props: Props) => {
     const [isReposted, setIsReposted] = useState<boolean>(
         !!postView?.viewer?.repost
     )
-    // const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false)
-    // const [isSwipeEnabled, setIsSwipeEnabled] = useState(true)
-    // const [postInfo, setPostInfo] = useState<any>(null)
-    // const [isTextSelectionInProgress, setIsTextSelectionInProgress] =
-    //     useState(false)
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
-    const [startX, setStartX] = useState(null)
-    const [startY, setStartY] = useState(null)
+    const [userPreference, setUserPreference] = useUserPreferencesAtom()
+    const [contentWarning, setContentWarning] = useState<boolean>(false)
+    const [warningReason, setWarningReason] = useState<string>("")
+    console.log(userPreference)
     const [, setHandleButtonClick] = useState(false)
 
     const {
@@ -574,7 +573,73 @@ export const ViewPostCard = (props: Props) => {
         }
         return result
     }, [postJson, quoteJson])
-    console.log(postJson)
+
+    useEffect(() => {
+        if (!userPreference) return
+        const post = postJson || quoteJson
+        if (!post || !post.labels || post.labels.length === 0) return
+        type LabelActionsType = {
+            [key: string]: {
+                label: string
+                key: string
+            }
+        }
+
+        const labelActions: LabelActionsType = {
+            porn: {
+                label: "Adult Content",
+                key: "nsfw",
+            },
+            nudity: {
+                label: "Nudity Content",
+                key: "nudity",
+            },
+            sexual: {
+                label: "Sexual Content",
+                key: "suggestive",
+            },
+            spam: {
+                label: "Spam",
+                key: "spam",
+            },
+            impersonation: {
+                label: "Impersonation",
+                key: "impersonation",
+            },
+            gore: {
+                label: "Violence or Bloody",
+                key: "gore",
+            },
+        }
+
+        post.labels.forEach((label) => {
+            const labelType = labelActions[label.val]
+            if (labelType) {
+                const { label: warningLabel, key } = labelType
+                switch (key) {
+                    case "nsfw":
+                    case "suggestive":
+                    case "nudity":
+                    case "spam":
+                    case "impersonation":
+                    case "gore":
+                        const action = userPreference.contentLabels?.[key]
+                        if (action === "warn") {
+                            setContentWarning(true)
+                            setWarningReason(warningLabel)
+                        } else if (action === "hide") {
+                            setIsDeleted(true)
+                        }
+                        break
+                    default:
+                        break
+                }
+            } else {
+                console.log(label)
+            }
+        })
+    }, [userPreference, postJson, quoteJson])
+
     return (
         !isDeleted && (
             <div
@@ -643,9 +708,9 @@ export const ViewPostCard = (props: Props) => {
                     >
                         {json?.reason && (
                             <span
-                                className={
-                                    "text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer"
-                                }
+                                className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer ${
+                                    !isMobile && `hover:underline`
+                                }`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -653,7 +718,7 @@ export const ViewPostCard = (props: Props) => {
                                     )
                                 }}
                             >
-                                Reposted by{" "}
+                                <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                                 {(json.reason.by as ProfileViewBasic)
                                     .displayName || ""}
                             </span>
@@ -721,7 +786,11 @@ export const ViewPostCard = (props: Props) => {
                                         })}
                                     />
                                 ) : (
-                                    <span>
+                                    <span
+                                        className={`${
+                                            !isMobile && `hover:underline`
+                                        }`}
+                                    >
                                         {postJsonData?.author?.displayName}
                                     </span>
                                 )}
@@ -747,7 +816,13 @@ export const ViewPostCard = (props: Props) => {
                                         })}
                                     />
                                 ) : (
-                                    <span>{postJsonData?.author?.handle}</span>
+                                    <span
+                                        className={`${
+                                            !isMobile && `hover:underline`
+                                        }`}
+                                    >
+                                        {postJsonData?.author?.handle}
+                                    </span>
                                 )}
                             </span>
                             <div
@@ -928,7 +1003,7 @@ export const ViewPostCard = (props: Props) => {
                                     </div>
                                 </>
                             )}
-                            {embedImages && (
+                            {embedImages && !contentWarning && (
                                 <EmbedImages
                                     color={color}
                                     embedImages={embedImages}
@@ -936,6 +1011,24 @@ export const ViewPostCard = (props: Props) => {
                                         handleImageClick(index)
                                     }}
                                 />
+                            )}
+                            {contentWarning && (
+                                <div
+                                    className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
+                                >
+                                    <div className={"ml-[20px]"}>
+                                        Warning: {warningReason}
+                                    </div>
+                                    <Button
+                                        variant={"light"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            setContentWarning(false)
+                                        }}
+                                    >
+                                        Show
+                                    </Button>
+                                </div>
                             )}
                             {embedMedia && (
                                 <EmbedMedia
