@@ -46,110 +46,96 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                     router.push(`/profile/${uri.hostname}/feed/${uri.rkey}`)
                 }}
             >
-                <>
-                    <>
-                        <div
-                            className={`${PostCardContainer({
-                                isMobile: isMobile,
-                            })}`}
+                <div
+                    className={`${PostCardContainer({
+                        isMobile: isMobile,
+                    })}`}
+                >
+                    <div className={`${PostAuthor()}`}>
+                        <span className={PostAuthorIcon()}>
+                            {isSkeleton ? (
+                                <Skeleton
+                                    className={skeletonIcon({
+                                        color: color,
+                                    })}
+                                />
+                            ) : (
+                                <>
+                                    {feed?.avatar ? (
+                                        <Image
+                                            src={feed.avatar}
+                                            //radius={"lg"}
+                                            className={` z-[0] rounded-[7px]`}
+                                            alt={feed.did}
+                                        />
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            className={`z-[0] h-full w-full`}
+                                            icon={faRss}
+                                        />
+                                    )}
+                                </>
+                            )}
+                        </span>
+                        <span
+                            className={PostAuthorDisplayName({
+                                color: color,
+                            })}
+                            style={{ fontSize: "13px" }}
                         >
-                            <div className={`${PostAuthor()}`}>
-                                <span className={PostAuthorIcon()}>
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonIcon({
-                                                color: color,
-                                            })}
-                                        />
-                                    ) : (
-                                        <>
-                                            {feed?.avatar ? (
-                                                <Image
-                                                    src={feed.avatar}
-                                                    //radius={"lg"}
-                                                    className={` z-[0] rounded-[7px]`}
-                                                    alt={feed.did}
-                                                />
-                                            ) : (
-                                                <FontAwesomeIcon
-                                                    className={`z-[0] h-full w-full`}
-                                                    icon={faRss}
-                                                />
-                                            )}
-                                        </>
-                                    )}
-                                </span>
-                                <span
-                                    className={PostAuthorDisplayName({
+                            {isSkeleton ? (
+                                <Skeleton
+                                    className={skeletonName({
                                         color: color,
                                     })}
-                                    style={{ fontSize: "13px" }}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonName({
-                                                color: color,
-                                            })}
-                                        />
-                                    ) : (
-                                        <span>{feed?.displayName}</span>
-                                    )}
-                                </span>
-                                <div className={"text-[#BABABA]"}>
-                                    &nbsp;-&nbsp;
-                                </div>
-                                <span
-                                    className={PostAuthorHandle({
+                                />
+                            ) : (
+                                <span>{feed?.displayName}</span>
+                            )}
+                        </span>
+                        <div className={"text-[#BABABA]"}>&nbsp;-&nbsp;</div>
+                        <span
+                            className={PostAuthorHandle({
+                                color: color,
+                            })}
+                        >
+                            {isSkeleton ? (
+                                <Skeleton
+                                    className={skeletonHandle({
                                         color: color,
                                     })}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonHandle({
-                                                color: color,
-                                            })}
-                                        />
-                                    ) : (
-                                        <span>
-                                            made by @{feed?.creator?.handle}
-                                        </span>
-                                    )}
-                                </span>
+                                />
+                            ) : (
+                                <span>made by @{feed?.creator?.handle}</span>
+                            )}
+                        </span>
+                    </div>
+                    <div className={PostContent({ isMobile: isMobile })}>
+                        {isSkeleton ? (
+                            <div className="w-full flex flex-col gap-2">
+                                <Skeleton
+                                    className={skeletonText1line({
+                                        color: color,
+                                    })}
+                                />
+                                <Skeleton
+                                    className={skeletonText2line({
+                                        color: color,
+                                    })}
+                                />
                             </div>
+                        ) : (
                             <div
-                                className={PostContent({ isMobile: isMobile })}
+                                style={{ wordBreak: "break-word" }}
+                                className={`${
+                                    isMobile ? `text-[14px]` : `text-[15px]`
+                                }`}
                             >
-                                {isSkeleton ? (
-                                    <div className="w-full flex flex-col gap-2">
-                                        <Skeleton
-                                            className={skeletonText1line({
-                                                color: color,
-                                            })}
-                                        />
-                                        <Skeleton
-                                            className={skeletonText2line({
-                                                color: color,
-                                            })}
-                                        />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div
-                                            style={{ wordBreak: "break-word" }}
-                                            className={`${
-                                                isMobile
-                                                    ? `text-[14px]`
-                                                    : `text-[15px]`
-                                            }`}
-                                        >
-                                            {feed.description}
-                                        </div>
-                                    </>
-                                )}
+                                {feed.description}
                             </div>
-                        </div>
-                    </>
-                </>
+                        )}
+                    </div>
+                </div>
             </main>
         </>
     )
