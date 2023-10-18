@@ -574,7 +574,9 @@ export const ViewPostCard = (props: Props) => {
         }
         return result
     }, [postJson, quoteJson])
-    console.log(postJson)
+
+    //console.log(postJson)
+
     return (
         !isDeleted && (
             <div
