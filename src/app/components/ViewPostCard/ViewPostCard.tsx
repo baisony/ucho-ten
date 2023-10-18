@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
+    GeneratorView,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import {
@@ -65,6 +66,7 @@ import {
 } from "@/app/_atoms/imageGallery"
 
 import "react-swipeable-list/dist/styles.css"
+import { ViewFeedCard } from "@/app/components/ViewFeedCard"
 
 interface Props {
     // className?: string
@@ -300,6 +302,26 @@ export const ViewPostCard = (props: Props) => {
 
         if (embed.$type === "app.bsky.embed.record#view") {
             return embed.record as ViewRecord
+        } else {
+            return null
+        }
+    }, [postJson, quoteJson])
+
+    const embedFeed = useMemo((): GeneratorView | null => {
+        if (!postView?.embed?.$type && !postView?.embed?.record?.$type) {
+            return null
+        }
+
+        const embedType = postView.embed.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            postView?.embed?.record?.$type ===
+                "app.bsky.feed.defs#generatorView"
+        ) {
+            const embed = postView.embed.record as GeneratorView
+
+            return embed
         } else {
             return null
         }
@@ -927,12 +949,17 @@ export const ViewPostCard = (props: Props) => {
                                     ogpData={embedExternal.external}
                                 />
                             )}
-                            {embedRecord && embedRecordViewRecord && (
-                                <ViewPostCard
-                                    color={color}
-                                    quoteJson={embedRecordViewRecord}
-                                    isEmbedToPost={true}
-                                />
+                            {embedRecord &&
+                                embedRecordViewRecord &&
+                                !embedFeed && (
+                                    <ViewPostCard
+                                        color={color}
+                                        quoteJson={embedRecordViewRecord}
+                                        isEmbedToPost={true}
+                                    />
+                                )}
+                            {embedFeed && (
+                                <ViewFeedCard color={color} feed={embedFeed} />
                             )}
                         </div>
                         <div className={PostReactionButtonContainer()}>
