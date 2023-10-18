@@ -396,7 +396,9 @@ const FeedHeaderComponent = ({
                     />
                 ) : (
                     <div className={ProfileImage()}>
-                        <Skeleton className={"h-full w-full rounded-[10px]"} />
+                        <Skeleton
+                            className={`h-full w-full rounded-[10px] ${color}`}
+                        />
                     </div>
                 )}
                 <div className={Buttons()}>
@@ -465,7 +467,7 @@ const FeedHeaderComponent = ({
                         feedInfo.view?.displayName
                     ) : (
                         <Skeleton
-                            className={"h-[24px] w-[300px] rounded-[10px]"}
+                            className={`h-[24px] w-[300px] rounded-[10px] ${color}`}
                         />
                     )}
                 </div>
@@ -474,7 +476,7 @@ const FeedHeaderComponent = ({
                         `created by @${feedInfo.view.creator.handle}`
                     ) : (
                         <Skeleton
-                            className={"h-3 w-[80px] rounded-[10px] mt-[5px]"}
+                            className={`h-3 w-[80px] rounded-[10px] mt-[5px] ${color}`}
                         />
                     )}
                 </div>
@@ -484,13 +486,13 @@ const FeedHeaderComponent = ({
                     ) : (
                         <>
                             <Skeleton
-                                className={"h-3 w-full rounded-[10px] mt-[5px]"}
+                                className={`h-3 w-full rounded-[10px] mt-[5px] ${color}`}
                             />
                             <Skeleton
-                                className={"h-3 w-full rounded-[10px] mt-[5px]"}
+                                className={`h-3 w-full rounded-[10px] mt-[5px] ${color}`}
                             />
                             <Skeleton
-                                className={"h-3 w-full rounded-[10px] mt-[5px]"}
+                                className={`h-3 w-full rounded-[10px] mt-[5px] ${color}`}
                             />
                         </>
                     )}

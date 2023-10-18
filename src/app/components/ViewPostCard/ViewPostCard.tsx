@@ -708,9 +708,9 @@ export const ViewPostCard = (props: Props) => {
                     >
                         {json?.reason && (
                             <span
-                                className={
-                                    "text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer"
-                                }
+                                className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer ${
+                                    !isMobile && `hover:underline`
+                                }`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -718,7 +718,7 @@ export const ViewPostCard = (props: Props) => {
                                     )
                                 }}
                             >
-                                Reposted by{" "}
+                                <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                                 {(json.reason.by as ProfileViewBasic)
                                     .displayName || ""}
                             </span>
@@ -786,7 +786,11 @@ export const ViewPostCard = (props: Props) => {
                                         })}
                                     />
                                 ) : (
-                                    <span>
+                                    <span
+                                        className={`${
+                                            !isMobile && `hover:underline`
+                                        }`}
+                                    >
                                         {postJsonData?.author?.displayName}
                                     </span>
                                 )}
@@ -812,7 +816,13 @@ export const ViewPostCard = (props: Props) => {
                                         })}
                                     />
                                 ) : (
-                                    <span>{postJsonData?.author?.handle}</span>
+                                    <span
+                                        className={`${
+                                            !isMobile && `hover:underline`
+                                        }`}
+                                    >
+                                        {postJsonData?.author?.handle}
+                                    </span>
                                 )}
                             </span>
                             <div
@@ -1180,6 +1190,7 @@ interface EmbedImagesProps {
 const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
     return (
         <ScrollShadow
+            isEnabled={embedImages.images.length > 1}
             hideScrollBar={true}
             orientation="horizontal"
             className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
@@ -1220,6 +1231,7 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
     return (
         <>
             <ScrollShadow
+                isEnabled={images.length > 1}
                 hideScrollBar
                 orientation="horizontal"
                 className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
