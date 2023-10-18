@@ -93,17 +93,24 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
         const handleKeyDown = (event: any) => {
             // FIXME: do not use 'any' as type
+            if (event.key === "Escape" && pathName === "/post") {
+                event.preventDefault()
+                router.back()
+            }
+
+            if (
+                event.target.tagName.toLowerCase() === "textarea" ||
+                event.target.tagName.toLowerCase() === "input"
+            ) {
+                return
+            }
+
             if (
                 (event.key === "n" || event.key === "N") &&
                 pathName !== "/post"
             ) {
                 event.preventDefault()
                 router.push("/post")
-            }
-
-            if (event.key === "Escape" && pathName === "/post") {
-                event.preventDefault()
-                router.back()
             }
         }
 
