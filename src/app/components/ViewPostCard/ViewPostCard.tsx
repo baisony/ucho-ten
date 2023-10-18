@@ -1097,6 +1097,7 @@ interface EmbedImagesProps {
 const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
     return (
         <ScrollShadow
+            isEnabled={embedImages.images.length > 1}
             hideScrollBar={true}
             orientation="horizontal"
             className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
@@ -1137,6 +1138,7 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
     return (
         <>
             <ScrollShadow
+                isEnabled={images.length > 1}
                 hideScrollBar
                 orientation="horizontal"
                 className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
