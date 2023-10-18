@@ -19,6 +19,7 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
+    Skeleton,
     Spinner,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
@@ -309,7 +310,7 @@ export default function Root() {
             threshold={700}
             useWindow={false}
         >
-            {feedInfo && (
+            {feedInfo ? (
                 <FeedHeaderComponent
                     feedInfo={feedInfo}
                     color={color}
@@ -317,6 +318,8 @@ export default function Root() {
                     isPinned={isPinned}
                     onClick={handleSubscribeClick}
                 />
+            ) : (
+                <FeedHeaderComponent color={color} isSkeleton={true} />
             )}
             {(loading || !agent || !timeline) &&
                 Array.from({ length: 15 }, (_, index) => (
@@ -345,11 +348,12 @@ export default function Root() {
 }
 
 interface FeedProps {
-    feedInfo: any
+    feedInfo?: any
     color: "light" | "dark"
-    isSubscribed: boolean
-    isPinned: boolean
+    isSubscribed?: boolean
+    isPinned?: boolean
     onClick?: () => void
+    isSkeleton?: boolean
 }
 
 const FeedHeaderComponent = ({
@@ -358,6 +362,7 @@ const FeedHeaderComponent = ({
     isSubscribed,
     isPinned,
     onClick,
+    isSkeleton,
 }: FeedProps) => {
     const [onHoverButton, setOnHoverButton] = useState(false)
 
@@ -384,24 +389,32 @@ const FeedHeaderComponent = ({
     return (
         <div className={ProfileContainer({ color: color })}>
             <div className={ProfileInfoContainer()}>
-                <img
-                    className={ProfileImage()}
-                    src={feedInfo.view?.avatar}
-                ></img>
+                {!isSkeleton ? (
+                    <img
+                        className={ProfileImage()}
+                        src={feedInfo.view?.avatar}
+                    />
+                ) : (
+                    <div className={ProfileImage()}>
+                        <Skeleton className={"h-full w-full rounded-[10px]"} />
+                    </div>
+                )}
                 <div className={Buttons()}>
                     <div className={ProfileActionButton()}>
-                        <FontAwesomeIcon
-                            icon={
-                                feedInfo.view?.viewer?.like
-                                    ? faSolidHeart
-                                    : faRegularHeart
-                            }
-                            style={{
-                                color: feedInfo.view?.viewer?.like
-                                    ? "#ff0000"
-                                    : "#000000",
-                            }}
-                        />
+                        {!isSkeleton && (
+                            <FontAwesomeIcon
+                                icon={
+                                    feedInfo.view?.viewer?.like
+                                        ? faSolidHeart
+                                        : faRegularHeart
+                                }
+                                style={{
+                                    color: feedInfo.view?.viewer?.like
+                                        ? "#ff0000"
+                                        : "#000000",
+                                }}
+                            />
+                        )}
                     </div>
                     <Dropdown className={dropdown({ color: color })}>
                         <DropdownTrigger>
@@ -438,6 +451,7 @@ const FeedHeaderComponent = ({
                             setOnHoverButton(true)
                         }}
                         onClick={onClick}
+                        isDisabled={isSkeleton}
                     >
                         {isSubscribed
                             ? !onHoverButton
@@ -447,12 +461,40 @@ const FeedHeaderComponent = ({
                     </Button>
                 </div>
                 <div className={ProfileDisplayName({ color: color })}>
-                    {feedInfo.view?.displayName}
+                    {!isSkeleton ? (
+                        feedInfo.view?.displayName
+                    ) : (
+                        <Skeleton
+                            className={"h-[24px] w-[300px] rounded-[10px]"}
+                        />
+                    )}
                 </div>
                 <div className={ProfileHandle()}>
-                    created by @{feedInfo.view.creator.handle}
+                    {!isSkeleton ? (
+                        `created by @${feedInfo.view.creator.handle}`
+                    ) : (
+                        <Skeleton
+                            className={"h-3 w-[80px] rounded-[10px] mt-[5px]"}
+                        />
+                    )}
                 </div>
-                <div className={ProfileBio()}>{feedInfo.view?.description}</div>
+                <div className={ProfileBio()}>
+                    {!isSkeleton ? (
+                        feedInfo.view?.description
+                    ) : (
+                        <>
+                            <Skeleton
+                                className={"h-3 w-full rounded-[10px] mt-[5px]"}
+                            />
+                            <Skeleton
+                                className={"h-3 w-full rounded-[10px] mt-[5px]"}
+                            />
+                            <Skeleton
+                                className={"h-3 w-full rounded-[10px] mt-[5px]"}
+                            />
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     )
