@@ -1,5 +1,6 @@
 import {
     AppBskyEmbedImages,
+    AppBskyEmbedRecord,
     AppBskyFeedPost,
     BlobRef,
     BskyAgent,
@@ -8,9 +9,9 @@ import {
 import React, {
     useCallback,
     useEffect,
+    useLayoutEffect,
     useRef,
     useState,
-    useLayoutEffect,
 } from "react"
 import { postModal } from "./styles"
 import { BrowserView, isMobile } from "react-device-detect"
@@ -21,7 +22,6 @@ import {
     faFaceLaughBeam,
     faPen,
     faPlus,
-    faUser,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
@@ -31,7 +31,6 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    DropdownSection,
     DropdownTrigger,
     Image,
     Popover,
@@ -219,6 +218,11 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 postObj.reply = reply
             } else if (type === "Quote") {
                 console.log("hoge")
+                const embed = {
+                    $type: "app.bsky.embed.record",
+                    record: postData,
+                } as AppBskyEmbedRecord.Main
+                postObj.embed = embed
             }
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
@@ -254,12 +258,32 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     } as any
                     postObj.embed = embed
                 } else {
-                    const embed = {
-                        $type: "app.bsky.embed.images",
-                        images,
-                    } as AppBskyEmbedImages.Main
+                    if (
+                        postObj?.embed &&
+                        postObj.embed.$type === "app.bsky.embed.record"
+                    ) {
+                        const { embed } = postObj
 
-                    postObj.embed = embed
+                        if (!embed.media) {
+                            embed.media = {}
+                        }
+
+                        ;(embed.media as any).$type =
+                            "app.bsky.embed.images" as string
+                        ;(embed.media as any).images = images
+                        embed.$type = "app.bsky.embed.recordWithMedia"
+                        delete embed.record
+                        embed.record = { record: postData }
+
+                        console.log(postObj)
+                    } else {
+                        const embed = {
+                            $type: "app.bsky.embed.images",
+                            images,
+                        } as AppBskyEmbedImages.Main
+
+                        postObj.embed = embed
+                    }
                 }
             }
             console.log(postObj)

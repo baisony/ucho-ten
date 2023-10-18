@@ -88,6 +88,7 @@ export default function Root() {
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [bookmarks, setBookmarks] = useBookmarks()
+    const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
     const color = darkMode ? "dark" : "light"
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const {
@@ -488,8 +489,16 @@ export default function Root() {
 
     const handleReply = async () => {
         console.log("open")
+        setModalType("Reply")
         onOpen()
     }
+
+    const handleQuote = async () => {
+        console.log("open")
+        setModalType("Quote")
+        onOpen()
+    }
+
     const handleRepost = async () => {
         if (loading) return
         setLoading(true)
@@ -560,7 +569,7 @@ export default function Root() {
                         {(onClose) => (
                             <PostModal
                                 color={color}
-                                type={"Reply"}
+                                type={modalType ? modalType : "Reply"}
                                 postData={post.post}
                                 onClose={onClose}
                             />
@@ -746,7 +755,7 @@ export default function Root() {
                                 icon={faQuoteLeft}
                                 className={ReactionButton()}
                                 onClick={() => {
-                                    //handleQuote()
+                                    handleQuote()
                                 }}
                             />
                             <FontAwesomeIcon
