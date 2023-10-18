@@ -643,9 +643,9 @@ export const ViewPostCard = (props: Props) => {
                     >
                         {json?.reason && (
                             <span
-                                className={
-                                    "text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer"
-                                }
+                                className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer ${
+                                    !isMobile && `hover:underline`
+                                }`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -653,7 +653,7 @@ export const ViewPostCard = (props: Props) => {
                                     )
                                 }}
                             >
-                                Reposted by{" "}
+                                <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                                 {(json.reason.by as ProfileViewBasic)
                                     .displayName || ""}
                             </span>
@@ -721,7 +721,11 @@ export const ViewPostCard = (props: Props) => {
                                         })}
                                     />
                                 ) : (
-                                    <span>
+                                    <span
+                                        className={`${
+                                            !isMobile && `hover:underline`
+                                        }`}
+                                    >
                                         {postJsonData?.author?.displayName}
                                     </span>
                                 )}
@@ -747,7 +751,13 @@ export const ViewPostCard = (props: Props) => {
                                         })}
                                     />
                                 ) : (
-                                    <span>{postJsonData?.author?.handle}</span>
+                                    <span
+                                        className={`${
+                                            !isMobile && `hover:underline`
+                                        }`}
+                                    >
+                                        {postJsonData?.author?.handle}
+                                    </span>
                                 )}
                             </span>
                             <div
