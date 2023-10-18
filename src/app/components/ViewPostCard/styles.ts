@@ -2,6 +2,7 @@ import { tv } from "@nextui-org/react"
 
 export const viewPostCard = tv({
     slots: {
+        Container: "",
         PostCard:
             "w-full min-w-[350px] max-w-full border-b-[1px] pt-4 pb-4 pl-2 pr-2",
         PostCardContainer: "w-full ",
@@ -69,16 +70,18 @@ export const viewPostCard = tv({
         },
         isMobile: {
             true: {
+                Container: "",
+                PostCard: "",
                 PostModal: "rounded-none",
                 background: "",
                 PostContent: "text-[14px] mb-[6px]",
-                PostCardContainer: "",
             },
             false: {
+                Container: "mb-4 mt-4",
+                PostCard: "rounded-[10px]",
                 PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
                 background: "",
                 PostContent: "text-[15px] mb-[6px]",
-                PostCardContainer: "",
             },
         },
         isEmbedToModal: {

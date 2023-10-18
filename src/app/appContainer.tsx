@@ -527,7 +527,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             setSideBarOpen(false)
                         }}
                     >
-                        {shouldFillPageBackground && (
+                        {shouldFillPageBackground && isMobile && (
                             <div className="absolute top-0 left-0 flex justify-center w-full h-full">
                                 <div
                                     className={`${

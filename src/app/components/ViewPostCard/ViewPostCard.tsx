@@ -126,6 +126,7 @@ export const ViewPostCard = (props: Props) => {
     const [loading, setLoading] = useState(false)
     const [isHover, setIsHover] = useState<boolean>(false)
     const {
+        Container,
         PostCard,
         PostAuthor,
         PostContent,
@@ -646,7 +647,7 @@ export const ViewPostCard = (props: Props) => {
                 className={
                     quoteJson
                         ? quoteCardStyles.PostCardContainer({ color, isMobile })
-                        : ""
+                        : Container({ color, isMobile })
                 }
             >
                 <Modal
@@ -751,7 +752,7 @@ export const ViewPostCard = (props: Props) => {
                         <div className="w-[calc(100%-60px)]">
                             {json?.reason && (
                                 <div
-                                    className={`text-[13px] text-[#d1d5db] text-bold hover:cursor-pointer h-[16px] mb-[8px] ${
+                                    className={`text-[13px] text-sky-300 text-bold hover:cursor-pointer h-[16px] mb-[8px] ${
                                         !isMobile && `hover:underline`
                                     }`}
                                     onClick={(e) => {
@@ -1228,7 +1229,7 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
         >
             {embedImages.images.map((image: ViewImage, index: number) => (
                 <div
-                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[150px] mr-[10px] bg-cover border border-gray-300`}
+                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden w-[150px] h-[150px] mr-[10px] bg-cover border border-gray-300`}
                     key={`image-${index}`}
                 >
                     <img
