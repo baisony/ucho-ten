@@ -287,12 +287,12 @@ const FeedPage = ({
             {newTimeline.length > 0 && (
                 <div
                     className={
-                        " absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
                     }
                 >
                     <div
                         className={
-                            "text-black  bg-blue-50 rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px]"
+                            "text-white bg-blue-500/50 backdrop-blur-[15px] shadow-sm rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
                         }
                         onClick={handleRefresh}
                     >
