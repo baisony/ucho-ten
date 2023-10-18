@@ -1197,7 +1197,7 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
         >
             {embedImages.images.map((image: ViewImage, index: number) => (
                 <div
-                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[150px] mr-[10px] bg-cover`}
                     key={`image-${index}`}
                 >
                     <img
@@ -1238,7 +1238,7 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
             >
                 {images.map((image: ViewImage, index: number) => (
                     <div
-                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[150px] mr-[10px] bg-cover`}
                         key={`image-${index}`}
                     >
                         <img
