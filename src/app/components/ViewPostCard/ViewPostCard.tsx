@@ -751,7 +751,7 @@ export const ViewPostCard = (props: Props) => {
                                                     isEmbedToModal
                                                         ? `z-[2]`
                                                         : `z-[0]`
-                                                } rounded-[10px]`}
+                                                } rounded-full border border-gray-300`}
                                                 alt={postJsonData.author.did}
                                             />
                                         ) : (
@@ -1095,7 +1095,7 @@ export const ViewPostCard = (props: Props) => {
                                                 }
                                                 style={{
                                                     color: isLiked
-                                                        ? "#fd7e00"
+                                                        ? "#7dd3fc" // sky-300
                                                         : "#909090",
                                                 }}
                                                 className={PostReactionButton()}

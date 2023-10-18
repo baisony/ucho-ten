@@ -6,7 +6,7 @@ export const viewPostCard = tv({
         PostCardContainer: "pl-[8px] pt-[11px] w-full ",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
-        PostAuthorIcon: "h-[28px] w-[28px] object-cover hover:cursor-pointer",
+        PostAuthorIcon: "h-[42px] w-[42px] object-cover hover:cursor-pointer",
         PostAuthorDisplayName: "ml-[9px] hover:cursor-pointer font-[600]",
         PostAuthorHandle:
             "text-[#909090] font-light text-[12px] hover:cursor-pointer",
