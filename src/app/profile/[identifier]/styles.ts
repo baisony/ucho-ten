@@ -9,7 +9,8 @@ export const viewProfilePage = tv({
         ProfileHeaderImage: "h-full w-full object-cover",
         ProfileInfoContainer:
             "w-full h-full relative pl-[13px] pr-[8px] pb-[16px]",
-        ProfileImage: "h-[80px] w-[80px] rounded-full border border-gray-300 top-[-24px] absolute",
+        ProfileImage:
+            "h-[80px] w-[80px] rounded-full border border-gray-300 top-[-24px] absolute",
         ProfileDisplayName: "font-black text-[24px]",
         ProfileHandle: "",
         ProfileBio: "mt-[8px] ml-[4px] mr-[20px]",
