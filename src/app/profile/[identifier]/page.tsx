@@ -34,6 +34,7 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
+    Skeleton,
     Spinner,
     Textarea,
     useDisclosure,
@@ -305,13 +306,19 @@ export default function Root() {
             threshold={700}
             useWindow={false}
         >
-            {profile && (
+            {profile ? (
                 <UserProfileComponent
                     agent={agent}
                     profile={profile}
                     color={color}
                     isProfileMine={profile.did === agent?.session?.did}
                     onClickDomain={onClickDomain}
+                />
+            ) : (
+                <UserProfileComponent
+                    agent={agent}
+                    color={color}
+                    isSkeleton={true}
                 />
             )}
             {(loading || !agent) &&
@@ -341,10 +348,11 @@ export default function Root() {
 
 interface userProfileProps {
     agent: BskyAgent | null
-    profile: any
+    profile?: any
     color: "light" | "dark"
-    isProfileMine: boolean
-    onClickDomain: (url: string) => void
+    isProfileMine?: boolean
+    onClickDomain?: (url: string) => void
+    isSkeleton?: boolean
 }
 
 const UserProfileComponent = ({
@@ -353,6 +361,7 @@ const UserProfileComponent = ({
     color,
     isProfileMine,
     onClickDomain,
+    isSkeleton,
 }: userProfileProps) => {
     const router = useRouter()
     const [userPreferences] = useUserPreferencesAtom()
@@ -704,24 +713,42 @@ const UserProfileComponent = ({
             />
             <div className={ProfileContainer()}>
                 <div className={HeaderImageContainer()}>
-                    <img
-                        className={ProfileHeaderImage()}
-                        src={profile?.banner}
-                    />
+                    {!isSkeleton ? (
+                        <img
+                            className={ProfileHeaderImage()}
+                            src={profile?.banner}
+                        />
+                    ) : (
+                        <Skeleton className={"h-full w-full"} />
+                    )}
                 </div>
                 <div className={ProfileInfoContainer({ color: color })}>
-                    {profile?.avatar ? (
-                        <img className={ProfileImage()} src={profile.avatar} />
+                    {!isSkeleton ? (
+                        profile?.avatar ? (
+                            <img
+                                className={ProfileImage()}
+                                src={profile.avatar}
+                            />
+                        ) : (
+                            <div className={`${ProfileImage()} bg-white`}>
+                                <FontAwesomeIcon
+                                    icon={faUser}
+                                    className={"w-full h-full"}
+                                />
+                            </div>
+                        )
                     ) : (
-                        <div className={`${ProfileImage()} bg-white`}>
-                            <FontAwesomeIcon
-                                icon={faUser}
-                                className={"w-full h-full"}
+                        <div className={ProfileImage()}>
+                            <Skeleton
+                                className={"h-[80px] w-[80px] rounded-[10px]"}
                             />
                         </div>
                     )}
                     <div className={Buttons()}>
-                        <Dropdown className={dropdown({ color: color })}>
+                        <Dropdown
+                            className={dropdown({ color: color })}
+                            isDisabled={isSkeleton}
+                        >
                             <DropdownTrigger>
                                 <div className={ProfileCopyButton()}>
                                     <FontAwesomeIcon
@@ -763,8 +790,11 @@ const UserProfileComponent = ({
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
-                        {!isProfileMine && (
-                            <Dropdown className={dropdown({ color: color })}>
+                        {!isProfileMine && !isSkeleton && (
+                            <Dropdown
+                                className={dropdown({ color: color })}
+                                isDisabled={isSkeleton}
+                            >
                                 <DropdownTrigger>
                                     <div className={ProfileActionButton()}>
                                         <FontAwesomeIcon
@@ -801,6 +831,7 @@ const UserProfileComponent = ({
                             </Dropdown>
                         )}
                         <Button
+                            isDisabled={isSkeleton}
                             className={`${FollowButton({
                                 color: color,
                                 hover: onHoverButton,
@@ -859,17 +890,41 @@ const UserProfileComponent = ({
                         </Button>
                     </div>
                     <div className={ProfileDisplayName()}>
-                        {profile.displayName}
+                        {!isSkeleton ? (
+                            profile.displayName
+                        ) : (
+                            <Skeleton
+                                className={
+                                    " h-[24px] w-[180px] rounded-[10px] mt-[8px]"
+                                }
+                            />
+                        )}
                     </div>
                     <div
                         className={ProfileHandle({
                             isMobile: isMobile,
                         })}
                     >
-                        @{profile.handle}
+                        {!isSkeleton ? (
+                            `@${profile.handle}`
+                        ) : (
+                            <Skeleton
+                                className={
+                                    " h-[16px] w-[130px] rounded-[10px] mt-[10px]"
+                                }
+                            />
+                        )}
                     </div>
                     <div className={ProfileBio({ isMobile: isMobile })}>
-                        {renderTextWithLinks}
+                        {!isSkeleton ? (
+                            renderTextWithLinks
+                        ) : (
+                            <>
+                                <Skeleton
+                                    className={"h-[16px] w-full rounded-[10px]"}
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
