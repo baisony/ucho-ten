@@ -499,7 +499,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         </BurgerPush>
                     ) : (
                         <BurgerSlide
-                            className={"backdrop-blur-[5px]"}
+                            className={"backdrop-blur-[15px] bg-white/20"}
                             outerContainerId="burger-outer-container"
                             pageWrapId="main-container"
                             styles={burgerMenuStyles}
