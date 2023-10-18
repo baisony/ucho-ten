@@ -486,7 +486,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         {userProfileDetailed?.avatar ? (
                             <img
-                                className={"h-[64px] w-[64px] rounded-[10px]"}
+                                className={"h-[64px] w-[64px] rounded-full border border-gray-300"}
                                 src={userProfileDetailed?.avatar}
                             />
                         ) : (
