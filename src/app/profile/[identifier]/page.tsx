@@ -476,9 +476,8 @@ const UserProfileComponent = ({
     }
 
     const renderTextWithLinks = useMemo(() => {
-        if (!description) return
-        const encoder = new TextEncoder()
-        const decoder = new TextDecoder()
+        if (!profile?.description) return
+        const description = profile?.description
         if (true) {
             const post: any[] = []
             description.split("\n").map((line: string, i: number) => {
@@ -553,7 +552,7 @@ const UserProfileComponent = ({
             })
             return post
         }
-    }, [description])
+    }, [profile?.description])
 
     return (
         <>
