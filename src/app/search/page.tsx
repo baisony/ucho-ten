@@ -348,7 +348,7 @@ export default function Root() {
                 {searchText === "" && (
                     <div className={"w-full h-full text-white"}>
                         <div className={"absolute bottom-[50px] w-full"}>
-                            {t("Search.FindPerson")}
+                            {t("pages.search.FindPerson")}
                             <div
                                 className={searchSupportCard({ color: color })}
                                 onClick={() => {
