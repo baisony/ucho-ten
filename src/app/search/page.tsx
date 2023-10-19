@@ -321,10 +321,11 @@ export default function Root() {
 
         const target = menus[menuIndex].info
 
+        if (searchWord === "") return
         router.push(
             `/search?word=${encodeURIComponent(searchText)}&target=${target}`
         )
-    }, [menuIndex, menus])
+    }, [menuIndex, menus, searchWord])
 
     return (
         <>
