@@ -31,7 +31,7 @@ interface Props {
     open?: boolean
     tab: string //"home" | "search" | "inbox" | "post"
     page: string // "profile" | "home" | "post" | "search"
-    isNextPage?: boolean
+    // isNextPage?: boolean
     setSideBarOpen?: any
     selectedTab: string
     setSearchText?: any
@@ -45,6 +45,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const [userPreferences] = useUserPreferencesAtom()
     // const pathname = usePathname()
     const router = useRouter()
+    const pathname = usePathname()
     // const [menus] = useHeaderMenusAtom()
 
     const {
@@ -54,7 +55,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         open,
         tab,
         page,
-        isNextPage,
+        // isNextPage,
         setSideBarOpen,
         selectedTab,
         menuIndex,
@@ -71,6 +72,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [isComposing, setComposing] = useState(false)
+    const [isRoot, setIsRoot] = useState<boolean>(true)
 
     const sliderRef = useRef<Slider>(null)
 
@@ -109,6 +111,26 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [])
 
     useEffect(() => {
+        console.log("test", isMobile, pathname)
+        if (!isMobile) {
+            setIsRoot(true)
+            return
+        }
+
+        switch(pathname) {
+            case "/":
+            case "/search":
+            case "/inbox":
+            case "/post":
+                setIsRoot(true)
+                break
+            default:
+                setIsRoot(false)
+                break
+        }
+    }, [pathname, isMobile])
+
+    useEffect(() => {
         if (!sliderRef.current) {
             return
         }
@@ -125,14 +147,17 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     startContent={
                         <FontAwesomeIcon
                             className={"h-[20px]"}
-                            icon={isNextPage ? faChevronLeft : faBars}
+                            icon={isRoot === true ? faBars : faChevronLeft}
                         />
                     }
                     onClick={() => {
                         //setIsSideBarOpen(!isSideBarOpen)
                         //console.log(setValue)
-                        setSideBarOpen(true)
-                        console.log("setSideBarOpen")
+                        if (isRoot) {
+                            setSideBarOpen(true)
+                        } else {
+                            router.back()
+                        }
                     }}
                 />
                 {selectedTab === "search" && (
