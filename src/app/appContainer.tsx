@@ -37,6 +37,8 @@ import {
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
+import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
+import { TabQueryParamValue, isTabQueryParamValue } from "./types/types"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -46,6 +48,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords, setMuteWords] = useWordMutes()
+    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
 
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -87,6 +90,44 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
+        const queryParams = new URLSearchParams(searchParams)
+
+        let tabValue: TabQueryParamValue = "h"
+
+        if (!queryParams.get("f")) {
+            const pathComponents = pathName.split("/")
+
+            if (pathComponents.length > 1) {
+                switch (pathComponents[1]) {
+                    case "":
+                        tabValue = "h"
+                        break
+                    case "search":
+                        tabValue = "s"
+                        break
+                    case "inbox":
+                        tabValue = "i"
+                    case "post":
+                        tabValue = "p"
+                        break
+                }
+            }
+        } else {
+            const f = queryParams.get("f")
+            
+            if (isTabQueryParamValue(f)) {
+                tabValue = f
+            } else {
+                tabValue = "h"
+            }
+        }
+
+        queryParams.set("f", tabValue)
+
+        setNextQueryParams(queryParams)
+    }, [pathName, searchParams])
+
+    useEffect(() => {
         if (isMobile) {
             return
         }
@@ -110,7 +151,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 pathName !== "/post"
             ) {
                 event.preventDefault()
-                router.push("/post")
+                router.push(`/post?${nextQueryParams.toString()}`,)
             }
         }
 
@@ -131,6 +172,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }
 
     useEffect(() => {
+        console.log("1")
         if (agent?.hasSession === true) {
             return
         }
@@ -226,7 +268,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         console.log(searchText)
         if (searchText === "" || !searchText) return
-        router.push(`/search?word=${searchText}&target=${target || "posts"}`)
+
+        const queryParams = new URLSearchParams(nextQueryParams)
+        queryParams.set("word", searchText)
+        queryParams.set("target", target || "posts")
+
+        router.push(`/search?${queryParams.toString()}`)
     }, [searchText])
 
     useEffect(() => {

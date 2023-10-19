@@ -26,6 +26,7 @@ import "react-swipeable-list/dist/styles.css"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
@@ -37,11 +38,13 @@ interface Props {
 }
 
 export default function Root() {
+    const pathname = usePathname()
+    
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
-    const pathname = usePathname()
+    const [nextQueryParams] = useNextQueryParamsAtom()
 
-    const username = pathname.replace("/profile/", "")
+    //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
 
@@ -328,6 +331,7 @@ export default function Root() {
                         color={color}
                         isMobile={isMobile}
                         isSkeleton={true}
+                        nextQueryParams={nextQueryParams}
                     />
                 ))}
             {!loading &&
@@ -341,6 +345,7 @@ export default function Root() {
                         json={post}
                         isMobile={isMobile}
                         now={now}
+                        nextQueryParams={nextQueryParams}
                     />
                 ))}
         </InfiniteScroll>

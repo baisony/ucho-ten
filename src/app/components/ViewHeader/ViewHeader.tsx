@@ -22,6 +22,7 @@ import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import { HeaderMenu } from "@/app/_atoms/headerMenu"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
@@ -67,6 +68,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const [searchText, setSearchText] = useState("")
     const target = searchParams.get("target")
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
+
+    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [isComposing, setComposing] = useState(false)
 
     const sliderRef = useRef<Slider>(null)
@@ -151,10 +154,14 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 if (e.key !== "Enter" || isComposing) return //1
                                 props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
+
+                                const queryParams = new URLSearchParams(nextQueryParams)
+                                queryParams.set("word", encodeURIComponent(
+                                    searchText))
+                                queryParams.set("target", target || "posts")
+                                                        
                                 router.push(
-                                    `/search?word=${encodeURIComponent(
-                                        searchText
-                                    )}&target=${target}`
+                                    `/search?${nextQueryParams.toString()}`
                                 )
                             }}
                             onCompositionStart={() => setComposing(true)}
@@ -184,7 +191,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         src={logoImage}
                         alt={"logo"}
                         onClick={() => {
-                            router.push("/")
+                            router.push(`/?${nextQueryParams.toString()}`)
                         }}
                     />
                 )}

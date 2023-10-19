@@ -15,14 +15,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
 import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
     const [agent] = useAgent()
     const [menuIndex] = useMenuIndexAtom()
     const [menus] = useHeaderMenusAtom()
-
-    const router = useRouter()
-    const searchParams = useSearchParams()
+    const [nextQueryParams] = useNextQueryParamsAtom()
 
     const searchWord = searchParams.get("word") || ""
     const target = searchParams.get("target") || "posts"
@@ -321,8 +323,12 @@ export default function Root() {
 
         const target = menus[menuIndex].info
 
+        const queryParams = new URLSearchParams(nextQueryParams)
+        queryParams.set("word", searchText)
+        queryParams.set("target", target)
+
         router.push(
-            `/search?word=${encodeURIComponent(searchText)}&target=${target}`
+            `/search?${nextQueryParams.toString()}`
         )
     }, [menuIndex, menus])
 
@@ -352,7 +358,7 @@ export default function Root() {
                                 className={searchSupportCard({ color: color })}
                                 onClick={() => {
                                     router.push(
-                                        "/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese"
+                                        `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
                                     )
                                 }}
                             >
@@ -365,8 +371,11 @@ export default function Root() {
                             <div
                                 className={searchSupportCard({ color: color })}
                                 onClick={() => {
-                                    router.push(
-                                        "/search?word=フィード%20bsky.app&target=posts"
+                                    const queryParams = new URLSearchParams(nextQueryParams)
+                                    queryParams.set("word", "フィード%20bsky.app")
+                                    queryParams.set("target", "posts")
+                                router.push(
+                                        `/search?${nextQueryParams.toString()}`
                                     )
                                 }}
                             >
@@ -397,6 +406,7 @@ export default function Root() {
                                     color={color}
                                     isMobile={isMobile}
                                     isSkeleton={true}
+                                    nextQueryParams={nextQueryParams}
                                 />
                             ))}
                         {!loading &&
@@ -408,6 +418,7 @@ export default function Root() {
                                     postJson={post}
                                     isMobile={isMobile}
                                     now={now}
+                                    nextQueryParams={nextQueryParams}
                                 />
                             ))}
                     </>
@@ -436,7 +447,7 @@ export default function Root() {
                                     return UserComponent({
                                         actor,
                                         onClick: () => {
-                                            router.push(`/profile/${actor.did}`)
+                                            router.push(`/profile/${actor.did}?${nextQueryParams.toString()}`)
                                         },
                                         color: color,
                                     })

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { viewFeedCard } from "@/app/components/ViewFeedCard/styles"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { AtUri } from "@atproto/api"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
@@ -20,6 +21,9 @@ interface Props {
 
 export const ViewFeedCard: React.FC<Props> = (props: Props) => {
     const router = useRouter()
+
+    const [nextQueryParams] = useNextQueryParamsAtom()
+
     const { className, color, isMobile, isSkeleton, feed } = props
     const {
         PostCard,
@@ -43,7 +47,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                 onClick={(e) => {
                     e.stopPropagation()
                     const uri = new AtUri(feed.uri)
-                    router.push(`/profile/${uri.hostname}/feed/${uri.rkey}`)
+                    router.push(`/profile/${uri.hostname}/feed/${uri.rkey}?${nextQueryParams.toString()}`)
                 }}
             >
                 <>

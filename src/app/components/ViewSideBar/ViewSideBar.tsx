@@ -37,6 +37,7 @@ import {
     UserAccountByDid,
 } from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 // import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 interface Props {
     className?: string
@@ -68,7 +69,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         value,
     }))
     const [userProfileDetailed] = useUserProfileDetailedAtom()
-    const [loading, setLoading] = useState(false)
+    // const [loading, setLoading] = useState(false)
     const [openModalReason, setOpenModalReason] = useState<
         "switching" | "logout" | "relogin" | ""
     >("")
@@ -93,6 +94,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     } = viewSideBar()
 
     const [agent, setAgent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+        
     const [server, setServer] = useState<string>("")
     const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -476,7 +479,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     onClick={() => {
                         if (!agent?.session) return
                         setSideBarOpen(false)
-                        router.push(`/profile/${agent.session.did}`)
+                        router.push(`/profile/${agent.session.did}?${nextQueryParams.toString()}`)
                     }}
                 >
                     <div
@@ -486,7 +489,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         {userProfileDetailed?.avatar ? (
                             <img
-                                className={"h-[64px] w-[64px] rounded-[10px]"}
+                                className={"h-[64px] w-[64px] rounded-full "}
                                 src={userProfileDetailed?.avatar}
                             />
                         ) : (
@@ -511,7 +514,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push("/bookmarks")
+                            router.push(`/bookmarks?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon
@@ -524,7 +527,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push("/settings#mute")
+                            router.push(`/settings#mute?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon
@@ -537,7 +540,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push("/feeds")
+                            router.push(`/feeds?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon
@@ -551,7 +554,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         onClick={() => {
                             if (!agent?.session) return
                             setSideBarOpen(false)
-                            router.push(`/profile/${agent.session.did}`)
+                            router.push(`/profile/${agent.session.did}?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon
@@ -564,7 +567,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push("/settings#filtering")
+                            router.push(`/settings#filtering?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon
@@ -577,7 +580,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push("/settings")
+                            router.push(`/settings?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon
@@ -607,7 +610,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push("/about")
+                            router.push(`/about?${nextQueryParams.toString()}`)
                         }}
                     >
                         <FontAwesomeIcon

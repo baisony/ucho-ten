@@ -43,13 +43,16 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { ReportModal } from "@/app/components/ReportModal"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
     const router = useRouter()
-    const [appearanceColor] = useAppearanceColor()
     const pathname = usePathname()
     const username = pathname.replace("/profile/", "")
+
+    const [agent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
+    const [nextQueryParams] = useNextQueryParamsAtom()
 
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
@@ -288,7 +291,7 @@ export default function Root() {
     // }, [agent, cursor])
 
     const onClickDomain = (domain: string) => {
-        router.push(`/profile/${domain}`)
+        router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
     }
 
     return (
@@ -328,6 +331,7 @@ export default function Root() {
                         color={color}
                         isMobile={isMobile}
                         isSkeleton={true}
+                        nextQueryParams={nextQueryParams}
                     />
                 ))}
             {!loading &&
@@ -340,6 +344,7 @@ export default function Root() {
                         json={post}
                         isMobile={isMobile}
                         now={now}
+                        nextQueryParams={nextQueryParams}
                     />
                 ))}
         </InfiniteScroll>
@@ -364,7 +369,10 @@ const UserProfileComponent = ({
     isSkeleton,
 }: userProfileProps) => {
     const router = useRouter()
-    const [userPreferences] = useUserPreferencesAtom()
+
+    const [nextQueryParams] = useNextQueryParamsAtom()
+
+    // const [userPreferences] = useUserPreferencesAtom()
     const [onHoverButton, setOnHoverButton] = useState(false)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
@@ -500,7 +508,7 @@ const UserProfileComponent = ({
                                                 url.replace(
                                                     "bsky.app",
                                                     `${location.protocol}//${window.location.host}`
-                                                )
+                                                ) + `?${nextQueryParams.toString()}`
                                             )
                                         }}
                                     >
@@ -532,7 +540,7 @@ const UserProfileComponent = ({
                                 <span
                                     key={j}
                                     onClick={() => {
-                                        router.push(`/profile/${handle}`)
+                                        router.push(`/profile/${handle}?${nextQueryParams.toString()}`)
                                     }}
                                 >
                                     {handle}

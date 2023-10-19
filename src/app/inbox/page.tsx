@@ -9,10 +9,12 @@ import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import InfiniteScroll from "react-infinite-scroller"
 import { Spinner } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
     const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [nextQueryParams] = useNextQueryParamsAtom()
 
     const [loading, setLoading] = useState(true)
     const [notification, setNotification] = useState<PostView[] | null>(null)
@@ -167,6 +169,7 @@ export default function Root() {
                             color={color}
                             isMobile={isMobile}
                             isSkeleton={true}
+                            nextQueryParams={nextQueryParams}
                         />
                     ))}
                 {!loading &&
@@ -178,6 +181,7 @@ export default function Root() {
                             postJson={post}
                             isMobile={isMobile}
                             now={now}
+                            nextQueryParams={nextQueryParams}
                         />
                     ))}
             </InfiniteScroll>

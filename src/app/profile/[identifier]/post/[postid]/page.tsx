@@ -58,13 +58,17 @@ import {
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
 import { ReportModal } from "@/app/components/ReportModal"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
-    const [imageGallery, setImageGallery] = useImageGalleryAtom()
-    const [translateTo] = useTranslationLanguage()
     const router = useRouter()
+
+    const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [, setImageGallery] = useImageGalleryAtom()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const [translateTo] = useTranslationLanguage()
+    
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
@@ -298,7 +302,7 @@ export default function Root() {
                         <div
                             key={`link-${index}-${byteStart}`}
                             onClick={() => {
-                                router.push(`/profile/${facet.features[0].did}`)
+                                router.push(`/profile/${facet.features[0].did}?${nextQueryParams.toString()}`)
                             }}
                         >
                             {facetText}
@@ -386,11 +390,15 @@ export default function Root() {
                                 <div
                                     key={`a-${index}-${byteStart}`}
                                     onClick={() => {
+                                        const queryParams = new URLSearchParams(nextQueryParams)
+                                        queryParams.set("word", facet.features[0].tag.replace(
+                                            "#",
+                                            "%23"
+                                        ))
+                                        queryParams.set("target", "posts")
+                                                
                                         router.push(
-                                            `/search?searchWord=${facet.features[0].tag.replace(
-                                                "#",
-                                                "%23"
-                                            )}&target=posts`
+                                            `/search?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -454,6 +462,7 @@ export default function Root() {
                         color={color}
                         postJson={post.parent.post}
                         isMobile={isMobile}
+                        nextQueryParams={nextQueryParams}
                     />
                 </>
             )
@@ -480,6 +489,7 @@ export default function Root() {
                         color={color}
                         postJson={post.replies.post}
                         isMobile={isMobile}
+                        nextQueryParams={nextQueryParams}
                     />
                 </>
             )
@@ -595,7 +605,7 @@ export default function Root() {
                                 className={AuthorIcon()}
                                 onClick={() => {
                                     router.push(
-                                        `/profile/${post.post.author.did}`
+                                        `/profile/${post.post.author.did}?${nextQueryParams.toString()}`
                                     )
                                 }}
                             >
@@ -613,7 +623,7 @@ export default function Root() {
                                     className={AuthorDisplayName()}
                                     onClick={() => {
                                         router.push(
-                                            `/profile/${post.post.author.did}`
+                                            `/profile/${post.post.author.did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -623,7 +633,7 @@ export default function Root() {
                                     className={AuthorHandle()}
                                     onClick={() => {
                                         router.push(
-                                            `/profile/${post.post.author.did}`
+                                            `/profile/${post.post.author.did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -717,6 +727,7 @@ export default function Root() {
                                                             post.post.embed
                                                                 ?.record.record
                                                         }
+                                                        nextQueryParams={nextQueryParams}
                                                     />
                                                 </>
                                             )}
@@ -735,6 +746,7 @@ export default function Root() {
                                                 postJson={
                                                     post.post.embed?.record
                                                 }
+                                                nextQueryParams={nextQueryParams}
                                             />
                                         )
                                     ))}
@@ -964,6 +976,7 @@ export default function Root() {
                                     color={color}
                                     postJson={item.post}
                                     isMobile={isMobile}
+                                    nextQueryParams={nextQueryParams}
                                 />
                             ))}
                         </>

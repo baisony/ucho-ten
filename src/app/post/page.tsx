@@ -57,6 +57,7 @@ import {
 
 import { Linkcard } from "@/app/components/Linkcard"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 interface AttachmentImage {
     blob: Blob
@@ -65,12 +66,14 @@ interface AttachmentImage {
 }
 
 export default function Root() {
-    const [userProfileDetailed] = useUserProfileDetailedAtom()
-    const [agent, setAgent] = useAgent()
     const router = useRouter()
-    const [appearanceColor] = useAppearanceColor()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
+
+    const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const [agent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const [appearanceColor] = useAppearanceColor()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
     const [PostContentLanguage, setPostContentLanguage] = useState(
@@ -81,7 +84,7 @@ export default function Root() {
     const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
     const [loading, setLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const hiddenInput = useRef<HTMLDivElement>(null)
+    // const hiddenInput = useRef<HTMLDivElement>(null)
     const [isDetectedURL, setIsDetectURL] = useState(false)
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
@@ -277,7 +280,7 @@ export default function Root() {
 
             setLoading(false)
 
-            router.push("/")
+            router.push(`/?${nextQueryParams.toString()}`)
         } catch (e) {
             console.log(e)
         } finally {
@@ -487,7 +490,7 @@ export default function Root() {
                         isDisabled={loading}
                         onClick={() => {
                             if (history[0] === "/post" || history[0] === "") {
-                                router.push("/")
+                                router.push(`/?${nextQueryParams.toString()}`)
                             } else {
                                 router.back()
                             }
