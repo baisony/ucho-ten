@@ -1,0 +1,51 @@
+{
+  "pages": {
+    "home": {},
+    "Search": {
+      "FindPerson": "自分らしく、探そう。"
+    },
+    "inbox": {},
+    "post": {}
+  },
+  "components": {
+    "ViewSideBar": {
+      "bookmark": "ブックマーク",
+      "mute": "ミュート",
+      "feeds": "フィード",
+      "preferences": "設定",
+      "bugReport": "バグ報告",
+      "about": "Ucho-tenについて",
+      "SwitchAccount": "アカウントを切り替える",
+      "logout": "ログアウト",
+      "switchAccount": "アカウントを切り替える",
+      "needLogin": "ログインが必要です",
+      "addAccount": "アカウントを追加",
+      "addAccountModal": {
+        "title": "ログイン",
+        "service": "サーバー",
+        "servicePlaceholder": "サーバーのURLを入力",
+        "identifier": "アカウント",
+        "identifierPlaceholder": "ハンドル, DID, メールアドレスを入力",
+        "password": "パスワード",
+        "passwordPlaceholder": "パスワードを入力"
+      },
+      "logoutModal": {
+        "title": "ログアウト",
+        "description": "本当にログアウトしますか？"
+      }
+    }
+  },
+  "button": {
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "confirm": "確認",
+    "ok": "OK",
+    "yes": "はい",
+    "no": "いいえ",
+    "delete": "削除",
+    "save": "保存",
+    "edit": "編集",
+    "add": "追加",
+    "signin": "ログイン"
+  }
+}

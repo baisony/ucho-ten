@@ -69,6 +69,7 @@ import {
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import { useTranslation } from "react-i18next"
 
 interface Props {
     // className?: string
@@ -117,7 +118,7 @@ export const ViewPostCard = (props: Props) => {
             return null
         }
     }, [postJson, quoteJson])
-
+    const { t } = useTranslation()
     const [agent] = useAgent()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
@@ -151,7 +152,6 @@ export const ViewPostCard = (props: Props) => {
         // LinkCardDescription,
         // LinkCardSiteName,
     } = viewPostCard()
-
     const quoteCardStyles = viewQuoteCard()
 
     const [isLiked, setIsLiked] = useState<boolean>(!!postView?.viewer?.like)

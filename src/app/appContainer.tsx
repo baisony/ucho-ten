@@ -1,5 +1,5 @@
 "use client"
-
+import "./_i18n/config" //i18
 import { ViewHeader } from "@/app/components/ViewHeader"
 import React, { useEffect, useRef, useState, useMemo } from "react"
 import { layout } from "@/app/styles"

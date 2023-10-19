@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
 import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
     const [agent] = useAgent()
@@ -45,8 +46,8 @@ export default function Root() {
     const cursor = useRef<string>("")
 
     const { searchSupportCard } = layout()
-
     const [appearanceColor] = useAppearanceColor()
+    const { t, i18n } = useTranslation()
     const color = darkMode ? "dark" : "light"
 
     const modeMe = (e: any) => {
@@ -347,7 +348,7 @@ export default function Root() {
                 {searchText === "" && (
                     <div className={"w-full h-full text-white"}>
                         <div className={"absolute bottom-[50px] w-full"}>
-                            自分らしく、探そう。
+                            {t("Search.FindPerson")}
                             <div
                                 className={searchSupportCard({ color: color })}
                                 onClick={() => {
