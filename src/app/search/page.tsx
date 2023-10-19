@@ -325,7 +325,7 @@ export default function Root() {
         router.push(
             `/search?word=${encodeURIComponent(searchText)}&target=${target}`
         )
-    }, [menuIndex, menus, searchWord])
+    }, [menuIndex, menus])
 
     return (
         <>
