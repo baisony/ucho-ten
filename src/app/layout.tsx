@@ -55,9 +55,13 @@ export default function RootLayout({
                     type="image/svg+xml"
                 />
                 <meta name="robots" content="noarchive,max-image-preview" />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap"
+                    rel="stylesheet"
+                />
             </head>
             <body
-                // className={`${noto.className}`}
+                className="font-sans"
                 style={{
                     overscrollBehaviorY: "none",
                     overflowY: "auto",

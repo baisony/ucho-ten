@@ -16,17 +16,9 @@ const config: Config = {
                     "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
             },
         },
-        // fontFamily: {
-        //     body: [
-        //         '"noto color emoji"',
-        //         '"segoe ui emoji"',
-        //         '"android emoji"',
-        //         "emojisymbols",
-        //         '"emojione mozilla"',
-        //         '"twemoji mozilla"',
-        //         '"segoe ui symbol"',
-        //     ],
-        // },
+        fontFamily: {
+            'sans': ['Noto Sans', 'sans'],
+        },
     },
     darkMode: "class",
     plugins: [nextui()],
