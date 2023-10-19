@@ -17,7 +17,7 @@ const config: Config = {
             },
         },
         fontFamily: {
-            'sans': ['Noto Sans', 'sans'],
+            sans: ["Noto Sans", "sans"],
         },
     },
     darkMode: "class",

@@ -41,15 +41,13 @@ export const viewQuoteCard = tv({
     variants: {
         color: {
             light: {
-                PostCard:
-                    "text-black border-[#E8E8E8]",// hover:bg-[#F5F5F5]",
+                PostCard: "text-black border-[#E8E8E8]", // hover:bg-[#F5F5F5]",
                 PostAuthorDisplayName: "text-black",
                 LinkCard: "bg-white text-black hover:bg-[#DBDBDB]",
                 LinkCardTitle: "text-black",
             },
             dark: {
-                PostCard:
-                    "text-[#D7D7D7] border-[#181818]", // hover:bg-[#1C1C1C]",
+                PostCard: "text-[#D7D7D7] border-[#181818]", // hover:bg-[#1C1C1C]",
                 PostAuthorDisplayName: "text-white",
                 PostAuthorHandle: "text-[#BABABA]",
                 PostCreatedAt: "text-[#B8B8B8]",
@@ -87,7 +85,7 @@ export const viewQuoteCard = tv({
         },
         isEmbedToModal: {
             true: {
-                PostModal: ""// bg-transparent",
+                PostModal: "", // bg-transparent",
             },
         },
     },
