@@ -64,12 +64,14 @@ export const createPostPage = tv({
         color: {
             light: {
                 background: "",
-                PostModal: "bg-[#DADADA] bg-opacity-70 text-white backdrop-blur-[15px]",
+                PostModal:
+                    "bg-[#DADADA] bg-opacity-70 text-white backdrop-blur-[15px]",
                 footer: "bg-[#DADADA]",
             },
             dark: {
                 background: "",
-                PostModal: "bg-[#2C2C2C] bg-opacity-70 text-[#D7D7D7] backdrop-blur-[15px]",
+                PostModal:
+                    "bg-[#2C2C2C] bg-opacity-70 text-[#D7D7D7] backdrop-blur-[15px]",
                 footer: "bg-[#2C2C2C]",
                 dropdown: "dark text-white",
                 popover: "dark text-white",
