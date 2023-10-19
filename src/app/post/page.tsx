@@ -66,7 +66,7 @@ interface AttachmentImage {
 
 export default function Root() {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
-    const [agent, setAgent] = useAgent()
+    const [agent] = useAgent()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
     const searchParams = useSearchParams()
@@ -81,16 +81,16 @@ export default function Root() {
     const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
     const [loading, setLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const hiddenInput = useRef<HTMLDivElement>(null)
+    // const hiddenInput = useRef<HTMLDivElement>(null)
     const [isDetectedURL, setIsDetectURL] = useState(false)
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [isSetURLCard, setIsSetURLCard] = useState(false)
+    const [, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [isGetOGPFetchError, setIsGetOGPFetchError] = useState(false)
+    const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    const [compressingLength, setCompressingLength] = useState(0)
+    // const [compressingLength, setCompressingLength] = useState(0)
     const [OGPImage, setOGPImage] = useState<any>([])
     // const isImageMaxLimited =
     //    contentImages.length >= 5 || contentImages.length === 4 // 4枚まで
@@ -133,7 +133,7 @@ export default function Root() {
         ImageAddALTButton,
         ImageEditButton,
     } = createPostPage()
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const { isOpen /*onOpen, onOpenChange*/ } = useDisclosure()
 
     const [darkMode, setDarkMode] = useState(false)
     const history = useContext(HistoryContext)
