@@ -685,6 +685,14 @@ export const ViewPostCard = (props: Props) => {
                         isEmbedToModal
                             ? `bg-transparent border-none`
                             : `cursor-pointer`
+                    }  ${
+                        !isMobile &&
+                        color === "light" &&
+                        "bg-[#DADADA] bg-opacity-70 backdrop-blur-[15px]"
+                    } ${
+                        !isMobile &&
+                        color === "dark" &&
+                        "bg-[#2C2C2C] bg-opacity-70 backdrop-blur-[15px]"
                     }`}
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                     onClick={(e) => {
