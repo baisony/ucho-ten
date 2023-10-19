@@ -71,6 +71,9 @@ dependencies:
   next:
     specifier: 13.5.4
     version: 13.5.4(react-dom@18.2.0)(react@18.2.0)
+  next-i18next:
+    specifier: ^14.0.3
+    version: 14.0.3(i18next@23.6.0)(next@13.5.4)(react-i18next@13.3.1)(react@18.2.0)
   postcss:
     specifier: 8.4.31
     version: 8.4.31
@@ -2497,6 +2500,13 @@ packages:
     resolution: {integrity: sha512-uG/4x6EXYbq4VDsBJLNDHQAQmtRPg3x4tAXcBspxlnEknz8NiJxnHoxSiJKGNExiS00q4mJNvuEBgVA3jsDIdQ==}
     dev: false
 
+  /@types/hoist-non-react-statics@3.3.4:
+    resolution: {integrity: sha512-ZchYkbieA+7tnxwX/SCBySx9WwvWR8TaP5tb2jRAzwvLb/rWchGw3v0w3pqUbUvj0GCwW2Xz/AVPSk6kUGctXQ==}
+    dependencies:
+      '@types/react': 18.2.22
+      hoist-non-react-statics: 3.3.2
+    dev: false
+
   /@types/json-schema@7.0.13:
     resolution: {integrity: sha512-RbSSoHliUbnXj3ny0CNFOoxrIDV6SUGyStHsvDqosw6CkdPV8TtWGlfecuK4ToyMEAql6pzNxgCFKanovUzlgQ==}
     dev: true
@@ -3104,6 +3114,11 @@ packages:
 
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+
+  /core-js@3.33.0:
+    resolution: {integrity: sha512-HoZr92+ZjFEKar5HS6MC776gYslNOKHt75mEBKWKnPeFDpZ6nH5OeF3S6HFT1mUAUZKrzkez05VboaX8myjSuw==}
+    requiresBuild: true
+    dev: false
 
   /cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
@@ -3966,6 +3981,18 @@ packages:
     dependencies:
       function-bind: 1.1.1
 
+  /hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
+    dependencies:
+      react-is: 16.13.1
+    dev: false
+
+  /html-parse-stringify@3.0.1:
+    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
+    dependencies:
+      void-elements: 3.1.0
+    dev: false
+
   /human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
@@ -3975,6 +4002,16 @@ packages:
     resolution: {integrity: sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==}
     engines: {node: '>=14.18.0'}
     dev: true
+
+  /i18next-fs-backend@2.2.0:
+    resolution: {integrity: sha512-VOPHhdDX0M/csRqEw+9Ectpf6wvTIg1MZDfAHxc3JKnAlJz7fcZSAKAeyDohOq0xuLx57esYpJopIvBaRb0Bag==}
+    dev: false
+
+  /i18next@23.6.0:
+    resolution: {integrity: sha512-z0Cxr0MGkt+kli306WS4nNNM++9cgt2b2VCMprY92j+AIab/oclgPxdwtTZVLP1zn5t5uo8M6uLsZmYrcjr3HA==}
+    dependencies:
+      '@babel/runtime': 7.22.15
+    dev: false
 
   /ignore@5.2.4:
     resolution: {integrity: sha512-MAb38BcSbH0eHNBxn7ql2NH/kX33OkB3lZ1BNdh7ENeRChHTYsTvWrMubiIAMNS2llXEEgZ1MUOBtXChP3kaFQ==}
@@ -4439,6 +4476,26 @@ packages:
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
+  /next-i18next@14.0.3(i18next@23.6.0)(next@13.5.4)(react-i18next@13.3.1)(react@18.2.0):
+    resolution: {integrity: sha512-FtnjRMfhlamk8YyeyWqd+pndNL+3er83iMZnH4M4mhiGA93l0+vtBUvuObgOAMHDJGLLB2SS2xOOZq69oiJh7A==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      i18next: ^23.4.6
+      next: '>= 12.0.0'
+      react: '>= 17.0.2'
+      react-i18next: ^13.2.1
+    dependencies:
+      '@babel/runtime': 7.22.15
+      '@types/hoist-non-react-statics': 3.3.4
+      core-js: 3.33.0
+      hoist-non-react-statics: 3.3.2
+      i18next: 23.6.0
+      i18next-fs-backend: 2.2.0
+      next: 13.5.4(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      react-i18next: 13.3.1(i18next@23.6.0)(react-dom@18.2.0)(react@18.2.0)
+    dev: false
+
   /next@13.5.4(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-+93un5S779gho8y9ASQhb/bTkQF17FNQOtXLKAj3lsNgltEcF0C5PMLLncDmH+8X1EnJH1kbqAERa29nRXqhjA==}
     engines: {node: '>=16.14.0'}
@@ -4828,6 +4885,26 @@ packages:
       file-selector: 0.6.0
       prop-types: 15.8.1
       react: 18.2.0
+    dev: false
+
+  /react-i18next@13.3.1(i18next@23.6.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-JAtYREK879JXaN9GdzfBI4yJeo/XyLeXWUsRABvYXiFUakhZJ40l+kaTo+i+A/3cKIED41kS/HAbZ5BzFtq/Og==}
+    peerDependencies:
+      i18next: '>= 23.2.3'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.22.15
+      html-parse-stringify: 3.0.1
+      i18next: 23.6.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-infinite-scroller@1.2.6(react@18.2.0):
@@ -5575,6 +5652,11 @@ packages:
 
   /uzip@0.20201231.0:
     resolution: {integrity: sha512-OZeJfZP+R0z9D6TmBgLq2LHzSSptGMGDGigGiEe0pr8UBe/7fdflgHlHBNDASTXB5jnFuxHpNaJywSg8YFeGng==}
+    dev: false
+
+  /void-elements@3.1.0:
+    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
+    engines: {node: '>=0.10.0'}
     dev: false
 
   /watchpack@2.4.0:
