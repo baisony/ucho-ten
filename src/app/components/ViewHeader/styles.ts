@@ -8,8 +8,8 @@ export const viewHeader = tv({
         HeaderContent:
             "w-full h-[100%-86px] max-h-[400px] relative flex items-center flex-wrap overflow-y-scroll",
         HeaderInputArea: "h-full w-full outline-none pl-[20px] pr-[40px]",
-        top: "h-[73px] w-full flex justify-center items-center",
-        bottom: "h-[27px] relative bottom-0 font-bold align-start overflow-x-scroll overflow-y-hidden",
+        top: "h-[68px] w-full flex justify-center items-center",
+        bottom: "h-[32px] relative bottom-0 font-bold align-start overflow-x-scroll overflow-y-hidden pb-2",
     },
     variants: {
         color: {
