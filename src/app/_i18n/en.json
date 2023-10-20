@@ -36,6 +36,42 @@
       "copyFeedURL": "フィードのURLをコピー",
       "postThisFeed": "このフィードを投稿する",
       "createdBy": "作成者"
+    },
+    "settings": {
+      "general": "一般",
+      "language": "言語",
+      "theme": "テーマ",
+      "dark": "ダーク",
+      "light": "ライト",
+      "system": "自動",
+      "auto": "自動",
+      "appearance": "外観",
+      "fontSize": "フォントサイズ",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "huge": "特大",
+      "displayLanguage": "表示言語",
+      "notifications": "通知",
+      "translate": "翻訳",
+      "translateTo": "翻訳先の言語",
+      "reset": "リセット",
+      "resetSettings": "設定をリセット"
+    },
+    "contentfiltering": {
+      "title": "コンテンツ表示設定",
+      "spam": "スパム",
+      "nsfw": "性的なコンテンツ",
+      "otherNudity": "その他の性的なコンテンツ",
+      "sexuallySuggestive": "性的な表現",
+      "violence": "暴力的な表現・血を含むもの",
+      "impersonation": "なりすまし",
+      "hate": "憎悪表現"
+    },
+    "mute": {
+        "title": "ミュート",
+        "muteWord": "ミュートワード",
+        "muteUser": "ミュートユーザー"
     }
   },
   "components": {
@@ -72,6 +108,8 @@
       "copyJSON": "投稿のJSONをコピー",
       "warning": "コンテンツ警告",
       "show": "表示"
+    },
+    "LinkCard": {
     }
   },
   "modal": {
@@ -106,6 +144,14 @@
     "unfollow": "フォロー解除",
     "subscribe": "購読",
     "subscribed": "購読中",
-    "unsubscribe": "購読解除"
+    "unsubscribe": "購読解除",
+    "next": "次へ",
+    "previous": "前へ",
+    "back": "戻る",
+    "done": "完了",
+    "loading": "読み込み中",
+    "hide": "非表示",
+    "warn": "警告",
+    "show": "表示"
   }
 }
