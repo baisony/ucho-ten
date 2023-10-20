@@ -20,6 +20,17 @@
       "block": "ブロック",
       "unblock": "ブロック解除",
       "report": "報告"
+    },
+    "postOnlyPage": {
+      "report": "報告",
+      "delete": "削除",
+      "share": "投稿を共有",
+      "translate": "翻訳",
+      "copyJSON": "投稿のJSONをコピー",
+      "copyURL": "投稿のURLをコピー",
+      "copyDID": "投稿者のDIDをコピー",
+      "viewOriginal": "原文を表示",
+      "translateErorr": "翻訳に失敗しました"
     }
   },
   "components": {
