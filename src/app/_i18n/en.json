@@ -5,7 +5,22 @@
       "FindPerson": "自分らしく、探そう。"
     },
     "inbox": {},
-    "post": {}
+    "post": {},
+    "profile": {
+      "editProfile": "プロフィールを編集",
+      "displayName": "名前",
+      "bio": "自己紹介",
+      "icon": "アイコン",
+      "header": "ヘッダー",
+      "copyDID": "DIDをコピー",
+      "copyHandle": "ハンドルをコピー",
+      "copyDisplauName": "名前をコピー",
+      "mute": "ミュート",
+      "unmute": "ミュート解除",
+      "block": "ブロック",
+      "unblock": "ブロック解除",
+      "report": "報告"
+    }
   },
   "components": {
     "ViewSideBar": {
@@ -54,6 +69,9 @@
     "save": "保存",
     "edit": "編集",
     "add": "追加",
-    "signin": "ログイン"
+    "signin": "ログイン",
+    "follow": "フォロー",
+    "following": "フォロー中",
+    "unfollow": "フォロー解除"
   }
 }
