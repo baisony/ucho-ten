@@ -31,6 +31,11 @@
       "copyDID": "投稿者のDIDをコピー",
       "viewOriginal": "原文を表示",
       "translateErorr": "翻訳に失敗しました"
+    },
+    "feedOnlyPage": {
+      "copyFeedURL": "フィードのURLをコピー",
+      "postThisFeed": "このフィードを投稿する",
+      "createdBy": "作成者"
     }
   },
   "components": {
@@ -98,6 +103,9 @@
     "signin": "ログイン",
     "follow": "フォロー",
     "following": "フォロー中",
-    "unfollow": "フォロー解除"
+    "unfollow": "フォロー解除",
+    "subscribe": "購読",
+    "subscribed": "購読中",
+    "unsubscribe": "購読解除"
   }
 }
