@@ -33,6 +33,14 @@
         "title": "ログアウト",
         "description": "本当にログアウトしますか？"
       }
+    },
+    "ViewPostCard": {
+      "report": "報告",
+      "delete": "削除",
+      "copyURL": "投稿のURLをコピー",
+      "copyJSON": "投稿のJSONをコピー",
+      "warning": "コンテンツ警告",
+      "show": "表示"
     }
   },
   "button": {
