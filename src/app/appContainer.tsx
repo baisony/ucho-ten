@@ -87,6 +87,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
+        router.prefetch("/")
+        router.prefetch("/search")
+        router.prefetch("/inbox")
+        router.prefetch("/post")
+    })
+
+    useEffect(() => {
         if (isMobile) {
             return
         }
