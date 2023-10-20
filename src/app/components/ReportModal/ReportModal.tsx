@@ -15,6 +15,7 @@ import { useAgent } from "@/app/_atoms/agent"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"
+import { useTranslation } from "react-i18next"
 
 /**
  * SetttingsModal props.
@@ -49,6 +50,7 @@ export const ReportModal = (props: ReportModalProps) => {
         post,
     } = props
     const [agent] = useAgent()
+    const { t } = useTranslation()
     const [reportReasonText, setReportReasonText] = useState<string>("")
     const [reportReasonType, setReportReasonType] = useState<string>("")
     const [isReportSending, setIsReportSending] = useState<boolean>(false)
@@ -167,7 +169,7 @@ export const ReportModal = (props: ReportModalProps) => {
                                 className={"flex items-center justify-between"}
                             >
                                 <div className={"mr-[10px]"}>
-                                    <span>Select reason</span>
+                                    <span>{t("modal.report.reason")}</span>
                                 </div>
                                 <Select
                                     onSelectionChange={(e: any) => {
@@ -214,7 +216,6 @@ export const ReportModal = (props: ReportModalProps) => {
                                                 "com.atproto.moderation.defs#reasonOther" &&
                                             reportReasonText.length == 0
                                         }
-                                        errorMessage="The description should be at least 255 characters long."
                                         required={
                                             reportReasonType ===
                                             "com.atproto.moderation.defs#reasonOther"
@@ -223,13 +224,17 @@ export const ReportModal = (props: ReportModalProps) => {
                                             setReportReasonText(e.target.value)
                                             console.log(e)
                                         }}
-                                        placeholder={"Description"}
+                                        placeholder={t(
+                                            "modal.report.placeholder"
+                                        )}
                                     />
                                 </div>
                             </div>
                         </ModalBody>
                         <ModalFooter>
-                            <Button onPress={onClose}>cancel</Button>
+                            <Button onPress={onClose}>
+                                {t("button.close")}
+                            </Button>
                             <Button
                                 onPress={() => {
                                     handleSendButtonPush
@@ -254,14 +259,14 @@ export const ReportModal = (props: ReportModalProps) => {
                             >
                                 {!isReportSending &&
                                     isReportSuccess === null &&
-                                    "send"}
+                                    t("button.send")}
                                 {isReportSending && <Spinner size="sm" />}
                                 {!isReportSending &&
                                     isReportSuccess &&
-                                    "success"}
+                                    t("button.success")}
                                 {!isReportSending &&
                                     isReportSuccess === false &&
-                                    "failed"}
+                                    t("button.failed")}
                             </Button>
                         </ModalFooter>
                     </>

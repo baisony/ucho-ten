@@ -58,9 +58,24 @@
       "show": "表示"
     }
   },
+  "modal": {
+    "report": {
+      "title": "報告",
+      "description": "この投稿を報告しますか？",
+      "placeholder": "報告の理由を入力",
+      "confirm": "報告",
+      "cancel": "キャンセル",
+      "success": "報告しました",
+      "error": "報告に失敗しました",
+      "reason": "報告理由"
+    }
+  },
   "button": {
     "cancel": "キャンセル",
     "close": "閉じる",
+    "send": "送信",
+    "success": "成功",
+    "failed": "失敗",
     "confirm": "確認",
     "ok": "OK",
     "yes": "はい",
