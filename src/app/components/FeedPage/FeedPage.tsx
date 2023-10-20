@@ -323,7 +323,7 @@ const FeedPage = ({
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
-                                nextQueryParams
+                                nextQueryParams,
                             }}
                         />
                     )}

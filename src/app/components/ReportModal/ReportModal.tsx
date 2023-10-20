@@ -30,6 +30,7 @@ export type ReportModalProps = {
     color: "light" | "dark"
     target: "post" | "account"
     post?: any
+    nextQueryParams: URLSearchParams
 }
 
 /**
@@ -47,6 +48,7 @@ export const ReportModal = (props: ReportModalProps) => {
         color,
         target,
         post,
+        nextQueryParams,
     } = props
     const [agent] = useAgent()
     const [reportReasonText, setReportReasonText] = useState<string>("")
@@ -161,6 +163,7 @@ export const ReportModal = (props: ReportModalProps) => {
                                 <ViewQuoteCard
                                     color={color}
                                     profile={profile}
+                                    nextQueryParams={nextQueryParams}
                                 />
                             </div>
                             <div

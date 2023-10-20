@@ -36,7 +36,7 @@ export default function Root() {
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    
+
     const [hashFlagment, setHashFlagment] = useState<string | null>(null)
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
@@ -347,7 +347,9 @@ export default function Root() {
                                     "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
                                 }
                                 onClick={() => {
-                                    router.push(`/settings/mute/words?${nextQueryParams.toString()}`)
+                                    router.push(
+                                        `/settings/mute/words?${nextQueryParams.toString()}`
+                                    )
                                 }}
                             >
                                 Mute Words
@@ -357,7 +359,9 @@ export default function Root() {
                                     "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
                                 }
                                 onClick={() => {
-                                    router.push(`/settings/mute/accounts?${nextQueryParams.toString()}`)
+                                    router.push(
+                                        `/settings/mute/accounts?${nextQueryParams.toString()}`
+                                    )
                                 }}
                             >
                                 Mute Accounts

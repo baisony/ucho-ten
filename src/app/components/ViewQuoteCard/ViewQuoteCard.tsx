@@ -199,7 +199,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJson?.author.did}?${nextQueryParams.toString()}`
+                                            `/profile/${postJson?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -273,7 +274,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJson?.author.did}?${nextQueryParams.toString()}`
+                                            `/profile/${postJson?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -302,7 +304,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJson?.author.did}?${nextQueryParams.toString()}`
+                                            `/profile/${postJson?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >

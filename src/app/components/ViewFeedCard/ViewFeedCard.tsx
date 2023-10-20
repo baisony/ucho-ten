@@ -47,7 +47,11 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                 onClick={(e) => {
                     e.stopPropagation()
                     const uri = new AtUri(feed.uri)
-                    router.push(`/profile/${uri.hostname}/feed/${uri.rkey}?${nextQueryParams.toString()}`)
+                    router.push(
+                        `/profile/${uri.hostname}/feed/${
+                            uri.rkey
+                        }?${nextQueryParams.toString()}`
+                    )
                 }}
             >
                 <>

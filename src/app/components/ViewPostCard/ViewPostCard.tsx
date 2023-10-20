@@ -550,11 +550,16 @@ export const ViewPostCard = (props: Props) => {
                                     onClick={(e) => {
                                         e.stopPropagation()
 
-                                        const queryParams = new URLSearchParams(nextQueryParams)
-                                        queryParams.set("word", `%23${facet.features[0].tag.replace(
-                                            "#",
-                                            ""
-                                        )}`)
+                                        const queryParams = new URLSearchParams(
+                                            nextQueryParams
+                                        )
+                                        queryParams.set(
+                                            "word",
+                                            `%23${facet.features[0].tag.replace(
+                                                "#",
+                                                ""
+                                            )}`
+                                        )
                                         queryParams.set("target", "posts")
 
                                         router.push(
@@ -687,6 +692,7 @@ export const ViewPostCard = (props: Props) => {
                     color={color}
                     target={"post"}
                     post={postJson}
+                    nextQueryParams={nextQueryParams}
                 />
                 <main
                     className={`${
@@ -1241,7 +1247,12 @@ interface EmbedMediaProps {
     nextQueryParams: URLSearchParams
 }
 
-const EmbedMedia = ({ embedMedia, onImageClick, color, nextQueryParams }: EmbedMediaProps) => {
+const EmbedMedia = ({
+    embedMedia,
+    onImageClick,
+    color,
+    nextQueryParams,
+}: EmbedMediaProps) => {
     const images = embedMedia.media.images
 
     if (!images || !Array.isArray(images)) {

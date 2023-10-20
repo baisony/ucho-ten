@@ -15,7 +15,7 @@ export default function Root() {
 
     const [timeline, setTimeline] = useState<PostView[]>([])
     const [darkMode, setDarkMode] = useState(false)
-    
+
     const color = darkMode ? "dark" : "light"
 
     const modeMe = (e: any) => {

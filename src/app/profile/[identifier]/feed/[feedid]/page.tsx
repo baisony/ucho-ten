@@ -39,7 +39,7 @@ interface Props {
 
 export default function Root() {
     const pathname = usePathname()
-    
+
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [nextQueryParams] = useNextQueryParamsAtom()

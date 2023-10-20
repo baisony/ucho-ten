@@ -327,9 +327,7 @@ export default function Root() {
         queryParams.set("word", searchText)
         queryParams.set("target", target)
 
-        router.push(
-            `/search?${nextQueryParams.toString()}`
-        )
+        router.push(`/search?${nextQueryParams.toString()}`)
     }, [menuIndex, menus])
 
     return (
@@ -371,10 +369,15 @@ export default function Root() {
                             <div
                                 className={searchSupportCard({ color: color })}
                                 onClick={() => {
-                                    const queryParams = new URLSearchParams(nextQueryParams)
-                                    queryParams.set("word", "フィード%20bsky.app")
+                                    const queryParams = new URLSearchParams(
+                                        nextQueryParams
+                                    )
+                                    queryParams.set(
+                                        "word",
+                                        "フィード%20bsky.app"
+                                    )
                                     queryParams.set("target", "posts")
-                                router.push(
+                                    router.push(
                                         `/search?${nextQueryParams.toString()}`
                                     )
                                 }}
@@ -447,7 +450,11 @@ export default function Root() {
                                     return UserComponent({
                                         actor,
                                         onClick: () => {
-                                            router.push(`/profile/${actor.did}?${nextQueryParams.toString()}`)
+                                            router.push(
+                                                `/profile/${
+                                                    actor.did
+                                                }?${nextQueryParams.toString()}`
+                                            )
                                         },
                                         color: color,
                                     })

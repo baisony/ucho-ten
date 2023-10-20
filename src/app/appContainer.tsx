@@ -69,16 +69,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             : "home"
     const [menus, setMenus] = useHeaderMenusAtom()
     const [menuIndex, setMenuIndex] = useMenuIndexAtom()
-    const [selectedTab, setSelectedTab] = useState<string>(tab)
+    // const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(isMatchingPath)
-    const [page, setPage] = useState<
-        "profile" | "home" | "inbox" | "post" | "search"
-    >("home")
+    // const [page, setPage] = useState<
+    //     "profile" | "home" | "inbox" | "post" | "search"
+    // >("home")
     const [darkMode, setDarkMode] = useState<boolean>(false)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
     const [history, setHistory] = useState([pathName, ""])
@@ -107,6 +107,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         break
                     case "inbox":
                         tabValue = "i"
+                        break
                     case "post":
                         tabValue = "p"
                         break
@@ -114,7 +115,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         } else {
             const f = queryParams.get("f")
-            
+
             if (isTabQueryParamValue(f)) {
                 tabValue = f
             } else {
@@ -151,7 +152,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 pathName !== "/post"
             ) {
                 event.preventDefault()
-                router.push(`/post?${nextQueryParams.toString()}`,)
+                router.push(`/post?${nextQueryParams.toString()}`)
             }
         }
 
@@ -292,22 +293,22 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [appearanceColor])
 
     useEffect(() => {
-        if (pathName.startsWith("/search")) {
-            setPage("search")
-            setSelectedTab("search")
-        } else if (pathName.startsWith("/profile")) {
-            setPage("profile")
-            setSelectedTab("home")
-        } else if (pathName.startsWith("/post")) {
-            setPage("post")
-            setSelectedTab("post")
-        } else if (pathName.startsWith("/inbox")) {
-            setPage("inbox") // TODO: ??
-            setSelectedTab("inbox")
-        } else {
-            setPage("home")
-            setSelectedTab("home")
-        }
+        // if (pathName.startsWith("/search")) {
+        //     setPage("search")
+        //     // setSelectedTab("search")
+        // } else if (pathName.startsWith("/profile")) {
+        //     setPage("profile")
+        //     // setSelectedTab("home")
+        // } else if (pathName.startsWith("/post")) {
+        //     setPage("post")
+        //     // setSelectedTab("post")
+        // } else if (pathName.startsWith("/inbox")) {
+        //     setPage("inbox") // TODO: ??
+        //     // setSelectedTab("inbox")
+        // } else {
+        //     setPage("home")
+        //     // setSelectedTab("home")
+        // }
 
         setShowTabBar(specificPaths.includes(pathName))
     }, [pathName])
@@ -594,11 +595,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 <ViewHeader
                                     isMobile={isMobile}
                                     color={color}
-                                    page={page}
-                                    tab={selectedTab}
+                                    //page={page}
+                                    // tab={selectedTab}
                                     setSideBarOpen={setSideBarOpen}
                                     setSearchText={setSearchText}
-                                    selectedTab={selectedTab}
+                                    // selectedTab={selectedTab}
                                     menuIndex={menuIndex}
                                     menus={menus}
                                     onChangeMenuIndex={onChangeMenuIndex}
@@ -618,8 +619,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             {!showTabBar && (
                                 <TabBar
                                     color={color}
-                                    selected={selectedTab}
-                                    setValue={setSelectedTab}
+                                    isMobile={isMobile}
+                                    // selected={selectedTab}
+                                    // setValue={setSelectedTab}
                                 />
                             )}
                         </div>

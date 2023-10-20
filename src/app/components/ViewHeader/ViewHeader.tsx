@@ -29,11 +29,11 @@ interface Props {
     color: "light" | "dark"
     isMobile?: boolean
     open?: boolean
-    tab: string //"home" | "search" | "inbox" | "post"
-    page: string // "profile" | "home" | "post" | "search"
+    // tab: string //"home" | "search" | "inbox" | "post"
+    // page: string // "profile" | "home" | "post" | "search"
     // isNextPage?: boolean
     setSideBarOpen?: any
-    selectedTab: string
+    // selectedTab: string
     setSearchText?: any
     menuIndex: number
     menus: HeaderMenu[]
@@ -46,6 +46,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const pathname = usePathname()
     const router = useRouter()
     const pathname = usePathname()
+    const searchParams = useSearchParams()
     // const [menus] = useHeaderMenusAtom()
 
     const {
@@ -53,11 +54,11 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         color,
         isMobile,
         open,
-        tab,
-        page,
+        // tab,
+        //page,
         // isNextPage,
         setSideBarOpen,
-        selectedTab,
+        // selectedTab,
         menuIndex,
         onChangeMenuIndex,
         menus,
@@ -65,14 +66,15 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
-    const searchParams = useSearchParams()
-    const [searchText, setSearchText] = useState("")
+    const [searchText, setSearchText] = useState<string>("")
     const target = searchParams.get("target")
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
 
-    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+
     const [isComposing, setComposing] = useState(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
+    const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
     const sliderRef = useRef<Slider>(null)
 
@@ -108,7 +110,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         }
 
         setSearchText(search)
-    }, [])
+    }, [searchParams])
 
     useEffect(() => {
         console.log("test", isMobile, pathname)
@@ -117,7 +119,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
             return
         }
 
-        switch(pathname) {
+        switch (pathname) {
             case "/":
             case "/search":
             case "/inbox":
@@ -129,6 +131,14 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 break
         }
     }, [pathname, isMobile])
+
+    useEffect(() => {
+        if (pathname === "/search") {
+            setShowSearchInput(true)
+        } else {
+            setShowSearchInput(false)
+        }
+    }, [pathname])
 
     useEffect(() => {
         if (!sliderRef.current) {
@@ -160,7 +170,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         }
                     }}
                 />
-                {selectedTab === "search" && (
+                {showSearchInput && (
                     <div
                         className={
                             "h-[40px] w-[60%] rounded-[10px] overflow-hidden relative"
@@ -180,11 +190,15 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
 
-                                const queryParams = new URLSearchParams(nextQueryParams)
-                                queryParams.set("word", encodeURIComponent(
-                                    searchText))
+                                const queryParams = new URLSearchParams(
+                                    nextQueryParams
+                                )
+                                queryParams.set(
+                                    "word",
+                                    encodeURIComponent(searchText)
+                                )
                                 queryParams.set("target", target || "posts")
-                                                        
+
                                 router.push(
                                     `/search?${nextQueryParams.toString()}`
                                 )
@@ -210,7 +224,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         )}
                     </div>
                 )}
-                {selectedTab !== "search" && (
+                {!showSearchInput && (
                     <Image
                         className={"w-[145px] cursor-pointer"}
                         src={logoImage}
@@ -220,7 +234,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         }}
                     />
                 )}
-                {selectedTab === "single" && (
+                {/* {selectedTab === "single" && (
                     <Button
                         variant="light"
                         className={"absolute right-[0px] p-[20px] text-white"}
@@ -231,7 +245,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             />
                         }
                     />
-                )}
+                )} */}
             </div>
             {/* <ScrollShadow
                 className={bottom({ page: page })}
@@ -240,11 +254,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 orientation="horizontal"
                 hideScrollBar
             > */}
-            <Slider
-                ref={sliderRef}
-                {...sliderSettings}
-                className={bottom({ page: page })}
-            >
+            <Slider ref={sliderRef} {...sliderSettings} className={bottom()}>
                 {menus.map((menu: HeaderMenu, index) => (
                     <div
                         key={`view-header-menu-${index}`}

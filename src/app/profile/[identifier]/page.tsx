@@ -508,7 +508,8 @@ const UserProfileComponent = ({
                                                 url.replace(
                                                     "bsky.app",
                                                     `${location.protocol}//${window.location.host}`
-                                                ) + `?${nextQueryParams.toString()}`
+                                                ) +
+                                                    `?${nextQueryParams.toString()}`
                                             )
                                         }}
                                     >
@@ -540,7 +541,9 @@ const UserProfileComponent = ({
                                 <span
                                     key={j}
                                     onClick={() => {
-                                        router.push(`/profile/${handle}?${nextQueryParams.toString()}`)
+                                        router.push(
+                                            `/profile/${handle}?${nextQueryParams.toString()}`
+                                        )
                                     }}
                                 >
                                     {handle}
@@ -717,6 +720,7 @@ const UserProfileComponent = ({
                 color={color}
                 target={"account"}
                 profile={profile}
+                nextQueryParams={nextQueryParams}
             />
             <div className={ProfileContainer()}>
                 <div className={HeaderImageContainer()}>

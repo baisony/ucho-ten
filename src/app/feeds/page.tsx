@@ -27,7 +27,7 @@ export default function Root() {
     const [nextQueryParams] = useNextQueryParamsAtom()
 
     const { background, FeedCard, modal } = layout()
-    
+
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<string[]>([])
@@ -169,7 +169,9 @@ export default function Root() {
                                 onClick={() => {
                                     const uri = new AtUri(feed.uri)
                                     router.push(
-                                        `/profile/${uri.hostname}/feed/${uri.rkey}?${nextQueryParams.toString()}`
+                                        `/profile/${uri.hostname}/feed/${
+                                            uri.rkey
+                                        }?${nextQueryParams.toString()}`
                                     )
                                 }}
                             >

@@ -95,7 +95,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
 
     const [agent, setAgent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-        
+
     const [server, setServer] = useState<string>("")
     const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -479,7 +479,11 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     onClick={() => {
                         if (!agent?.session) return
                         setSideBarOpen(false)
-                        router.push(`/profile/${agent.session.did}?${nextQueryParams.toString()}`)
+                        router.push(
+                            `/profile/${
+                                agent.session.did
+                            }?${nextQueryParams.toString()}`
+                        )
                     }}
                 >
                     <div
@@ -514,7 +518,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(`/bookmarks?${nextQueryParams.toString()}`)
+                            router.push(
+                                `/bookmarks?${nextQueryParams.toString()}`
+                            )
                         }}
                     >
                         <FontAwesomeIcon
@@ -527,7 +533,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(`/settings#mute?${nextQueryParams.toString()}`)
+                            router.push(
+                                `/settings#mute?${nextQueryParams.toString()}`
+                            )
                         }}
                     >
                         <FontAwesomeIcon
@@ -554,7 +562,11 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         onClick={() => {
                             if (!agent?.session) return
                             setSideBarOpen(false)
-                            router.push(`/profile/${agent.session.did}?${nextQueryParams.toString()}`)
+                            router.push(
+                                `/profile/${
+                                    agent.session.did
+                                }?${nextQueryParams.toString()}`
+                            )
                         }}
                     >
                         <FontAwesomeIcon
@@ -567,7 +579,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(`/settings#filtering?${nextQueryParams.toString()}`)
+                            router.push(
+                                `/settings#filtering?${nextQueryParams.toString()}`
+                            )
                         }}
                     >
                         <FontAwesomeIcon
@@ -580,7 +594,9 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         className={NavBarItem({ color })}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(`/settings?${nextQueryParams.toString()}`)
+                            router.push(
+                                `/settings?${nextQueryParams.toString()}`
+                            )
                         }}
                     >
                         <FontAwesomeIcon
