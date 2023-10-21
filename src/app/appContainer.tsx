@@ -107,6 +107,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             if (event.key === "Escape" && pathName === "/post") {
                 event.preventDefault()
                 router.back()
+                return
             }
 
             if (
@@ -117,11 +118,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
 
             if (
+                !event.ctrlKey &&
+                !event.metaKey &&
                 (event.key === "n" || event.key === "N") &&
                 pathName !== "/post"
             ) {
                 event.preventDefault()
                 router.push("/post")
+
+                return
             }
         }
 
@@ -352,9 +357,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
     })*/
 
-    const onChangeMenuIndex = (index: number) => {
-        setMenuIndex(index)
-    }
+    // const onChangeMenuIndex = (index: number) => {
+    //     setMenuIndex(index)
+    // }
 
     useEffect(() => {
         if (!feedGenerators || pathName !== "/") {
@@ -571,9 +576,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     setSideBarOpen={setSideBarOpen}
                                     setSearchText={setSearchText}
                                     selectedTab={selectedTab}
-                                    menuIndex={menuIndex}
-                                    menus={menus}
-                                    onChangeMenuIndex={onChangeMenuIndex}
+                                    //menuIndex={menuIndex}
+                                    //menus={menus}
+                                    //onChangeMenuIndex={onChangeMenuIndex}
                                 />
                             )}
                             <div

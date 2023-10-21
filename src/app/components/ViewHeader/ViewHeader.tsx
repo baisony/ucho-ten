@@ -9,20 +9,30 @@ import {
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
-import { Button, ScrollShadow, menu } from "@nextui-org/react"
+import { Button, ScrollShadow } from "@nextui-org/react"
 // import { Tabs, Tab, Chip } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 // import { useAgent } from "@/app/_atoms/agent"
 // import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 // import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import Slider, { Settings } from "react-slick"
+// import Slider, { Settings } from "react-slick"
+
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination } from "swiper/modules"
+import {
+    HeaderMenu,
+    useHeaderMenusAtom,
+    useMenuIndexAtom,
+    useMenuIndexChangedByMenu,
+} from "@/app/_atoms/headerMenu"
+
+import { useTranslation } from "react-i18next"
+
+import "swiper/css"
+import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
-
-import "slick-carousel/slick/slick.css"
-import "slick-carousel/slick/slick-theme.css"
-import { HeaderMenu } from "@/app/_atoms/headerMenu"
-import { useTranslation } from "react-i18next"
 
 interface Props {
     className?: string
@@ -35,9 +45,6 @@ interface Props {
     setSideBarOpen?: any
     selectedTab: string
     setSearchText?: any
-    menuIndex: number
-    menus: HeaderMenu[]
-    onChangeMenuIndex: (index: number) => void
 }
 
 export const ViewHeader: React.FC<Props> = (props: Props) => {
@@ -45,7 +52,10 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const [userPreferences] = useUserPreferencesAtom()
     // const pathname = usePathname()
     const router = useRouter()
-    // const [menus] = useHeaderMenusAtom()
+
+    const [menus] = useHeaderMenusAtom()
+    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
+    const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
 
     const {
         className,
@@ -57,9 +67,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         isNextPage,
         setSideBarOpen,
         selectedTab,
-        menuIndex,
-        onChangeMenuIndex,
-        menus,
     } = props
     const { t } = useTranslation()
     const searchParams = useSearchParams()
@@ -68,7 +75,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
 
-    const sliderRef = useRef<Slider>(null)
+    const swiperRef = useRef<SwiperCore | null>(null)
 
     const {
         Header,
@@ -81,19 +88,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
     // const AppearanceColor = color
 
-    const sliderSettings: Settings = {
-        // centerMode: true,
-        infinite: false,
-        centerPadding: "0",
-        // slidesToShow: 5,
-        // speed: 500,
-        // focusOnSelect: true,
-        slidesToScroll: 1,
-        variableWidth: true,
-        arrows: false,
-        focusOnSelect: true,
-    }
-
     useEffect(() => {
         const search = searchParams.get("word")
 
@@ -105,11 +99,13 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [])
 
     useEffect(() => {
-        if (!sliderRef.current) {
+        if (!swiperRef.current) {
             return
         }
 
-        sliderRef.current.slickGoTo(menuIndex)
+        if (menuIndex !== swiperRef.current.activeIndex) {
+            swiperRef.current.slideTo(menuIndex)
+        }
     }, [menuIndex])
 
     return (
@@ -207,20 +203,27 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 orientation="horizontal"
                 hideScrollBar
             > */}
-            <Slider
-                ref={sliderRef}
-                {...sliderSettings}
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                slidesPerView={"auto"}
+                //modules={[Pagination]}
                 className={bottom({ page: page })}
+                navigation={true}
             >
                 {menus.map((menu: HeaderMenu, index) => (
-                    <div
+                    <SwiperSlide
                         key={`view-header-menu-${index}`}
+                        className="pl-3 pr-3"
                         onClick={() => {
-                            onChangeMenuIndex(index)
+                            setMenuIndexChangedByMenu(true)
+                            setMenuIndex(index)
                         }}
+                        style={{ width: "fit-content" }}
                     >
                         <div
-                            className={`flex items-center pl-[15px] pr-[15px] ${
+                            className={`${
                                 menuIndex === index
                                     ? "text-white"
                                     : "text-[#909090]"
@@ -228,9 +231,9 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         >
                             {menu.displayText}
                         </div>
-                    </div>
+                    </SwiperSlide>
                 ))}
-            </Slider>
+            </Swiper>
             {/* {selectedTab === "home" && pinnedFeeds && (
                     <Tabs
                         aria-label="Options"
