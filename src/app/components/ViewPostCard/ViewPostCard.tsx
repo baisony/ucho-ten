@@ -349,7 +349,10 @@ export const ViewPostCard = (props: Props) => {
 
     const handleImageClick = useCallback(
         (index: number) => {
-            const images: ViewImage[] | null = embedImages?.images || embedMedia?.media.images as ViewImage[] || null
+            const images: ViewImage[] | null =
+                embedImages?.images ||
+                (embedMedia?.media.images as ViewImage[]) ||
+                null
 
             if (images !== null) {
                 const imageObjects: ImageObject[] = []
@@ -687,7 +690,6 @@ export const ViewPostCard = (props: Props) => {
                             ? `bg-transparent border-none`
                             : `cursor-pointer`
                     }`}
-                    
                     // ${
                     //     !isMobile &&
                     //     color === "light" &&
