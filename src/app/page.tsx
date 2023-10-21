@@ -8,21 +8,23 @@ import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "./components/FeedPage/FeedPage"
 // import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
-import { useHeaderMenusAtom, useMenuIndexAtom } from "./_atoms/headerMenu"
+import {
+    useHeaderMenusAtom,
+    useMenuIndexAtom,
+    useMenuIndexChangedByMenu,
+} from "./_atoms/headerMenu"
 
 import "swiper/css"
 import "swiper/css/pagination"
 
 SwiperCore.use([Virtual])
 
-interface HTMLElementEvent<T extends HTMLElement> extends Event {
-    target: T
-}
-
 const Root = () => {
     const [appearanceColor] = useAppearanceColor()
     const [menuIndex, setMenuIndex] = useMenuIndexAtom()
     const [headerMenus] = useHeaderMenusAtom()
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
 
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
@@ -128,7 +130,7 @@ const Root = () => {
                         swiperRef.current = swiper
                     }}
                     cssMode={isMobile}
-                    virtual={true}
+                    // virtual={true}
                     pagination={{ type: "custom", clickable: false }}
                     hidden={true} // ??
                     modules={[Pagination]}
@@ -139,9 +141,21 @@ const Root = () => {
                     touchReleaseOnEdges={true}
                     touchMoveStopPropagation={true}
                     preventInteractionOnTransition={true}
-                    onSlideChange={(swiper) => {
-                        setMenuIndex(swiper.activeIndex)
+                    onActiveIndexChange={(swiper) => {
+                        if (menuIndexChangedByMenu === false) {
+                            setMenuIndex(swiper.activeIndex)
+                        }
                     }}
+                    onTouchStart={(swiper, event) => {
+                        setMenuIndexChangedByMenu(false)
+                    }}
+                    // onSlideChangeTransitionEnd={(swiper) => {
+                    //     setMenuIndex(swiper.activeIndex)
+                    // }}
+                    // onSlideChange={(swiper) => {
+                    //     console.error("onSlideChange", swiper)
+                    //     setMenuIndex(swiper.activeIndex)
+                    // }}
                 >
                     {headerMenus.map((menu, index) => {
                         return (
