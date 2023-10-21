@@ -91,7 +91,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/search")
         router.prefetch("/inbox")
         router.prefetch("/post")
-    })
+    }, [])
 
     useEffect(() => {
         if (isMobile) {
@@ -348,9 +348,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
     })*/
 
-    const onChangeMenuIndex = (index: number) => {
-        setMenuIndex(index)
-    }
+    // const onChangeMenuIndex = (index: number) => {
+    //     setMenuIndex(index)
+    // }
 
     useEffect(() => {
         if (!feedGenerators || pathName !== "/") {
@@ -558,9 +558,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     setSideBarOpen={setSideBarOpen}
                                     setSearchText={setSearchText}
                                     selectedTab={selectedTab}
-                                    menuIndex={menuIndex}
-                                    menus={menus}
-                                    onChangeMenuIndex={onChangeMenuIndex}
+                                    //menuIndex={menuIndex}
+                                    //menus={menus}
+                                    //onChangeMenuIndex={onChangeMenuIndex}
                                 />
                             )}
                             <div
