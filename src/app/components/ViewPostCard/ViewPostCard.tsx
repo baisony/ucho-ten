@@ -69,6 +69,7 @@ import {
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import { useTranslation } from "react-i18next"
 
 interface Props {
     // className?: string
@@ -117,7 +118,7 @@ export const ViewPostCard = (props: Props) => {
             return null
         }
     }, [postJson, quoteJson])
-
+    const { t } = useTranslation()
     const [agent] = useAgent()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
@@ -151,7 +152,6 @@ export const ViewPostCard = (props: Props) => {
         // LinkCardDescription,
         // LinkCardSiteName,
     } = viewPostCard()
-
     const quoteCardStyles = viewQuoteCard()
 
     const [isLiked, setIsLiked] = useState<boolean>(!!postView?.viewer?.like)
@@ -885,7 +885,9 @@ export const ViewPostCard = (props: Props) => {
                                                     )
                                                 }}
                                             >
-                                                Copy Post URL
+                                                {t(
+                                                    "components.ViewPostCard.copyURL"
+                                                )}
                                             </DropdownItem>
                                             <DropdownItem
                                                 key="2"
@@ -900,7 +902,9 @@ export const ViewPostCard = (props: Props) => {
                                                     )
                                                 }}
                                             >
-                                                Copy Post JSON
+                                                {t(
+                                                    "components.ViewPostCard.copyJSON"
+                                                )}
                                             </DropdownItem>
                                             <DropdownSection title="Danger zone">
                                                 {postJsonData &&
@@ -922,7 +926,9 @@ export const ViewPostCard = (props: Props) => {
                                                             onOpenReport()
                                                         }}
                                                     >
-                                                        Report
+                                                        {t(
+                                                            "components.ViewPostCard.report"
+                                                        )}
                                                     </DropdownItem>
                                                 ) : (
                                                     <DropdownItem
@@ -938,7 +944,9 @@ export const ViewPostCard = (props: Props) => {
                                                             handleDelete()
                                                         }}
                                                     >
-                                                        Delete
+                                                        {t(
+                                                            "components.ViewPostCard.delete"
+                                                        )}
                                                     </DropdownItem>
                                                 )}
                                             </DropdownSection>
@@ -1017,7 +1025,8 @@ export const ViewPostCard = (props: Props) => {
                                     className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
                                 >
                                     <div className={"ml-[20px]"}>
-                                        Warning: {warningReason}
+                                        {t("components.ViewPostCard.warning")}:{" "}
+                                        {warningReason}
                                     </div>
                                     <Button
                                         variant={"light"}
@@ -1026,7 +1035,7 @@ export const ViewPostCard = (props: Props) => {
                                             setContentWarning(false)
                                         }}
                                     >
-                                        Show
+                                        {t("components.ViewPostCard.show")}
                                     </Button>
                                 </div>
                             )}
