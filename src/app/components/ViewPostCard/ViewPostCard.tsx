@@ -166,7 +166,6 @@ export const ViewPostCard = (props: Props) => {
     const [userPreference, setUserPreference] = useUserPreferencesAtom()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
-    console.log(userPreference)
     const [, setHandleButtonClick] = useState(false)
 
     const {
@@ -350,24 +349,23 @@ export const ViewPostCard = (props: Props) => {
 
     const handleImageClick = useCallback(
         (index: number) => {
-            if (embedImages?.images) {
-                const images: ImageObject[] = []
+            const images: ViewImage[] | null = embedImages?.images || embedMedia?.media.images as ViewImage[] || null
 
-                for (const image of embedImages.images) {
-                    const currentImage: ImageObject = {
-                        fullsize: "",
-                        alt: "",
+            if (images !== null) {
+                const imageObjects: ImageObject[] = []
+
+                for (const image of images) {
+                    const currentImageObject: ImageObject = {
+                        fullsize: image.fullsize,
+                        alt: image.alt,
                     }
 
-                    currentImage.fullsize = image.fullsize
-                    currentImage.alt = image.alt
-
-                    images.push(currentImage)
+                    imageObjects.push(currentImageObject)
                 }
 
-                if (images.length > 0) {
+                if (imageObjects.length > 0) {
                     const gelleryObject: ImageGalleryObject = {
-                        images,
+                        images: imageObjects,
                         index,
                     }
 
