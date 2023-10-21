@@ -22,6 +22,7 @@ import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import { HeaderMenu } from "@/app/_atoms/headerMenu"
+import { useTranslation } from "react-i18next"
 
 interface Props {
     className?: string
@@ -60,9 +61,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         onChangeMenuIndex,
         menus,
     } = props
-
-    // const reg =
-    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
+    const { t } = useTranslation()
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState("")
     const target = searchParams.get("target")
@@ -146,7 +145,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             onChange={(e) => {
                                 setSearchText(e.target.value)
                             }}
-                            placeholder={"search word"}
+                            placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
                                 if (e.key !== "Enter" || isComposing) return //1
                                 props.setSearchText(searchText)

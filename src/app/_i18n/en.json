@@ -69,9 +69,9 @@
       "hate": "憎悪表現"
     },
     "mute": {
-        "title": "ミュート",
-        "muteWord": "ミュートワード",
-        "muteUser": "ミュートユーザー"
+      "title": "ミュート",
+      "muteWord": "ミュートワード",
+      "muteUser": "ミュートユーザー"
     }
   },
   "components": {
@@ -110,6 +110,9 @@
       "show": "表示"
     },
     "LinkCard": {
+    },
+    "ViewHeader": {
+      "search": "検索"
     }
   },
   "modal": {
