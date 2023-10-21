@@ -1273,7 +1273,7 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
         >
             {embedImages.images.map((image: ViewImage, index: number) => (
                 <div
-                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden w-[150px] h-[150px] mr-[10px] bg-cover border border-gray-300`}
+                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[150px] min-h-[150px] w-[150px] h-[150px] mr-[10px] bg-cover border border-gray-300`}
                     key={`image-${index}`}
                 >
                     <img
@@ -1314,7 +1314,7 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
             >
                 {images.map((image: ViewImage, index: number) => (
                     <div
-                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden w-[150px] h-[150px] mr-[10px] bg-cover border border-gray-300`}
+                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[150px] min-h-[150px] w-[150px] h-[150px] mr-[10px] bg-cover border border-gray-300`}
                         key={`image-${index}`}
                     >
                         <img
