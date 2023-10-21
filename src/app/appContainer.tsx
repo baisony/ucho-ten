@@ -103,6 +103,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             if (event.key === "Escape" && pathName === "/post") {
                 event.preventDefault()
                 router.back()
+                return
             }
 
             if (
@@ -113,11 +114,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
 
             if (
+                !event.ctrlKey &&
+                !event.metaKey &&
                 (event.key === "n" || event.key === "N") &&
                 pathName !== "/post"
             ) {
                 event.preventDefault()
                 router.push("/post")
+
+                return
             }
         }
 
