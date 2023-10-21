@@ -21,6 +21,10 @@ import { useTranslation } from "react-i18next"
 
 export default function Root() {
     const router = useRouter()
+    const DisplayLanguages = {
+        English: "en-US",
+        Japanese: "ja-JP",
+    }
     const ToTranslateLanguages = {
         English: "en-US",
         Japanese: "ja-JP",
@@ -35,7 +39,7 @@ export default function Root() {
     }
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const [hashFlagment, setHashFlagment] = useState<string | null>(null)
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
@@ -184,10 +188,11 @@ export default function Root() {
                                             handleDisplayLanguageSelectionChange(
                                                 event
                                             )
+                                            //lngChangeはappContainerにて実装
                                         }}
                                     >
                                         {Object.entries(
-                                            ToTranslateLanguages || {}
+                                            DisplayLanguages || {}
                                         ).map(([key, value]) => {
                                             return (
                                                 <SelectItem key={value}>
