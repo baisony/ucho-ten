@@ -41,6 +41,7 @@ export default function Root() {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const pathname = usePathname()
+    const { t } = useTranslation()
 
     const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
@@ -329,6 +330,7 @@ export default function Root() {
                         color={color}
                         isMobile={isMobile}
                         isSkeleton={true}
+                        t={t}
                     />
                 ))}
             {!loading &&
@@ -342,6 +344,7 @@ export default function Root() {
                         json={post}
                         isMobile={isMobile}
                         now={now}
+                        t={t}
                     />
                 ))}
         </InfiniteScroll>

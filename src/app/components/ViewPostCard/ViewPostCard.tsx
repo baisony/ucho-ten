@@ -69,7 +69,6 @@ import {
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { useTranslation } from "react-i18next"
 
 interface Props {
     // className?: string
@@ -86,6 +85,7 @@ interface Props {
     isEmbedToModal?: boolean
     now?: Date
     isEmbedToPost?: boolean
+    t: any
 }
 
 export const ViewPostCard = (props: Props) => {
@@ -103,6 +103,7 @@ export const ViewPostCard = (props: Props) => {
         isEmbedToModal,
         now,
         isEmbedToPost,
+        t,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -118,8 +119,6 @@ export const ViewPostCard = (props: Props) => {
             return null
         }
     }, [postJson, quoteJson])
-
-    const { t } = useTranslation()
 
     const [agent] = useAgent()
 
@@ -1102,6 +1101,7 @@ export const ViewPostCard = (props: Props) => {
                                             color={color}
                                             quoteJson={embedRecordViewRecord}
                                             isEmbedToPost={true}
+                                            t={t}
                                         />
                                     )}
                                 {embedFeed && (

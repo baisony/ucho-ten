@@ -456,6 +456,7 @@ export default function Root() {
                         color={color}
                         postJson={post.parent.post}
                         isMobile={isMobile}
+                        t={t}
                     />
                 </>
             )
@@ -482,6 +483,7 @@ export default function Root() {
                         color={color}
                         postJson={post.replies.post}
                         isMobile={isMobile}
+                        t={t}
                     />
                 </>
             )
@@ -971,6 +973,7 @@ export default function Root() {
                                     color={color}
                                     postJson={item.post}
                                     isMobile={isMobile}
+                                    t={t}
                                 />
                             ))}
                         </>

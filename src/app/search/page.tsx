@@ -399,6 +399,7 @@ export default function Root() {
                                     color={color}
                                     isMobile={isMobile}
                                     isSkeleton={true}
+                                    t={t}
                                 />
                             ))}
                         {!loading &&
@@ -410,6 +411,7 @@ export default function Root() {
                                     postJson={post}
                                     isMobile={isMobile}
                                     now={now}
+                                    t={t}
                                 />
                             ))}
                     </>

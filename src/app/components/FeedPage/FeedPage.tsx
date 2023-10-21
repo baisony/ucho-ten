@@ -9,6 +9,7 @@ import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
+import { useTranslation } from "react-i18next"
 
 export interface FeedPageProps {
     isActive: boolean
@@ -24,6 +25,8 @@ const FeedPage = ({
     now,
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
+    const { t } = useTranslation()
+
     const [agent] = useAgent()
 
     // const [loading, setLoading] = useState(false)
@@ -321,6 +324,7 @@ const FeedPage = ({
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
+                                t,
                             }}
                         />
                     )}
@@ -353,6 +357,7 @@ const FeedPage = ({
                                 json: item,
                                 isDummyHeader: index === 0,
                                 now,
+                                t,
                             }}
                         />
                     )}

@@ -548,6 +548,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             postJson={postData}
                             isMobile={isMobile}
                             isEmbedToModal={true}
+                            t={t}
                         />
                     </div>
                     <div

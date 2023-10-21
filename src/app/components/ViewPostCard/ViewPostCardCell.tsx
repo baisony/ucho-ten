@@ -18,6 +18,7 @@ interface Props {
     isEmbedToModal?: boolean
     now?: Date
     isDummyHeader?: boolean
+    t: any
 }
 
 export const ViewPostCardCell = (props: Props) => {

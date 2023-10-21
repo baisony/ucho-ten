@@ -9,8 +9,11 @@ import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import InfiniteScroll from "react-infinite-scroller"
 import { Spinner } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
+    const { t } = useTranslation()
+
     const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
 
@@ -167,6 +170,7 @@ export default function Root() {
                             color={color}
                             isMobile={isMobile}
                             isSkeleton={true}
+                            t={t}
                         />
                     ))}
                 {!loading &&
@@ -178,6 +182,7 @@ export default function Root() {
                             postJson={post}
                             isMobile={isMobile}
                             now={now}
+                            t={t}
                         />
                     ))}
             </InfiniteScroll>
