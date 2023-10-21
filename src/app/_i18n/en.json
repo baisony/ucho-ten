@@ -130,9 +130,11 @@
       "title": "投稿",
       "placeholder": "Yo, ブルスコしてるかい？",
       "compressing": "圧縮中",
-      "lang": "言語",
+      "lang": "lang",
       "addLinkcard": "リンクカードを追加",
-      "splitSentence": "文章を複数のポストに分割"
+      "splitSentence": "文章を複数のポストに分割",
+      "quote": "引用",
+      "reply": "返信"
     }
   },
   "button": {
