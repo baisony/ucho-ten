@@ -139,6 +139,7 @@ const Root = () => {
                     touchReleaseOnEdges={true}
                     touchMoveStopPropagation={true}
                     preventInteractionOnTransition={true}
+                    spaceBetween={isMobile ? 0 : 30}
                     onSlideChange={(swiper) => {
                         setMenuIndex(swiper.activeIndex)
                     }}
