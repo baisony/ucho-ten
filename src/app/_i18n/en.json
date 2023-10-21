@@ -125,6 +125,14 @@
       "success": "報告しました",
       "error": "報告に失敗しました",
       "reason": "報告理由"
+    },
+    "post": {
+      "title": "投稿",
+      "placeholder": "Yo, ブルスコしてるかい？",
+      "compressing": "圧縮中",
+      "lang": "言語",
+      "addLinkcard": "リンクカードを追加",
+      "splitSentence": "文章を複数のポストに分割"
     }
   },
   "button": {
@@ -155,6 +163,7 @@
     "loading": "読み込み中",
     "hide": "非表示",
     "warn": "警告",
-    "show": "表示"
+    "show": "表示",
+    "post": "投稿する"
   }
 }
