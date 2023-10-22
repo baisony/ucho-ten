@@ -58,7 +58,6 @@ import {
 import { Linkcard } from "@/app/components/Linkcard"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { useTranslation } from "react-i18next"
 
 interface AttachmentImage {
     blob: Blob
@@ -68,13 +67,11 @@ interface AttachmentImage {
 
 export default function Root() {
     const router = useRouter()
-
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
 
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [agent] = useAgent()
-    const { t } = useTranslation()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [appearanceColor] = useAppearanceColor()
     // const reg =
@@ -499,9 +496,9 @@ export default function Root() {
                             }
                         }}
                     >
-                        {t("button.cancel")}
+                        cancel
                     </Button>
-                    <div className={headerTitle()}>{t("modal.post.title")}</div>
+                    <div className={headerTitle()}>Post</div>
                     <Button
                         className={headerPostButton()}
                         radius={"full"}
@@ -515,7 +512,7 @@ export default function Root() {
                         }
                         isLoading={loading}
                     >
-                        {loading ? "" : t("button.post")}
+                        {loading ? "" : "send"}
                     </Button>
                 </div>
                 <div
@@ -549,7 +546,7 @@ export default function Root() {
                                     getOGPData !== null,
                             })}
                             aria-label="post input area"
-                            placeholder={t("modal.post.placeholder")}
+                            placeholder={"Yo, Do you do Brusco?"}
                             value={contentText}
                             maxLength={10000}
                             autoFocus={true}
@@ -574,7 +571,7 @@ export default function Root() {
                                             "relative w-full h-full z-10 flex justify-center items-center"
                                         }
                                     >
-                                        {t("modal.post.compressing")}...
+                                        Compressing...
                                         <Spinner />
                                     </div>
                                 )}
@@ -773,7 +770,7 @@ export default function Root() {
                                 className={dropdown({ color: color })}
                             >
                                 <DropdownTrigger>
-                                    {`${t("modal.post.lang")}:${Array.from(
+                                    {`lang:${Array.from(
                                         PostContentLanguage
                                     ).join(",")}`}
                                 </DropdownTrigger>
@@ -842,7 +839,7 @@ export default function Root() {
                                     }}
                                 >
                                     <DropdownItem key="split">
-                                        {t("modal.post.splitSentence")}
+                                        文章を複数のポストに分割する
                                     </DropdownItem>
                                     <DropdownItem
                                         key="linkcard"
@@ -853,7 +850,7 @@ export default function Root() {
                                             )
                                         }}
                                     >
-                                        {t("modal.post.addLinkcard")}
+                                        リンクカードを追加する
                                     </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>

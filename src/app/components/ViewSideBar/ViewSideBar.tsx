@@ -38,8 +38,6 @@ import {
 } from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { useTranslation } from "react-i18next"
-
 // import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
 interface Props {
     className?: string
@@ -94,7 +92,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         NavBarItem,
         modal,
     } = viewSideBar()
-    const { t } = useTranslation()
+
     const [agent, setAgent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
 
@@ -296,9 +294,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                         )
                                                     }}
                                                 >
-                                                    {t(
-                                                        "components.ViewSideBar.needLogin"
-                                                    )}
+                                                    再ログインが必要です
                                                 </Button>
                                             </span>
                                         )
@@ -317,7 +313,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         setOpenModalReason("relogin")
                     }}
                 >
-                    {t("components.ViewSideBar.addAccount")}
+                    Add Account
                 </div>
             </>
         )
@@ -335,9 +331,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             {openModalReason === "switching" ? (
                                 <>
                                     <ModalHeader>
-                                        {t(
-                                            "components.ViewSideBar.switchAccount"
-                                        )}
+                                        Would you like to switching Account?
                                     </ModalHeader>
                                     <ModalBody>{AccountComponent()}</ModalBody>
                                     <ModalFooter>
@@ -348,16 +342,14 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 setSideBarOpen(false)
                                             }}
                                         >
-                                            {t("button.close")}
+                                            Close
                                         </Button>
                                     </ModalFooter>
                                 </>
                             ) : openModalReason === "logout" ? (
                                 <>
                                     <ModalHeader>
-                                        {t(
-                                            "components.ViewSideBar.logoutModal.description"
-                                        )}
+                                        Would you like to log out?
                                     </ModalHeader>
                                     <ModalFooter>
                                         <Button
@@ -365,7 +357,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             variant="light"
                                             onClick={onClose}
                                         >
-                                            {t("button.no")}
+                                            No
                                         </Button>
                                         <Button
                                             color="primary"
@@ -375,7 +367,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 setSideBarOpen(false)
                                             }}
                                         >
-                                            {t("button.yes")}
+                                            Yes
                                         </Button>
                                     </ModalFooter>
                                 </>
@@ -383,9 +375,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                 openModalReason === "relogin" && (
                                     <>
                                         <ModalHeader className="flex flex-col gap-1">
-                                            {t(
-                                                "components.ViewSideBar.addAccountModal.title"
-                                            )}
+                                            Log in
                                         </ModalHeader>
                                         <ModalBody>
                                             <Input
@@ -395,12 +385,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 onValueChange={(e) => {
                                                     setServer(e)
                                                 }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.service"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.servicePlaceholder"
-                                                )}
+                                                label="Service"
+                                                placeholder="Enter connect server"
                                                 variant="bordered"
                                                 isInvalid={loginError}
                                             />
@@ -419,12 +405,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 onValueChange={(e) => {
                                                     setIdentity(e)
                                                 }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.identifier"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.identifierPlaceholder"
-                                                )}
+                                                label="Email"
+                                                placeholder="Enter your email"
                                                 variant="bordered"
                                                 isInvalid={loginError}
                                             />
@@ -438,12 +420,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 onValueChange={(e) => {
                                                     setPassword(e)
                                                 }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.password"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.passwordPlaceholder"
-                                                )}
+                                                label="Password"
+                                                placeholder="Enter your password"
                                                 type="password"
                                                 variant="bordered"
                                                 isInvalid={loginError}
@@ -455,7 +433,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 variant="flat"
                                                 onPress={onClose}
                                             >
-                                                {t("button.close")}
+                                                Close
                                             </Button>
                                             <Button
                                                 color="primary"
@@ -465,7 +443,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 }}
                                             >
                                                 {!isLogging ? (
-                                                    t("button.signin")
+                                                    "Sign In"
                                                 ) : (
                                                     <Spinner
                                                         color={
@@ -549,7 +527,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faBookmark}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.bookmark")}</div>
+                        <div>Bookmark</div>
                     </div>
                     <div
                         className={NavBarItem({ color })}
@@ -564,7 +542,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faVolumeXmark}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.mute")}</div>
+                        <div>Mute</div>
                     </div>
                     <div
                         className={NavBarItem({ color })}
@@ -577,7 +555,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faRss}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.feeds")}</div>
+                        <div>Feeds</div>
                     </div>
                     <div
                         className={NavBarItem({ color })}
@@ -595,7 +573,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faUser}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>profile</div>
+                        <div>Profile</div>
                     </div>
                     <div
                         className={NavBarItem({ color })}
@@ -625,7 +603,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faGear}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.preferences")}</div>
+                        <div>Settings</div>
                     </div>
                     <a
                         className={NavBarItem({ color })}
@@ -640,7 +618,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faFlag}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.bugReport")}</div>
+                        <div>Bug Report</div>
                     </a>
                 </div>
                 <div className={Footer({ color })}>
@@ -655,7 +633,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faCircleQuestion}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.about")}</div>
+                        <div>About</div>
                     </div>
                     <div
                         className={NavBarItem({ color })}
@@ -670,16 +648,14 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faUsers}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.SwitchAccount")}</div>
+                        <div>Switching Account</div>
                     </div>
                     <div
                         className={NavBarItem({ color })}
                         onClick={() => {
                             if (isMobile) {
                                 const res = window.confirm(
-                                    t(
-                                        "components.ViewSideBar.logoutModal.description"
-                                    )
+                                    "Would you like to log out?"
                                 )
                                 if (res) {
                                     setSideBarOpen(false)
@@ -696,7 +672,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             icon={faRightFromBracket}
                             className={NavBarIcon({ color })}
                         ></FontAwesomeIcon>
-                        <div>{t("components.ViewSideBar.logout")}</div>
+                        <div>Logout</div>
                     </div>
                 </div>
             </main>

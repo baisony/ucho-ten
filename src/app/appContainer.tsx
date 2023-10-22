@@ -1,13 +1,7 @@
 "use client"
-import "./_i18n/config" //i18
+
 import { ViewHeader } from "@/app/components/ViewHeader"
-import React, {
-    useEffect,
-    useRef,
-    useState,
-    useMemo,
-    useLayoutEffect,
-} from "react"
+import React, { useEffect, useRef, useState, useMemo } from "react"
 import { layout } from "@/app/styles"
 import { TabBar } from "@/app/components/TabBar"
 import { isMobile } from "react-device-detect"
@@ -45,17 +39,12 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
 import { TabQueryParamValue, isTabQueryParamValue } from "./types/types"
-import { useTranslation } from "react-i18next"
-import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
-    const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
-    console.log(displayLanguage)
-    const { t, i18n } = useTranslation()
-    //lngChange(displayLanguage)
+
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords, setMuteWords] = useWordMutes()
@@ -149,7 +138,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             if (event.key === "Escape" && pathName === "/post") {
                 event.preventDefault()
                 router.back()
-                return
             }
 
             if (
@@ -160,15 +148,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
 
             if (
-                !event.ctrlKey &&
-                !event.metaKey &&
                 (event.key === "n" || event.key === "N") &&
                 pathName !== "/post"
             ) {
                 event.preventDefault()
-                router.push("/post")
-
-                return
+                router.push(`/post?${nextQueryParams.toString()}`)
             }
         }
 
@@ -405,9 +389,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bounds: { left: 0, right: 300, top: 0, bottom: 0 }
     })*/
 
-    // const onChangeMenuIndex = (index: number) => {
-    //     setMenuIndex(index)
-    // }
+    const onChangeMenuIndex = (index: number) => {
+        setMenuIndex(index)
+    }
 
     useEffect(() => {
         if (!feedGenerators || pathName !== "/") {
@@ -531,15 +515,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bmItem: {},
         bmOverlay: { background: "transparent" },
     }
-    useLayoutEffect(() => {
-        const lngChange = (lng: any) => {
-            const lang = lng.replace(/-\w+$/, "")
-            console.log(lang)
-            i18n.changeLanguage(lang)
-            console.log(i18n.resolvedLanguage)
-        }
-        lngChange(displayLanguage[0])
-    }, [displayLanguage])
 
     return (
         <HistoryContext.Provider value={history}>
@@ -624,10 +599,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     // tab={selectedTab}
                                     setSideBarOpen={setSideBarOpen}
                                     setSearchText={setSearchText}
-                                    selectedTab={selectedTab}
-                                    //menuIndex={menuIndex}
-                                    //menus={menus}
-                                    //onChangeMenuIndex={onChangeMenuIndex}
+                                    // selectedTab={selectedTab}
+                                    menuIndex={menuIndex}
+                                    menus={menus}
+                                    onChangeMenuIndex={onChangeMenuIndex}
                                 />
                             )}
                             <div
