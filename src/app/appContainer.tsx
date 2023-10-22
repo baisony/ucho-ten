@@ -617,11 +617,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 <ViewHeader
                                     isMobile={isMobile}
                                     color={color}
-                                    page={page}
-                                    tab={selectedTab}
+                                    //page={page}
+                                    //tab={selectedTab}
                                     setSideBarOpen={setSideBarOpen}
                                     setSearchText={setSearchText}
-                                    selectedTab={selectedTab}
+                                    //selectedTab={selectedTab}
                                     //menuIndex={menuIndex}
                                     //menus={menus}
                                     //onChangeMenuIndex={onChangeMenuIndex}
@@ -641,8 +641,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             {!showTabBar && (
                                 <TabBar
                                     color={color}
-                                    selected={selectedTab}
-                                    setValue={setSelectedTab}
+                                    isMobile={isMobile}
+                                    //selected={selectedTab}
+                                    //setValue={setSelectedTab}
                                 />
                             )}
                         </div>

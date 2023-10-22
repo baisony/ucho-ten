@@ -10,30 +10,57 @@ import {
     faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons"
 import { Badge } from "@nextui-org/react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { TabQueryParamValue, isTabQueryParamValue } from "@/app/_types/types"
 
 interface Props {
     className?: string
     color: "light" | "dark"
     isMobile?: boolean
-    uploadImageAvailable?: boolean
-    isDragActive?: boolean
-    open?: boolean
-    selected: string
-    setValue?: any
 }
 
 export const TabBar: React.FC<Props> = (props: Props) => {
     const [agent, setAgent] = useAgent()
-    const route = useRouter()
-    const { className, color, isMobile, uploadImageAvailable, open, selected } =
-        props
+    const router = useRouter()
+    const pathname = usePathname()
+    const [nextQueryParamsAtom] = useNextQueryParamsAtom()
+
+    const { color, isMobile } = props
     const reg =
         /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
-    const [selectedTab, setSelectedTab] = useState<string>(selected)
     const [unreadNotification, setUnreadNotification] = useState<number>(0)
     const { TabBar, Container, Icon } = tabBar()
+    const [hilightedTab, setHilightedTab] = useState<TabQueryParamValue | "">(
+        ""
+    )
+
+    useEffect(() => {
+        switch (pathname) {
+            case "/":
+                setHilightedTab("h")
+                return
+            case "/search":
+                setHilightedTab("s")
+                return
+            case "/inbox":
+                setHilightedTab("i")
+                return
+            case "/post":
+                setHilightedTab("p")
+                return
+        }
+
+        const tabQueryParam = nextQueryParamsAtom.get("f")
+
+        if (isTabQueryParamValue(tabQueryParam)) {
+            setHilightedTab(tabQueryParam)
+            return
+        }
+
+        setHilightedTab("h")
+    }, [pathname, nextQueryParamsAtom])
 
     const checkNewNotification = async () => {
         if (!agent) {
@@ -82,43 +109,43 @@ export const TabBar: React.FC<Props> = (props: Props) => {
     return (
         <main className={TabBar({ color: color, isMobile: isMobile })}>
             <div
-                className={Container({ selected: selectedTab === "home" })}
+                className={Container({ selected: hilightedTab === "h" })}
                 onClick={() => {
-                    route.push("/")
-                    setSelectedTab("home")
-                    props.setValue("home")
+                    router.push("/")
+                    //setSelectedTab("home")
+                    //props.setValue("home")
                 }}
             >
                 <FontAwesomeIcon
                     icon={faHome}
-                    className={Icon({ color: color, selected: selectedTab })}
+                    className={Icon({ color: color })}
                     style={{
-                        color: selectedTab === "home" ? "#62A8DC" : undefined,
+                        color: hilightedTab === "h" ? "#62A8DC" : undefined,
                     }}
                 />
             </div>
             <div
-                className={Container({ selected: selectedTab === "search" })}
+                className={Container({ selected: hilightedTab === "s" })}
                 onClick={() => {
-                    route.push("/search")
-                    setSelectedTab("search")
-                    props.setValue("search")
+                    router.push("/search")
+                    //setSelectedTab("search")
+                    //props.setValue("search")
                 }}
             >
                 <FontAwesomeIcon
                     icon={faSearch}
-                    className={Icon({ color: color, selected: selectedTab })}
+                    className={Icon({ color: color })}
                     style={{
-                        color: selectedTab === "search" ? "#62A8DC" : undefined,
+                        color: hilightedTab === "s" ? "#62A8DC" : undefined,
                     }}
                 />
             </div>
             <div
-                className={Container({ selected: selectedTab === "inbox" })}
+                className={Container({ selected: hilightedTab === "i" })}
                 onClick={() => {
-                    route.push("/inbox")
-                    setSelectedTab("inbox")
-                    props.setValue("inbox")
+                    router.push("/inbox")
+                    //setSelectedTab("inbox")
+                    //props.setValue("inbox")
                     handleUpdateSeen()
                     setUnreadNotification(0)
                 }}
@@ -132,26 +159,28 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         icon={faInbox}
                         className={Icon({
                             color: color,
-                            selected: selectedTab,
+                            selected: hilightedTab === "i",
                         })}
                         style={{
-                            color:
-                                selectedTab === "inbox" ? "#62A8DC" : undefined,
+                            color: hilightedTab === "i" ? "#62A8DC" : undefined,
                         }}
                     />
                 </Badge>
             </div>
             <div
-                className={Container({ selected: selectedTab === "post" })}
+                className={Container({ selected: hilightedTab === "p" })}
                 onClick={() => {
-                    route.push("/post")
-                    setSelectedTab("post")
-                    props.setValue("post")
+                    router.push("/post")
+                    //setSelectedTab("post")
+                    //props.setValue("post")
                 }}
             >
                 <FontAwesomeIcon
                     icon={faPenToSquare}
-                    className={Icon({ color: color, selected: selectedTab })}
+                    className={Icon({
+                        color: color,
+                        selected: hilightedTab === "p",
+                    })}
                 />
             </div>
         </main>

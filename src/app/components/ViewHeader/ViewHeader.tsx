@@ -40,11 +40,11 @@ interface Props {
     color: "light" | "dark"
     isMobile?: boolean
     open?: boolean
-    tab: string //"home" | "search" | "inbox" | "post"
-    page: string // "profile" | "home" | "post" | "search"
+    //tab: string //"home" | "search" | "inbox" | "post"
+    //page: string // "profile" | "home" | "post" | "search"
     isNextPage?: boolean
     setSideBarOpen?: any
-    selectedTab: string
+    //selectedTab: string
     setSearchText?: any
 }
 
@@ -63,20 +63,21 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         color,
         isMobile,
         open,
-        tab,
-        page,
+        //tab,
+        //page,
         //isNextPage,
         setSideBarOpen,
-        selectedTab,
+        //selectedTab,
     } = props
     const { t } = useTranslation()
     const searchParams = useSearchParams()
-    const [searchText, setSearchText] = useState("")
+    const [searchText, setSearchText] = useState<string>("")
     const target = searchParams.get("target")
-    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
+    const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
 
@@ -99,7 +100,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         }
 
         setSearchText(search)
-    }, [])
+    }, [searchParams])
 
     useEffect(() => {
         console.log("test", isMobile, pathname)
@@ -120,6 +121,14 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 break
         }
     }, [pathname, isMobile])
+
+    useEffect(() => {
+        if (pathname === "/search") {
+            setShowSearchInput(true)
+        } else {
+            setShowSearchInput(false)
+        }
+    }, [pathname])
 
     useEffect(() => {
         if (!swiperRef.current) {
@@ -153,7 +162,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         }
                     }}
                 />
-                {selectedTab === "search" && (
+                {showSearchInput && (
                     <div
                         className={
                             "h-[40px] w-[60%] rounded-[10px] overflow-hidden relative"
@@ -205,7 +214,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         )}
                     </div>
                 )}
-                {selectedTab !== "search" && (
+                {/*showSearchInput && (
                     <Image
                         className={"w-[145px] cursor-pointer"}
                         src={logoImage}
@@ -226,7 +235,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             />
                         }
                     />
-                )}
+                )*/}
             </div>
             {/* <ScrollShadow
                 className={bottom({ page: page })}
@@ -241,7 +250,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 }}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
-                className={bottom({ page: page })}
+                className={bottom()}
                 navigation={true}
             >
                 {menus.map((menu: HeaderMenu, index) => (

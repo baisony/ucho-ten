@@ -689,6 +689,7 @@ export const ViewPostCard = (props: Props) => {
                     color={color}
                     target={"post"}
                     post={postJson}
+                    nextQueryParams={nextQueryParams}
                 />
                 <main
                     className={`${
