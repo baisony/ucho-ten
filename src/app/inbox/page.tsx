@@ -101,7 +101,9 @@ export default function Root() {
     }
 
     const loadMore = async (page: number) => {
-        await fetchNotification(false)
+        if (hasMore) {
+            await fetchNotification(false)
+        }
     }
 
     useEffect(() => {
