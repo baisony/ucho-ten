@@ -330,6 +330,12 @@ export default function Root() {
 
         if (searchWord === "") return
         router.push(`/search?${nextQueryParams.toString()}`)
+
+        /*
+        router.push(
+            `/search?word=${encodeURIComponent(searchText)}&target=${target}`
+        )
+        */
     }, [menuIndex, menus])
 
     return (
