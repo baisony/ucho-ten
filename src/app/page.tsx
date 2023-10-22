@@ -123,7 +123,7 @@ const Root = () => {
     }, [headerMenus])
 
     return (
-        isAvailableMenus && (
+        //isAvailableMenus && (
             <>
                 <Swiper
                     onSwiper={(swiper) => {
@@ -161,7 +161,7 @@ const Root = () => {
                         return (
                             <SwiperSlide
                                 key={`swiperslide-home-${index}`}
-                                virtualIndex={index}
+                                //virtualIndex={index}
                             >
                                 <div
                                     id={`swiperIndex-div-${index}`}
@@ -187,7 +187,7 @@ const Root = () => {
                 </Swiper>
             </>
         )
-    )
+    //)
 }
 
 export default Root

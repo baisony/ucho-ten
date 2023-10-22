@@ -162,7 +162,7 @@ export const ViewPostCard = (props: Props) => {
     const [userPreference, setUserPreference] = useUserPreferencesAtom()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
-    console.log(userPreference)
+    // console.log(userPreference)
     const [, setHandleButtonClick] = useState(false)
 
     const {
