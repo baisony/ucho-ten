@@ -29,8 +29,6 @@ import {
 
 import { useTranslation } from "react-i18next"
 
-
-import { HeaderMenu } from "@/app/_atoms/headerMenu"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import "swiper/css"
 import "swiper/css/pagination"
@@ -71,14 +69,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         //page,
         // isNextPage,
         setSideBarOpen,
-
-        menuIndex,
-        onChangeMenuIndex,
-        menus,
-        selectedTab,
     } = props
     const { t } = useTranslation()
-    const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState("")
     const target = searchParams.get("target")
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
@@ -262,7 +254,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 }}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
-                className={bottom({ page: page })}
+                className={bottom()}
                 navigation={true}
             >
                 {menus.map((menu: HeaderMenu, index) => (

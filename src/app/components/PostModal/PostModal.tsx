@@ -72,9 +72,6 @@ interface Props {
 }
 
 export const PostModal: React.FC<Props> = (props: Props) => {
-    const searchParams = useSearchParams()
-    const postParam = searchParams.get("text")
-
     const { color, type, postData } = props
     const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
         useUserProfileDetailedAtom()
