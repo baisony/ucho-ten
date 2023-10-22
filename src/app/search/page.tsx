@@ -1,6 +1,7 @@
 "use client"
+
 import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
@@ -17,6 +18,9 @@ import { layout } from "@/app/search/styles"
 import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { Virtuoso } from "react-virtuoso"
+import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"
+import { ListFooterSpinner } from "../components/ListFooterSpinner"
 
 export default function Root() {
     const [agent] = useAgent()
@@ -338,8 +342,124 @@ export default function Root() {
         */
     }, [menuIndex, menus])
 
+    const searchPostsResultWithDummy = useMemo((): PostView[] => {
+        const dummyData: PostView = {} as PostView
+
+        if (!searchPostsResult) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...searchPostsResult]
+        }
+    }, [searchPostsResult])
+
     return (
         <>
+            {searchText === "" && (
+                <div className={"w-full h-full text-white"}>
+                    <div className={"absolute bottom-[50px] w-full"}>
+                        {t("pages.search.FindPerson")}
+                        <div
+                            className={searchSupportCard({ color: color })}
+                            onClick={() => {
+                                router.push(
+                                    `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
+                                )
+                            }}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>Japanese Cluster</div>
+                                <div>by @jaz.bsky.social</div>
+                            </div>
+                        </div>
+                        <div
+                            className={searchSupportCard({ color: color })}
+                            onClick={() => {
+                                const queryParams = new URLSearchParams(
+                                    nextQueryParams
+                                )
+                                queryParams.set("word", "フィード%20bsky.app")
+                                queryParams.set("target", "posts")
+                                router.push(
+                                    `/search?${nextQueryParams.toString()}`
+                                )
+                            }}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>日本語フィードを探す</div>
+                                <div>by @Ucho-ten</div>
+                            </div>
+                        </div>
+                        <div className={searchSupportCard({ color: color })}>
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>test</div>
+                                <div>by @Ucho-ten</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {target === "posts" && loading && (
+                <Virtuoso
+                    overscan={100}
+                    increaseViewportBy={200}
+                    totalCount={20}
+                    initialItemCount={20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <ViewPostCardCell
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: true,
+                                isDummyHeader: index === 0,
+                                nextQueryParams,
+                            }}
+                        />
+                    )}
+                    className="overflow-y-auto h-[calc(100%-50px)]"
+                />
+            )}
+
+            {target === "posts" && searchText && (
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            //scrollRef.current = ref
+                        }
+                    }}
+                    context={{ hasMore }}
+                    overscan={200}
+                    increaseViewportBy={200}
+                    data={searchPostsResultWithDummy}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, data) => (
+                        <ViewPostCardCell
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: false,
+                                postJson: data || null,
+                                isDummyHeader: index === 0,
+                                now,
+                                nextQueryParams,
+                            }}
+                        />
+                    )}
+                    components={{
+                        // @ts-ignore
+                        Footer: ListFooterSpinner,
+                    }}
+                    endReached={loadPostsMore}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+
             <InfiniteScroll
                 id="infinite-scroll"
                 initialLoad={false}
@@ -356,84 +476,6 @@ export default function Root() {
                 threshold={700}
                 useWindow={false}
             >
-                {searchText === "" && (
-                    <div className={"w-full h-full text-white"}>
-                        <div className={"absolute bottom-[50px] w-full"}>
-                            {t("pages.search.FindPerson")}
-                            <div
-                                className={searchSupportCard({ color: color })}
-                                onClick={() => {
-                                    router.push(
-                                        `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>Japanese Cluster</div>
-                                    <div>by @jaz.bsky.social</div>
-                                </div>
-                            </div>
-                            <div
-                                className={searchSupportCard({ color: color })}
-                                onClick={() => {
-                                    const queryParams = new URLSearchParams(
-                                        nextQueryParams
-                                    )
-                                    queryParams.set(
-                                        "word",
-                                        "フィード%20bsky.app"
-                                    )
-                                    queryParams.set("target", "posts")
-                                    router.push(
-                                        `/search?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>日本語フィードを探す</div>
-                                    <div>by @Ucho-ten</div>
-                                </div>
-                            </div>
-                            <div
-                                className={searchSupportCard({ color: color })}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>test</div>
-                                    <div>by @Ucho-ten</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {target === "posts" && searchText && (
-                    <>
-                        {(loading || !searchPostsResult) &&
-                            Array.from({ length: 15 }, (_, index) => (
-                                <ViewPostCard
-                                    key={`skeleton-${index}`}
-                                    color={color}
-                                    isMobile={isMobile}
-                                    isSkeleton={true}
-                                    nextQueryParams={nextQueryParams}
-                                />
-                            ))}
-                        {!loading &&
-                            searchPostsResult &&
-                            searchPostsResult.map((post: PostView, index) => (
-                                <ViewPostCard
-                                    key={`search-post-${post.uri}`}
-                                    color={color}
-                                    postJson={post}
-                                    isMobile={isMobile}
-                                    now={now}
-                                    nextQueryParams={nextQueryParams}
-                                />
-                            ))}
-                    </>
-                )}
                 {target === "users" && searchText && (
                     <>
                         {(loading || !searchUsersResult) &&
