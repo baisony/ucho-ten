@@ -9,6 +9,7 @@ import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { ListFooterSpinner } from "../ListFooterSpinner"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
@@ -361,7 +362,7 @@ const FeedPage = ({
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: Footer,
+                        Footer: ListFooterSpinner,
                     }}
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
@@ -369,17 +370,6 @@ const FeedPage = ({
                 />
             )}
         </>
-    )
-}
-
-// @ts-ignore
-const Footer = ({ context: { hasMore } }) => {
-    return (
-        hasMore && (
-            <div className="flex justify-center mt-4 mb-4">
-                <Spinner />
-            </div>
-        )
     )
 }
 

@@ -86,7 +86,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
-    const [showTabBar, setShowTabBar] = useState<boolean>(isMatchingPath)
+    const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [page, setPage] = useState<
         "profile" | "home" | "inbox" | "post" | "search"
     >("home")
@@ -323,7 +323,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             setSelectedTab("home")
         }
 
-        setShowTabBar(specificPaths.includes(pathName))
+        setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
 
     useEffect(() => {
@@ -613,7 +613,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
                             }
                         >
-                            {!showTabBar && (
+                            {showTabBar && (
                                 <ViewHeader
                                     isMobile={isMobile}
                                     color={color}
@@ -628,17 +628,21 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 />
                             )}
                             <div
-                                className={`${
-                                    pathName === "/" || pathName === "/login"
-                                        ? "h-[calc(100%)]"
-                                        : showTabBar
-                                        ? `pt-[0px] h-[calc(100%-50px)] mb-[50px]`
+                                // className={`${
+                                //     pathName === "/login"
+                                //         ? "h-[calc(100%)]"
+                                //         : showTabBar
+                                //         ? `pt-[0px] h-[calc(100%-50px)]`
+                                //         : `pt-[100px] h-[calc(100%-150px)]`
+                                // }`}
+                                className={`${showTabBar
+                                        ? `pt-[0px] h-[100%]`
                                         : `pt-[100px] h-[calc(100%-150px)]`
                                 }`}
-                            >
+                                >
                                 {children}
                             </div>
-                            {!showTabBar && (
+                            {showTabBar && (
                                 <TabBar
                                     color={color}
                                     isMobile={isMobile}
