@@ -85,6 +85,7 @@ interface Props {
     isEmbedToModal?: boolean
     now?: Date
     isEmbedToPost?: boolean
+    nextQueryParams: URLSearchParams
     t: any
 }
 
@@ -103,6 +104,7 @@ export const ViewPostCard = (props: Props) => {
         isEmbedToModal,
         now,
         isEmbedToPost,
+        nextQueryParams,
         t,
     } = props
 
@@ -440,7 +442,11 @@ export const ViewPostCard = (props: Props) => {
                             className={"text-blue-500"}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                router.push(`/profile/${facet.features[0].did}`)
+                                router.push(
+                                    `/profile/${
+                                        facet.features[0].did
+                                    }?${nextQueryParams.toString()}`
+                                )
                             }}
                         >
                             {facetText}
@@ -509,7 +515,8 @@ export const ViewPostCard = (props: Props) => {
                                                 facet.features[0].uri.replace(
                                                     "https://bsky.app",
                                                     `${location.protocol}//${window.location.host}`
-                                                )
+                                                ) +
+                                                    `?${nextQueryParams.toString()}`
                                             )
                                         }}
                                     >
@@ -546,11 +553,19 @@ export const ViewPostCard = (props: Props) => {
                                     key={`a-${index}-${byteStart}`}
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        router.push(
-                                            `/search?word=%23${facet.features[0].tag.replace(
+                                        const queryParams = new URLSearchParams(
+                                            nextQueryParams
+                                        )
+                                        queryParams.set(
+                                            "word",
+                                            `%23${facet.features[0].tag.replace(
                                                 "#",
                                                 ""
-                                            )}&target=posts`
+                                            )}`
+                                        )
+                                        queryParams.set("target", "posts")
+                                        router.push(
+                                            `/search?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -679,6 +694,7 @@ export const ViewPostCard = (props: Props) => {
                     color={color}
                     target={"post"}
                     post={postJson}
+                    nextQueryParams={nextQueryParams}
                 />
                 <main
                     className={`${
@@ -716,7 +732,7 @@ export const ViewPostCard = (props: Props) => {
                         router.push(
                             `/profile/${postJsonData?.author.did}/post/${
                                 postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
-                            }`
+                            }?${nextQueryParams.toString()}`
                         )
                     }}
                 >
@@ -736,7 +752,7 @@ export const ViewPostCard = (props: Props) => {
                             onClick={(e) => {
                                 e.stopPropagation()
                                 router.push(
-                                    `/profile/${postJsonData?.author.did}`
+                                    `/profile/${postJsonData?.author.did}?${nextQueryParams.toString()}`
                                 )
                             }}
                         >
@@ -782,7 +798,7 @@ export const ViewPostCard = (props: Props) => {
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJsonData?.author.did}`
+                                            `/profile/${postJsonData?.author.did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -801,7 +817,7 @@ export const ViewPostCard = (props: Props) => {
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJsonData?.author.did}`
+                                            `/profile/${postJsonData?.author.did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -1085,6 +1101,7 @@ export const ViewPostCard = (props: Props) => {
                                         onImageClick={(index: number) => {
                                             handleImageClick(index)
                                         }}
+                                        nextQueryParams={nextQueryParams}
                                     />
                                 )}
                                 {embedExternal && (
@@ -1103,6 +1120,7 @@ export const ViewPostCard = (props: Props) => {
                                             color={color}
                                             quoteJson={embedRecordViewRecord}
                                             isEmbedToPost={true}
+                                            nextQueryParams={nextQueryParams}
                                             t={t}
                                         />
                                     )}
@@ -1297,9 +1315,15 @@ interface EmbedMediaProps {
     color: "light" | "dark"
     embedMedia: AppBskyEmbedRecordWithMedia.View
     onImageClick: (index: number) => void
+    nextQueryParams: URLSearchParams
 }
 
-const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
+const EmbedMedia = ({
+    embedMedia,
+    onImageClick,
+    color,
+    nextQueryParams,
+}: EmbedMediaProps) => {
     const images = embedMedia.media.images
 
     if (!images || !Array.isArray(images)) {
@@ -1331,7 +1355,11 @@ const EmbedMedia = ({ embedMedia, onImageClick, color }: EmbedMediaProps) => {
                     </div>
                 ))}
             </ScrollShadow>
-            <ViewQuoteCard color={color} postJson={embedMedia.record.record} />
+            <ViewQuoteCard
+                color={color}
+                postJson={embedMedia.record.record}
+                nextQueryParams={nextQueryParams}
+            />
         </>
     )
 }

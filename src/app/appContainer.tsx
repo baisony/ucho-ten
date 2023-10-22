@@ -45,6 +45,8 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
+import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
+import { TabQueryParamValue, isTabQueryParamValue } from "./_types/types"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -57,6 +59,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords, setMuteWords] = useWordMutes()
+    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
 
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -105,6 +108,44 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [])
 
     useEffect(() => {
+        const queryParams = new URLSearchParams(searchParams)
+
+        let tabValue: TabQueryParamValue = "h"
+
+        if (!queryParams.get("f")) {
+            const pathComponents = pathName.split("/")
+
+            if (pathComponents.length > 1) {
+                switch (pathComponents[1]) {
+                    case "":
+                        tabValue = "h"
+                        break
+                    case "search":
+                        tabValue = "s"
+                        break
+                    case "inbox":
+                        tabValue = "i"
+                    case "post":
+                        tabValue = "p"
+                        break
+                }
+            }
+        } else {
+            const f = queryParams.get("f")
+
+            if (isTabQueryParamValue(f)) {
+                tabValue = f
+            } else {
+                tabValue = "h"
+            }
+        }
+
+        queryParams.set("f", tabValue)
+
+        setNextQueryParams(queryParams)
+    }, [pathName, searchParams])
+
+    useEffect(() => {
         if (isMobile) {
             return
         }
@@ -131,7 +172,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 pathName !== "/post"
             ) {
                 event.preventDefault()
-                router.push("/post")
+                router.push(`/post?${nextQueryParams.toString()}`)
 
                 return
             }
@@ -249,7 +290,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         console.log(searchText)
         if (searchText === "" || !searchText) return
-        router.push(`/search?word=${searchText}&target=${target || "posts"}`)
+        const queryParams = new URLSearchParams(nextQueryParams)
+        queryParams.set("word", searchText)
+        queryParams.set("target", target || "posts")
+
+        router.push(`/search?${queryParams.toString()}`)
     }, [searchText])
 
     useEffect(() => {
@@ -577,12 +622,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         >
                             {!showTabBar && (
                                 <ViewHeader
+                                    isMobile={isMobile}
                                     color={color}
-                                    page={page}
-                                    tab={selectedTab}
+                                    //page={page}
+                                    //tab={selectedTab}
                                     setSideBarOpen={setSideBarOpen}
                                     setSearchText={setSearchText}
-                                    selectedTab={selectedTab}
+                                    //selectedTab={selectedTab}
                                     //menuIndex={menuIndex}
                                     //menus={menus}
                                     //onChangeMenuIndex={onChangeMenuIndex}
@@ -602,8 +648,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             {!showTabBar && (
                                 <TabBar
                                     color={color}
-                                    selected={selectedTab}
-                                    setValue={setSelectedTab}
+                                    isMobile={isMobile}
+                                    //selected={selectedTab}
+                                    //setValue={setSelectedTab}
                                 />
                             )}
                         </div>

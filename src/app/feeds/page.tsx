@@ -17,11 +17,13 @@ import { AtUri } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
     const [agent] = useAgent()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const { background, FeedCard, modal } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
@@ -164,7 +166,9 @@ export default function Root() {
                                 onClick={() => {
                                     const uri = new AtUri(feed.uri)
                                     router.push(
-                                        `/profile/${uri.hostname}/feed/${uri.rkey}`
+                                        `/profile/${uri.hostname}/feed/${
+                                            uri.rkey
+                                        }?${nextQueryParams.toString()}`
                                     )
                                 }}
                             >

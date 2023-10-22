@@ -6,10 +6,12 @@ import { useEffect, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
     const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
     const [timeline, setTimeline] = useState<PostView[]>([])
     const [darkMode, setDarkMode] = useState(false)
@@ -68,6 +70,7 @@ export default function Root() {
                             key={index}
                             postJson={post}
                             color={color}
+                            nextQueryParams={nextQueryParams}
                             t={t}
                         />
                     )

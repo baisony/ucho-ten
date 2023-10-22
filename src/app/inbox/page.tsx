@@ -10,13 +10,14 @@ import InfiniteScroll from "react-infinite-scroller"
 import { Spinner } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
     const { t } = useTranslation()
 
     const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
-
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const [loading, setLoading] = useState(true)
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
@@ -170,6 +171,7 @@ export default function Root() {
                             color={color}
                             isMobile={isMobile}
                             isSkeleton={true}
+                            nextQueryParams={nextQueryParams}
                             t={t}
                         />
                     ))}
@@ -182,6 +184,7 @@ export default function Root() {
                             postJson={post}
                             isMobile={isMobile}
                             now={now}
+                            nextQueryParams={nextQueryParams}
                             t={t}
                         />
                     ))}

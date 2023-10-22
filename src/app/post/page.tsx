@@ -58,6 +58,7 @@ import {
 import { Linkcard } from "@/app/components/Linkcard"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 interface AttachmentImage {
     blob: Blob
@@ -69,6 +70,7 @@ export default function Root() {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [agent] = useAgent()
     const router = useRouter()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const { t } = useTranslation()
     const [appearanceColor] = useAppearanceColor()
     const searchParams = useSearchParams()
@@ -279,7 +281,7 @@ export default function Root() {
 
             setLoading(false)
 
-            router.push("/")
+            router.push(`/?${nextQueryParams.toString()}`)
         } catch (e) {
             console.log(e)
         } finally {
@@ -489,7 +491,7 @@ export default function Root() {
                         isDisabled={loading}
                         onClick={() => {
                             if (history[0] === "/post" || history[0] === "") {
-                                router.push("/")
+                                router.push(`/?${nextQueryParams.toString()}`)
                             } else {
                                 router.back()
                             }

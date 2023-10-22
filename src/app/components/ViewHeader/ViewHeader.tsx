@@ -26,6 +26,7 @@ import {
     useMenuIndexAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 import { useTranslation } from "react-i18next"
 
@@ -39,11 +40,11 @@ interface Props {
     color: "light" | "dark"
     isMobile?: boolean
     open?: boolean
-    tab: string //"home" | "search" | "inbox" | "post"
-    page: string // "profile" | "home" | "post" | "search"
+    //tab: string //"home" | "search" | "inbox" | "post"
+    //page: string // "profile" | "home" | "post" | "search"
     isNextPage?: boolean
     setSideBarOpen?: any
-    selectedTab: string
+    //selectedTab: string
     setSearchText?: any
 }
 
@@ -52,7 +53,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const [userPreferences] = useUserPreferencesAtom()
     // const pathname = usePathname()
     const router = useRouter()
-
+    const pathname = usePathname()
     const [menus] = useHeaderMenusAtom()
     const [menuIndex, setMenuIndex] = useMenuIndexAtom()
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
@@ -62,18 +63,21 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         color,
         isMobile,
         open,
-        tab,
-        page,
-        isNextPage,
+        //tab,
+        //page,
+        //isNextPage,
         setSideBarOpen,
-        selectedTab,
+        //selectedTab,
     } = props
     const { t } = useTranslation()
     const searchParams = useSearchParams()
-    const [searchText, setSearchText] = useState("")
+    const [searchText, setSearchText] = useState<string>("")
     const target = searchParams.get("target")
+    const [nextQueryParams] = useNextQueryParamsAtom()
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
+    const [isRoot, setIsRoot] = useState<boolean>(true)
+    const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
 
@@ -96,7 +100,35 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         }
 
         setSearchText(search)
-    }, [])
+    }, [searchParams])
+
+    useEffect(() => {
+        console.log("test", isMobile, pathname)
+        if (!isMobile) {
+            setIsRoot(true)
+            return
+        }
+
+        switch (pathname) {
+            case "/":
+            case "/search":
+            case "/inbox":
+            case "/post":
+                setIsRoot(true)
+                break
+            default:
+                setIsRoot(false)
+                break
+        }
+    }, [pathname, isMobile])
+
+    useEffect(() => {
+        if (pathname === "/search") {
+            setShowSearchInput(true)
+        } else {
+            setShowSearchInput(false)
+        }
+    }, [pathname])
 
     useEffect(() => {
         if (!swiperRef.current) {
@@ -117,17 +149,20 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     startContent={
                         <FontAwesomeIcon
                             className={"h-[20px]"}
-                            icon={isNextPage ? faChevronLeft : faBars}
+                            icon={isRoot === true ? faBars : faChevronLeft}
                         />
                     }
                     onClick={() => {
                         //setIsSideBarOpen(!isSideBarOpen)
                         //console.log(setValue)
-                        setSideBarOpen(true)
-                        console.log("setSideBarOpen")
+                        if (isRoot) {
+                            setSideBarOpen(true)
+                        } else {
+                            router.back()
+                        }
                     }}
                 />
-                {selectedTab === "search" && (
+                {showSearchInput && (
                     <div
                         className={
                             "h-[40px] w-[60%] rounded-[10px] overflow-hidden relative"
@@ -146,10 +181,16 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 if (e.key !== "Enter" || isComposing) return //1
                                 props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
+                                const queryParams = new URLSearchParams(
+                                    nextQueryParams
+                                )
+                                queryParams.set(
+                                    "word",
+                                    encodeURIComponent(searchText)
+                                )
+                                queryParams.set("target", target || "posts")
                                 router.push(
-                                    `/search?word=${encodeURIComponent(
-                                        searchText
-                                    )}&target=${target}`
+                                    `/search?${nextQueryParams.toString()}`
                                 )
                             }}
                             onCompositionStart={() => setComposing(true)}
@@ -173,17 +214,17 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         )}
                     </div>
                 )}
-                {selectedTab !== "search" && (
+                {!showSearchInput && (
                     <Image
                         className={"w-[145px] cursor-pointer"}
                         src={logoImage}
                         alt={"logo"}
                         onClick={() => {
-                            router.push("/")
+                            router.push(`/?${nextQueryParams.toString()}`)
                         }}
                     />
                 )}
-                {selectedTab === "single" && (
+                {/*selectedTab === "single" && (
                     <Button
                         variant="light"
                         className={"absolute right-[0px] p-[20px] text-white"}
@@ -194,7 +235,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             />
                         }
                     />
-                )}
+                )*/}
             </div>
             {/* <ScrollShadow
                 className={bottom({ page: page })}
@@ -209,7 +250,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 }}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
-                className={bottom({ page: page })}
+                className={bottom()}
                 navigation={true}
             >
                 {menus.map((menu: HeaderMenu, index) => (

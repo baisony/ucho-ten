@@ -53,6 +53,7 @@ import imageCompression, {
     Options as ImageCompressionOptions,
 } from "browser-image-compression"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -76,7 +77,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         useUserProfileDetailedAtom()
     const { t } = useTranslation()
     const [agent, setAgent] = useAgent()
-    const router = useRouter()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
     const reg =
@@ -548,6 +549,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             postJson={postData}
                             isMobile={isMobile}
                             isEmbedToModal={true}
+                            nextQueryParams={nextQueryParams}
                             t={t}
                         />
                     </div>

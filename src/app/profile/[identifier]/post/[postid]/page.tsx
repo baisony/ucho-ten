@@ -59,12 +59,14 @@ import {
 } from "@/app/_atoms/imageGallery"
 import { ReportModal } from "@/app/components/ReportModal"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
     const { t } = useTranslation()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [translateTo] = useTranslationLanguage()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const router = useRouter()
     const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
@@ -300,7 +302,11 @@ export default function Root() {
                         <div
                             key={`link-${index}-${byteStart}`}
                             onClick={() => {
-                                router.push(`/profile/${facet.features[0].did}`)
+                                router.push(
+                                    `/profile/${
+                                        facet.features[0].did
+                                    }?${nextQueryParams.toString()}`
+                                )
                             }}
                         >
                             {facetText}
@@ -388,11 +394,19 @@ export default function Root() {
                                 <div
                                     key={`a-${index}-${byteStart}`}
                                     onClick={() => {
-                                        router.push(
-                                            `/search?searchWord=${facet.features[0].tag.replace(
+                                        const queryParams = new URLSearchParams(
+                                            nextQueryParams
+                                        )
+                                        queryParams.set(
+                                            "word",
+                                            facet.features[0].tag.replace(
                                                 "#",
                                                 "%23"
-                                            )}&target=posts`
+                                            )
+                                        )
+                                        queryParams.set("target", "posts")
+                                        router.push(
+                                            `/search?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -456,6 +470,7 @@ export default function Root() {
                         color={color}
                         postJson={post.parent.post}
                         isMobile={isMobile}
+                        nextQueryParams={nextQueryParams}
                         t={t}
                     />
                 </>
@@ -483,6 +498,7 @@ export default function Root() {
                         color={color}
                         postJson={post.replies.post}
                         isMobile={isMobile}
+                        nextQueryParams={nextQueryParams}
                         t={t}
                     />
                 </>
@@ -588,6 +604,7 @@ export default function Root() {
                     color={color}
                     target={"post"}
                     post={post.post}
+                    nextQueryParams={nextQueryParams}
                 />
                 <main className={Container({ color: color })}>
                     {post?.parent && (
@@ -599,7 +616,9 @@ export default function Root() {
                                 className={AuthorIcon()}
                                 onClick={() => {
                                     router.push(
-                                        `/profile/${post.post.author.did}`
+                                        `/profile/${
+                                            post.post.author.did
+                                        }?${nextQueryParams.toString()}`
                                     )
                                 }}
                             >
@@ -617,7 +636,9 @@ export default function Root() {
                                     className={AuthorDisplayName()}
                                     onClick={() => {
                                         router.push(
-                                            `/profile/${post.post.author.did}`
+                                            `/profile/${
+                                                post.post.author.did
+                                            }?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -627,7 +648,9 @@ export default function Root() {
                                     className={AuthorHandle()}
                                     onClick={() => {
                                         router.push(
-                                            `/profile/${post.post.author.did}`
+                                            `/profile/${
+                                                post.post.author.did
+                                            }?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -724,6 +747,9 @@ export default function Root() {
                                                             post.post.embed
                                                                 ?.record.record
                                                         }
+                                                        nextQueryParams={
+                                                            nextQueryParams
+                                                        }
                                                     />
                                                 </>
                                             )}
@@ -741,6 +767,9 @@ export default function Root() {
                                                 color={color}
                                                 postJson={
                                                     post.post.embed?.record
+                                                }
+                                                nextQueryParams={
+                                                    nextQueryParams
                                                 }
                                             />
                                         )
@@ -973,6 +1002,7 @@ export default function Root() {
                                     color={color}
                                     postJson={item.post}
                                     isMobile={isMobile}
+                                    nextQueryParams={nextQueryParams}
                                     t={t}
                                 />
                             ))}

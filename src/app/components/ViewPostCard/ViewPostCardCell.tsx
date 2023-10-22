@@ -18,6 +18,7 @@ interface Props {
     isEmbedToModal?: boolean
     now?: Date
     isDummyHeader?: boolean
+    nextQueryParams: URLSearchParams
     t: any
 }
 
