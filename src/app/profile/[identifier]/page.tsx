@@ -721,6 +721,7 @@ const UserProfileComponent = ({
                 color={color}
                 target={"account"}
                 profile={profile}
+                nextQueryParams={nextQueryParams}
             />
             <div className={ProfileContainer()}>
                 <div className={HeaderImageContainer()}>
