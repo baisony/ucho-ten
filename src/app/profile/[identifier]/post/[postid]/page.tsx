@@ -602,6 +602,7 @@ export default function Root() {
                     color={color}
                     target={"post"}
                     post={post.post}
+                    nextQueryParams={nextQueryParams}
                 />
                 <main className={Container({ color: color })}>
                     {post?.parent && (
