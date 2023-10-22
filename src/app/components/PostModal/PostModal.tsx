@@ -53,6 +53,7 @@ import imageCompression, {
     Options as ImageCompressionOptions,
 } from "browser-image-compression"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { useTranslation } from "react-i18next"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -77,13 +78,15 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const { color, type, postData } = props
     const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
         useUserProfileDetailedAtom()
-    const [agent] = useAgent()
+    const { t } = useTranslation()
     const [nextQueryParams] = useNextQueryParamsAtom()
 
-    // const router = useRouter()
-
-    // const reg =
-    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
+    const [agent, setAgent] = useAgent()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const postParam = searchParams.get("text")
+    const reg =
+        /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
     const [PostContentLanguage, setPostContentLanguage] = useState(
         new Set<string>([])
     )
@@ -508,9 +511,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             props.onClose(true)
                         }}
                     >
-                        cancel
+                        {t("button.cancel")}
                     </Button>
-                    <div className={headerTitle()}>{type}</div>
+                    <div className={headerTitle()}>
+                        {type === "Reply"
+                            ? t(`modal.post.reply`)
+                            : t(`modal.post.quote`)}
+                    </div>
                     <Button
                         className={headerPostButton()}
                         radius={"full"}
@@ -525,7 +532,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         }
                         isLoading={loading}
                     >
-                        {loading ? "" : "send"}
+                        {loading ? "" : t("button.post")}
                     </Button>
                 </div>
                 <div
@@ -585,7 +592,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         getOGPData !== null,
                                 })}
                                 aria-label="post input area"
-                                placeholder={"Yo, Do you do Brusco?"}
+                                placeholder={t("modal.post.placeholder")}
                                 value={contentText}
                                 maxLength={10000}
                                 autoFocus={true}
@@ -610,7 +617,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                 "relative w-full h-full z-10 flex justify-center items-center"
                                             }
                                         >
-                                            Compressing...
+                                            {t("modal.post.compressing")}...
                                             <Spinner />
                                         </div>
                                     )}
@@ -819,7 +826,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 className={dropdown({ color: color })}
                             >
                                 <DropdownTrigger>
-                                    {`lang:${Array.from(
+                                    {`${t("modal.post.lang")}:${Array.from(
                                         PostContentLanguage
                                     ).join(",")}`}
                                 </DropdownTrigger>
@@ -888,7 +895,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     }}
                                 >
                                     <DropdownItem key="split">
-                                        文章を複数のポストに分割する
+                                        {t("modal.post.splitSentence")}
                                     </DropdownItem>
                                     <DropdownItem
                                         key="linkcard"
@@ -899,7 +906,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             )
                                         }}
                                     >
-                                        リンクカードを追加する
+                                        {t("modal.post.addLinkcard")}
                                     </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
