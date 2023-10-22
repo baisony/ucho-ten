@@ -615,6 +615,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         >
                             {!showTabBar && (
                                 <ViewHeader
+                                    isMobile={isMobile}
                                     color={color}
                                     page={page}
                                     tab={selectedTab}
