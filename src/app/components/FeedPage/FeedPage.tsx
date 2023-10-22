@@ -2,7 +2,7 @@ import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { Spinner } from "@nextui-org/react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
@@ -273,6 +273,16 @@ const FeedPage = ({
         }
     }
 
+    const timelineWithDummy = useMemo((): FeedViewPost[] => { // Need to add data for top padding
+        const dummyData: FeedViewPost = {} as FeedViewPost
+
+        if (!timeline) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...timeline]
+        }
+    }, [timeline])
+
     // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
     //     const newScrollPosition = e.currentTarget.scrollTop
 
@@ -342,7 +352,7 @@ const FeedPage = ({
                     increaseViewportBy={200}
                     // useWindowScroll={true}
                     // overscan={50}
-                    data={timeline}
+                    data={timelineWithDummy}
                     // initialItemCount={Math.min(18, timeline?.length || 0)}
                     atTopThreshold={100}
                     atBottomThreshold={100}

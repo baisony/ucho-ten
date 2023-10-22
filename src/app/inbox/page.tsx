@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
 import { useAgent } from "@/app/_atoms/agent"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type { FeedViewPost, PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"
@@ -144,6 +144,16 @@ export default function Root() {
         fetchNotification()
     }, [agent])
 
+    const notificationWithDummy = useMemo((): PostView[] => {
+        const dummyData: PostView = {} as PostView
+
+        if (!notification) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...notification]
+        }
+    }, [notification])
+
     return (
         <>
             {!notification && (
@@ -175,7 +185,7 @@ export default function Root() {
                     context={{ hasMore }}
                     overscan={200}
                     increaseViewportBy={200}
-                    data={notification}
+                    data={notificationWithDummy}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
