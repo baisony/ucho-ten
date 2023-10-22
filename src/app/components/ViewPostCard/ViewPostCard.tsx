@@ -752,7 +752,8 @@ export const ViewPostCard = (props: Props) => {
                             onClick={(e) => {
                                 e.stopPropagation()
                                 router.push(
-                                    `/profile/${postJsonData?.author.did}?${nextQueryParams.toString()}`
+                                    `/profile/${postJsonData?.author
+                                        .did}?${nextQueryParams.toString()}`
                                 )
                             }}
                         >
@@ -798,7 +799,8 @@ export const ViewPostCard = (props: Props) => {
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJsonData?.author.did}?${nextQueryParams.toString()}`
+                                            `/profile/${postJsonData?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -817,7 +819,8 @@ export const ViewPostCard = (props: Props) => {
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJsonData?.author.did}?${nextQueryParams.toString()}`
+                                            `/profile/${postJsonData?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
