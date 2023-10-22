@@ -386,7 +386,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    className="overflow-y-auto h-[calc(100%-50px)]"
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
 
@@ -443,7 +443,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    className="overflow-y-auto h-[calc(100%-50px)]"
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
 

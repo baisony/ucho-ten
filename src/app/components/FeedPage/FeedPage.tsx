@@ -44,8 +44,6 @@ const FeedPage = ({
     // const currentScrollPosition = useRef<number>(0)
 
     useEffect(() => {
-        console.log(shouldScrollToTop.current, scrollRef.current)
-
         if (shouldScrollToTop.current && scrollRef.current) {
             scrollRef.current.scrollTop = 0
 
@@ -314,14 +312,10 @@ const FeedPage = ({
                     </div>
                 </div>
             )}
-            {/* {(!timeline || wait) && ( */}
             {!timeline && (
                 <Virtuoso
-                    //key={refreshKey}
                     overscan={100}
                     increaseViewportBy={200}
-                    // useWindowScroll={true}
-                    // overscan={50}
                     totalCount={20}
                     initialItemCount={20}
                     atTopThreshold={100}
@@ -337,7 +331,7 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    className="overflow-y-auto h-[calc(100%-50px)]"
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
             {timeline /* {timeline && !wait && ( */ && (
