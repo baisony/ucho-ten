@@ -214,7 +214,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         )}
                     </div>
                 )}
-                {/*showSearchInput && (
+                {!showSearchInput && (
                     <Image
                         className={"w-[145px] cursor-pointer"}
                         src={logoImage}
@@ -224,7 +224,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         }}
                     />
                 )}
-                {selectedTab === "single" && (
+                {/*selectedTab === "single" && (
                     <Button
                         variant="light"
                         className={"absolute right-[0px] p-[20px] text-white"}
