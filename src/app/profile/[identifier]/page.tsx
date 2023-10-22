@@ -44,6 +44,7 @@ import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { ReportModal } from "@/app/components/ReportModal"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
     const router = useRouter()
@@ -64,7 +65,7 @@ export default function Root() {
     // const [hasCursor, setHasCursor] = useState<string | null>(null)
     const [darkMode, setDarkMode] = useState(false)
     // const [isProfileMine, setIsProfileMine] = useState(false)
-    const [isFollowing, setIsFollowing] = useState(profile?.viewer?.following)
+    const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
     // const [isEditing, setIsEditing] = useState(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
@@ -380,7 +381,10 @@ const UserProfileComponent = ({
     const [avatar, setAvatar] = useState(profile?.avatar)
     const [banner, setBanner] = useState(profile?.banner)
     const [isUploading, setIsUploading] = useState(false)
-    const [isFollowing, setIsFollowing] = useState(profile?.viewer?.following)
+    const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
+    const { t } = useTranslation()
+    console.log(!!profile?.viewer?.following)
+    console.log(isFollowing)
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
@@ -581,7 +585,8 @@ const UserProfileComponent = ({
                     {(onClose) => (
                         <>
                             <ModalHeader>
-                                Edit Profile @{agent?.session?.handle}
+                                {t("pages.profile.editProfile")} @
+                                {agent?.session?.handle}
                             </ModalHeader>
                             <ModalBody>
                                 <div
@@ -634,7 +639,7 @@ const UserProfileComponent = ({
                                 </div>
 
                                 <h3 className="text-default-500 text-small select-none">
-                                    Display Name
+                                    {t("pages.profile.displayName")}
                                 </h3>
                                 <div className={"w-full"}>
                                     <Input
@@ -644,7 +649,7 @@ const UserProfileComponent = ({
                                     />
                                 </div>
                                 <h3 className="text-default-500 text-small select-none">
-                                    Bio
+                                    {t("pages.profile.bio")}
                                 </h3>
                                 <div className={"w-full"}>
                                     <Textarea
@@ -672,7 +677,7 @@ const UserProfileComponent = ({
                                     }
                                     isDisabled={isUploading}
                                 >
-                                    Cancel
+                                    {t("button.cancel")}
                                 </Button>
                                 <Button
                                     onClick={async () => {
@@ -704,7 +709,7 @@ const UserProfileComponent = ({
                                     {isUploading ? (
                                         <Spinner size={"sm"} />
                                     ) : (
-                                        "Save"
+                                        t("button.save")
                                     )}
                                 </Button>
                             </ModalFooter>
@@ -777,7 +782,7 @@ const UserProfileComponent = ({
                                         )
                                     }}
                                 >
-                                    Copy DID
+                                    {t("pages.profile.copyDID")}
                                 </DropdownItem>
                                 <DropdownItem
                                     key="copy"
@@ -787,7 +792,7 @@ const UserProfileComponent = ({
                                         )
                                     }}
                                 >
-                                    Copy Handle
+                                    {t("pages.profile.copyHandle")}
                                 </DropdownItem>
                                 <DropdownItem
                                     key="edit"
@@ -797,7 +802,7 @@ const UserProfileComponent = ({
                                         )
                                     }}
                                 >
-                                    Copy DisplayName
+                                    {t("pages.profile.copyDisplauName")}
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
@@ -823,7 +828,7 @@ const UserProfileComponent = ({
                                             />
                                         }
                                     >
-                                        Mute
+                                        {t("pages.profile.mute")}
                                     </DropdownItem>
                                     <DropdownItem
                                         key="report"
@@ -836,7 +841,7 @@ const UserProfileComponent = ({
                                             onOpenReport()
                                         }}
                                     >
-                                        Report
+                                        {t("pages.profile.report")}
                                     </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
@@ -848,7 +853,7 @@ const UserProfileComponent = ({
                                 hover: onHoverButton,
                             })} `}
                             color={
-                                isFollowing
+                                !!profile?.viewer?.following
                                     ? onHoverButton && !isProfileMine
                                         ? "danger"
                                         : "default"
@@ -866,7 +871,7 @@ const UserProfileComponent = ({
                             onClick={async () => {
                                 if (isProfileMine) {
                                     onOpen()
-                                } else if (isFollowing) {
+                                } else if (!!profile?.viewer?.following) {
                                     if (!agent) return
                                     try {
                                         const res = await agent.deleteFollow(
@@ -892,12 +897,12 @@ const UserProfileComponent = ({
                             }}
                         >
                             {isProfileMine
-                                ? "Edit Profile"
-                                : isFollowing
+                                ? t("pages.profile.editProfile")
+                                : !!profile?.viewer?.following
                                 ? !onHoverButton
-                                    ? "Following"
-                                    : "Un Follow"
-                                : "Follow"}
+                                    ? t("button.following")
+                                    : t("button.unfollow")
+                                : t("button.follow")}
                         </Button>
                     </div>
                     <div className={ProfileDisplayName()}>

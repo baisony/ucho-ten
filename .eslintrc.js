@@ -1,21 +1,11 @@
 module.exports = {
     extends: [
         "plugin:prettier/recommended",
-        "plugin:@typescript-eslint/recommended",
     ],
     plugins: ["prettier"],
     rules: {
         "prettier/prettier": "error",
         "no-unused-vars": "warn",
-        "@typescript-eslint/no-unused-vars": "warn",
-        "@typescript-eslint/no-explicit-any": "warn",
-        "@typescript-eslint/ban-ts-comment": [
-            "warn",
-            {
-                "ts-ignore": "allow-with-description",
-                minimumDescriptionLength: 15,
-            },
-        ],
     },
     parserOptions: {
         ecmaVersion: 2022,
@@ -25,4 +15,24 @@ module.exports = {
         es2021: true,
         node: true,
     },
+    overrides: [
+        {
+            files: ["*.ts", "*.tsx"],
+            parser: "@typescript-eslint/parser",
+            extends: [
+                "plugin:@typescript-eslint/recommended",
+            ],
+            rules: {
+                "@typescript-eslint/no-unused-vars": "warn",
+                "@typescript-eslint/no-explicit-any": "warn",
+                "@typescript-eslint/ban-ts-comment": [
+                    "warn",
+                    {
+                        "ts-ignore": "allow-with-description",
+                        minimumDescriptionLength: 15,
+                    },
+                ],
+            },
+        },
+    ],
 }

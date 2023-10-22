@@ -27,6 +27,7 @@ import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { useTranslation } from "react-i18next"
 
 interface Props {
     className?: string
@@ -369,6 +370,7 @@ const FeedHeaderComponent = ({
     onClick,
     isSkeleton,
 }: FeedProps) => {
+    const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
 
     const {
@@ -435,9 +437,11 @@ const FeedHeaderComponent = ({
                             </div>
                         </DropdownTrigger>
                         <DropdownMenu>
-                            <DropdownItem key="new">Copy feed url</DropdownItem>
+                            <DropdownItem key="new">
+                                {t("pages.feedOnlyPage.copyFeedURL")}
+                            </DropdownItem>
                             <DropdownItem key="copy">
-                                Post this feed
+                                {t("pages.feedOnlyPage.postThisFeed")}{" "}
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
@@ -462,9 +466,9 @@ const FeedHeaderComponent = ({
                     >
                         {isSubscribed
                             ? !onHoverButton
-                                ? "Subscribed"
-                                : "UnSubscribe"
-                            : "Subscribe"}
+                                ? t("button.subscribed")
+                                : t("button.unsubscribe")
+                            : t("button.subscribe")}
                     </Button>
                 </div>
                 <div className={ProfileDisplayName({ color: color })}>
@@ -478,7 +482,9 @@ const FeedHeaderComponent = ({
                 </div>
                 <div className={ProfileHandle()}>
                     {!isSkeleton ? (
-                        `created by @${feedInfo.view.creator.handle}`
+                        `${t(`pages.feedOnlyPage.createdBy`)} @${
+                            feedInfo.view.creator.handle
+                        }`
                     ) : (
                         <Skeleton
                             className={`h-3 w-[80px] rounded-[10px] mt-[5px] ${color}`}
