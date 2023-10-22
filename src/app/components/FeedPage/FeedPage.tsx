@@ -8,6 +8,7 @@ import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
@@ -25,7 +26,7 @@ const FeedPage = ({
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
     const [agent] = useAgent()
-
+    const [nextQueryParams] = useNextQueryParamsAtom()
     // const [loading, setLoading] = useState(false)
     // const [loading2, setLoading2] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
@@ -321,6 +322,7 @@ const FeedPage = ({
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
+                                nextQueryParams,
                             }}
                         />
                     )}
@@ -353,6 +355,7 @@ const FeedPage = ({
                                 json: item,
                                 isDummyHeader: index === 0,
                                 now,
+                                nextQueryParams,
                             }}
                         />
                     )}

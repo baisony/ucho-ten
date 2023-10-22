@@ -26,6 +26,7 @@ import {
     useMenuIndexAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 import { useTranslation } from "react-i18next"
 
@@ -72,6 +73,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState("")
     const target = searchParams.get("target")
+    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
 
@@ -146,10 +148,16 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 if (e.key !== "Enter" || isComposing) return //1
                                 props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
+                                const queryParams = new URLSearchParams(
+                                    nextQueryParams
+                                )
+                                queryParams.set(
+                                    "word",
+                                    encodeURIComponent(searchText)
+                                )
+                                queryParams.set("target", target || "posts")
                                 router.push(
-                                    `/search?word=${encodeURIComponent(
-                                        searchText
-                                    )}&target=${target}`
+                                    `/search?${nextQueryParams.toString()}`
                                 )
                             }}
                             onCompositionStart={() => setComposing(true)}
@@ -179,7 +187,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         src={logoImage}
                         alt={"logo"}
                         onClick={() => {
-                            router.push("/")
+                            router.push(`/?${nextQueryParams.toString()}`)
                         }}
                     />
                 )}

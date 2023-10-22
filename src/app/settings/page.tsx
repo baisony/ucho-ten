@@ -18,6 +18,7 @@ import { BskyLabelPreference } from "@atproto/api/"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
     const router = useRouter()
@@ -39,6 +40,7 @@ export default function Root() {
     }
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [agent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const { t, i18n } = useTranslation()
     const [hashFlagment, setHashFlagment] = useState<string | null>(null)
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
@@ -371,7 +373,9 @@ export default function Root() {
                                     "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
                                 }
                                 onClick={() => {
-                                    router.push("/settings/mute/words")
+                                    router.push(
+                                        `/settings/mute/words?${nextQueryParams.toString()}`
+                                    )
                                 }}
                             >
                                 {t("pages.mute.muteWord")}
@@ -381,7 +385,9 @@ export default function Root() {
                                     "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
                                 }
                                 onClick={() => {
-                                    router.push("/settings/mute/accounts")
+                                    router.push(
+                                        `/settings/mute/accounts?${nextQueryParams.toString()}`
+                                    )
                                 }}
                             >
                                 {t("pages.mute.muteUser")}
