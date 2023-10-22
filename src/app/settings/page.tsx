@@ -18,9 +18,14 @@ import { BskyLabelPreference } from "@atproto/api/"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
     const router = useRouter()
+    const DisplayLanguages = {
+        English: "en-US",
+        Japanese: "ja-JP",
+    }
     const ToTranslateLanguages = {
         English: "en-US",
         Japanese: "ja-JP",
@@ -37,6 +42,7 @@ export default function Root() {
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
 
+    const { t, i18n } = useTranslation()
     const [hashFlagment, setHashFlagment] = useState<string | null>(null)
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
@@ -117,18 +123,22 @@ export default function Root() {
                             key="general"
                             aria-label="General"
                             title={
-                                <span className={"font-[600]"}>General</span>
+                                <span className={"font-[600]"}>
+                                    {t("pages.settings.general")}
+                                </span>
                             }
                             className={accordion({ color: color })}
                         >
                             <div className={"pt-[5px] pb-[7px]"}>
-                                <div className={"font-[900]"}>Appearance</div>
+                                <div className={"font-[900]"}>
+                                    {t("pages.settings.appearance")}
+                                </div>
                                 <div
                                     className={
                                         "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
                                     }
                                 >
-                                    <div>Theme Color</div>
+                                    <div>{t("pages.settings.theme")}</div>
                                     <ButtonGroup>
                                         <Button
                                             isDisabled={
@@ -138,7 +148,7 @@ export default function Root() {
                                                 setAppearanceColor("system")
                                             }}
                                         >
-                                            System
+                                            {t("pages.settings.system")}
                                         </Button>
                                         <Button
                                             isDisabled={
@@ -148,7 +158,7 @@ export default function Root() {
                                                 setAppearanceColor("light")
                                             }}
                                         >
-                                            Light
+                                            {t("pages.settings.light")}
                                         </Button>
                                         <Button
                                             isDisabled={
@@ -158,7 +168,7 @@ export default function Root() {
                                                 setAppearanceColor("dark")
                                             }}
                                         >
-                                            Dark
+                                            {t("pages.settings.dark")}
                                         </Button>
                                     </ButtonGroup>
                                 </div>
@@ -167,7 +177,9 @@ export default function Root() {
                                         "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
                                     }
                                 >
-                                    <div>Display Language</div>
+                                    <div>
+                                        {t("pages.settings.displayLanguage")}
+                                    </div>
                                     <Select
                                         size={"sm"}
                                         label="Languages"
@@ -179,10 +191,11 @@ export default function Root() {
                                             handleDisplayLanguageSelectionChange(
                                                 event
                                             )
+                                            //lngChangeはappContainerにて実装
                                         }}
                                     >
                                         {Object.entries(
-                                            ToTranslateLanguages || {}
+                                            DisplayLanguages || {}
                                         ).map(([key, value]) => {
                                             return (
                                                 <SelectItem key={value}>
@@ -207,13 +220,15 @@ export default function Root() {
                                 </div>
                             </div>
                             <div className={"pt-[5px] pb-[7px]"}>
-                                <div className={"font-[600]"}>Translate</div>
+                                <div className={"font-[600]"}>
+                                    {t("pages.settings.translate")}
+                                </div>
                                 <div
                                     className={
                                         "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
                                     }
                                 >
-                                    <div>Translate To</div>
+                                    <div>{t("pages.settings.translateTo")}</div>
                                     <Select
                                         size={"sm"}
                                         label="Select a Language"
@@ -248,7 +263,7 @@ export default function Root() {
                             aria-label="Accordion 1"
                             title={
                                 <span className={"font-bold"}>
-                                    Content Filtering
+                                    {t("pages.contentfiltering.title")}
                                 </span>
                             }
                             className={`${accordion({
@@ -266,19 +281,27 @@ export default function Root() {
                                 >
                                     <div>
                                         {key === "nsfw"
-                                            ? "Explicit Sexual Images"
+                                            ? t("pages.contentfiltering.nsfw")
                                             : key === "nudity"
-                                            ? "Other Nudity"
+                                            ? t(
+                                                  "pages.contentfiltering.otherNudity"
+                                              )
                                             : key === "spam"
-                                            ? "Spam"
+                                            ? t("pages.contentfiltering.spam")
                                             : key === "gore"
-                                            ? "Violent / Bloody"
+                                            ? t(
+                                                  "pages.contentfiltering.violence"
+                                              )
                                             : key === "hate"
-                                            ? "Hate Group Iconography"
+                                            ? t("pages.contentfiltering.hate")
                                             : key === "impersonation"
-                                            ? "Impersonation"
+                                            ? t(
+                                                  "pages.contentfiltering.impersonation"
+                                              )
                                             : key === "suggestive"
-                                            ? "Sexually Suggestive"
+                                            ? t(
+                                                  "pages.contentfiltering.sexuallySuggestive"
+                                              )
                                             : key}
                                     </div>
                                     <div className={""}>
@@ -297,7 +320,7 @@ export default function Root() {
                                                     )
                                                 }}
                                             >
-                                                Hide
+                                                {t("button.hide")}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -313,7 +336,7 @@ export default function Root() {
                                                     )
                                                 }}
                                             >
-                                                Warn
+                                                {t("button.warn")}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -329,7 +352,7 @@ export default function Root() {
                                                     )
                                                 }}
                                             >
-                                                Show
+                                                {t("button.show")}
                                             </Button>
                                         </ButtonGroup>
                                     </div>
@@ -339,7 +362,11 @@ export default function Root() {
                         <AccordionItem
                             key="mute"
                             aria-label={"Mute"}
-                            title={<span className={"font-bold"}>Mute</span>}
+                            title={
+                                <span className={"font-bold"}>
+                                    {t("pages.mute.title")}
+                                </span>
+                            }
                             className={accordion({ color: color })}
                         >
                             <div
@@ -352,7 +379,7 @@ export default function Root() {
                                     )
                                 }}
                             >
-                                Mute Words
+                                {t("pages.mute.muteWord")}
                             </div>
                             <div
                                 className={
@@ -364,7 +391,7 @@ export default function Root() {
                                     )
                                 }}
                             >
-                                Mute Accounts
+                                {t("pages.mute.muteUser")}
                             </div>
                         </AccordionItem>
                     </Accordion>

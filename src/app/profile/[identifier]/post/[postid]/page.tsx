@@ -59,8 +59,10 @@ import {
 } from "@/app/_atoms/imageGallery"
 import { ReportModal } from "@/app/components/ReportModal"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
+    const { t } = useTranslation()
     const router = useRouter()
 
     const [agent] = useAgent()
@@ -661,7 +663,7 @@ export default function Root() {
                             {renderTextWithLinks()}
                             {translateError && (
                                 <div className={"text-red-500"}>
-                                    Translation error
+                                    {t("pages.postOnlyPage.translateError")}
                                 </div>
                             )}
                             {translatedText !== null && viewTranslatedText && (
@@ -674,7 +676,10 @@ export default function Root() {
                                             }}
                                             className={"cursor-pointer"}
                                         >
-                                            &nbsp;- View original text
+                                            &nbsp;-{" "}
+                                            {t(
+                                                "pages.postOnlyPage.viewOriginal"
+                                            )}
                                         </span>
                                     </div>
                                     <div>{translatedText}</div>
@@ -841,7 +846,7 @@ export default function Root() {
                                                 />
                                             }
                                         >
-                                            Share
+                                            {t("pages.postOnlyPage.share")}
                                         </DropdownItem>
                                         {post.post.record?.text && (
                                             <DropdownItem
@@ -899,7 +904,9 @@ export default function Root() {
                                                     }
                                                 }}
                                             >
-                                                Translate
+                                                {t(
+                                                    "pages.postOnlyPage.translate"
+                                                )}
                                             </DropdownItem>
                                         )}
                                     </DropdownSection>
@@ -920,7 +927,7 @@ export default function Root() {
                                                 )
                                             }}
                                         >
-                                            JSON
+                                            {t("pages.postOnlyPage.copyJSON")}
                                         </DropdownItem>
                                         <DropdownItem
                                             key="uri"
@@ -933,7 +940,7 @@ export default function Root() {
                                                 )
                                             }}
                                         >
-                                            Post URI
+                                            {t("pages.postOnlyPage.copyURL")}
                                         </DropdownItem>
                                         <DropdownItem
                                             key="did"
@@ -948,7 +955,7 @@ export default function Root() {
                                                 )
                                             }}
                                         >
-                                            Author DID
+                                            {t("pages.postOnlyPage.copyDID")}
                                         </DropdownItem>
                                     </DropdownSection>
                                     <DropdownSection title="Danger zone">
@@ -967,7 +974,7 @@ export default function Root() {
                                                     onOpenReport()
                                                 }}
                                             >
-                                                Report
+                                                {t("pages.postOnlyPage.report")}
                                             </DropdownItem>
                                         ) : (
                                             <DropdownItem
@@ -980,7 +987,7 @@ export default function Root() {
                                                     />
                                                 }
                                             >
-                                                Delete
+                                                {t("pages.postOnlyPage.delete")}
                                             </DropdownItem>
                                         )}
                                     </DropdownSection>
