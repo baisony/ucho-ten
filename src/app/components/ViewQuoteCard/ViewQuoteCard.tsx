@@ -14,6 +14,7 @@ import {
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
 import { viewQuoteCard } from "@/app/components/ViewQuoteCard/styles"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
@@ -30,6 +31,7 @@ interface Props {
     now?: Date
     isEmbedReportModal?: boolean
     profile?: any
+    nextQueryParams: URLSearchParams
 }
 
 export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
@@ -50,6 +52,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
         now,
         isEmbedReportModal,
         profile,
+        nextQueryParams,
     } = props
     const reg =
         /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
@@ -153,7 +156,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
             router.push(
                 `/profile/${postJson?.author.did}/post/${
                     postJson?.uri.match(/\/(\w+)$/)?.[1] || ""
-                }`
+                }?${nextQueryParams.toString()}`
             )
         }
     }
@@ -195,7 +198,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJson?.author.did}`
+                                            `/profile/${postJson?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -269,7 +273,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJson?.author.did}`
+                                            `/profile/${postJson?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
@@ -298,7 +303,8 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         router.push(
-                                            `/profile/${postJson?.author.did}`
+                                            `/profile/${postJson?.author
+                                                .did}?${nextQueryParams.toString()}`
                                         )
                                     }}
                                 >
