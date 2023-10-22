@@ -29,7 +29,6 @@ import {
 
 import { useTranslation } from "react-i18next"
 
-import { HeaderMenu } from "@/app/_atoms/headerMenu"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import "swiper/css"
 import "swiper/css/pagination"
@@ -65,10 +64,9 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         isMobile,
         open,
         // tab,
-        //page,
+        page,
         // isNextPage,
         setSideBarOpen,
-        onChangeMenuIndex,
         selectedTab,
     } = props
     const { t } = useTranslation()
