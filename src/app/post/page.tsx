@@ -886,13 +886,13 @@ export default function Root() {
                                 </PopoverContent>
                             </Popover>
                         </div>
-                        <div
-                            className={`${footerTooltipStyle()} top-[-3px] h-full ${
-                                contentImages.length > 4 && "text-red"
-                            }`}
-                        >
-                            {contentImages.length}/4
-                        </div>
+                        {/*<div
+                                className={`${footerTooltipStyle()} top-[-3px] h-full ${
+                                    contentImages.length > 4 && "text-red"
+                                }`}
+                            >
+                                {contentImages.length}/4
+                            </div>*/}
                         <div className={footerCharacterCount()}>
                             <div
                                 className={footerCharacterCountText()}
