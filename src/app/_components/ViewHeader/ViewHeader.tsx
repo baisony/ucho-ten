@@ -268,7 +268,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 menuIndex === index
                                     ? "text-white"
                                     : "text-[#909090]"
-                            } md:text-[15px] text-[13px]`}
+                            } md:text-[15px] text-[13px] md:block flex items-center h-full`}
                         >
                             {menu.displayText}
                         </div>

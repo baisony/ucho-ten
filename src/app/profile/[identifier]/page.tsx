@@ -360,7 +360,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     const { isDummyHeader, userProfileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[80px]"} />
+        return <div className={"md:h-[100px] h-[85px]"} />
     }
 
     if (userProfileProps) {
