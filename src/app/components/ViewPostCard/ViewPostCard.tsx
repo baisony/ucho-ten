@@ -50,7 +50,7 @@ import {
     DropdownMenu,
     DropdownSection,
     DropdownTrigger,
-    Image,
+    //Image,
     Modal,
     ModalContent,
     ScrollShadow,
@@ -767,7 +767,7 @@ export const ViewPostCard = (props: Props) => {
                             ) : (
                                 <>
                                     {postJsonData?.author?.avatar ? (
-                                        <Image
+                                        <img
                                             src={postJsonData?.author?.avatar}
                                             //radius={"lg"}
                                             className={`${
