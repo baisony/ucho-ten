@@ -307,7 +307,7 @@ const FeedPage = ({
                 >
                     <div
                         className={
-                            "text-black  bg-blue-50 rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px]"
+                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
                         }
                         onClick={handleRefresh}
                     >
