@@ -1,8 +1,7 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import InfiniteScroll from "react-infinite-scroller"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
@@ -20,31 +19,37 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Skeleton,
-    Spinner,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import {
+    ViewPostCardCell,
+    ViewPostCardCellProps,
+} from "@/app/_components/ViewPostCard/ViewPostCardCell"
+import { Virtuoso } from "react-virtuoso"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { time } from "console"
 
-interface Props {
-    className?: string
-    color: "light" | "dark"
-    isMobile?: boolean
-    isProfileMine?: true | false
-    isSubscribe?: true | false
-    isPinned?: true | false
-}
+// interface Props {
+//     className?: string
+//     color: "light" | "dark"
+//     isMobile?: boolean
+//     isProfileMine?: true | false
+//     isSubscribe?: true | false
+//     isPinned?: true | false
+// }
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
-    const [appearanceColor] = useAppearanceColor()
     const pathname = usePathname()
-    const [nextQueryParams] = useNextQueryParamsAtom()
 
-    const username = pathname.replace("/profile/", "")
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const [agent] = useAgent()
+    const [appearanceColor] = useAppearanceColor()
+
+    //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
 
@@ -62,12 +67,14 @@ export default function Root() {
     // const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
+    //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [userPreference, setUserPreference] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
+    const shouldScrollToTop = useRef<boolean>(false)
+    const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
     const color = darkMode ? "dark" : "light"
@@ -297,59 +304,127 @@ export default function Root() {
         }
     }
 
-    return (
-        <InfiniteScroll
-            initialLoad={false}
-            loadMore={loadMore}
-            hasMore={hasMore}
-            loader={
-                <div
-                    key="spinner-feed-generator"
-                    className="flex justify-center mt-2 mb-2"
-                >
-                    <Spinner />
-                </div>
+    const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
+        let data: CustomFeedCellProps[] = []
+
+        if (feedInfo) {
+            const feedProps: FeedProps = {
+                feedInfo,
+                color,
+                isSubscribed,
+                isPinned,
+                onClick: handleSubscribeClick,
             }
-            threshold={700}
-            useWindow={false}
-        >
-            {feedInfo ? (
-                <FeedHeaderComponent
-                    feedInfo={feedInfo}
-                    color={color}
-                    isSubscribed={isSubscribed}
-                    isPinned={isPinned}
-                    onClick={handleSubscribeClick}
-                />
-            ) : (
-                <FeedHeaderComponent color={color} isSkeleton={true} />
-            )}
-            {(loading || !agent || !timeline) &&
-                Array.from({ length: 15 }, (_, index) => (
-                    <ViewPostCard
-                        key={`skeleton-${index}`}
-                        color={color}
-                        isMobile={isMobile}
-                        isSkeleton={true}
-                        nextQueryParams={nextQueryParams}
-                    />
-                ))}
-            {!loading &&
-                agent &&
-                timeline &&
-                timeline.map((post, index) => (
-                    <ViewPostCard
-                        key={`feed-${index}-${post.post.uri}`}
-                        color={color}
-                        postJson={post.post}
-                        json={post}
-                        isMobile={isMobile}
-                        now={now}
-                        nextQueryParams={nextQueryParams}
-                    />
-                ))}
-        </InfiniteScroll>
+
+            const feedData: CustomFeedCellProps = {
+                isDummyHeader: false,
+                feedProps,
+            }
+
+            data.push(feedData)
+        } else {
+            const feedProps: FeedProps = {
+                color,
+                isSkeleton: true,
+            }
+
+            const feedData: CustomFeedCellProps = {
+                feedProps,
+            }
+
+            data.push(feedData)
+        }
+
+        if (timeline) {
+            const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
+                const postProps: ViewPostCardCellProps = {
+                    color,
+                    isMobile,
+                    postJson: post.post,
+                    now,
+                    nextQueryParams,
+                }
+
+                return {
+                    postProps,
+                }
+            })
+
+            data = [...data, ...timelineData]
+        } else {
+            const timelineData: CustomFeedCellProps[] = Array.from({
+                length: 20,
+            }).map((_) => {
+                const postProps: ViewPostCardCellProps = {
+                    isSkeleton: true,
+                    color,
+                    isMobile,
+                    now,
+                    nextQueryParams,
+                }
+
+                return {
+                    postProps,
+                }
+            })
+
+            console.log("timelineData", timelineData)
+
+            data = [...data, ...timelineData]
+        }
+
+        if (data.length > 0) {
+            data = [{ isDummyHeader: true }, ...data]
+        }
+
+        return data
+    }, [feedInfo, timeline])
+
+    return (
+        <Virtuoso
+            scrollerRef={(ref) => {
+                if (ref instanceof HTMLElement) {
+                    scrollRef.current = ref
+                }
+            }}
+            context={{ hasMore }}
+            overscan={200}
+            increaseViewportBy={200}
+            data={dataWithDummy}
+            atTopThreshold={100}
+            atBottomThreshold={100}
+            itemContent={(_, item) => <CustomFeedCell {...item} />}
+            components={{
+                // @ts-ignore
+                Footer: ListFooterSpinner,
+            }}
+            endReached={loadMore}
+            // onScroll={(e) => disableScrollIfNeeded(e)}
+            style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+        />
     )
+}
+
+interface CustomFeedCellProps {
+    isDummyHeader?: boolean
+    feedProps?: FeedProps
+    postProps?: ViewPostCardCellProps
+}
+
+const CustomFeedCell = (props: CustomFeedCellProps) => {
+    const { isDummyHeader, feedProps, postProps } = props
+
+    if (isDummyHeader) {
+        return <div style={{ height: "100px" }} />
+    }
+
+    if (feedProps) {
+        return <FeedHeaderComponent {...feedProps} />
+    }
+
+    if (postProps) {
+        return <ViewPostCardCell {...postProps} />
+    }
 }
 
 interface FeedProps {

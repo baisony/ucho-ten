@@ -1,17 +1,17 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
-import { Spinner } from "@nextui-org/react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
-import { time } from "console"
-import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
+//import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { ListFooterSpinner } from "../ListFooterSpinner"
+// import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
     isActive: boolean
@@ -344,6 +344,17 @@ const FeedPage = ({
         }
     }
 
+    const timelineWithDummy = useMemo((): FeedViewPost[] => {
+        // Need to add data for top padding
+        const dummyData: FeedViewPost = {} as FeedViewPost
+
+        if (!timeline) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...timeline]
+        }
+    }, [timeline])
+
     // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
     //     const newScrollPosition = e.currentTarget.scrollTop
 
@@ -377,11 +388,8 @@ const FeedPage = ({
             )}
             {!timeline && (
                 <Virtuoso
-                    //key={refreshKey}
                     overscan={100}
                     increaseViewportBy={200}
-                    // useWindowScroll={true}
-                    // overscan={50}
                     totalCount={20}
                     initialItemCount={20}
                     atTopThreshold={100}
@@ -397,7 +405,7 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    className="overflow-y-auto h-[calc(100%-50px)]"
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
             {timeline && (
@@ -412,7 +420,8 @@ const FeedPage = ({
                     increaseViewportBy={200}
                     // useWindowScroll={true}
                     // overscan={50}
-                    data={timeline}
+                    data={timelineWithDummy}
+                    // initialItemCount={Math.min(18, timeline?.length || 0)}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
@@ -431,7 +440,7 @@ const FeedPage = ({
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: Footer,
+                        Footer: ListFooterSpinner,
                     }}
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
@@ -440,17 +449,6 @@ const FeedPage = ({
                 />
             )}
         </>
-    )
-}
-
-// @ts-ignore
-const Footer = ({ context: { hasMore } }) => {
-    return (
-        hasMore && (
-            <div className="flex justify-center mt-4 mb-4">
-                <Spinner />
-            </div>
-        )
     )
 }
 

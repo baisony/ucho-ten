@@ -55,7 +55,7 @@ import {
     RichText,
 } from "@atproto/api"
 
-import { Linkcard } from "@/app/components/Linkcard"
+import { Linkcard } from "@/app/_components/Linkcard"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -490,11 +490,11 @@ export default function Root() {
                         className={headerCancelButton()}
                         isDisabled={loading}
                         onClick={() => {
-                            if (history[0] === "/post" || history[0] === "") {
-                                router.push(`/?${nextQueryParams.toString()}`)
-                            } else {
-                                router.back()
-                            }
+                            // if (history[0] === "/post" || history[0] === "") {
+                            //     router.push(`/?${nextQueryParams.toString()}`)
+                            // } else {
+                            router.back()
+                            // }
                         }}
                     >
                         {t("button.cancel")}

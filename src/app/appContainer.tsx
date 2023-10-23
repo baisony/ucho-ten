@@ -1,6 +1,6 @@
 "use client"
 import "./_i18n/config" //i18
-import { ViewHeader } from "@/app/components/ViewHeader"
+import { ViewHeader } from "@/app/_components/ViewHeader"
 import React, {
     useEffect,
     useRef,
@@ -9,11 +9,11 @@ import React, {
     useLayoutEffect,
 } from "react"
 import { layout } from "@/app/styles"
-import { TabBar } from "@/app/components/TabBar"
+import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 // import {useRequiredSession} from "@/app/_lib/hooks/useRequiredSession";
-import { ViewSideBar } from "@/app/components/ViewSideBar"
+import { ViewSideBar } from "@/app/_components/ViewSideBar"
 //import { useSpring, animated, interpolate } from '@react-spring/web'
 //import { useDrag } from '@use-gesture/react';
 import "./sidebar.css"
@@ -86,7 +86,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
-    const [showTabBar, setShowTabBar] = useState<boolean>(isMatchingPath)
+    const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [page, setPage] = useState<
         "profile" | "home" | "inbox" | "post" | "search"
     >("home")
@@ -118,6 +118,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         break
                     case "inbox":
                         tabValue = "i"
+                        break
                     case "post":
                         tabValue = "p"
                         break
@@ -323,7 +324,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             setSelectedTab("home")
         }
 
-        setShowTabBar(specificPaths.includes(pathName))
+        setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
 
     useEffect(() => {
@@ -613,7 +614,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
                             }
                         >
-                            {!showTabBar && (
+                            {showTabBar && (
                                 <ViewHeader
                                     isMobile={isMobile}
                                     color={color}
@@ -628,17 +629,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 />
                             )}
                             <div
-                                className={`${
-                                    pathName === "/" || pathName === "/login"
-                                        ? "h-[calc(100%)]"
-                                        : showTabBar
-                                        ? `pt-[0px] h-[calc(100%-50px)] mb-[50px]`
-                                        : `pt-[100px] h-[calc(100%-150px)]`
-                                }`}
+                                // className={`${
+                                //     pathName === "/login"
+                                //         ? "h-[calc(100%)]"
+                                //         : showTabBar
+                                //         ? `pt-[0px] h-[calc(100%-50px)]`
+                                //         : `pt-[100px] h-[calc(100%-150px)]`
+                                // }`}
+                                className={`pt-[0px] h-[100%]`}
                             >
                                 {children}
                             </div>
-                            {!showTabBar && (
+                            {showTabBar && (
                                 <TabBar
                                     color={color}
                                     isMobile={isMobile}

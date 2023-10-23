@@ -6,8 +6,8 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
-import FeedPage from "./components/FeedPage/FeedPage"
-// import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
+import FeedPage from "./_components/FeedPage/FeedPage"
+// import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     useHeaderMenusAtom,
     useMenuIndexAtom,
@@ -124,69 +124,69 @@ const Root = () => {
 
     return (
         //isAvailableMenus && (
-            <>
-                <Swiper
-                    onSwiper={(swiper) => {
-                        swiperRef.current = swiper
-                    }}
-                    cssMode={isMobile}
-                    // virtual={true}
-                    pagination={{ type: "custom", clickable: false }}
-                    hidden={true} // ??
-                    modules={[Pagination]}
-                    className="swiper-home"
-                    style={{ height: "100%" }}
-                    touchAngle={30}
-                    touchRatio={0.8}
-                    touchReleaseOnEdges={true}
-                    touchMoveStopPropagation={true}
-                    preventInteractionOnTransition={true}
-                    onActiveIndexChange={(swiper) => {
-                        if (menuIndexChangedByMenu === false) {
-                            setMenuIndex(swiper.activeIndex)
-                        }
-                    }}
-                    onTouchStart={(swiper, event) => {
-                        setMenuIndexChangedByMenu(false)
-                    }}
-                    // onSlideChangeTransitionEnd={(swiper) => {
-                    //     setMenuIndex(swiper.activeIndex)
-                    // }}
-                    // onSlideChange={(swiper) => {
-                    //     console.error("onSlideChange", swiper)
-                    //     setMenuIndex(swiper.activeIndex)
-                    // }}
-                >
-                    {headerMenus.map((menu, index) => {
-                        return (
-                            <SwiperSlide
-                                key={`swiperslide-home-${index}`}
-                                //virtualIndex={index}
+        <>
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                cssMode={isMobile}
+                // virtual={true}
+                pagination={{ type: "custom", clickable: false }}
+                hidden={true} // ??
+                modules={[Pagination]}
+                className="swiper-home"
+                style={{ height: "100%" }}
+                touchAngle={30}
+                touchRatio={0.8}
+                touchReleaseOnEdges={true}
+                touchMoveStopPropagation={true}
+                preventInteractionOnTransition={true}
+                onActiveIndexChange={(swiper) => {
+                    if (menuIndexChangedByMenu === false) {
+                        setMenuIndex(swiper.activeIndex)
+                    }
+                }}
+                onTouchStart={(swiper, event) => {
+                    setMenuIndexChangedByMenu(false)
+                }}
+                // onSlideChangeTransitionEnd={(swiper) => {
+                //     setMenuIndex(swiper.activeIndex)
+                // }}
+                // onSlideChange={(swiper) => {
+                //     console.error("onSlideChange", swiper)
+                //     setMenuIndex(swiper.activeIndex)
+                // }}
+            >
+                {headerMenus.map((menu, index) => {
+                    return (
+                        <SwiperSlide
+                            key={`swiperslide-home-${index}`}
+                            //virtualIndex={index}
+                        >
+                            <div
+                                id={`swiperIndex-div-${index}`}
+                                key={index}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
+                                }}
                             >
-                                <div
-                                    id={`swiperIndex-div-${index}`}
-                                    key={index}
-                                    style={{
-                                        overflowY: "auto",
-                                        height: "100%",
+                                <FeedPage
+                                    {...{
+                                        isActive: menuIndex === index,
+                                        feedKey: menu.info,
+                                        color,
+                                        disableSlideVerticalScroll,
+                                        now,
                                     }}
-                                >
-                                    <FeedPage
-                                        {...{
-                                            isActive: menuIndex === index,
-                                            feedKey: menu.info,
-                                            color,
-                                            disableSlideVerticalScroll,
-                                            now,
-                                        }}
-                                    />
-                                </div>
-                            </SwiperSlide>
-                        )
-                    })}
-                </Swiper>
-            </>
-        )
+                                />
+                            </div>
+                        </SwiperSlide>
+                    )
+                })}
+            </Swiper>
+        </>
+    )
     //)
 }
 

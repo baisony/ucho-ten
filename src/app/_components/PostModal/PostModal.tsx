@@ -46,9 +46,9 @@ import Picker from "@emoji-mart/react"
 import data from "@emoji-mart/data"
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
 import { useDropzone } from "react-dropzone"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { Linkcard } from "@/app/components/Linkcard"
+import { Linkcard } from "@/app/_components/Linkcard"
 import imageCompression, {
     Options as ImageCompressionOptions,
 } from "browser-image-compression"

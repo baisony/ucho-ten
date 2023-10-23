@@ -1,7 +1,5 @@
 module.exports = {
-    extends: [
-        "plugin:prettier/recommended",
-    ],
+    extends: ["plugin:prettier/recommended"],
     plugins: ["prettier"],
     rules: {
         "prettier/prettier": "error",
@@ -19,9 +17,7 @@ module.exports = {
         {
             files: ["*.ts", "*.tsx"],
             parser: "@typescript-eslint/parser",
-            extends: [
-                "plugin:@typescript-eslint/recommended",
-            ],
+            extends: ["plugin:@typescript-eslint/recommended"],
             rules: {
                 "@typescript-eslint/no-unused-vars": "warn",
                 "@typescript-eslint/no-explicit-any": "warn",

@@ -38,9 +38,9 @@ import {
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { PostModal } from "../PostModal"
-import { Linkcard } from "../Linkcard"
-import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
-import { ReportModal } from "@/app/components/ReportModal"
+import { Linkcard } from "@/app/_components/Linkcard"
+import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
+import { ReportModal } from "@/app/_components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
 import {
     Button,
@@ -67,7 +67,7 @@ import {
 } from "@/app/_atoms/imageGallery"
 
 import "react-swipeable-list/dist/styles.css"
-import { ViewFeedCard } from "@/app/components/ViewFeedCard"
+import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useTranslation } from "react-i18next"
 
@@ -164,7 +164,6 @@ export const ViewPostCard = (props: Props) => {
     const [userPreference, setUserPreference] = useUserPreferencesAtom()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
-    // console.log(userPreference)
     const [, setHandleButtonClick] = useState(false)
 
     const {

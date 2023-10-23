@@ -43,21 +43,21 @@ import {
     useDisclosure,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
-import { PostModal } from "@/app/components/PostModal"
+import { PostModal } from "@/app/_components/PostModal"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AtUri } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
-import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
-import { Linkcard } from "@/app/components/Linkcard"
+import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
+import { Linkcard } from "@/app/_components/Linkcard"
 import {
     ImageGalleryObject,
     ImageObject,
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
-import { ReportModal } from "@/app/components/ReportModal"
+import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
@@ -604,7 +604,7 @@ export default function Root() {
                     post={post.post}
                     nextQueryParams={nextQueryParams}
                 />
-                <main className={Container({ color: color })}>
+                <main className={`${Container({ color: color })} mt-[100px]`}>
                     {post?.parent && (
                         <>{renderNestedViewPostCards(post, color, isMobile)}</>
                     )}

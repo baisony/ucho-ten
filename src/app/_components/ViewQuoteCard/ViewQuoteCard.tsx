@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
-import { Linkcard } from "@/app/_components/Linkcard"
+import { Linkcard } from "../Linkcard"
 import "react-circular-progressbar/dist/styles.css"
 import { Image, ScrollShadow, Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
