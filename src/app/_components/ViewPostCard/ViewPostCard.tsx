@@ -452,6 +452,7 @@ export const ViewPostCard = (props: Props) => {
                     result.push(
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
+                                size={"sm"}
                                 className={chip({ color: color })}
                                 startContent={
                                     <Tooltip
@@ -536,6 +537,7 @@ export const ViewPostCard = (props: Props) => {
                     result.push(
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
+                                size={"sm"}
                                 className={chip({ color: color })}
                                 startContent={
                                     <FontAwesomeIcon icon={faHashtag} />
