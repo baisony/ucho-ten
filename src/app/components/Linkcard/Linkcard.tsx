@@ -28,11 +28,13 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
     } = linkcard()
     const thumb = ogpData?.thumb
     const uri = ogpData?.uri
-    const generatedURL = thumb?.startsWith("http")
-        ? thumb
-        : uri && thumb?.startsWith("/")
-        ? `${uri.replace(/\/$/, "")}${thumb}`
-        : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
+    const generatedURL: string | null = thumb
+        ? thumb?.startsWith("http")
+            ? thumb
+            : uri && thumb?.startsWith("/")
+            ? `${uri.replace(/\/$/, "")}${thumb}`
+            : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
+        : null
     return (
         <>
             <a
@@ -47,14 +49,15 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                         color: color,
                     })}
                 >
-                    <div className={LinkCardThumbnailContainer()}>
-                        {!skeleton ? (
+                    {generatedURL && (
+                        <div className={LinkCardThumbnailContainer()}>
+                            (!skeleton ? (
                             <img
                                 src={generatedURL}
                                 className={LinkCardThumbnail()}
                                 alt={ogpData?.alt}
                             />
-                        ) : (
+                            ) : (
                             <div
                                 style={{
                                     position: "relative",
@@ -69,9 +72,14 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                             >
                                 <Spinner size="md" />
                             </div>
-                        )}
-                    </div>
-                    <div className={LinkCardContent()}>
+                            ))
+                        </div>
+                    )}
+                    <div
+                        className={`${LinkCardContent()} ${
+                            thumb ? "w-[calc(100%-6rem)]" : "w-full"
+                        }`}
+                    >
                         <div className="w-full min-w-0">
                             <div
                                 className={LinkCardTitle({
