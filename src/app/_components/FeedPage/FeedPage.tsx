@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
+import { useTranslation } from "react-i18next"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
@@ -35,6 +36,7 @@ const FeedPage = ({
     const [hasMore, setHasMore] = useState<boolean>(false)
     // const [wait, setWait] = useState<boolean>(true)
     // const [refreshKey, setRefreshKey] = useState(0)
+    const { t } = useTranslation()
 
     const cursor = useRef<string>("")
     const pollingCursor = useRef<string>("")
@@ -300,7 +302,7 @@ const FeedPage = ({
             {newTimeline.length > 0 && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px]"
                     }
                 >
                     <div
@@ -309,7 +311,8 @@ const FeedPage = ({
                         }
                         onClick={handleRefresh}
                     >
-                        <FontAwesomeIcon icon={faArrowsRotate} /> New Posts
+                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
+                        {t("button.newPosts")}
                     </div>
                 </div>
             )}
