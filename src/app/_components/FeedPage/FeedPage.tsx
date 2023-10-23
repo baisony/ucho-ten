@@ -318,7 +318,7 @@ const FeedPage = ({
                 prevInfoByFeed[feedKey] = {
                     posts: [],
                     newPosts: newTimeline,
-                    cursor: cursor.current
+                    cursor: cursor.current,
                 }
             }
 
@@ -340,7 +340,7 @@ const FeedPage = ({
                 prevInfoByFeed[feedKey] = {
                     posts: [],
                     newPosts: [],
-                    cursor: cursor.current
+                    cursor: cursor.current,
                 }
             }
 

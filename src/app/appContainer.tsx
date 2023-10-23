@@ -38,8 +38,8 @@ import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import {
     HeaderMenu,
-    menuIndexAtom,
     setMenuIndexAtom,
+    useCurrentMenuType,
     useHeaderMenusAtom,
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
@@ -71,8 +71,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [feedGenerators, setFeedGenerators] = useFeedGeneratorsAtom()
 
     const target = searchParams.get("target")
-    const [value, setValue] = useState(false)
-    const [isSideBarOpen, setIsSideBarOpen] = useState(false)
+    // const [value, setValue] = useState(false)
+    // const [isSideBarOpen, setIsSideBarOpen] = useState(false)
     const tab: string =
         pathName === "/"
             ? "home"
@@ -81,19 +81,20 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
               pathName === "/post"
             ? pathName.replace("/", "")
             : "home"
-    const [menus, setMenus] = useHeaderMenusAtom()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [, setMenus] = useHeaderMenusAtom()
+    //const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
-    const [selectedTab, setSelectedTab] = useState<string>(tab)
+    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
+    //const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
-    const [page, setPage] = useState<
-        "profile" | "home" | "inbox" | "post" | "search"
-    >("home")
+    // const [page, setPage] = useState<
+    //     "profile" | "home" | "inbox" | "post" | "search"
+    // >("home")
     const [darkMode, setDarkMode] = useState<boolean>(false)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
     const [history, setHistory] = useState([pathName, ""])
@@ -311,22 +312,22 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [appearanceColor])
 
     useEffect(() => {
-        if (pathName.startsWith("/search")) {
-            setPage("search")
-            setSelectedTab("search")
-        } else if (pathName.startsWith("/profile")) {
-            setPage("profile")
-            setSelectedTab("home")
-        } else if (pathName.startsWith("/post")) {
-            setPage("post")
-            setSelectedTab("post")
-        } else if (pathName.startsWith("/inbox")) {
-            setPage("inbox") // TODO: ??
-            setSelectedTab("inbox")
-        } else {
-            setPage("home")
-            setSelectedTab("home")
-        }
+        // if (pathName.startsWith("/search")) {
+        //     setPage("search")
+        //     setSelectedTab("search")
+        // } else if (pathName.startsWith("/profile")) {
+        //     setPage("profile")
+        //     setSelectedTab("home")
+        // } else if (pathName.startsWith("/post")) {
+        //     setPage("post")
+        //     setSelectedTab("post")
+        // } else if (pathName.startsWith("/inbox")) {
+        //     setPage("inbox") // TODO: ??
+        //     setSelectedTab("inbox")
+        // } else {
+        //     setPage("home")
+        //     setSelectedTab("home")
+        // }
 
         setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
@@ -429,13 +430,19 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         })
 
         setMenus(menus)
+        setCurrentMenuType("home")
 
-        console.log(menus)
+        console.log("menus", menus)
     }, [pathName, feedGenerators])
+
+    useEffect(() => {
+        console.log("appcontainer currentMenuType", currentMenuType)
+    }, [currentMenuType])
 
     useEffect(() => {
         if (pathName === "/search") {
             setMenus(HEADER_MENUS.search)
+            setCurrentMenuType("search")
 
             switch (searchParams.get("target")) {
                 case "posts":
@@ -452,10 +459,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         } else if (pathName === "/inbox") {
             setMenus(HEADER_MENUS.inbox)
+            setCurrentMenuType("inbox")
         } else if (
             pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
         ) {
             setMenus(HEADER_MENUS.onlyPost)
+            setCurrentMenuType("onlyPost")
         }
     }, [pathName, searchParams])
 

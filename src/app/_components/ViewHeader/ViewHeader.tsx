@@ -24,6 +24,7 @@ import {
     HeaderMenu,
     menuIndexAtom,
     setMenuIndexAtom,
+    useCurrentMenuType,
     useHeaderMenusAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
@@ -60,12 +61,13 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
+    const [currentMenuType] = useCurrentMenuType()
 
     const {
-        className,
+        //className,
         color,
         isMobile,
-        open,
+        //open,
         //tab,
         //page,
         //isNextPage,
@@ -86,8 +88,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
     const {
         Header,
-        HeaderContentTitleContainer,
-        HeaderContentTitle,
+        //HeaderContentTitleContainer,
+        //HeaderContentTitle,
         top,
         bottom,
         HeaderInputArea,
@@ -134,14 +136,11 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [pathname])
 
     useEffect(() => {
-        if (!swiperRef.current) {
-            return
-        }
-
-        if (menuIndex !== swiperRef.current.activeIndex) {
+        console.log("currentMenuType", currentMenuType)
+        if (swiperRef.current && menuIndex !== swiperRef.current.activeIndex) {
             swiperRef.current.slideTo(menuIndex)
         }
-    }, [menuIndex])
+    }, [currentMenuType, menuIndex, swiperRef.current])
 
     return (
         <main className={Header()}>

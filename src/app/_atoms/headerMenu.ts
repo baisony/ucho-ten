@@ -8,7 +8,7 @@ export interface HeaderMenu {
 const headerMenus = atom<HeaderMenu[]>([])
 export const useHeaderMenusAtom = () => useAtom(headerMenus)
 
-type HeaderMenuType =
+export type HeaderMenuType =
     | "home"
     | "search"
     | "inbox"

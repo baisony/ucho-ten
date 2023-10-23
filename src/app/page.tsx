@@ -10,8 +10,10 @@ import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "./_components/FeedPage/FeedPage"
 // import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
+    HeaderMenuType,
     menuIndexAtom,
     setMenuIndexAtom,
+    useCurrentMenuType,
     useHeaderMenusAtom,
     useMenuIndexChangedByMenu,
 } from "./_atoms/headerMenu"
@@ -28,6 +30,7 @@ const Root = () => {
     const [headerMenus] = useHeaderMenusAtom()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
+    const [currentMenuType] = useCurrentMenuType()
 
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
@@ -35,6 +38,7 @@ const Root = () => {
         useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
+    const prevMenyType = useRef<HeaderMenuType>("home")
 
     // const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
 
@@ -70,14 +74,21 @@ const Root = () => {
     }, [])
 
     useEffect(() => {
-        if (!swiperRef.current) {
-            return
+        console.log("home", currentMenuType, swiperRef.current, menuIndex)
+        if (
+            currentMenuType === "home" &&
+            swiperRef.current &&
+            menuIndex !== swiperRef.current.activeIndex
+        ) {
+            if (currentMenuType !== prevMenyType.current) {
+                swiperRef.current.slideTo(menuIndex, 0)
+            } else {
+                swiperRef.current.slideTo(menuIndex)
+            }
         }
 
-        if (menuIndex !== swiperRef.current.activeIndex) {
-            swiperRef.current.activeIndex = menuIndex
-        }
-    }, [menuIndex, swiperRef.current])
+        prevMenyType.current = currentMenuType
+    }, [currentMenuType, menuIndex, swiperRef.current])
 
     // useEffect(() => {
     //     const handleTouchMove = (event: TouchEvent) => {
