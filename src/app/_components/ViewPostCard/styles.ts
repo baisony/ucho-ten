@@ -7,9 +7,10 @@ export const viewPostCard = tv({
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
         PostAuthorIcon: "h-[28px] w-[28px] object-cover hover:cursor-pointer",
-        PostAuthorDisplayName: "ml-[9px] hover:cursor-pointer font-[600]",
+        PostAuthorDisplayName:
+            "ml-[9px] hover:cursor-pointer font-[600] max-w-[40%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostAuthorHandle:
-            "text-[#909090] font-light text-[12px] hover:cursor-pointer",
+            "text-[#909090] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
         PostContent: "w-[100%-5px] h-full ml-[25px] mr-[17px]",
