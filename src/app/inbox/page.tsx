@@ -12,8 +12,8 @@ import type {
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"
-import { ListFooterSpinner } from "../components/ListFooterSpinner"
+import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
+import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 
 export default function Root() {
     const { t } = useTranslation()

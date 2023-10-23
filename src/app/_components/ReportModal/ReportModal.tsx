@@ -12,8 +12,8 @@ import {
 } from "@nextui-org/react"
 import React, { useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
-import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
+import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"
 import { useTranslation } from "react-i18next"
 

@@ -7,7 +7,7 @@ export const linkcard = tv({
         LinkCardThumbnailContainer:
             "h-[100px] w-[100px] border-r border-gray-600",
         LinkCardThumbnail: "object-cover w-full h-full z-0",
-        LinkCardContent: "flex items-center ml-2 h-full w-[calc(100%-6rem)]",
+        LinkCardContent: "flex items-center ml-2 h-full",
         LinkCardTitle:
             "text-sm font-bold whitespace-nowrap overflow-hidden overflow-ellipsis",
         LinkCardDescription: "text-xs mt-1",

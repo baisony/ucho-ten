@@ -55,7 +55,7 @@ import {
     RichText,
 } from "@atproto/api"
 
-import { Linkcard } from "@/app/components/Linkcard"
+import { Linkcard } from "@/app/_components/Linkcard"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"

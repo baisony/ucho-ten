@@ -13,7 +13,7 @@ import {
     ImageObject,
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
-import { viewQuoteCard } from "@/app/components/ViewQuoteCard/styles"
+import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {

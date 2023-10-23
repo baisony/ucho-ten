@@ -40,7 +40,7 @@ import { BskyAgent } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 
-// import { ViewQuoteCard } from "@/app/components/ViewQuoteCard"
+// import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 interface Props {
     className?: string
     color: "light" | "dark"

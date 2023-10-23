@@ -28,9 +28,9 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import {
     ViewPostCardCell,
     ViewPostCardCellProps,
-} from "@/app/components/ViewPostCard/ViewPostCardCell"
+} from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/components/ListFooterSpinner"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { time } from "console"
 
 // interface Props {
