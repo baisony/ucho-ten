@@ -1,6 +1,6 @@
 "use client"
 import "./_i18n/config" //i18
-import { ViewHeader } from "@/app/components/ViewHeader"
+import { ViewHeader } from "@/app/_components/ViewHeader"
 import React, {
     useEffect,
     useRef,
@@ -9,11 +9,11 @@ import React, {
     useLayoutEffect,
 } from "react"
 import { layout } from "@/app/styles"
-import { TabBar } from "@/app/components/TabBar"
+import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 // import {useRequiredSession} from "@/app/_lib/hooks/useRequiredSession";
-import { ViewSideBar } from "@/app/components/ViewSideBar"
+import { ViewSideBar } from "@/app/_components/ViewSideBar"
 //import { useSpring, animated, interpolate } from '@react-spring/web'
 //import { useDrag } from '@use-gesture/react';
 import "./sidebar.css"
