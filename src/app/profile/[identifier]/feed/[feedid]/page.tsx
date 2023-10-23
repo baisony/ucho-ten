@@ -27,6 +27,7 @@ import { ViewPostCard } from "@/app/components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
@@ -41,6 +42,7 @@ export default function Root() {
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const pathname = usePathname()
+    const [nextQueryParams] = useNextQueryParamsAtom()
 
     const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
@@ -329,6 +331,7 @@ export default function Root() {
                         color={color}
                         isMobile={isMobile}
                         isSkeleton={true}
+                        nextQueryParams={nextQueryParams}
                     />
                 ))}
             {!loading &&
@@ -342,6 +345,7 @@ export default function Root() {
                         json={post}
                         isMobile={isMobile}
                         now={now}
+                        nextQueryParams={nextQueryParams}
                     />
                 ))}
         </InfiniteScroll>

@@ -11,6 +11,7 @@ import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
 import { time } from "console"
 import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 export interface FeedPageProps {
     isActive: boolean
@@ -28,7 +29,7 @@ const FeedPage = ({
 }: FeedPageProps) => {
     const [agent] = useAgent()
     const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
-
+    const [nextQueryParams] = useNextQueryParamsAtom()
     // const [loading, setLoading] = useState(false)
     // const [loading2, setLoading2] = useState(false)
 
@@ -45,7 +46,11 @@ const FeedPage = ({
     // const currentScrollPosition = useRef<number>(0)
 
     useEffect(() => {
-        if (feedKey !== "" && infoByFeed[feedKey] && infoByFeed[feedKey].posts) {
+        if (
+            feedKey !== "" &&
+            infoByFeed[feedKey] &&
+            infoByFeed[feedKey].posts
+        ) {
             setTimeline(infoByFeed[feedKey].posts)
         }
     }, [])
@@ -285,7 +290,7 @@ const FeedPage = ({
             } else {
                 prevInfoByFeed[feedKey] = {
                     posts: timeline,
-                    newPosts: []
+                    newPosts: [],
                 }
             }
 
@@ -306,7 +311,7 @@ const FeedPage = ({
             } else {
                 prevInfoByFeed[feedKey] = {
                     posts: [],
-                    newPosts: newTimeline
+                    newPosts: newTimeline,
                 }
             }
 
@@ -388,6 +393,7 @@ const FeedPage = ({
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
+                                nextQueryParams,
                             }}
                         />
                     )}
@@ -419,6 +425,7 @@ const FeedPage = ({
                                 json: item,
                                 isDummyHeader: index === 0,
                                 now,
+                                nextQueryParams,
                             }}
                         />
                     )}
