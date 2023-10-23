@@ -1092,11 +1092,10 @@ export const ViewPostCard = (props: Props) => {
                                 <ViewFeedCard color={color} feed={embedFeed} />
                             )}
                         </div>
-                        <div className={PostReactionButtonContainer()}>
-                            <div className={`mr-[12px]`}>
-                                {isMobile &&
-                                    !isEmbedToModal &&
-                                    !isEmbedToPost && (
+                        {!isEmbedToPost && (
+                            <div className={PostReactionButtonContainer()}>
+                                <div className={`mr-[12px]`}>
+                                    {isMobile && !isEmbedToModal && (
                                         <>
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -1141,9 +1140,7 @@ export const ViewPostCard = (props: Props) => {
                                             />
                                         </>
                                     )}
-                                {!isMobile &&
-                                    !isEmbedToModal &&
-                                    !isEmbedToPost && (
+                                    {!isMobile && !isEmbedToModal && (
                                         <>
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -1206,8 +1203,9 @@ export const ViewPostCard = (props: Props) => {
                                             />
                                         </>
                                     )}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </main>
             </div>
