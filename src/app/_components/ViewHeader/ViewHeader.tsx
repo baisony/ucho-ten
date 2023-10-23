@@ -19,11 +19,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination } from "swiper/modules"
+//import { Pagination } from "swiper/modules"
 import {
     HeaderMenu,
-    useHeaderMenusAtom,
-    useMenuIndexAtom,
+    HeaderMenuType,
+    menuIndexAtom,
+    setMenuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+    //headerMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -34,6 +38,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
+import { useAtom } from "jotai"
 
 interface Props {
     className?: string
@@ -54,15 +59,17 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const pathname = usePathname()
     const router = useRouter()
     const pathname = usePathname()
-    const [menus] = useHeaderMenusAtom()
-    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
+    const [menus] = useHeaderMenusByHeaderAtom()
+    const [menuIndex] = useAtom(menuIndexAtom)
+    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
+    const [currentMenuType] = useCurrentMenuType()
 
     const {
-        className,
+        //className,
         color,
         isMobile,
-        open,
+        //open,
         //tab,
         //page,
         //isNextPage,
@@ -80,11 +87,12 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
+    const prevMenuType = useRef<HeaderMenuType>("home")
 
     const {
         Header,
-        HeaderContentTitleContainer,
-        HeaderContentTitle,
+        //HeaderContentTitleContainer,
+        //HeaderContentTitle,
         top,
         bottom,
         HeaderInputArea,
@@ -131,14 +139,17 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [pathname])
 
     useEffect(() => {
-        if (!swiperRef.current) {
-            return
+        console.log("currentMenuType", currentMenuType)
+        if (swiperRef.current && menuIndex !== swiperRef.current.activeIndex) {
+            if (currentMenuType !== prevMenuType.current) {
+                swiperRef.current.slideTo(menuIndex, 0)
+            } else {
+                swiperRef.current.slideTo(menuIndex)
+            }
         }
 
-        if (menuIndex !== swiperRef.current.activeIndex) {
-            swiperRef.current.slideTo(menuIndex)
-        }
-    }, [menuIndex])
+        prevMenuType.current = currentMenuType
+    }, [currentMenuType, menuIndex, swiperRef.current])
 
     return (
         <main className={Header()}>
@@ -253,27 +264,30 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 className={bottom()}
                 navigation={true}
             >
-                {menus.map((menu: HeaderMenu, index) => (
-                    <SwiperSlide
-                        key={`view-header-menu-${index}`}
-                        className="pl-3 pr-3"
-                        onClick={() => {
-                            setMenuIndexChangedByMenu(true)
-                            setMenuIndex(index)
-                        }}
-                        style={{ width: "fit-content" }}
-                    >
-                        <div
-                            className={`${
-                                menuIndex === index
-                                    ? "text-white"
-                                    : "text-[#909090]"
-                            }`}
-                        >
-                            {menu.displayText}
-                        </div>
-                    </SwiperSlide>
-                ))}
+                {menus[currentMenuType] &&
+                    menus[currentMenuType].map(
+                        (menu: HeaderMenu, index: number) => (
+                            <SwiperSlide
+                                key={`view-header-menu-${index}`}
+                                className="pl-3 pr-3"
+                                onClick={() => {
+                                    setMenuIndexChangedByMenu(true)
+                                    setMenuIndex(index)
+                                }}
+                                style={{ width: "fit-content" }}
+                            >
+                                <div
+                                    className={`${
+                                        menuIndex === index
+                                            ? "text-white"
+                                            : "text-[#909090]"
+                                    }`}
+                                >
+                                    {menu.displayText}
+                                </div>
+                            </SwiperSlide>
+                        )
+                    )}
             </Swiper>
             {/* {selectedTab === "home" && pinnedFeeds && (
                     <Tabs

@@ -38,7 +38,7 @@ import {
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { PostModal } from "../PostModal"
-import { Linkcard } from "../Linkcard"
+import { Linkcard } from "@/app/_components/Linkcard"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { ReportModal } from "@/app/_components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"

@@ -1,6 +1,5 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
-import { Spinner } from "@nextui-org/react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
@@ -8,6 +7,8 @@ import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
+import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
+//import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
@@ -30,23 +31,36 @@ const FeedPage = ({
     const { t } = useTranslation()
 
     const [agent] = useAgent()
+    const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const [loading, setLoading] = useState(false)
     // const [loading2, setLoading2] = useState(false)
+
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    // const [wait, setWait] = useState<boolean>(true)
-    // const [refreshKey, setRefreshKey] = useState(0)
 
     const cursor = useRef<string>("")
     const pollingCursor = useRef<string>("")
     const isPolling = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
+
     // const currentScrollPosition = useRef<number>(0)
 
     useEffect(() => {
+        if (
+            feedKey !== "" &&
+            infoByFeed[feedKey] &&
+            infoByFeed[feedKey].posts
+        ) {
+            setTimeline(infoByFeed[feedKey].posts)
+        }
+    }, [])
+
+    useEffect(() => {
+        console.log(shouldScrollToTop.current, scrollRef.current)
+
         if (shouldScrollToTop.current && scrollRef.current) {
             scrollRef.current.scrollTop = 0
 
@@ -60,19 +74,22 @@ const FeedPage = ({
             const uri = item.post.uri
 
             if (item.reply) {
-                if (item.reason) return true
-                if (
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                )
+                if (item.reason) {
                     return true
-                return false
+                } else if (
+                    // @ts-ignore
+                    item.post.author.did === item.reply.parent.author.did &&
+                    // @ts-ignore
+                    item.reply.parent.author.did === item.reply.root.author.did
+                ) {
+                    return true
+                } else {
+                    return false
+                }
             }
             //これはおそらくparentやrootがミュートユーザーの時、recordにreplyが入って、authorが自分ではない場合は非表示
             if (
-                //@ts-ignore
+                // @ts-ignore
                 item.post.record?.reply &&
                 item.post.author.did !== agent?.session?.did
             )
@@ -89,6 +106,8 @@ const FeedPage = ({
     }
 
     const fetchTimeline = async (loadingFlag: boolean = true) => {
+        console.log("start fetchtimeline", feedKey)
+
         if (!agent) {
             return
         }
@@ -96,6 +115,8 @@ const FeedPage = ({
         if (feedKey === "") {
             return
         }
+
+        console.log("fetchtimeline", feedKey)
 
         try {
             // setLoading(loadingFlag)
@@ -162,10 +183,6 @@ const FeedPage = ({
             } else {
                 setHasMore(false)
             }
-
-            // setTimeout(() => {
-            // setWait(false)
-            // }, 1.0)
         } catch (e) {
             // setLoading(false)
             console.error(e)
@@ -219,18 +236,19 @@ const FeedPage = ({
 
                     setNewTimeline(diffTimeline)
 
-                    isPolling.current = true
+                    if (isActive) {
+                        isPolling.current = true
 
-                    setTimeout(() => {
-                        console.log("setTimeout")
-                        checkNewTimeline()
-                    }, 5 * 1000)
-                } else {
-                    isPolling.current = false
+                        setTimeout(() => {
+                            console.log("setTimeout")
+                            checkNewTimeline()
+                        }, 5 * 1000)
+                        return
+                    }
                 }
-            } else {
-                isPolling.current = false
             }
+
+            isPolling.current = false
         } catch (e) {
             isPolling.current = false
             console.error(e)
@@ -238,9 +256,25 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        if (agent && cursor.current == "" && timeline == null && isActive) {
-            // setNewTimeline([])
+        if (!agent) {
+            return
+        }
+
+        if (!isActive) {
+            return
+        }
+
+        if (!infoByFeed[feedKey] || !infoByFeed[feedKey].posts) {
             fetchTimeline()
+            setNewTimeline([])
+        } else {
+            setTimeline(infoByFeed[feedKey].posts)
+            setNewTimeline(infoByFeed[feedKey].newPosts)
+            cursor.current = infoByFeed[feedKey].cursor
+
+            if (cursor.current !== "") {
+                setHasMore(true)
+            }
         }
 
         isPolling.current = true
@@ -251,18 +285,86 @@ const FeedPage = ({
         }, 15 * 1000)
     }, [agent, feedKey, isActive])
 
+    useEffect(() => {
+        if (feedKey === "") {
+            return
+        }
+
+        setInfoByFeed((prevInfoByFeed) => {
+            const newPostsByFeed = prevInfoByFeed
+
+            if (prevInfoByFeed[feedKey]) {
+                prevInfoByFeed[feedKey].posts = timeline
+            } else {
+                prevInfoByFeed[feedKey] = {
+                    posts: timeline,
+                    newPosts: [],
+                    cursor: cursor.current,
+                }
+            }
+
+            return newPostsByFeed
+        })
+    }, [timeline, feedKey])
+
+    useEffect(() => {
+        if (feedKey === "") {
+            return
+        }
+
+        setInfoByFeed((prevInfoByFeed) => {
+            const newPostsByFeed = prevInfoByFeed
+
+            if (prevInfoByFeed[feedKey]) {
+                prevInfoByFeed[feedKey].newPosts = newTimeline
+            } else {
+                prevInfoByFeed[feedKey] = {
+                    posts: [],
+                    newPosts: newTimeline,
+                    cursor: cursor.current,
+                }
+            }
+
+            return newPostsByFeed
+        })
+    }, [newTimeline, feedKey])
+
+    useEffect(() => {
+        if (feedKey === "") {
+            return
+        }
+
+        setInfoByFeed((prevInfoByFeed) => {
+            const newPostsByFeed = prevInfoByFeed
+
+            if (prevInfoByFeed[feedKey]) {
+                prevInfoByFeed[feedKey].cursor = cursor.current
+            } else {
+                prevInfoByFeed[feedKey] = {
+                    posts: [],
+                    newPosts: [],
+                    cursor: cursor.current,
+                }
+            }
+
+            return newPostsByFeed
+        })
+    }, [cursor.current, feedKey])
+
     const handleRefresh = () => {
+        console.log("newTimeline", newTimeline)
+
         shouldScrollToTop.current = true
+
+        const newPosts = newTimeline
 
         setTimeline((prevTimeline) => {
             if (!prevTimeline) {
-                return [...newTimeline]
+                return [...newPosts]
             } else {
-                return [...newTimeline, ...prevTimeline]
+                return [...newPosts, ...prevTimeline]
             }
         })
-
-        // setRefreshKey((prevKey) => prevKey + 1) // Reload Virtuoso
 
         setNewTimeline([])
 
@@ -339,7 +441,7 @@ const FeedPage = ({
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
-            {timeline /* {timeline && !wait && ( */ && (
+            {timeline && (
                 <Virtuoso
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
@@ -376,7 +478,8 @@ const FeedPage = ({
                     }}
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    //className="overflow-y-auto"
+                    style={{ height: "calc(100% - 50px)" }}
                 />
             )}
         </>

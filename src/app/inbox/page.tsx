@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
+import { useNotificationInfoAtom } from "../_atoms/notification"
+import { ReactBurgerMenu } from "react-burger-menu"
 
 export default function Root() {
     const { t } = useTranslation()
@@ -21,6 +23,8 @@ export default function Root() {
     const [agent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
+
     const [loading, setLoading] = useState(true)
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
@@ -40,6 +44,19 @@ export default function Root() {
             clearInterval(intervalId)
         }
     }, [])
+
+    useEffect(() => {
+        if (notification) {
+            setNotificationInfo((prevNotificationInfo) => {
+                const newNotificationInfo = prevNotificationInfo
+
+                newNotificationInfo.notification = notification
+                newNotificationInfo.cursor = cursor.current
+
+                return newNotificationInfo
+            })
+        }
+    }, [notification, cursor.current])
 
     const fetchNotification = async (loadingFlag: boolean = true) => {
         try {
@@ -149,7 +166,12 @@ export default function Root() {
     useEffect(() => {
         if (!agent) return
 
-        fetchNotification()
+        if (!notificationInfo.notification) {
+            fetchNotification()
+        } else {
+            setNotification(notificationInfo.notification)
+            cursor.current = notificationInfo.cursor
+        }
     }, [agent])
 
     const notificationWithDummy = useMemo((): PostView[] => {

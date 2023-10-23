@@ -13,17 +13,19 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
-import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
+import { menuIndexAtom, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
+import { useAtom } from "jotai"
 
 export default function Root() {
     const [agent] = useAgent()
-    const [menuIndex] = useMenuIndexAtom()
-    const [menus] = useHeaderMenusAtom()
+    const [menuIndex] = useAtom(menuIndexAtom)
+    //const [menus] = useHeaderMenusAtom()
+    const [menus] = useHeaderMenusByHeaderAtom()
 
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -274,11 +276,11 @@ export default function Root() {
     }, [agent, searchText, searchTarget])
 
     useEffect(() => {
-        if (menus.length === 0) {
+        if (menus.search.length === 0 || menus.search.length < menuIndex) {
             return
         }
 
-        const target = menus[menuIndex].info
+        const target = menus.search[menuIndex].info
 
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", searchText)
@@ -295,7 +297,7 @@ export default function Root() {
             `/search?word=${encodeURIComponent(searchText)}&target=${target}`
         )
         */
-    }, [menuIndex, menus])
+    }, [menuIndex])
 
     const searchPostsResultWithDummy = useMemo((): PostView[] => {
         const dummyData: PostView = {} as PostView
