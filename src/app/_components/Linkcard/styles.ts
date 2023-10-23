@@ -3,9 +3,9 @@ import { tv } from "@nextui-org/react"
 export const linkcard = tv({
     slots: {
         LinkCard:
-            "h-[100px] w-full rounded-lg overflow-hidden border border-gray-600 flex items-center text-gray-800",
+            "md:h-[100px] h-[80px] w-full rounded-lg overflow-hidden border border-gray-600 flex items-center text-gray-800",
         LinkCardThumbnailContainer:
-            "h-[100px] w-[100px] border-r border-gray-600",
+            "md:h-[100px] h-[80px] md:w-[100px] w-[80px] border-r border-gray-600",
         LinkCardThumbnail: "object-cover w-full h-full z-0",
         LinkCardContent: "flex items-center ml-2 h-full",
         LinkCardTitle:
