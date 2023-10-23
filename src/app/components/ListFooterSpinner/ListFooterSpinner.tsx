@@ -7,7 +7,6 @@ export const ListFooterSpinner = ({ context: { hasMore } }) => {
             <div className="flex justify-center mt-4 mb-4">
                 <Spinner />
             </div>
-
         )
     )
 }

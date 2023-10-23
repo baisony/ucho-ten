@@ -5,7 +5,10 @@ import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
 import { useAgent } from "@/app/_atoms/agent"
-import type { FeedViewPost, PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"

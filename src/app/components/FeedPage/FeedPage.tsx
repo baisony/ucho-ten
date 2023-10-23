@@ -271,7 +271,8 @@ const FeedPage = ({
         }
     }
 
-    const timelineWithDummy = useMemo((): FeedViewPost[] => { // Need to add data for top padding
+    const timelineWithDummy = useMemo((): FeedViewPost[] => {
+        // Need to add data for top padding
         const dummyData: FeedViewPost = {} as FeedViewPost
 
         if (!timeline) {

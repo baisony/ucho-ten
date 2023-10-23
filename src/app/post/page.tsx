@@ -493,7 +493,7 @@ export default function Root() {
                             // if (history[0] === "/post" || history[0] === "") {
                             //     router.push(`/?${nextQueryParams.toString()}`)
                             // } else {
-                                router.back()
+                            router.back()
                             // }
                         }}
                     >
