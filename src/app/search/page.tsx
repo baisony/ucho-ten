@@ -1,14 +1,13 @@
 "use client"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect, useRef } from "react"
+
+import React, { useEffect, useMemo, useRef } from "react"
 import { useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { useSearchParams } from "next/navigation"
-import { Image, Spinner, Skeleton } from "@nextui-org/react"
+import { Image, Skeleton } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import InfiniteScroll from "react-infinite-scroller"
 import { useRouter } from "next/navigation"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -17,6 +16,9 @@ import { layout } from "@/app/search/styles"
 import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { Virtuoso } from "react-virtuoso"
+import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"
+import { ListFooterSpinner } from "../components/ListFooterSpinner"
 
 export default function Root() {
     const [agent] = useAgent()
@@ -31,7 +33,8 @@ export default function Root() {
     const target = searchParams.get("target") || "posts"
 
     const [loading, setLoading] = useState(false)
-    const [hasMore, setHasMore] = useState(false)
+    const [hasMorePostsResult, setHasMorePostsResult] = useState<boolean>(false)
+    const [hasMoreUsersResult, setHasMoreUsersResult] = useState<boolean>(false)
     const [searchPostsResult, setSearchPostsResult] = useState<
         PostView[] | null
     >(null)
@@ -42,15 +45,17 @@ export default function Root() {
     const [searchTarget, setSearchTarget] = useState(target)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
-    const [shouldScrollToTop, setShouldScrollToTop] = useState<boolean>(false)
 
     const numOfResult = useRef<number>(0)
     const cursor = useRef<string>("")
 
     const { searchSupportCard } = layout()
     const [appearanceColor] = useAppearanceColor()
-    const { t, i18n } = useTranslation()
+    const { t } = useTranslation()
     const color = darkMode ? "dark" : "light"
+
+    const shouldScrollToTop = useRef<boolean>(false)
+    const scrollRef = useRef<HTMLElement | null>(null)
 
     const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
@@ -82,14 +87,12 @@ export default function Root() {
     }, [])
 
     useEffect(() => {
-        if (shouldScrollToTop) {
-            const infiniteScroll = document.getElementById("infinite-scroll")
+        if (shouldScrollToTop.current === true) {
+            if (shouldScrollToTop.current && scrollRef.current) {
+                scrollRef.current.scrollTop = 0
 
-            if (infiniteScroll?.parentElement) {
-                infiniteScroll.parentElement.scrollTop = 0
+                shouldScrollToTop.current = false
             }
-
-            setShouldScrollToTop(false)
         }
     }, [searchPostsResult, searchUsersResult])
 
@@ -120,7 +123,7 @@ export default function Root() {
 
             if (outputArray.length === 0) {
                 setLoading(false)
-                setHasMore(false)
+                setHasMorePostsResult(false)
                 return
             }
 
@@ -155,12 +158,12 @@ export default function Root() {
             })
 
             if (results.length > 0) {
-                setHasMore(true) // 違う
+                setHasMorePostsResult(true)
             } else {
-                setHasMore(false)
+                setHasMorePostsResult(false)
             }
         } catch (error) {
-            setHasMore(false)
+            setHasMorePostsResult(false)
             console.error("Error fetching data:", error)
         } finally {
             setLoading(false)
@@ -168,7 +171,7 @@ export default function Root() {
     }
 
     const fetchSearchUsersResult = async () => {
-        setHasMore(false)
+        setHasMoreUsersResult(false)
 
         if (!agent) {
             return
@@ -195,13 +198,13 @@ export default function Root() {
 
             if (data.cursor) {
                 cursor.current = data.cursor
-                setHasMore(true)
+                setHasMoreUsersResult(true)
             } else {
                 cursor.current = ""
-                setHasMore(false)
+                setHasMoreUsersResult(false)
             }
         } catch (e) {
-            setHasMore(false)
+            setHasMoreUsersResult(false)
             console.error(e)
         } finally {
             setLoading(false)
@@ -209,83 +212,28 @@ export default function Root() {
     }
 
     const loadPostsMore = async (page: number) => {
-        await fetchSearchPostsResult()
+        if (hasMorePostsResult) {
+            await fetchSearchPostsResult()
+        }
     }
 
     const loadUsersMore = async (page: number) => {
-        await fetchSearchUsersResult()
+        if (hasMoreUsersResult) {
+            await fetchSearchUsersResult()
+        }
     }
-
-    // const loadMore = async (page: any) => {
-    //     if (!agent) return
-    //     if (numOfResult.current === 0) return
-    //     if (loading) return
-
-    //     if (hasMore === false) {
-    //         return
-    //     }
-
-    //     try {
-    //         const res = await fetch(
-    //             `https://search.bsky.social/search/posts?q=${encodeURIComponent(
-    //                 searchText
-    //             )}&offset=${numOfResult}`
-    //         )
-    //         console.log(res)
-    //         const json = await res.json()
-    //         const outputArray = json.map(
-    //             (item: any) =>
-    //                 `at://${item.user.did as string}/${item.tid as string}`
-    //         )
-
-    //         if (outputArray.length === 0) {
-    //             throw new Error("No Search Results")
-    //         }
-
-    //         const maxBatchSize = 25 // 1つのリクエストに許容される最大数
-    //         const batches = []
-    //         for (let i = 0; i < outputArray.length; i += maxBatchSize) {
-    //             const batch = outputArray.slice(i, i + maxBatchSize)
-    //             batches.push(batch)
-    //         }
-
-    //         const results = []
-    //         for (const batch of batches) {
-    //             const { data } = await agent?.getPosts({ uris: batch })
-    //             const { posts } = data
-    //             results.push(...posts)
-    //         }
-    //         //重複する投稿を削除
-    //         const diffTimeline = results.filter((newItem) => {
-    //             if (!searchPostsResult) {
-    //                 return true
-    //             }
-
-    //             return !searchPostsResult.some(
-    //                 (oldItem) => oldItem.uri === newItem.uri
-    //             )
-    //         })
-
-    //         if (searchPostsResult) {
-    //             setSearchPostsResult([...searchPostsResult, ...diffTimeline])
-    //         } else {
-    //             setSearchPostsResult([...diffTimeline])
-    //         }
-
-    //         numOfResult.current =
-    //             json.length === 30 ? numOfResult + json.length : 0
-    //     } catch (e) {
-    //         console.log(e)
-    //     }
-    // }
 
     useEffect(() => {
         setSearchText(searchWord)
 
         numOfResult.current = 0
         cursor.current = ""
+
         setSearchPostsResult(null)
         setSearchUsersResult(null)
+
+        setHasMorePostsResult(false)
+        setHasMoreUsersResult(false)
     }, [searchWord])
 
     useEffect(() => {
@@ -293,8 +241,12 @@ export default function Root() {
 
         numOfResult.current = 0
         cursor.current = ""
+
         setSearchPostsResult(null)
         setSearchUsersResult(null)
+
+        setHasMorePostsResult(false)
+        setHasMoreUsersResult(false)
     }, [target])
 
     useEffect(() => {
@@ -305,13 +257,17 @@ export default function Root() {
 
         switch (searchTarget) {
             case "posts":
+                shouldScrollToTop.current = true
                 setLoading(true)
-                setShouldScrollToTop(true)
+                setHasMorePostsResult(false)
+                setSearchPostsResult(null)
                 fetchSearchPostsResult()
                 break
             case "users":
+                shouldScrollToTop.current = true
                 setLoading(true)
-                setShouldScrollToTop(true)
+                setHasMoreUsersResult(false)
+                setSearchUsersResult(null)
                 fetchSearchUsersResult()
                 break
         }
@@ -328,8 +284,11 @@ export default function Root() {
         queryParams.set("word", searchText)
         queryParams.set("target", target)
 
-        if (searchWord === "") return
-        router.push(`/search?${nextQueryParams.toString()}`)
+        if (searchText === "") {
+            return
+        }
+
+        router.push(`/search?${queryParams.toString()}`)
 
         /*
         router.push(
@@ -338,163 +297,223 @@ export default function Root() {
         */
     }, [menuIndex, menus])
 
+    const searchPostsResultWithDummy = useMemo((): PostView[] => {
+        const dummyData: PostView = {} as PostView
+
+        if (!searchPostsResult) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...searchPostsResult]
+        }
+    }, [searchPostsResult])
+
+    const searchUsersResultWithDummy = useMemo((): ProfileView[] => {
+        const dummyData: ProfileView = {} as ProfileView
+
+        if (!searchUsersResult) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...searchUsersResult]
+        }
+    }, [searchUsersResult])
+
     return (
         <>
-            <InfiniteScroll
-                id="infinite-scroll"
-                initialLoad={false}
-                loadMore={target === "posts" ? loadPostsMore : loadUsersMore}
-                hasMore={hasMore}
-                loader={
-                    <div
-                        key="spinner-search"
-                        className="flex justify-center mt-2 mb-2"
-                    >
-                        <Spinner />
-                    </div>
-                }
-                threshold={700}
-                useWindow={false}
-            >
-                {searchText === "" && (
-                    <div className={"w-full h-full text-white"}>
-                        <div className={"absolute bottom-[50px] w-full"}>
-                            {t("pages.search.FindPerson")}
-                            <div
-                                className={searchSupportCard({ color: color })}
-                                onClick={() => {
-                                    router.push(
-                                        `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>Japanese Cluster</div>
-                                    <div>by @jaz.bsky.social</div>
-                                </div>
+            {searchText === "" && (
+                <div className={"w-full h-full text-white"}>
+                    <div className={"absolute bottom-[50px] w-full"}>
+                        {t("pages.search.FindPerson")}
+                        <div
+                            className={searchSupportCard({ color: color })}
+                            onClick={() => {
+                                router.push(
+                                    `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
+                                )
+                            }}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>Japanese Cluster</div>
+                                <div>by @jaz.bsky.social</div>
                             </div>
-                            <div
-                                className={searchSupportCard({ color: color })}
-                                onClick={() => {
-                                    const queryParams = new URLSearchParams(
-                                        nextQueryParams
-                                    )
-                                    queryParams.set(
-                                        "word",
-                                        "フィード%20bsky.app"
-                                    )
-                                    queryParams.set("target", "posts")
-                                    router.push(
-                                        `/search?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>日本語フィードを探す</div>
-                                    <div>by @Ucho-ten</div>
-                                </div>
+                        </div>
+                        <div
+                            className={searchSupportCard({ color: color })}
+                            onClick={() => {
+                                const queryParams = new URLSearchParams(
+                                    nextQueryParams
+                                )
+                                queryParams.set("word", "フィード%20bsky.app")
+                                queryParams.set("target", "posts")
+                                router.push(
+                                    `/search?${nextQueryParams.toString()}`
+                                )
+                            }}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>日本語フィードを探す</div>
+                                <div>by @Ucho-ten</div>
                             </div>
-                            <div
-                                className={searchSupportCard({ color: color })}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>test</div>
-                                    <div>by @Ucho-ten</div>
-                                </div>
+                        </div>
+                        <div className={searchSupportCard({ color: color })}>
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>test</div>
+                                <div>by @Ucho-ten</div>
                             </div>
                         </div>
                     </div>
-                )}
-                {target === "posts" && searchText && (
-                    <>
-                        {(loading || !searchPostsResult) &&
-                            Array.from({ length: 15 }, (_, index) => (
-                                <ViewPostCard
-                                    key={`skeleton-${index}`}
-                                    color={color}
-                                    isMobile={isMobile}
-                                    isSkeleton={true}
-                                    nextQueryParams={nextQueryParams}
-                                />
-                            ))}
-                        {!loading &&
-                            searchPostsResult &&
-                            searchPostsResult.map((post: PostView, index) => (
-                                <ViewPostCard
-                                    key={`search-post-${post.uri}`}
-                                    color={color}
-                                    postJson={post}
-                                    isMobile={isMobile}
-                                    now={now}
-                                    nextQueryParams={nextQueryParams}
-                                />
-                            ))}
-                    </>
-                )}
-                {target === "users" && searchText && (
-                    <>
-                        {(loading || !searchUsersResult) &&
-                            Array.from({ length: 15 }, (_, index) => {
-                                return UserComponent({
-                                    actor: {
-                                        did: "",
-                                        displayName: "",
-                                        handle: "",
-                                        description: "",
-                                    },
-                                    onClick: () => {},
-                                    skeleton: true,
-                                    index: index,
-                                    color: color,
-                                })
-                            })}
-                        {!loading &&
-                            searchUsersResult &&
-                            searchUsersResult.map(
-                                (actor: ProfileView, index) => {
-                                    return UserComponent({
-                                        actor,
-                                        onClick: () => {
-                                            router.push(
-                                                `/profile/${
-                                                    actor.did
-                                                }?${nextQueryParams.toString()}`
-                                            )
-                                        },
-                                        color: color,
-                                    })
-                                }
-                            )}
-                    </>
-                )}
-            </InfiniteScroll>
+                </div>
+            )}
+
+            {loading && target === "posts" && (
+                <Virtuoso
+                    overscan={100}
+                    increaseViewportBy={200}
+                    totalCount={20}
+                    initialItemCount={20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <ViewPostCardCell
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: true,
+                                isDummyHeader: index === 0,
+                                nextQueryParams,
+                            }}
+                        />
+                    )}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+
+            {!loading && target === "posts" && searchText && (
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            //scrollRef.current = ref
+                        }
+                    }}
+                    context={{ hasMore: hasMorePostsResult }}
+                    overscan={200}
+                    increaseViewportBy={200}
+                    data={searchPostsResultWithDummy}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, data) => (
+                        <ViewPostCardCell
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: false,
+                                postJson: data || null,
+                                isDummyHeader: index === 0,
+                                now,
+                                nextQueryParams,
+                            }}
+                        />
+                    )}
+                    components={{
+                        // @ts-ignore
+                        Footer: ListFooterSpinner,
+                    }}
+                    endReached={loadPostsMore}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+
+            {loading && target === "users" && (
+                <Virtuoso
+                    overscan={100}
+                    increaseViewportBy={200}
+                    totalCount={20}
+                    initialItemCount={20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <UserCell
+                            {...{
+                                isDummyHeader: index === 0,
+                                actor: null,
+                                skeleton: true,
+                                color: color,
+                            }}
+                        />
+                    )}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+
+            {!loading && target === "users" && searchText && (
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                        }
+                    }}
+                    context={{ hasMore: hasMoreUsersResult }}
+                    overscan={200}
+                    increaseViewportBy={200}
+                    data={searchUsersResultWithDummy}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, data) => (
+                        <UserCell
+                            {...{
+                                isDummyHeader: index === 0,
+                                actor: data,
+                                onClick: () => {
+                                    router.push(
+                                        `/profile/${
+                                            data.did
+                                        }?${nextQueryParams.toString()}`
+                                    )
+                                },
+                                color: color,
+                            }}
+                        />
+                    )}
+                    components={{
+                        // @ts-ignore
+                        Footer: ListFooterSpinner,
+                    }}
+                    endReached={loadUsersMore}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
         </>
     )
 }
 
-interface UserProps {
-    actor: ProfileView
-    onClick: () => void
+interface UserCellProps {
+    isDummyHeader: boolean
+    actor: ProfileView | null
+    onClick?: () => void
     skeleton?: boolean
-    index?: number
+    //index?: number
     color: string
 }
 
-const UserComponent = ({
+const UserCell = ({
+    isDummyHeader,
     actor,
     onClick,
     skeleton,
-    index,
+    //index,
     color,
-}: UserProps) => {
+}: UserCellProps) => {
     const { userCard } = layout()
+
+    if (isDummyHeader) {
+        return <div style={{ height: "100px" }} />
+    }
 
     return (
         <div
-            key={`search-actor-${!skeleton ? actor.did : index}`}
+            //key={`search-actor-${!skeleton ? actor.did : index}`}
             onClick={onClick}
             //@ts-ignore
             className={`${userCard({ color: color })}`}

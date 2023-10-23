@@ -4,7 +4,7 @@ import {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "."
 
-interface Props {
+export interface ViewPostCardCellProps {
     className?: string
     color: "light" | "dark"
     isMobile?: boolean
@@ -21,7 +21,7 @@ interface Props {
     nextQueryParams: URLSearchParams
 }
 
-export const ViewPostCardCell = (props: Props) => {
+export const ViewPostCardCell = (props: ViewPostCardCellProps) => {
     const { isDummyHeader } = props
 
     return isDummyHeader ? (
