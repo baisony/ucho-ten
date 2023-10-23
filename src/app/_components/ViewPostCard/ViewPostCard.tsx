@@ -759,7 +759,7 @@ export const ViewPostCard = (props: Props) => {
                                 ) : (
                                     <>
                                         {postJsonData?.author?.avatar ? (
-                                            <Image
+                                            <img
                                                 src={
                                                     postJsonData?.author?.avatar
                                                 }
