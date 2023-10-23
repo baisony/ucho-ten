@@ -1,5 +1,12 @@
 import { HeaderMenu } from "@/app/_atoms/headerMenu"
 
+const defaultHomeMenus: HeaderMenu[] = [
+    {
+        displayText: "Following",
+        info: "following",
+    },
+]
+
 const defaultSearchMenus: HeaderMenu[] = [
     {
         displayText: "Posts",
@@ -78,6 +85,7 @@ const defaultMytFeedMenus: HeaderMenu[] = [
 ]
 
 interface HeaderMenus {
+    home: HeaderMenu[]
     search: HeaderMenu[]
     inbox: HeaderMenu[]
     profile: HeaderMenu[]
@@ -88,6 +96,7 @@ interface HeaderMenus {
 }
 
 export const HEADER_MENUS: HeaderMenus = {
+    home: defaultHomeMenus,
     search: defaultSearchMenus,
     inbox: defaultInboxMenus,
     profile: defaultProfileMenus,

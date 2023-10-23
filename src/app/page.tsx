@@ -14,7 +14,7 @@ import {
     menuIndexAtom,
     setMenuIndexAtom,
     useCurrentMenuType,
-    useHeaderMenusAtom,
+    useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "./_atoms/headerMenu"
 
@@ -27,7 +27,8 @@ const Root = () => {
     const [appearanceColor] = useAppearanceColor()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
-    const [headerMenus] = useHeaderMenusAtom()
+    // const [headerMenus] = useHeaderMenusAtom()
+    const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
@@ -169,7 +170,7 @@ const Root = () => {
             //     setMenuIndex(swiper.activeIndex)
             // }}
         >
-            {headerMenus.map((menu, index) => {
+            {menus.home.map((menu, index) => {
                 return (
                     <SwiperSlide
                         key={`swiperslide-home-${index}`}

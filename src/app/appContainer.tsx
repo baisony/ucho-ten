@@ -40,7 +40,7 @@ import {
     HeaderMenu,
     setMenuIndexAtom,
     useCurrentMenuType,
-    useHeaderMenusAtom,
+    useHeaderMenusByHeaderAtom,
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
@@ -48,22 +48,20 @@ import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
 import { TabQueryParamValue, isTabQueryParamValue } from "./_types/types"
-import { HEADER_MENUS } from "./_constants/headerMenus"
 import { useAtom } from "jotai"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
-    const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
-    console.log(displayLanguage)
-    const { t, i18n } = useTranslation()
-    //lngChange(displayLanguage)
+    const { i18n } = useTranslation()
+
+    const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [, setHeaderMenusByHeader] = useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
-
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
@@ -73,18 +71,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const target = searchParams.get("target")
     // const [value, setValue] = useState(false)
     // const [isSideBarOpen, setIsSideBarOpen] = useState(false)
-    const tab: string =
-        pathName === "/"
-            ? "home"
-            : pathName === "/search" ||
-              pathName === "/inbox" ||
-              pathName === "/post"
-            ? pathName.replace("/", "")
-            : "home"
-    const [, setMenus] = useHeaderMenusAtom()
+    // const tab: string =
+    //     pathName === "/"
+    //         ? "home"
+    //         : pathName === "/search" ||
+    //           pathName === "/inbox" ||
+    //           pathName === "/post"
+    //         ? pathName.replace("/", "")
+    //         : "home"
+    //const [, setMenus] = useHeaderMenusAtom()
     //const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
-    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
+    const [, setCurrentMenuType] = useCurrentMenuType()
     //const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
@@ -413,35 +411,34 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     // }
 
     useEffect(() => {
-        if (!feedGenerators || pathName !== "/") {
+        if (!feedGenerators) {
             return
         }
 
-        const menus: HeaderMenu[] = feedGenerators.map((feed) => {
-            return {
-                displayText: feed.displayName,
-                info: feed.uri,
-            }
+        setHeaderMenusByHeader((prevHeaderMenusByHeader) => {
+            const newHeaderMenusByHeader = prevHeaderMenusByHeader
+            const menus: HeaderMenu[] = feedGenerators.map((feed) => {
+                return {
+                    displayText: feed.displayName,
+                    info: feed.uri,
+                }
+            })
+
+            menus.unshift({
+                displayText: "Following",
+                info: "following",
+            })
+
+            newHeaderMenusByHeader.home = menus
+
+            return newHeaderMenusByHeader
         })
-
-        menus.unshift({
-            displayText: "Following",
-            info: "following",
-        })
-
-        setMenus(menus)
-        setCurrentMenuType("home")
-
-        console.log("menus", menus)
-    }, [pathName, feedGenerators])
+    }, [feedGenerators])
 
     useEffect(() => {
-        console.log("appcontainer currentMenuType", currentMenuType)
-    }, [currentMenuType])
-
-    useEffect(() => {
-        if (pathName === "/search") {
-            setMenus(HEADER_MENUS.search)
+        if (pathName === "/") {
+            setCurrentMenuType("home")
+        } else if (pathName === "/search") {
             setCurrentMenuType("search")
 
             switch (searchParams.get("target")) {
@@ -458,12 +455,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     break
             }
         } else if (pathName === "/inbox") {
-            setMenus(HEADER_MENUS.inbox)
+            // setMenus(HEADER_MENUS.inbox)
             setCurrentMenuType("inbox")
         } else if (
             pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
         ) {
-            setMenus(HEADER_MENUS.onlyPost)
+            //setMenus(HEADER_MENUS.onlyPost)
             setCurrentMenuType("onlyPost")
         }
     }, [pathName, searchParams])
