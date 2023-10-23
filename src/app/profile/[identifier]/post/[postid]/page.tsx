@@ -604,7 +604,7 @@ export default function Root() {
                     post={post.post}
                     nextQueryParams={nextQueryParams}
                 />
-                <main className={Container({ color: color })}>
+                <main className={`${Container({ color: color })} mt-[100px]`}>
                     {post?.parent && (
                         <>{renderNestedViewPostCards(post, color, isMobile)}</>
                     )}

@@ -636,10 +636,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 //         ? `pt-[0px] h-[calc(100%-50px)]`
                                 //         : `pt-[100px] h-[calc(100%-150px)]`
                                 // }`}
-                                className={`${showTabBar
-                                        ? `pt-[0px] h-[100%]`
-                                        : `pt-[100px] h-[calc(100%-150px)]`
-                                }`}
+                                className={`pt-[0px] h-[100%]`}
                                 >
                                 {children}
                             </div>
