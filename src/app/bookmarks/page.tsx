@@ -4,7 +4,7 @@ import { useAgent } from "@/app/_atoms/agent"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useEffect, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {

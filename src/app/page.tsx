@@ -6,8 +6,8 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
-import FeedPage from "./components/FeedPage/FeedPage"
-// import LazyFeedPage from "./components/FeedPage/LazyFeedPage"
+import FeedPage from "./_components/FeedPage/FeedPage"
+// import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     useHeaderMenusAtom,
     useMenuIndexAtom,

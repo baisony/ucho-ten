@@ -1,7 +1,7 @@
 "use client"
 
 // import { RichText, UnicodeString } from "@atproto/api"
-// import { TabBar } from "@/app/components/TabBar"
+// import { TabBar } from "@/app/_components/TabBar"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
@@ -41,15 +41,15 @@ import {
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 // import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { ReportModal } from "@/app/components/ReportModal"
+import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import {
     ViewPostCardCell,
     ViewPostCardCellProps,
-} from "@/app/components/ViewPostCard/ViewPostCardCell"
+} from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/components/ListFooterSpinner"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()

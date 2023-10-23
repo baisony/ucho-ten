@@ -11,8 +11,8 @@ import type {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"
-import { ListFooterSpinner } from "../components/ListFooterSpinner"
+import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
+import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 
 export default function Root() {
     const [agent] = useAgent()
