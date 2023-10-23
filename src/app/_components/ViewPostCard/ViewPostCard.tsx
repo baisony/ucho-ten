@@ -1071,10 +1071,12 @@ export const ViewPostCard = (props: Props) => {
                                 />
                             )}
                             {embedExternal && (
-                                <Linkcard
-                                    color={color}
-                                    ogpData={embedExternal.external}
-                                />
+                                <div className={"h-full w-full mt-[5px]"}>
+                                    <Linkcard
+                                        color={color}
+                                        ogpData={embedExternal.external}
+                                    />
+                                </div>
                             )}
                             {embedRecord &&
                                 embedRecordViewRecord &&
