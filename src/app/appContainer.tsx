@@ -38,8 +38,9 @@ import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import {
     HeaderMenu,
+    menuIndexAtom,
+    setMenuIndexAtom,
     useHeaderMenusAtom,
-    useMenuIndexAtom,
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
@@ -47,6 +48,8 @@ import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
 import { TabQueryParamValue, isTabQueryParamValue } from "./_types/types"
+import { HEADER_MENUS } from "./_constants/headerMenus"
+import { useAtom } from "jotai"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -79,7 +82,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             ? pathName.replace("/", "")
             : "home"
     const [menus, setMenus] = useHeaderMenusAtom()
-    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
+    const [menuIndex] = useAtom(menuIndexAtom)
+    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
@@ -427,27 +431,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         setMenus(menus)
 
         console.log(menus)
-
-        setMenuIndex(0)
     }, [pathName, feedGenerators])
 
     useEffect(() => {
         if (pathName === "/search") {
-            const menus: HeaderMenu[] = [
-                {
-                    displayText: "Posts",
-                    info: "posts",
-                },
-                {
-                    displayText: "Feeds",
-                    info: "feeds",
-                },
-                {
-                    displayText: "Users",
-                    info: "users",
-                },
-            ]
-            setMenus(menus)
+            setMenus(HEADER_MENUS.search)
 
             switch (searchParams.get("target")) {
                 case "posts":
@@ -460,27 +448,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     setMenuIndex(2)
                     break
                 default:
-                    setMenuIndex(0)
                     break
             }
         } else if (pathName === "/inbox") {
-            const menus: HeaderMenu[] = [
-                {
-                    displayText: "Inbox",
-                    info: "inbox",
-                },
-            ]
-            setMenus(menus)
-            setMenuIndex(0)
-        } else if (pathName !== "/") {
-            const menus: HeaderMenu[] = [
-                {
-                    displayText: "",
-                    info: "",
-                },
-            ]
-            setMenus(menus)
-            setMenuIndex(0)
+            setMenus(HEADER_MENUS.inbox)
+        } else if (
+            pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
+        ) {
+            setMenus(HEADER_MENUS.onlyPost)
         }
     }, [pathName, searchParams])
 

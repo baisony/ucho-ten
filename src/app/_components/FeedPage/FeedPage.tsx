@@ -267,6 +267,11 @@ const FeedPage = ({
         } else {
             setTimeline(infoByFeed[feedKey].posts)
             setNewTimeline(infoByFeed[feedKey].newPosts)
+            cursor.current = infoByFeed[feedKey].cursor
+
+            if (cursor.current !== "") {
+                setHasMore(true)
+            }
         }
 
         isPolling.current = true
@@ -291,6 +296,7 @@ const FeedPage = ({
                 prevInfoByFeed[feedKey] = {
                     posts: timeline,
                     newPosts: [],
+                    cursor: cursor.current,
                 }
             }
 
@@ -312,12 +318,35 @@ const FeedPage = ({
                 prevInfoByFeed[feedKey] = {
                     posts: [],
                     newPosts: newTimeline,
+                    cursor: cursor.current
                 }
             }
 
             return newPostsByFeed
         })
     }, [newTimeline, feedKey])
+
+    useEffect(() => {
+        if (feedKey === "") {
+            return
+        }
+
+        setInfoByFeed((prevInfoByFeed) => {
+            const newPostsByFeed = prevInfoByFeed
+
+            if (prevInfoByFeed[feedKey]) {
+                prevInfoByFeed[feedKey].cursor = cursor.current
+            } else {
+                prevInfoByFeed[feedKey] = {
+                    posts: [],
+                    newPosts: [],
+                    cursor: cursor.current
+                }
+            }
+
+            return newPostsByFeed
+        })
+    }, [cursor.current, feedKey])
 
     const handleRefresh = () => {
         console.log("newTimeline", newTimeline)

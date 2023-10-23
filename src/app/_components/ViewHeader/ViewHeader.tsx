@@ -22,8 +22,9 @@ import SwiperCore from "swiper/core"
 import { Pagination } from "swiper/modules"
 import {
     HeaderMenu,
+    menuIndexAtom,
+    setMenuIndexAtom,
     useHeaderMenusAtom,
-    useMenuIndexAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -34,6 +35,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
+import { useAtom } from "jotai"
 
 interface Props {
     className?: string
@@ -55,7 +57,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const pathname = usePathname()
     const [menus] = useHeaderMenusAtom()
-    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
+    const [menuIndex] = useAtom(menuIndexAtom)
+    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
 
     const {

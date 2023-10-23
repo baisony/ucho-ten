@@ -13,16 +13,17 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
-import { useHeaderMenusAtom, useMenuIndexAtom } from "../_atoms/headerMenu"
+import { useHeaderMenusAtom, menuIndexAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
+import { useAtom } from "jotai"
 
 export default function Root() {
     const [agent] = useAgent()
-    const [menuIndex] = useMenuIndexAtom()
+    const [menuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusAtom()
 
     const router = useRouter()
