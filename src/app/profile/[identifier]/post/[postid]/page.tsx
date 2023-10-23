@@ -318,6 +318,7 @@ export default function Root() {
                     result.push(
                         <span>
                             <Chip
+                                size={"sm"}
                                 className={color}
                                 startContent={
                                     <Tooltip
@@ -384,6 +385,7 @@ export default function Root() {
                     result.push(
                         <span>
                             <Chip
+                                size={"sm"}
                                 className={color}
                                 startContent={
                                     <FontAwesomeIcon icon={faHashtag} />
