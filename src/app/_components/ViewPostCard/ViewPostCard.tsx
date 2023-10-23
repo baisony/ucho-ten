@@ -1021,9 +1021,11 @@ export const ViewPostCard = (props: Props) => {
                                     <div
                                         style={{ wordBreak: "break-word" }}
                                         className={`${
-                                            isMobile
-                                                ? `text-[14px]`
-                                                : `text-[15px]`
+                                            !isEmbedToPost
+                                                ? isMobile
+                                                    ? `text-[14px]`
+                                                    : `text-[15px]`
+                                                : `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}

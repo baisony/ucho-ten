@@ -415,7 +415,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     const { isDummyHeader, feedProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div style={{ height: "100px" }} />
+        return <div className={"md:h-[100px] h-[80px]"} />
     }
 
     if (feedProps) {

@@ -25,7 +25,7 @@ export const ViewPostCardCell = (props: ViewPostCardCellProps) => {
     const { isDummyHeader } = props
 
     return isDummyHeader ? (
-        <div style={{ height: "100px" }} />
+        <div className={"md:h-[100px] h-[80px]"} />
     ) : (
         <ViewPostCard {...props} />
     )

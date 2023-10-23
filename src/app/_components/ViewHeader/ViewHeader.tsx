@@ -148,7 +148,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     variant="light"
                     startContent={
                         <FontAwesomeIcon
-                            className={"h-[20px]"}
+                            className={"md:h-[20px] h-[18px]"}
                             icon={isRoot === true ? faBars : faChevronLeft}
                         />
                     }
@@ -216,7 +216,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 )}
                 {!showSearchInput && (
                     <Image
-                        className={"w-[145px] cursor-pointer"}
+                        className={"md:h-[24px] h-[20px] cursor-pointer"}
                         src={logoImage}
                         alt={"logo"}
                         onClick={() => {
@@ -268,7 +268,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 menuIndex === index
                                     ? "text-white"
                                     : "text-[#909090]"
-                            }`}
+                            } md:text-[15px] text-[13px]`}
                         >
                             {menu.displayText}
                         </div>
