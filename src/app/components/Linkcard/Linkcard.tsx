@@ -52,26 +52,26 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                     {generatedURL && (
                         <div className={LinkCardThumbnailContainer()}>
                             {!skeleton ? (
-                            <img
-                                src={generatedURL}
-                                className={LinkCardThumbnail()}
-                                alt={ogpData?.alt}
-                            />
+                                <img
+                                    src={generatedURL}
+                                    className={LinkCardThumbnail()}
+                                    alt={ogpData?.alt}
+                                />
                             ) : (
-                            <div
-                                style={{
-                                    position: "relative",
-                                    textAlign: "center",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform:
-                                        "translateY(-50%) translateX(-50%)",
-                                    WebkitTransform:
-                                        "translateY(-50%) translateX(-50%)",
-                                }}
-                            >
-                                <Spinner size="md" />
-                            </div>
+                                <div
+                                    style={{
+                                        position: "relative",
+                                        textAlign: "center",
+                                        top: "50%",
+                                        left: "50%",
+                                        transform:
+                                            "translateY(-50%) translateX(-50%)",
+                                        WebkitTransform:
+                                            "translateY(-50%) translateX(-50%)",
+                                    }}
+                                >
+                                    <Spinner size="md" />
+                                </div>
                             )}
                         </div>
                     )}
