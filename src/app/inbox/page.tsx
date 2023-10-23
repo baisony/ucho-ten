@@ -1,16 +1,19 @@
 "use client"
 
-import { ViewPostCard } from "@/app/components/ViewPostCard"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useState } from "react"
 import { isMobile } from "react-device-detect"
+import { Virtuoso } from "react-virtuoso"
 import { useAgent } from "@/app/_atoms/agent"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import InfiniteScroll from "react-infinite-scroller"
-import { Spinner } from "@nextui-org/react"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { ViewPostCardCell } from "../components/ViewPostCard/ViewPostCardCell"
+import { ListFooterSpinner } from "../components/ListFooterSpinner"
 
 export default function Root() {
     const { t } = useTranslation()
@@ -26,7 +29,7 @@ export default function Root() {
 
     const cursor = useRef<string>("")
 
-    const color = darkMode ? "dark" : "light"
+    const color: "dark" | "light" = darkMode ? "dark" : "light"
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -104,7 +107,9 @@ export default function Root() {
     }
 
     const loadMore = async (page: number) => {
-        await fetchNotification(false)
+        if (hasMore) {
+            await fetchNotification(false)
+        }
     }
 
     useEffect(() => {
@@ -147,48 +152,72 @@ export default function Root() {
         fetchNotification()
     }, [agent])
 
+    const notificationWithDummy = useMemo((): PostView[] => {
+        const dummyData: PostView = {} as PostView
+
+        if (!notification) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...notification]
+        }
+    }, [notification])
+
     return (
         <>
-            <InfiniteScroll
-                initialLoad={false}
-                loadMore={loadMore}
-                hasMore={hasMore}
-                loader={
-                    <div
-                        key="spinner-inbox"
-                        className="flex justify-center mt-2 mb-2"
-                    >
-                        <Spinner />
-                    </div>
-                }
-                threshold={700}
-                useWindow={false}
-            >
-                {(loading || !notification) &&
-                    Array.from({ length: 15 }, (_, index) => (
-                        <ViewPostCard
-                            key={`skeleton-${index}`}
-                            color={color}
-                            isMobile={isMobile}
-                            isSkeleton={true}
-                            nextQueryParams={nextQueryParams}
-                            t={t}
+            {!notification && (
+                <Virtuoso
+                    totalCount={20}
+                    initialItemCount={20}
+                    itemContent={(index, item) => (
+                        <ViewPostCardCell
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: true,
+                                isDummyHeader: index === 0,
+                                nextQueryParams,
+                                t,
+                            }}
                         />
-                    ))}
-                {!loading &&
-                    notification !== null &&
-                    notification.map((post, index) => (
-                        <ViewPostCard
-                            key={post.uri}
-                            color={color}
-                            postJson={post}
-                            isMobile={isMobile}
-                            now={now}
-                            nextQueryParams={nextQueryParams}
-                            t={t}
+                    )}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+            {notification && (
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            //scrollRef.current = ref
+                        }
+                    }}
+                    context={{ hasMore }}
+                    overscan={200}
+                    increaseViewportBy={200}
+                    data={notificationWithDummy}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, data) => (
+                        <ViewPostCardCell
+                            {...{
+                                color,
+                                isMobile,
+                                isSkeleton: false,
+                                postJson: data || null,
+                                isDummyHeader: index === 0,
+                                now,
+                                nextQueryParams,
+                                t,
+                            }}
                         />
-                    ))}
-            </InfiniteScroll>
+                    )}
+                    components={{
+                        // @ts-ignore
+                        Footer: ListFooterSpinner,
+                    }}
+                    endReached={loadMore}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
         </>
     )
 }
