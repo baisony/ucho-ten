@@ -516,6 +516,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     <Button
                         className={headerPostButton()}
                         radius={"full"}
+                        size={"sm"}
                         color={"primary"}
                         onPress={() => {
                             handlePostClick()

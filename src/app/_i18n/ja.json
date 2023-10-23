@@ -127,7 +127,7 @@
       "reason": "報告理由"
     },
     "post": {
-      "title": "投稿",
+      "title": "ポスト",
       "placeholder": "Yo, ブルスコしてるかい？",
       "compressing": "圧縮中",
       "lang": "lang",
@@ -166,7 +166,7 @@
     "hide": "非表示",
     "warn": "警告",
     "show": "表示",
-    "post": "投稿する",
+    "post": "送信",
     "newPosts": "新しい投稿"
   }
 }

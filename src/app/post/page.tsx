@@ -502,6 +502,7 @@ export default function Root() {
                     <div className={headerTitle()}>{t("modal.post.title")}</div>
                     <Button
                         className={headerPostButton()}
+                        size={"sm"}
                         radius={"full"}
                         color={"primary"}
                         onPress={handlePostClick}
