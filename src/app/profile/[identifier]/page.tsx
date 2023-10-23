@@ -1,11 +1,10 @@
 "use client"
+
 // import { RichText, UnicodeString } from "@atproto/api"
 // import { TabBar } from "@/app/components/TabBar"
-import { ViewPostCard } from "@/app/components/ViewPostCard"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
-import InfiniteScroll from "react-infinite-scroller"
 // import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
@@ -41,10 +40,16 @@ import {
 } from "@nextui-org/react"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
-import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+// import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { ReportModal } from "@/app/components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import {
+    ViewPostCardCell,
+    ViewPostCardCellProps,
+} from "@/app/components/ViewPostCard/ViewPostCardCell"
+import { Virtuoso } from "react-virtuoso"
+import { ListFooterSpinner } from "@/app/components/ListFooterSpinner"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -56,7 +61,7 @@ export default function Root() {
 
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
-    const [timeline, setTimeline] = useState<FeedViewPost[]>([])
+    const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [profile, setProfile] = useState<any>(null)
@@ -69,6 +74,8 @@ export default function Root() {
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
 
+    const shouldScrollToTop = useRef<boolean>(false)
+    const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
     const color = darkMode ? "dark" : "light"
@@ -215,60 +222,6 @@ export default function Root() {
         await fetchTimeline()
     }
 
-    // const loadMore = async (page: any) => {
-    //     if (!agent) {
-    //         return
-    //     }
-    //     if (!cursor) return
-    //     try {
-    //         setLoading2(true)
-    //         const { data } = await agent.getAuthorFeed({
-    //             cursor: !hasCursor ? cursor : hasCursor,
-    //             actor: username,
-    //         })
-    //         const { feed } = data
-    //         if (feed.length === 0) setHasMoreLimit(true)
-    //         if (data.cursor) {
-    //             setHasCursor(data.cursor)
-    //         }
-    //         const filteredData = FormattingTimeline(feed)
-    //         const diffTimeline = filteredData.filter((newItem) => {
-    //             return !timeline.some(
-    //                 (oldItem) => oldItem.post.uri === newItem.post.uri
-    //             )
-    //         })
-
-    //         //取得データをリストに追加
-    //         setTimeline([...timeline, ...diffTimeline])
-    //         setLoading2(false)
-    //     } catch (e) {
-    //         setLoading2(false)
-    //         console.log(e)
-    //     }
-    // }
-
-    // const checkNewTimeline = async () => {
-    //     if (!agent) return
-    //     try {
-    //         const { data } = await agent?.getAuthorFeed({ actor: username })
-    //         if (data) {
-    //             const { feed } = data
-    //             const filteredData = FormattingTimeline(feed)
-
-    //             if (data.cursor && data.cursor !== cursor) {
-    //                 setNewCursor(data.cursor)
-    //                 setAvailableNewTimeline(true)
-    //                 setNewTimeline(filteredData)
-    //             }
-    //         }
-    //     } catch (e) {}
-    // }
-
-    // useEffect(() => {
-    //     if (!agent) return
-    //     fetchTimeline()
-    // }, [agent])
-
     useEffect(() => {
         if (profile) {
             fetchTimeline()
@@ -294,64 +247,132 @@ export default function Root() {
         router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
     }
 
-    return (
-        <InfiniteScroll
-            loadMore={loadMore} //項目を読み込む際に処理するコールバック関数
-            hasMore={hasMore} //読み込みを行うかどうかの判定
-            loader={
-                <div
-                    key="spinner-profile"
-                    className="flex justify-center mt-2 mb-2"
-                >
-                    <Spinner />
-                </div>
+    const dataWithDummy = useMemo((): UserProfilePageCellProps[] => {
+        let data: UserProfilePageCellProps[] = []
+
+        if (profile && agent) {
+            const userProfileProps: UserProfileProps = {
+                agent,
+                profile,
+                color,
+                isProfileMine: profile.did === agent?.session?.did,
+                onClickDomain,
             }
-            threshold={700}
-            useWindow={false}
-        >
-            {profile ? (
-                <UserProfileComponent
-                    agent={agent}
-                    profile={profile}
-                    color={color}
-                    isProfileMine={profile.did === agent?.session?.did}
-                    onClickDomain={onClickDomain}
-                />
-            ) : (
-                <UserProfileComponent
-                    agent={agent}
-                    color={color}
-                    isSkeleton={true}
-                />
-            )}
-            {(loading || !agent) &&
-                Array.from({ length: 15 }, (_, index) => (
-                    <ViewPostCard
-                        key={`skeleton-${index}`}
-                        color={color}
-                        isMobile={isMobile}
-                        isSkeleton={true}
-                        nextQueryParams={nextQueryParams}
-                    />
-                ))}
-            {!loading &&
-                agent &&
-                timeline.map((post, index) => (
-                    <ViewPostCard
-                        key={`post-${index}-${post.post.uri}`}
-                        color={color}
-                        postJson={post.post}
-                        json={post}
-                        isMobile={isMobile}
-                        now={now}
-                        nextQueryParams={nextQueryParams}
-                    />
-                ))}
-        </InfiniteScroll>
+
+            const feedData: UserProfilePageCellProps = {
+                userProfileProps,
+            }
+
+            data.push(feedData)
+        } else {
+            const userProfileProps: UserProfileProps = {
+                agent,
+                color,
+                isSkeleton: true,
+            }
+
+            const feedData: UserProfilePageCellProps = {
+                userProfileProps,
+            }
+
+            data.push(feedData)
+        }
+
+        if (timeline) {
+            const timelineData: UserProfilePageCellProps[] = timeline.map(
+                (post) => {
+                    const postProps: ViewPostCardCellProps = {
+                        color,
+                        isMobile,
+                        postJson: post.post,
+                        now,
+                        nextQueryParams,
+                    }
+
+                    return {
+                        postProps,
+                    }
+                }
+            )
+
+            data = [...data, ...timelineData]
+        } else {
+            const timelineData: UserProfilePageCellProps[] = Array.from({
+                length: 20,
+            }).map((_) => {
+                const postProps: ViewPostCardCellProps = {
+                    isSkeleton: true,
+                    color,
+                    isMobile,
+                    now,
+                    nextQueryParams,
+                }
+
+                return {
+                    postProps,
+                }
+            })
+
+            console.log("timelineData", timelineData)
+
+            data = [...data, ...timelineData]
+        }
+
+        if (data.length > 0) {
+            data = [{ isDummyHeader: true }, ...data]
+        }
+
+        return data
+    }, [profile, timeline])
+
+    return (
+        <Virtuoso
+            scrollerRef={(ref) => {
+                if (ref instanceof HTMLElement) {
+                    scrollRef.current = ref
+                }
+            }}
+            context={{ hasMore }}
+            overscan={200}
+            increaseViewportBy={200}
+            data={dataWithDummy}
+            atTopThreshold={100}
+            atBottomThreshold={100}
+            itemContent={(_, item) => <UserProfilePageCell {...item} />}
+            components={{
+                // @ts-ignore
+                Footer: ListFooterSpinner,
+            }}
+            endReached={loadMore}
+            // onScroll={(e) => disableScrollIfNeeded(e)}
+            style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+        />
     )
 }
 
-interface userProfileProps {
+interface UserProfilePageCellProps {
+    isDummyHeader?: boolean
+    userProfileProps?: UserProfileProps
+    postProps?: ViewPostCardCellProps
+}
+
+const UserProfilePageCell = (props: UserProfilePageCellProps) => {
+    const { isDummyHeader, userProfileProps, postProps } = props
+
+    if (isDummyHeader) {
+        return <div style={{ height: "100px" }} />
+    }
+
+    if (userProfileProps) {
+        return <UserProfileComponent {...userProfileProps} />
+    }
+
+    if (postProps) {
+        return <ViewPostCardCell {...postProps} />
+    }
+}
+
+interface UserProfileProps {
     agent: BskyAgent | null
     profile?: any
     color: "light" | "dark"
@@ -367,7 +388,7 @@ const UserProfileComponent = ({
     isProfileMine,
     onClickDomain,
     isSkeleton,
-}: userProfileProps) => {
+}: UserProfileProps) => {
     const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [onHoverButton, setOnHoverButton] = useState(false)
