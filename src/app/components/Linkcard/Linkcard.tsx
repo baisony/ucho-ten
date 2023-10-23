@@ -51,7 +51,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 >
                     {generatedURL && (
                         <div className={LinkCardThumbnailContainer()}>
-                            (!skeleton ? (
+                            {!skeleton ? (
                             <img
                                 src={generatedURL}
                                 className={LinkCardThumbnail()}
@@ -72,7 +72,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                             >
                                 <Spinner size="md" />
                             </div>
-                            ))
+                            )}
                         </div>
                     )}
                     <div
