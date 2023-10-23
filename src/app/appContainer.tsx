@@ -118,6 +118,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         break
                     case "inbox":
                         tabValue = "i"
+                        break
                     case "post":
                         tabValue = "p"
                         break

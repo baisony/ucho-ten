@@ -490,11 +490,11 @@ export default function Root() {
                         className={headerCancelButton()}
                         isDisabled={loading}
                         onClick={() => {
-                            if (history[0] === "/post" || history[0] === "") {
-                                router.push(`/?${nextQueryParams.toString()}`)
-                            } else {
+                            // if (history[0] === "/post" || history[0] === "") {
+                            //     router.push(`/?${nextQueryParams.toString()}`)
+                            // } else {
                                 router.back()
-                            }
+                            // }
                         }}
                     >
                         {t("button.cancel")}
