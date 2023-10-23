@@ -759,7 +759,7 @@ export const ViewPostCard = (props: Props) => {
                                 ) : (
                                     <>
                                         {postJsonData?.author?.avatar ? (
-                                            <Image
+                                            <img
                                                 src={
                                                     postJsonData?.author?.avatar
                                                 }
@@ -1021,9 +1021,11 @@ export const ViewPostCard = (props: Props) => {
                                     <div
                                         style={{ wordBreak: "break-word" }}
                                         className={`${
-                                            isMobile
-                                                ? `text-[14px]`
-                                                : `text-[15px]`
+                                            !isEmbedToPost
+                                                ? isMobile
+                                                    ? `text-[14px]`
+                                                    : `text-[15px]`
+                                                : `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}
@@ -1069,10 +1071,12 @@ export const ViewPostCard = (props: Props) => {
                                 />
                             )}
                             {embedExternal && (
-                                <Linkcard
-                                    color={color}
-                                    ogpData={embedExternal.external}
-                                />
+                                <div className={"h-full w-full mt-[5px]"}>
+                                    <Linkcard
+                                        color={color}
+                                        ogpData={embedExternal.external}
+                                    />
+                                </div>
                             )}
                             {embedRecord &&
                                 embedRecordViewRecord &&

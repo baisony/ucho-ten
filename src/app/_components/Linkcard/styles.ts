@@ -3,9 +3,9 @@ import { tv } from "@nextui-org/react"
 export const linkcard = tv({
     slots: {
         LinkCard:
-            "h-[100px] w-full rounded-lg overflow-hidden border border-gray-600 flex items-center text-gray-800",
+            "md:h-[100px] h-[80px] w-full rounded-lg overflow-hidden border md:hover:border-gray-600 flex items-center text-gray-800",
         LinkCardThumbnailContainer:
-            "h-[100px] w-[100px] border-r border-gray-600",
+            "md:h-[100px] h-[80px] md:w-[100px] w-[80px] border-r md:hover:border-gray-600",
         LinkCardThumbnail: "object-cover w-full h-full z-0",
         LinkCardContent: "flex items-center ml-2 h-full",
         LinkCardTitle:
@@ -16,14 +16,17 @@ export const linkcard = tv({
     variants: {
         color: {
             light: {
-                LinkCard: "bg-white text-black hover:bg-[#DBDBDB]",
+                LinkCard:
+                    "bg-white text-black md:hover:bg-[#DBDBDB] border-[#E8E8E8]",
                 LinkCardTitle: "text-black",
+                LinkCardThumbnailContainer: "border-[#E8E8E8]",
             },
             dark: {
-                LinkCard: "hover:bg-[#1C1C1C]",
+                LinkCard: "md:hover:bg-[#1C1C1C] border-[#181818]",
                 LinkCardTitle: "text-white",
                 LinkCardDescription: "text-gray-200",
                 LinkCardSiteName: "",
+                LinkCardThumbnailContainer: "border-[#181818]",
             },
         },
         isMobile: {

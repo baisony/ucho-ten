@@ -11,7 +11,7 @@ export const postModal = tv({
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
             "w-full h-full text-center text-base font-medium fontSize-[16px] items-center flex justify-center",
-        headerPostButton: "w-[91px] h-[37px] right-[8px]",
+        headerPostButton: "right-[8px]",
 
         content: "w-full h-[calc(100%-86px)] overflow-y-scroll",
         contentContainer:
