@@ -4,7 +4,7 @@ export const postOnlyPage = tv({
     slots: {
         Container: "h-full min-w-[350px] max-w-[600px]",
         AuthorPost: "w-full border-b-[1px]",
-        Author: "flex items-center justify-between md:pt-[10px] pl-[14px] pr-[24px] pb-[9px]",
+        Author: "flex items-center justify-between pt-[10px] pl-[14px] pr-[24px] pb-[9px]",
         AuthorIcon:
             "bg-[#D9D9D9] md:h-[50px] md:w-[50px] h-[45px] w-[45px] rounded-[10px] mr-[12px] overflow-hidden cursor-pointer",
         AuthorDisplayName:
