@@ -10,6 +10,7 @@ import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
     faHeart as faSolidHeart,
+    faRss,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
 import {
@@ -471,10 +472,17 @@ const FeedHeaderComponent = ({
         <div className={ProfileContainer({ color: color })}>
             <div className={ProfileInfoContainer()}>
                 {!isSkeleton ? (
-                    <img
-                        className={ProfileImage()}
-                        src={feedInfo.view?.avatar}
-                    />
+                    feedInfo.view?.avatar ? (
+                        <img
+                            className={ProfileImage()}
+                            src={feedInfo.view?.avatar}
+                        />
+                    ) : (
+                        <FontAwesomeIcon
+                            icon={faRss}
+                            className={ProfileImage()}
+                        />
+                    )
                 ) : (
                     <div className={ProfileImage()}>
                         <Skeleton
