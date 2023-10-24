@@ -705,6 +705,7 @@ export const ViewPostCard = (props: Props) => {
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                     onClick={(e) => {
                         e.stopPropagation()
+                        if (isSkeleton) return
                         router.push(
                             `/profile/${postJsonData?.author.did}/post/${
                                 postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
