@@ -136,6 +136,11 @@ export const ViewPostCard = (props: Props) => {
         PostAuthorDisplayName,
         PostAuthorHandle,
         PostCreatedAt,
+        skeletonIcon,
+        skeletonName,
+        skeletonHandle,
+        skeletonText1line,
+        skeletonText2line,
     } = viewPostCard()
     const quoteCardStyles = viewQuoteCard()
 
@@ -733,7 +738,7 @@ export const ViewPostCard = (props: Props) => {
                                 }}
                             >
                                 {isSkeleton ? (
-                                    <Skeleton />
+                                    <Skeleton className={skeletonIcon()} />
                                 ) : (
                                     <>
                                         {postJsonData?.author?.avatar ? (
@@ -773,7 +778,7 @@ export const ViewPostCard = (props: Props) => {
                                 }}
                             >
                                 {isSkeleton ? (
-                                    <Skeleton />
+                                    <Skeleton className={skeletonName()} />
                                 ) : (
                                     <span
                                         className={`${
@@ -788,6 +793,7 @@ export const ViewPostCard = (props: Props) => {
                                 &nbsp;-&nbsp;
                             </div>
                             <span
+                                className={`${PostAuthorDisplayName()}`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -797,12 +803,10 @@ export const ViewPostCard = (props: Props) => {
                                 }}
                             >
                                 {isSkeleton ? (
-                                    <Skeleton />
+                                    <Skeleton className={skeletonHandle()} />
                                 ) : (
                                     <span
-                                        className={`${
-                                            !isMobile && `hover:underline`
-                                        }`}
+                                        className={`${PostAuthorHandle()} md:hover:underline`}
                                     >
                                         {postJsonData?.author?.handle}
                                     </span>
@@ -949,8 +953,8 @@ export const ViewPostCard = (props: Props) => {
                         <div className={PostContent({ isMobile: isMobile })}>
                             {isSkeleton ? (
                                 <div className="w-full flex flex-col gap-2">
-                                    <Skeleton />
-                                    <Skeleton />
+                                    <Skeleton className={skeletonText1line()} />
+                                    <Skeleton className={skeletonText2line()} />
                                 </div>
                             ) : (
                                 <>
