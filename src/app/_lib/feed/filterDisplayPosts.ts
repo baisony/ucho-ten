@@ -1,4 +1,6 @@
-import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { AppBskyActorDefs, AppBskyFeedPost } from "@atproto/api"
+import { FeedViewPost, PostView, ReplyRef } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
 export const filterDisplayPosts = (
     posts: FeedViewPost[],
@@ -6,23 +8,40 @@ export const filterDisplayPosts = (
 ): FeedViewPost[] => {
     const seenUris = new Set<string>()
 
+    console.log("filter posts", posts)
+
     const filteredData = posts.filter((item) => {
         const uri = item.post.uri
+        const authorDID = item.post.author.did
+
         let displayPost: boolean | null = null
 
         if (item.reply) {
-            if (item.reason) {
+            const rootDID = (item.reply.root as PostView).author.did
+            const parentDID = (item.reply.parent as PostView).author.did
+
+            if (item.reason) { // repost
                 // repost
                 displayPost = true
-            } else if (
-                // @ts-ignore
-                (item.post.author.did === item.reply.parent.author.did &&
-                    // @ts-ignore
-                    item.reply.parent.author.did ===
-                        // @ts-ignore
-                        item.reply.root.author.did) ||
-                item.post.author.did === userDID
-            ) {
+            } else if (authorDID === rootDID && authorDID === parentDID) { // self reply
+                displayPost = true
+            } else if (authorDID === userDID) { // my reply
+                displayPost = true
+            } else {
+                console.log("reply post (not display)", item)
+                displayPost = false
+            }
+        }
+
+        const record = item.post.record as AppBskyFeedPost.Record
+
+        if (record.reply) {
+            const rootDID = getDIDfromAtURI(record.reply.root.uri)
+            const parentDID = getDIDfromAtURI(record.reply.parent.uri)
+
+            if (authorDID === rootDID && authorDID === parentDID) { // self reply
+                displayPost = true
+            } else if (authorDID === userDID) { // my reply
                 displayPost = true
             } else {
                 displayPost = false
