@@ -1,5 +1,9 @@
 import { AppBskyActorDefs, AppBskyFeedPost } from "@atproto/api"
-import { FeedViewPost, PostView, ReplyRef } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    FeedViewPost,
+    PostView,
+    ReplyRef,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
 export const filterDisplayPosts = (
@@ -20,12 +24,15 @@ export const filterDisplayPosts = (
             const rootDID = (item.reply.root as PostView).author.did
             const parentDID = (item.reply.parent as PostView).author.did
 
-            if (item.reason) { // repost
+            if (item.reason) {
+                // repost
                 // repost
                 displayPost = true
-            } else if (authorDID === rootDID && authorDID === parentDID) { // self reply
+            } else if (authorDID === rootDID && authorDID === parentDID) {
+                // self reply
                 displayPost = true
-            } else if (authorDID === userDID) { // my reply
+            } else if (authorDID === userDID) {
+                // my reply
                 displayPost = true
             } else {
                 console.log("reply post (not display)", item)
@@ -39,9 +46,11 @@ export const filterDisplayPosts = (
             const rootDID = getDIDfromAtURI(record.reply.root.uri)
             const parentDID = getDIDfromAtURI(record.reply.parent.uri)
 
-            if (authorDID === rootDID && authorDID === parentDID) { // self reply
+            if (authorDID === rootDID && authorDID === parentDID) {
+                // self reply
                 displayPost = true
-            } else if (authorDID === userDID) { // my reply
+            } else if (authorDID === userDID) {
+                // my reply
                 displayPost = true
             } else {
                 displayPost = false

@@ -159,7 +159,7 @@ const FeedPage = ({
             if (feedKey === "following") {
                 response = await agent.getTimeline({
                     limit: FEED_FETCH_LIMIT,
-                    cursor: ""
+                    cursor: "",
                 })
             } else {
                 response = await agent.app.bsky.feed.getFeed({
@@ -308,9 +308,9 @@ const FeedPage = ({
     const handleRefresh = () => {
         shouldScrollToTop.current = true
 
-        const mergedTimeline = mergePosts(newTimeline, timeline);
+        const mergedTimeline = mergePosts(newTimeline, timeline)
 
-        setTimeline(mergedTimeline);
+        setTimeline(mergedTimeline)
         setNewTimeline([])
         setHasUpdate(false)
 
