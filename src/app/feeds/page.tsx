@@ -2,7 +2,6 @@
 import { useAgent } from "@/app/_atoms/agent"
 import React, { useEffect, useState } from "react"
 import { layout } from "./styles"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useRouter } from "next/navigation"
 import {
     Button,
@@ -18,8 +17,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBars,
     faGear,
-    faThumbTack,
     faRss,
+    faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -27,37 +26,15 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 export default function Root() {
     const [agent] = useAgent()
     const router = useRouter()
-    const [appearanceColor] = useAppearanceColor()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const { background, FeedCard, modal } = layout()
+    const { background, FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<string[]>([])
     const [, setPinnedFeeds] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
-    const [darkMode, setDarkMode] = useState(false)
     const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
-    const color = darkMode ? "dark" : "light"
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     const fetchFeeds = async () => {
         if (!agent) return
@@ -98,11 +75,7 @@ export default function Root() {
 
     return (
         <>
-            <Modal
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-                className={modal({ color: color })}
-            >
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -135,9 +108,7 @@ export default function Root() {
             </Modal>
             {savedFeeds.length === 0 && (
                 <div
-                    className={`${background({
-                        color: color,
-                    })} w-full h-full flex items-center justify-center`}
+                    className={`${background()} w-full h-full flex items-center justify-center`}
                 >
                     {isFetching ? (
                         <div>
@@ -145,13 +116,7 @@ export default function Root() {
                         </div>
                     ) : (
                         !isFetching ?? (
-                            <div
-                                className={`${
-                                    color === `dark`
-                                        ? `text-white`
-                                        : `text-black`
-                                }`}
-                            >
+                            <div className={`text-white dark:text-black`}>
                                 ないよー
                             </div>
                         )
@@ -159,14 +124,12 @@ export default function Root() {
                 </div>
             )}
             {savedFeeds.length !== 0 && (
-                <div
-                    className={`${background({ color: color })} w-full h-full`}
-                >
+                <div className={`${background()} w-full h-full`}>
                     {/*@ts-ignore*/}
                     {savedFeeds.map((feed: GeneratorView, index) => {
                         return (
                             <div
-                                className={FeedCard({ color: color })}
+                                className={FeedCard()}
                                 key={index}
                                 onClick={() => {
                                     const uri = new AtUri(feed.uri)

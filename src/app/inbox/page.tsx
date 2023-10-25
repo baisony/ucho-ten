@@ -1,22 +1,16 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef } from "react"
-import { useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
 import { useAgent } from "@/app/_atoms/agent"
-import type {
-    FeedViewPost,
-    PostView,
-} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 
 export default function Root() {
     const [agent] = useAgent()
-    const [appearanceColor] = useAppearanceColor()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [loading, setLoading] = useState(true)
     const [notification, setNotification] = useState<PostView[] | null>(null)
@@ -25,8 +19,6 @@ export default function Root() {
     const [now, setNow] = useState<Date>(new Date())
 
     const cursor = useRef<string>("")
-
-    const color: "dark" | "light" = darkMode ? "dark" : "light"
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -123,26 +115,6 @@ export default function Root() {
 
         fetchIfNeeded()
     }, [notification, cursor.current])
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
-
     useEffect(() => {
         if (!agent) return
 
@@ -168,7 +140,6 @@ export default function Root() {
                     itemContent={(index, item) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
@@ -195,7 +166,6 @@ export default function Root() {
                     itemContent={(index, data) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: data || null,

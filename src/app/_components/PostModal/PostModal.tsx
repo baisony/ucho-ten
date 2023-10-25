@@ -65,14 +65,13 @@ interface AttachmentImage {
 
 interface Props {
     children?: React.ReactNode
-    color: "light" | "dark"
     type?: "Post" | "Reply" | `Quote`
     postData?: any
     onClose: (isClosed: boolean) => void
 }
 
 export const PostModal: React.FC<Props> = (props: Props) => {
-    const { color, type, postData } = props
+    const { type, postData } = props
     const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
         useUserProfileDetailedAtom()
     const { t } = useTranslation()
@@ -136,19 +135,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         ImageEditButton,
     } = postModal()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
-    const [darkMode, setDarkMode] = useState(false)
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        setPostContentLanguage(new Set([navigator.language]))
-        console.log(window.history.state)
-        const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-        setDarkMode(matchMedia.matches)
-        matchMedia.addEventListener("change", modeMe)
-        return () => matchMedia.removeEventListener("change", modeMe)
-    }, [])
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -496,7 +482,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            <div className={PostModal({ color: color, isMobile: isMobile })}>
+            <div className={PostModal({ isMobile: isMobile })}>
                 <div className={header()}>
                     <Button
                         variant="light"
@@ -546,7 +532,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 >
                     <div className={"w-full"}>
                         <ViewPostCard
-                            color={color}
                             postJson={postData}
                             isMobile={isMobile}
                             isEmbedToModal={true}
@@ -714,7 +699,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             <div className={"mb-[5px]"}>
                                                 <Chip
                                                     key={index}
-                                                    className={`w-full ${color}`}
+                                                    className={`w-full `}
                                                     style={{
                                                         textAlign: "left",
                                                         cursor: "pointer",
@@ -738,7 +723,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 )}
                             {isOGPGetProcessing && (
                                 <div className={contentRightUrlCard()}>
-                                    <Linkcard color={color} skeleton={true} />
+                                    <Linkcard skeleton={true} />
                                 </div>
                             )}
                             {isSetURLCard &&
@@ -759,16 +744,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                 size={"lg"}
                                             />
                                         </div>
-                                        <Linkcard
-                                            color={color}
-                                            ogpData={getOGPData}
-                                        />
+                                        <Linkcard ogpData={getOGPData} />
                                     </div>
                                 )}
                         </div>
                     </div>
                 </div>
-                <div className={footer({ color: color })}>
+                <div className={footer()}>
                     <div className={footerTooltip()}>
                         <label
                             htmlFor={inputId}
@@ -817,10 +799,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             className={footerTooltipStyle()}
                             style={{ bottom: "5%" }}
                         >
-                            <Dropdown
-                                backdrop="blur"
-                                className={dropdown({ color: color })}
-                            >
+                            <Dropdown backdrop="blur">
                                 <DropdownTrigger>
                                     {`${t("modal.post.lang")}:${Array.from(
                                         PostContentLanguage
@@ -867,10 +846,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             </Dropdown>
                         </div>
                         <div className={footerTooltipStyle()}>
-                            <Dropdown
-                                backdrop="blur"
-                                className={dropdown({ color: color })}
-                            >
+                            <Dropdown backdrop="blur">
                                 <DropdownTrigger>
                                     <FontAwesomeIcon
                                         icon={faCirclePlus}
@@ -909,10 +885,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         </div>
                         <BrowserView>
                             <div className={footerTooltipStyle()}>
-                                <Popover
-                                    placement="right-end"
-                                    className={popover({ color: color })}
-                                >
+                                <Popover placement="right-end">
                                     <PopoverTrigger>
                                         <Button
                                             isIconOnly
@@ -929,7 +902,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         <Picker
                                             data={data}
                                             onEmojiSelect={onEmojiClick}
-                                            theme={color}
                                             previewPosition="none"
                                         />
                                     </PopoverContent>

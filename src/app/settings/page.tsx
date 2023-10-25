@@ -46,29 +46,8 @@ export default function Root() {
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
-    const [darkMode, setDarkMode] = useState(false)
-    const color = darkMode ? "dark" : "light"
     const [isLoading, setIsLoading] = useState(false)
     const { background, accordion, button } = viewSettingsPage()
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     useEffect(() => {
         if (location.hash !== "") {
@@ -108,15 +87,13 @@ export default function Root() {
     return (
         hashFlagment && (
             <>
-                <div
-                    className={`w-full h-full ${background({ color: color })}`}
-                >
+                <div className={`w-full h-full ${background()}`}>
                     <Accordion
                         variant="light"
                         defaultExpandedKeys={[
                             hashFlagment !== "" ? `${hashFlagment}` : "general",
                         ]}
-                        className={accordion({ color: color })}
+                        className={accordion()}
                     >
                         <AccordionItem
                             key="general"
@@ -126,7 +103,7 @@ export default function Root() {
                                     {t("pages.settings.general")}
                                 </span>
                             }
-                            className={accordion({ color: color })}
+                            className={accordion()}
                         >
                             <div className={"pt-[5px] pb-[7px]"}>
                                 <div className={"font-[900]"}>
@@ -145,6 +122,19 @@ export default function Root() {
                                             }
                                             onClick={() => {
                                                 setAppearanceColor("system")
+                                                if (
+                                                    window.matchMedia(
+                                                        "(prefers-color-scheme: dark)"
+                                                    ).matches
+                                                ) {
+                                                    document.documentElement.classList.add(
+                                                        "dark"
+                                                    )
+                                                } else {
+                                                    document.documentElement.classList.remove(
+                                                        "dark"
+                                                    )
+                                                }
                                             }}
                                         >
                                             {t("pages.settings.system")}
@@ -155,6 +145,9 @@ export default function Root() {
                                             }
                                             onClick={() => {
                                                 setAppearanceColor("light")
+                                                document.documentElement.classList.remove(
+                                                    "dark"
+                                                )
                                             }}
                                         >
                                             {t("pages.settings.light")}
@@ -165,6 +158,9 @@ export default function Root() {
                                             }
                                             onClick={() => {
                                                 setAppearanceColor("dark")
+                                                document.documentElement.classList.add(
+                                                    "dark"
+                                                )
                                             }}
                                         >
                                             {t("pages.settings.dark")}
@@ -183,9 +179,7 @@ export default function Root() {
                                         size={"sm"}
                                         label="Languages"
                                         selectedKeys={displayLanguage}
-                                        className={`${accordion({
-                                            color: color,
-                                        })} max-w-xs`}
+                                        className={`${accordion()} max-w-xs`}
                                         onChange={(event) => {
                                             handleDisplayLanguageSelectionChange(
                                                 event
@@ -231,9 +225,7 @@ export default function Root() {
                                     <Select
                                         size={"sm"}
                                         label="Select a Language"
-                                        className={`${accordion({
-                                            color: color,
-                                        })} max-w-xs`}
+                                        className={`${accordion()} max-w-xs`}
                                         selectedKeys={translateTo}
                                         onChange={(event) => {
                                             handleTranslateToSelectionChange(
@@ -245,10 +237,7 @@ export default function Root() {
                                             ToTranslateLanguages || {}
                                         ).map(([key, value]) => {
                                             return (
-                                                <SelectItem
-                                                    key={value}
-                                                    className={color}
-                                                >
+                                                <SelectItem key={value}>
                                                     {key}
                                                 </SelectItem>
                                             )
@@ -265,9 +254,7 @@ export default function Root() {
                                     {t("pages.contentfiltering.title")}
                                 </span>
                             }
-                            className={`${accordion({
-                                color: color,
-                            })} relative`}
+                            className={`${accordion()} relative`}
                         >
                             {Object.entries(
                                 userPreferences?.contentLabels || {}
@@ -366,7 +353,7 @@ export default function Root() {
                                     {t("pages.mute.title")}
                                 </span>
                             }
-                            className={accordion({ color: color })}
+                            className={accordion()}
                         >
                             <div
                                 className={

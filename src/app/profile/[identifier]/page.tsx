@@ -38,7 +38,6 @@ import {
     Textarea,
     useDisclosure,
 } from "@nextui-org/react"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 // import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { ReportModal } from "@/app/_components/ReportModal"
@@ -54,7 +53,6 @@ import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 export default function Root() {
     const [agent, setAgent] = useAgent()
     const router = useRouter()
-    const [appearanceColor] = useAppearanceColor()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const pathname = usePathname()
     const username = pathname.replace("/profile/", "")
@@ -67,7 +65,6 @@ export default function Root() {
     const [profile, setProfile] = useState<any>(null)
     // const [newCursor, setNewCursor] = useState<string | null>(null)
     // const [hasCursor, setHasCursor] = useState<string | null>(null)
-    const [darkMode, setDarkMode] = useState(false)
     // const [isProfileMine, setIsProfileMine] = useState(false)
     const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
     // const [isEditing, setIsEditing] = useState(false)
@@ -78,12 +75,6 @@ export default function Root() {
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
-    const color = darkMode ? "dark" : "light"
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
     useEffect(() => {
         const intervalId = setInterval(() => {
             setNow(new Date())
@@ -93,21 +84,6 @@ export default function Root() {
             clearInterval(intervalId)
         }
     }, [])
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     // const handleRefresh = () => {
     //     console.log("refresh")
@@ -254,7 +230,6 @@ export default function Root() {
             const userProfileProps: UserProfileProps = {
                 agent,
                 profile,
-                color,
                 isProfileMine: profile.did === agent?.session?.did,
                 onClickDomain,
             }
@@ -267,7 +242,6 @@ export default function Root() {
         } else {
             const userProfileProps: UserProfileProps = {
                 agent,
-                color,
                 isSkeleton: true,
             }
 
@@ -282,7 +256,6 @@ export default function Root() {
             const timelineData: UserProfilePageCellProps[] = timeline.map(
                 (post) => {
                     const postProps: ViewPostCardCellProps = {
-                        color,
                         isMobile,
                         postJson: post.post,
                         now,
@@ -302,7 +275,6 @@ export default function Root() {
             }).map((_) => {
                 const postProps: ViewPostCardCellProps = {
                     isSkeleton: true,
-                    color,
                     isMobile,
                     now,
                     nextQueryParams,
@@ -375,7 +347,6 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
 interface UserProfileProps {
     agent: BskyAgent | null
     profile?: any
-    color: "light" | "dark"
     isProfileMine?: boolean
     onClickDomain?: (url: string) => void
     isSkeleton?: boolean
@@ -384,7 +355,6 @@ interface UserProfileProps {
 const UserProfileComponent = ({
     agent,
     profile,
-    color,
     isProfileMine,
     onClickDomain,
     isSkeleton,
@@ -423,7 +393,6 @@ const UserProfileComponent = ({
         Buttons,
         PropertyButton,
         PostContainer,
-        dropdown,
     } = viewProfilePage()
 
     const bannerInputRef = useRef<HTMLInputElement | null>(null)
@@ -517,7 +486,6 @@ const UserProfileComponent = ({
                         return (
                             <Chip
                                 size={"sm"}
-                                className={color}
                                 variant="faded"
                                 key={i + "_" + j}
                                 startContent={<FontAwesomeIcon icon={faLink} />}
@@ -557,7 +525,7 @@ const UserProfileComponent = ({
                             <Chip
                                 size={"sm"}
                                 key={i + "_" + j}
-                                className={`${color} cursor-pointer`}
+                                className={`cursor-pointer`}
                                 variant="faded"
                                 startContent={<FontAwesomeIcon icon={faAt} />}
                             >
@@ -594,9 +562,7 @@ const UserProfileComponent = ({
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
-                className={`z-[100] max-w-[600px] ${color} ${
-                    color === `dark` ? `text-white` : `text-black`
-                }`}
+                className={`z-[100] max-w-[600px]`}
                 isDismissable={isUploading}
                 hideCloseButton
             >
@@ -741,7 +707,6 @@ const UserProfileComponent = ({
                 onOpenChange={onOpenChangeReport}
                 placement={isMobile ? "top" : "center"}
                 className={"z-[100] max-w-[600px]"}
-                color={color}
                 target={"account"}
                 profile={profile}
                 nextQueryParams={nextQueryParams}
@@ -754,10 +719,10 @@ const UserProfileComponent = ({
                             src={profile?.banner}
                         />
                     ) : (
-                        <Skeleton className={`h-full w-full ${color}`} />
+                        <Skeleton className={`h-full w-full`} />
                     )}
                 </div>
-                <div className={ProfileInfoContainer({ color: color })}>
+                <div className={ProfileInfoContainer()}>
                     {!isSkeleton ? (
                         profile?.avatar ? (
                             <img
@@ -775,15 +740,12 @@ const UserProfileComponent = ({
                     ) : (
                         <div className={ProfileImage()}>
                             <Skeleton
-                                className={`h-[80px] w-[80px] rounded-[10px] ${color}`}
+                                className={`h-[80px] w-[80px] rounded-[10px]`}
                             />
                         </div>
                     )}
                     <div className={Buttons()}>
-                        <Dropdown
-                            className={dropdown({ color: color })}
-                            isDisabled={isSkeleton}
-                        >
+                        <Dropdown isDisabled={isSkeleton}>
                             <DropdownTrigger>
                                 <div className={ProfileCopyButton()}>
                                     <FontAwesomeIcon
@@ -826,10 +788,7 @@ const UserProfileComponent = ({
                             </DropdownMenu>
                         </Dropdown>
                         {!isProfileMine && !isSkeleton && (
-                            <Dropdown
-                                className={dropdown({ color: color })}
-                                isDisabled={isSkeleton}
-                            >
+                            <Dropdown isDisabled={isSkeleton}>
                                 <DropdownTrigger>
                                     <div className={ProfileActionButton()}>
                                         <FontAwesomeIcon
@@ -867,10 +826,7 @@ const UserProfileComponent = ({
                         )}
                         <Button
                             isDisabled={isSkeleton}
-                            className={`${FollowButton({
-                                color: color,
-                                hover: onHoverButton,
-                            })} `}
+                            className={`${FollowButton()} `}
                             color={
                                 !!profile?.viewer?.following
                                     ? onHoverButton && !isProfileMine
@@ -929,7 +885,7 @@ const UserProfileComponent = ({
                             profile.displayName
                         ) : (
                             <Skeleton
-                                className={`h-[24px] w-[180px] rounded-[10px] mt-[8px] ${color}`}
+                                className={`h-[24px] w-[180px] rounded-[10px] mt-[8px]`}
                             />
                         )}
                     </div>
@@ -942,7 +898,7 @@ const UserProfileComponent = ({
                             `@${profile.handle}`
                         ) : (
                             <Skeleton
-                                className={`h-[16px] w-[130px] rounded-[10px] mt-[10px] ${color}`}
+                                className={`h-[16px] w-[130px] rounded-[10px] mt-[10px]`}
                             />
                         )}
                     </div>
@@ -952,7 +908,7 @@ const UserProfileComponent = ({
                         ) : (
                             <>
                                 <Skeleton
-                                    className={`h-[16px] w-full rounded-[10px] ${color}`}
+                                    className={`h-[16px] w-full rounded-[10px]`}
                                 />
                             </>
                         )}

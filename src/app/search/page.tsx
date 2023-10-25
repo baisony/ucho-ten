@@ -1,15 +1,12 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef } from "react"
-import { useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Image, Skeleton } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { useRouter } from "next/navigation"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
@@ -50,31 +47,10 @@ export default function Root() {
     const cursor = useRef<string>("")
 
     const { searchSupportCard } = layout()
-    const [appearanceColor] = useAppearanceColor()
     const { t } = useTranslation()
-    const color = darkMode ? "dark" : "light"
 
     const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -324,7 +300,7 @@ export default function Root() {
                     <div className={"absolute bottom-[50px] w-full"}>
                         {t("pages.search.FindPerson")}
                         <div
-                            className={searchSupportCard({ color: color })}
+                            className={searchSupportCard()}
                             onClick={() => {
                                 router.push(
                                     `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
@@ -338,7 +314,7 @@ export default function Root() {
                             </div>
                         </div>
                         <div
-                            className={searchSupportCard({ color: color })}
+                            className={searchSupportCard()}
                             onClick={() => {
                                 const queryParams = new URLSearchParams(
                                     nextQueryParams
@@ -356,7 +332,7 @@ export default function Root() {
                                 <div>by @Ucho-ten</div>
                             </div>
                         </div>
-                        <div className={searchSupportCard({ color: color })}>
+                        <div className={searchSupportCard()}>
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
                                 <div>test</div>
@@ -378,7 +354,6 @@ export default function Root() {
                     itemContent={(index, item) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
@@ -406,7 +381,6 @@ export default function Root() {
                     itemContent={(index, data) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: data || null,
@@ -439,7 +413,6 @@ export default function Root() {
                                 isDummyHeader: index === 0,
                                 actor: null,
                                 skeleton: true,
-                                color: color,
                             }}
                         />
                     )}
@@ -472,7 +445,6 @@ export default function Root() {
                                         }?${nextQueryParams.toString()}`
                                     )
                                 },
-                                color: color,
                             }}
                         />
                     )}
@@ -494,16 +466,13 @@ interface UserCellProps {
     onClick?: () => void
     skeleton?: boolean
     //index?: number
-    color: string
 }
 
 const UserCell = ({
     isDummyHeader,
     actor,
     onClick,
-    skeleton,
-    //index,
-    color,
+    skeleton, //index,
 }: UserCellProps) => {
     const { userCard } = layout()
 
@@ -516,13 +485,13 @@ const UserCell = ({
             //key={`search-actor-${!skeleton ? actor.did : index}`}
             onClick={onClick}
             //@ts-ignore
-            className={`${userCard({ color: color })}`}
+            className={`${userCard()}`}
             style={{ cursor: skeleton ? "default" : "pointer" }}
         >
             <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
                 {skeleton && (
                     <Skeleton
-                        className={`h-full w-full ${color}`}
+                        className={`h-full w-full`}
                         style={{ borderRadius: "10px" }}
                     />
                 )}
@@ -546,7 +515,7 @@ const UserCell = ({
                     <div className={"text-[15px]"}>
                         {skeleton && (
                             <Skeleton
-                                className={`h-[15px] w-[100px] ${color}`}
+                                className={`h-[15px] w-[100px]`}
                                 style={{ borderRadius: "10px" }}
                             />
                         )}
@@ -555,7 +524,7 @@ const UserCell = ({
                     <div className={" text-[13px] text-gray-500"}>
                         {skeleton && (
                             <Skeleton
-                                className={`h-[13px] w-[200px] mt-[10px] mb-[10px] ${color}`}
+                                className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
                                 style={{ borderRadius: "10px" }}
                             />
                         )}
@@ -572,7 +541,7 @@ const UserCell = ({
                 >
                     {skeleton && (
                         <Skeleton
-                            className={`h-[13px] w-full mt-[10px] mb-[10px] ${color}`}
+                            className={`h-[13px] w-full mt-[10px] mb-[10px]`}
                             style={{ borderRadius: "10px" }}
                         />
                     )}

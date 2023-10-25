@@ -8,7 +8,6 @@ export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
 interface Props {
     children?: React.ReactNode
-    color: "light" | "dark"
     type?: "Post" | "Reply" | `Quote`
     postData?: any
     ogpData?: any
@@ -16,7 +15,7 @@ interface Props {
 }
 
 export const Linkcard: React.FC<Props> = (props: Props) => {
-    const { color, type, postData, ogpData, skeleton } = props
+    const { type, postData, ogpData, skeleton } = props
     const {
         LinkCard,
         LinkCardThumbnailContainer,
@@ -44,17 +43,9 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 onMouseUp={(e) => e.stopPropagation()}
                 className={"w-full"}
             >
-                <div
-                    className={LinkCard({
-                        color: color,
-                    })}
-                >
+                <div className={LinkCard()}>
                     {generatedURL && (
-                        <div
-                            className={LinkCardThumbnailContainer({
-                                color: color,
-                            })}
-                        >
+                        <div className={LinkCardThumbnailContainer()}>
                             {!skeleton ? (
                                 <img
                                     src={generatedURL}
@@ -85,17 +76,11 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                         }`}
                     >
                         <div className="w-full min-w-0">
-                            <div
-                                className={LinkCardTitle({
-                                    color: color,
-                                })}
-                            >
+                            <div className={LinkCardTitle()}>
                                 {ogpData && (ogpData?.title || "No Title")}
                             </div>
                             <div
-                                className={LinkCardDescription({
-                                    color: color,
-                                })}
+                                className={LinkCardDescription()}
                                 style={{
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: "vertical",
@@ -106,11 +91,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                 {ogpData &&
                                     (ogpData?.description || "No Description")}
                             </div>
-                            <div
-                                className={LinkCardSiteName({
-                                    color: color,
-                                })}
-                            >
+                            <div className={LinkCardSiteName()}>
                                 <div className="text-gray-400">
                                     {
                                         ogpData?.uri.match(

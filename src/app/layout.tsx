@@ -65,6 +65,7 @@ export default function RootLayout({
                 }}
                 suppressHydrationWarning
             >
+                <script src="noflash.js" />
                 <Providers>
                     <AppConatiner>{children}</AppConatiner>
                 </Providers>

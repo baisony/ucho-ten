@@ -16,14 +16,12 @@ import { useTranslation } from "react-i18next"
 export interface FeedPageProps {
     isActive: boolean
     feedKey: string
-    color: "light" | "dark"
     disableSlideVerticalScroll: boolean
     now?: Date
 }
 
 const FeedPage = ({
     feedKey,
-    color,
     now,
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
@@ -327,7 +325,6 @@ const FeedPage = ({
                     itemContent={(index, item) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
@@ -357,7 +354,6 @@ const FeedPage = ({
                     itemContent={(index, item) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: item.post || null,

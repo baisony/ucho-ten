@@ -2,23 +2,11 @@ import { tv } from "@nextui-org/react"
 
 export const viewSettingsPage = tv({
     slots: {
-        background: "",
-        accordion: "",
-        button: "",
+        background: "bg-white text-black dark:bg-[#181818] dark:text-white",
+        accordion: "text-black dark:text-white",
+        button: "text-black dark:text-white",
     },
     variants: {
-        color: {
-            light: {
-                background: "bg-white text-black",
-                accordion: "light text-black",
-                button: "light text-black",
-            },
-            dark: {
-                background: "bg-[#181818] text-white",
-                accordion: "dark text-white ",
-                button: "dark text-white",
-            },
-        },
         isMobile: {
             true: {
                 background: "",
