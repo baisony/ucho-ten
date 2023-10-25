@@ -11,7 +11,7 @@ import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
 //import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
-import { filterDisplayPosts } from "@/app/_lib/feed/filteredDisplayPosts"
+import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
