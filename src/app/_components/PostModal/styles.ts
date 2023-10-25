@@ -6,11 +6,11 @@ export const postModal = tv({
         backgroundColor: "w-full h-full bg-[#000000] bg-opacity-10 absolute",
 
         PostModal:
-            "w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative bg-opacity-70 bg-[#DADADA] text-white dark:bg-[#2C2C2C] text-[#D7D7D7]",
+            "text-white dark:text-[#D7D7D7]　w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative bg-opacity-70 bg-[#DADADA] dark:bg-[#2C2C2C]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
-            "w-full h-full text-center text-base font-medium fontSize-[16px] items-center flex justify-center",
+            "w-full h-full text-center text-base font-medium fontSize-[16px] items-center flex justify-center text-white",
         headerPostButton: "right-[8px]",
 
         content: "w-full h-[calc(100%-86px)] overflow-y-scroll",
@@ -45,7 +45,8 @@ export const postModal = tv({
 
         footer: "w-full h-[43px] absolute bottom-0 select-none bg-[#DADADA] dark:bg-[#2C2C2C]",
         footerTooltip: "h-full w-full flex justify-left items-left",
-        footerTooltipStyle: "h-[20px] relative ml-7　mt-3 cursor-pointer",
+        footerTooltipStyle:
+            "h-[20px] relative ml-7　mt-3 cursor-pointer text-white",
         footerCharacterCount:
             "h-full w-full flex justify-end items-center mr-5",
         footerCharacterCountText: "text-[16px]",
