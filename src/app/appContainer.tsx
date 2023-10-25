@@ -541,13 +541,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const mediaQueryLlistener = (e: any) => {
-            if (
-                JSON.parse(localStorage.getItem("appearanceColor")) === "system"
-            ) {
-                if (e.matches) {
-                    document.documentElement.classList.add("dark")
-                } else {
-                    document.documentElement.classList.remove("dark")
+            const appearanceColor = localStorage.getItem("appearanceColor")
+
+            if (appearanceColor) {
+                const parsedAppearanceColor = JSON.parse(appearanceColor)
+                if (parsedAppearanceColor === "system") {
+                    if (e.matches) {
+                        document.documentElement.classList.add("dark")
+                    } else {
+                        document.documentElement.classList.remove("dark")
+                    }
                 }
             }
         }
