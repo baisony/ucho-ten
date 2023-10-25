@@ -617,11 +617,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         {shouldFillPageBackground && (
                             <div className="absolute top-0 left-0 flex justify-center w-full h-full">
                                 <div
-                                    className={`${
-                                        color === "dark"
-                                            ? "bg-[#2C2C2C]"
-                                            : "bg-white"
-                                    } w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                    className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
                                 />
                             </div>
                         )}
