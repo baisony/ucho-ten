@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Key, useRef } from "react"
+import React, { useState, useEffect, Key, useRef, useMemo } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -151,6 +151,10 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         prevMenuType.current = currentMenuType
     }, [currentMenuType, menuIndex, swiperRef.current])
 
+    const currentMenu = useMemo(() => {
+        return menus[currentMenuType]
+    }, [menus, currentMenuType])
+
     return (
         <main className={Header()}>
             <div className={top()}>
@@ -264,30 +268,28 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 className={bottom()}
                 navigation={true}
             >
-                {menus[currentMenuType] &&
-                    menus[currentMenuType].map(
-                        (menu: HeaderMenu, index: number) => (
-                            <SwiperSlide
-                                key={`view-header-menu-${index}`}
-                                className="pl-3 pr-3"
-                                onClick={() => {
-                                    setMenuIndexChangedByMenu(true)
-                                    setMenuIndex(index)
-                                }}
-                                style={{ width: "fit-content" }}
+                {currentMenu &&
+                    currentMenu.map((menu: HeaderMenu, index: number) => (
+                        <SwiperSlide
+                            key={`view-header-menu-${index}`}
+                            className="pl-3 pr-3"
+                            onClick={() => {
+                                setMenuIndexChangedByMenu(true)
+                                setMenuIndex(index)
+                            }}
+                            style={{ width: "fit-content" }}
+                        >
+                            <div
+                                className={`${
+                                    menuIndex === index
+                                        ? "text-white"
+                                        : "text-[#909090]"
+                                }`}
                             >
-                                <div
-                                    className={`${
-                                        menuIndex === index
-                                            ? "text-white"
-                                            : "text-[#909090]"
-                                    }`}
-                                >
-                                    {menu.displayText}
-                                </div>
-                            </SwiperSlide>
-                        )
-                    )}
+                                {menu.displayText}
+                            </div>
+                        </SwiperSlide>
+                    ))}
             </Swiper>
             {/* {selectedTab === "home" && pinnedFeeds && (
                     <Tabs

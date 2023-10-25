@@ -59,7 +59,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
-    const [, setHeaderMenusByHeader] = useHeaderMenusByHeaderAtom()
+    const [headerMenusByHeader, setHeaderMenusByHeader] =
+        useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
@@ -415,25 +416,33 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             return
         }
 
-        setHeaderMenusByHeader((prevHeaderMenusByHeader) => {
-            const newHeaderMenusByHeader = prevHeaderMenusByHeader
-            const menus: HeaderMenu[] = feedGenerators.map((feed) => {
-                return {
-                    displayText: feed.displayName,
-                    info: feed.uri,
-                }
-            })
+        console.log("feedGenerators", feedGenerators)
 
-            menus.unshift({
-                displayText: "Following",
-                info: "following",
-            })
-
-            newHeaderMenusByHeader.home = menus
-
-            return newHeaderMenusByHeader
+        const newHeaderMenusByHeader = headerMenusByHeader
+        const menus: HeaderMenu[] = feedGenerators.map((feed) => {
+            return {
+                displayText: feed.displayName,
+                info: feed.uri,
+            }
         })
+
+        menus.unshift({
+            displayText: "Following",
+            info: "following",
+        })
+
+        newHeaderMenusByHeader.home = menus
+
+        setHeaderMenusByHeader((prevHeaderMenus) => ({
+            ...prevHeaderMenus,
+            home: menus,
+          }));
+          
     }, [feedGenerators])
+
+    useEffect(() => {
+        console.log("headerMenusByHeader", headerMenusByHeader)
+    }, [headerMenusByHeader])
 
     useEffect(() => {
         if (pathName === "/") {
