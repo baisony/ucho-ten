@@ -452,6 +452,7 @@ export const ViewPostCard = (props: Props) => {
                     result.push(
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
+                                size={"sm"}
                                 className={chip({ color: color })}
                                 startContent={
                                     <Tooltip
@@ -536,6 +537,7 @@ export const ViewPostCard = (props: Props) => {
                     result.push(
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
+                                size={"sm"}
                                 className={chip({ color: color })}
                                 startContent={
                                     <FontAwesomeIcon icon={faHashtag} />
@@ -703,6 +705,7 @@ export const ViewPostCard = (props: Props) => {
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                     onClick={(e) => {
                         e.stopPropagation()
+                        if (isSkeleton) return
                         router.push(
                             `/profile/${postJsonData?.author.did}/post/${
                                 postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
@@ -759,7 +762,7 @@ export const ViewPostCard = (props: Props) => {
                                 ) : (
                                     <>
                                         {postJsonData?.author?.avatar ? (
-                                            <Image
+                                            <img
                                                 src={
                                                     postJsonData?.author?.avatar
                                                 }
@@ -1021,9 +1024,11 @@ export const ViewPostCard = (props: Props) => {
                                     <div
                                         style={{ wordBreak: "break-word" }}
                                         className={`${
-                                            isMobile
-                                                ? `text-[14px]`
-                                                : `text-[15px]`
+                                            !isEmbedToPost
+                                                ? isMobile
+                                                    ? `text-[14px]`
+                                                    : `text-[15px]`
+                                                : `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}
@@ -1069,10 +1074,12 @@ export const ViewPostCard = (props: Props) => {
                                 />
                             )}
                             {embedExternal && (
-                                <Linkcard
-                                    color={color}
-                                    ogpData={embedExternal.external}
-                                />
+                                <div className={"h-full w-full mt-[5px]"}>
+                                    <Linkcard
+                                        color={color}
+                                        ogpData={embedExternal.external}
+                                    />
+                                </div>
                             )}
                             {embedRecord &&
                                 embedRecordViewRecord &&
@@ -1088,11 +1095,10 @@ export const ViewPostCard = (props: Props) => {
                                 <ViewFeedCard color={color} feed={embedFeed} />
                             )}
                         </div>
-                        <div className={PostReactionButtonContainer()}>
-                            <div className={`mr-[12px]`}>
-                                {isMobile &&
-                                    !isEmbedToModal &&
-                                    !isEmbedToPost && (
+                        {!isEmbedToPost && (
+                            <div className={PostReactionButtonContainer()}>
+                                <div className={`mr-[12px]`}>
+                                    {isMobile && !isEmbedToModal && (
                                         <>
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -1137,9 +1143,7 @@ export const ViewPostCard = (props: Props) => {
                                             />
                                         </>
                                     )}
-                                {!isMobile &&
-                                    !isEmbedToModal &&
-                                    !isEmbedToPost && (
+                                    {!isMobile && !isEmbedToModal && (
                                         <>
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -1202,8 +1206,9 @@ export const ViewPostCard = (props: Props) => {
                                             />
                                         </>
                                     )}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </main>
             </div>

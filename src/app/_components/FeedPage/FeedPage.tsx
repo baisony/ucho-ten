@@ -12,7 +12,7 @@ import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
-// import { useFeedsAtom } from "@/app/_atoms/feeds"
+import { useTranslation } from "react-i18next"
 
 export interface FeedPageProps {
     isActive: boolean
@@ -37,6 +37,9 @@ const FeedPage = ({
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
+    // const [wait, setWait] = useState<boolean>(true)
+    // const [refreshKey, setRefreshKey] = useState(0)
+    const { t } = useTranslation()
 
     const cursor = useRef<string>("")
     const pollingCursor = useRef<string>("")
@@ -100,7 +103,7 @@ const FeedPage = ({
 
             if (response.data) {
                 const { feed } = response.data
-                let filteredData =
+                const filteredData =
                     feedKey === "following"
                         ? filterDisplayPosts(feed, agent.session?.did)
                         : feed
@@ -370,16 +373,17 @@ const FeedPage = ({
             {newTimeline.length > 0 && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 top-[120px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px]"
                     }
                 >
                     <div
                         className={
-                            "text-black  bg-blue-50 rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px]"
+                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
                         }
                         onClick={handleRefresh}
                     >
-                        <FontAwesomeIcon icon={faArrowsRotate} /> New Posts
+                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
+                        {t("button.newPosts")}
                     </div>
                 </div>
             )}

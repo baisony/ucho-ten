@@ -436,8 +436,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         setHeaderMenusByHeader((prevHeaderMenus) => ({
             ...prevHeaderMenus,
             home: menus,
-          }));
-          
+        }))
     }, [feedGenerators])
 
     useEffect(() => {
@@ -595,7 +594,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                         color === "dark"
                                             ? "bg-[#2C2C2C]"
                                             : "bg-white"
-                                    } w-full max-w-[600px] mt-[100px] h-[calc(100%-100px)]`}
+                                    } w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
                                 />
                             </div>
                         )}

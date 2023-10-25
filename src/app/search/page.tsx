@@ -510,7 +510,7 @@ const UserCell = ({
     const { userCard } = layout()
 
     if (isDummyHeader) {
-        return <div style={{ height: "100px" }} />
+        return <div className={"md:h-[100px] h-[85px]"} />
     }
 
     return (

@@ -360,7 +360,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     const { isDummyHeader, userProfileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div style={{ height: "100px" }} />
+        return <div className={"md:h-[100px] h-[85px]"} />
     }
 
     if (userProfileProps) {
@@ -516,6 +516,7 @@ const UserProfileComponent = ({
                         const url = word.replace(/https?:\/\//, "") // http://またはhttps://を削除
                         return (
                             <Chip
+                                size={"sm"}
                                 className={color}
                                 variant="faded"
                                 key={i + "_" + j}
@@ -554,6 +555,7 @@ const UserProfileComponent = ({
                         }
                         return (
                             <Chip
+                                size={"sm"}
                                 key={i + "_" + j}
                                 className={`${color} cursor-pointer`}
                                 variant="faded"

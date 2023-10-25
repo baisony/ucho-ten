@@ -50,7 +50,11 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                     })}
                 >
                     {generatedURL && (
-                        <div className={LinkCardThumbnailContainer()}>
+                        <div
+                            className={LinkCardThumbnailContainer({
+                                color: color,
+                            })}
+                        >
                             {!skeleton ? (
                                 <img
                                     src={generatedURL}

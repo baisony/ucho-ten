@@ -318,6 +318,7 @@ export default function Root() {
                     result.push(
                         <span>
                             <Chip
+                                size={"sm"}
                                 className={color}
                                 startContent={
                                     <Tooltip
@@ -384,6 +385,7 @@ export default function Root() {
                     result.push(
                         <span>
                             <Chip
+                                size={"sm"}
                                 className={color}
                                 startContent={
                                     <FontAwesomeIcon icon={faHashtag} />
@@ -610,50 +612,250 @@ export default function Root() {
                     )}
                     <div className={AuthorPost({ color: color })}>
                         <div className={Author()}>
-                            <div
-                                className={AuthorIcon()}
-                                onClick={() => {
-                                    router.push(
-                                        `/profile/${
-                                            post.post.author.did
-                                        }?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                {post.post.author?.avatar ? (
-                                    <img src={post.post.author?.avatar} />
-                                ) : (
-                                    <FontAwesomeIcon
-                                        className={`h-full w-full`}
-                                        icon={faUser}
-                                    />
-                                )}
+                            <div className={"flex items-center"}>
+                                <div
+                                    className={AuthorIcon()}
+                                    onClick={() => {
+                                        router.push(
+                                            `/profile/${
+                                                post.post.author.did
+                                            }?${nextQueryParams.toString()}`
+                                        )
+                                    }}
+                                >
+                                    {post.post.author?.avatar ? (
+                                        <img src={post.post.author?.avatar} />
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            className={`h-full w-full`}
+                                            icon={faUser}
+                                        />
+                                    )}
+                                </div>
+                                <div>
+                                    <div
+                                        className={AuthorDisplayName()}
+                                        onClick={() => {
+                                            router.push(
+                                                `/profile/${
+                                                    post.post.author.did
+                                                }?${nextQueryParams.toString()}`
+                                            )
+                                        }}
+                                    >
+                                        {post.post.author?.displayName}
+                                    </div>
+                                    <div
+                                        className={AuthorHandle()}
+                                        onClick={() => {
+                                            router.push(
+                                                `/profile/${
+                                                    post.post.author.did
+                                                }?${nextQueryParams.toString()}`
+                                            )
+                                        }}
+                                    >
+                                        {post.post.author?.handle}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <div
-                                    className={AuthorDisplayName()}
-                                    onClick={() => {
-                                        router.push(
-                                            `/profile/${
-                                                post.post.author.did
-                                            }?${nextQueryParams.toString()}`
-                                        )
-                                    }}
+                            <div
+                                className={
+                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center"
+                                }
+                            >
+                                <Dropdown
+                                    className={dropdown({ color: color })}
                                 >
-                                    {post.post.author?.displayName}
-                                </div>
-                                <div
-                                    className={AuthorHandle()}
-                                    onClick={() => {
-                                        router.push(
-                                            `/profile/${
-                                                post.post.author.did
-                                            }?${nextQueryParams.toString()}`
-                                        )
-                                    }}
-                                >
-                                    {post.post.author?.handle}
-                                </div>
+                                    <DropdownTrigger>
+                                        <FontAwesomeIcon
+                                            icon={faEllipsis}
+                                            className={"md:h-[20px] h-[10px]"}
+                                        />
+                                    </DropdownTrigger>
+                                    <DropdownMenu>
+                                        <DropdownSection
+                                            title="Actions"
+                                            showDivider
+                                        >
+                                            <DropdownItem
+                                                key="share"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={
+                                                            faArrowUpFromBracket
+                                                        }
+                                                    />
+                                                }
+                                            >
+                                                {t("pages.postOnlyPage.share")}
+                                            </DropdownItem>
+                                            {post.post.record?.text && (
+                                                <DropdownItem
+                                                    key="translate"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faLanguage}
+                                                        />
+                                                    }
+                                                    onClick={async () => {
+                                                        setIsTranslated(true)
+                                                        setViewTranslatedText(
+                                                            true
+                                                        )
+                                                        const res = await fetch(
+                                                            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
+                                                                translateTo[0]
+                                                                    ? translateTo[0]
+                                                                    : `auto`
+                                                            }&dt=t&q=` +
+                                                                encodeURIComponent(
+                                                                    post.post
+                                                                        .record
+                                                                        .text
+                                                                )
+                                                        )
+                                                        if (
+                                                            res.status === 200
+                                                        ) {
+                                                            const json =
+                                                                await res.json()
+                                                            if (
+                                                                json[0] !==
+                                                                undefined
+                                                            ) {
+                                                                const combinedText =
+                                                                    json[0].reduce(
+                                                                        (
+                                                                            acc: string,
+                                                                            item: any[]
+                                                                        ) => {
+                                                                            if (
+                                                                                item[0]
+                                                                            ) {
+                                                                                return (
+                                                                                    acc +
+                                                                                    item[0]
+                                                                                )
+                                                                            }
+                                                                            return acc
+                                                                        },
+                                                                        ""
+                                                                    )
+                                                                setTranslatedText(
+                                                                    combinedText
+                                                                )
+                                                            }
+                                                        } else {
+                                                            setTranslateError(
+                                                                true
+                                                            )
+                                                        }
+                                                    }}
+                                                >
+                                                    {t(
+                                                        "pages.postOnlyPage.translate"
+                                                    )}
+                                                </DropdownItem>
+                                            )}
+                                        </DropdownSection>
+                                        <DropdownSection
+                                            title="Copy"
+                                            showDivider={isPostMine}
+                                        >
+                                            <DropdownItem
+                                                key="json"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faCode}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(
+                                                        JSON.stringify(
+                                                            post.post
+                                                        )
+                                                    )
+                                                }}
+                                            >
+                                                {t(
+                                                    "pages.postOnlyPage.copyJSON"
+                                                )}
+                                            </DropdownItem>
+                                            <DropdownItem
+                                                key="uri"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faU}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(
+                                                        atUri
+                                                    )
+                                                }}
+                                            >
+                                                {t(
+                                                    "pages.postOnlyPage.copyURL"
+                                                )}
+                                            </DropdownItem>
+                                            <DropdownItem
+                                                key="did"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faUser}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(
+                                                        post.post.author.did
+                                                    )
+                                                }}
+                                            >
+                                                {t(
+                                                    "pages.postOnlyPage.copyDID"
+                                                )}
+                                            </DropdownItem>
+                                        </DropdownSection>
+                                        <DropdownSection title="Danger zone">
+                                            {agent?.session?.did !==
+                                            post.post.author.did ? (
+                                                <DropdownItem
+                                                    key="delete"
+                                                    className="text-danger"
+                                                    color="danger"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faFlag}
+                                                        />
+                                                    }
+                                                    onClick={() => {
+                                                        onOpenReport()
+                                                    }}
+                                                >
+                                                    {t(
+                                                        "pages.postOnlyPage.report"
+                                                    )}
+                                                </DropdownItem>
+                                            ) : (
+                                                <DropdownItem
+                                                    key="delete"
+                                                    className="text-danger"
+                                                    color="danger"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faTrash}
+                                                        />
+                                                    }
+                                                >
+                                                    {t(
+                                                        "pages.postOnlyPage.delete"
+                                                    )}
+                                                </DropdownItem>
+                                            )}
+                                        </DropdownSection>
+                                    </DropdownMenu>
+                                </Dropdown>
                             </div>
                         </div>
                         <div className={PostContent()}>
@@ -823,173 +1025,6 @@ export default function Root() {
                                     handleBookmark()
                                 }}
                             />
-                            <Dropdown className={dropdown({ color: color })}>
-                                <DropdownTrigger>
-                                    <FontAwesomeIcon
-                                        icon={faEllipsis}
-                                        className={ReactionButton()}
-                                    />
-                                </DropdownTrigger>
-                                <DropdownMenu>
-                                    <DropdownSection
-                                        title="Actions"
-                                        showDivider
-                                    >
-                                        <DropdownItem
-                                            key="share"
-                                            startContent={
-                                                <FontAwesomeIcon
-                                                    icon={faArrowUpFromBracket}
-                                                />
-                                            }
-                                        >
-                                            {t("pages.postOnlyPage.share")}
-                                        </DropdownItem>
-                                        {post.post.record?.text && (
-                                            <DropdownItem
-                                                key="translate"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faLanguage}
-                                                    />
-                                                }
-                                                onClick={async () => {
-                                                    setIsTranslated(true)
-                                                    setViewTranslatedText(true)
-                                                    const res = await fetch(
-                                                        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
-                                                            translateTo[0]
-                                                                ? translateTo[0]
-                                                                : `auto`
-                                                        }&dt=t&q=` +
-                                                            encodeURIComponent(
-                                                                post.post.record
-                                                                    .text
-                                                            )
-                                                    )
-                                                    if (res.status === 200) {
-                                                        const json =
-                                                            await res.json()
-                                                        if (
-                                                            json[0] !==
-                                                            undefined
-                                                        ) {
-                                                            const combinedText =
-                                                                json[0].reduce(
-                                                                    (
-                                                                        acc: string,
-                                                                        item: any[]
-                                                                    ) => {
-                                                                        if (
-                                                                            item[0]
-                                                                        ) {
-                                                                            return (
-                                                                                acc +
-                                                                                item[0]
-                                                                            )
-                                                                        }
-                                                                        return acc
-                                                                    },
-                                                                    ""
-                                                                )
-                                                            setTranslatedText(
-                                                                combinedText
-                                                            )
-                                                        }
-                                                    } else {
-                                                        setTranslateError(true)
-                                                    }
-                                                }}
-                                            >
-                                                {t(
-                                                    "pages.postOnlyPage.translate"
-                                                )}
-                                            </DropdownItem>
-                                        )}
-                                    </DropdownSection>
-                                    <DropdownSection
-                                        title="Copy"
-                                        showDivider={isPostMine}
-                                    >
-                                        <DropdownItem
-                                            key="json"
-                                            startContent={
-                                                <FontAwesomeIcon
-                                                    icon={faCode}
-                                                />
-                                            }
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(
-                                                    JSON.stringify(post.post)
-                                                )
-                                            }}
-                                        >
-                                            {t("pages.postOnlyPage.copyJSON")}
-                                        </DropdownItem>
-                                        <DropdownItem
-                                            key="uri"
-                                            startContent={
-                                                <FontAwesomeIcon icon={faU} />
-                                            }
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(
-                                                    atUri
-                                                )
-                                            }}
-                                        >
-                                            {t("pages.postOnlyPage.copyURL")}
-                                        </DropdownItem>
-                                        <DropdownItem
-                                            key="did"
-                                            startContent={
-                                                <FontAwesomeIcon
-                                                    icon={faUser}
-                                                />
-                                            }
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(
-                                                    post.post.author.did
-                                                )
-                                            }}
-                                        >
-                                            {t("pages.postOnlyPage.copyDID")}
-                                        </DropdownItem>
-                                    </DropdownSection>
-                                    <DropdownSection title="Danger zone">
-                                        {agent?.session?.did !==
-                                        post.post.author.did ? (
-                                            <DropdownItem
-                                                key="delete"
-                                                className="text-danger"
-                                                color="danger"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faFlag}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    onOpenReport()
-                                                }}
-                                            >
-                                                {t("pages.postOnlyPage.report")}
-                                            </DropdownItem>
-                                        ) : (
-                                            <DropdownItem
-                                                key="delete"
-                                                className="text-danger"
-                                                color="danger"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faTrash}
-                                                    />
-                                                }
-                                            >
-                                                {t("pages.postOnlyPage.delete")}
-                                            </DropdownItem>
-                                        )}
-                                    </DropdownSection>
-                                </DropdownMenu>
-                            </Dropdown>
                         </div>
                     </div>
                     {post.replies && (

@@ -163,7 +163,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     variant="light"
                     startContent={
                         <FontAwesomeIcon
-                            className={"h-[20px]"}
+                            className={"md:h-[20px] h-[18px]"}
                             icon={isRoot === true ? faBars : faChevronLeft}
                         />
                     }
@@ -214,7 +214,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         {searchText && searchText.length > 0 && (
                             <button
                                 className={
-                                    "absolute right-[8px] top-[8px] bg-black bg-opacity-30 rounded-full h-[25px] w-[25px] flex items-center justify-center"
+                                    "absolute md:right-[8px] md:top-[8px] md:h-[25px] md:w-[25px] right-[10px] top-[10px] h-[18px] w-[18px] bg-black bg-opacity-30 rounded-full flex items-center justify-center"
                                 }
                                 onClick={() => {
                                     setSearchText("")
@@ -222,7 +222,9 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 }}
                             >
                                 <FontAwesomeIcon
-                                    className={"h-[20px]"}
+                                    className={
+                                        "md:h-[20px] md:w-[20px] h-[10px] w-[10px] text-white"
+                                    }
                                     icon={faXmark}
                                 />
                             </button>
@@ -231,7 +233,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 )}
                 {!showSearchInput && (
                     <Image
-                        className={"w-[145px] cursor-pointer"}
+                        className={"md:h-[24px] h-[20px] cursor-pointer"}
                         src={logoImage}
                         alt={"logo"}
                         onClick={() => {
@@ -284,7 +286,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                     menuIndex === index
                                         ? "text-white"
                                         : "text-[#909090]"
-                                }`}
+                                } md:text-[15px] text-[13px] md:block flex items-center h-full`}
                             >
                                 {menu.displayText}
                             </div>
