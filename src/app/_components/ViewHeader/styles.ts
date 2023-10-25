@@ -7,21 +7,12 @@ export const viewHeader = tv({
         HeaderContentTitle: "",
         HeaderContent:
             "w-full h-[100%-86px] max-h-[400px] relative flex items-center flex-wrap overflow-y-scroll",
-        HeaderInputArea: "h-full w-full outline-none pl-[20px] pr-[40px]",
+        HeaderInputArea:
+            "h-full w-full outline-none pl-[20px] pr-[40px] text-black dark:text-white dark:bg-[#1C1C1C]",
         top: "md:h-[73px] h-[55px] w-full flex justify-center items-center",
         bottom: "md:h-[27px] h-[30px] relative bottom-0 font-bold align-start overflow-x-scroll overflow-y-hidden",
     },
     variants: {
-        color: {
-            light: {
-                footer: "bg-[#DADADA]",
-                HeaderInputArea: "text-black",
-            },
-            dark: {
-                footer: "bg-[#2C2C2C]",
-                HeaderInputArea: "text-white bg-[#1C1C1C]",
-            },
-        },
         isMobile: {
             true: {
                 background: "",

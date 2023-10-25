@@ -16,17 +16,6 @@ export const createLoginPage = tv({
             "w-80 h-14 bottom-[0px] absolute bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center",
     },
     variants: {
-        color: {
-            light: {
-                background: "",
-                container: "",
-            },
-            dark: {
-                //background: 'bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]',
-                background: "bg-black",
-                container: "",
-            },
-        },
         isMobile: {
             true: {
                 background: "",

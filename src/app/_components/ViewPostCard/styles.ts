@@ -2,15 +2,16 @@ import { tv } from "@nextui-org/react"
 
 export const viewPostCard = tv({
     slots: {
-        PostCard: "w-full min-w-[350px] border-b-[1px] ",
+        PostCard:
+            "w-full min-w-[350px] border-b-[1px] bg-white text-black border-[#E8E8E8] dark:bg-[#2C2C2C] dark:text-[#D7D7D7] dark:border-[#181818]",
         PostCardContainer: "pl-[8px] pt-[11px] w-full md:pb-[24px] pb-[16px]",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
         PostAuthorIcon: "h-[28px] w-[28px] object-cover hover:cursor-pointer",
         PostAuthorDisplayName:
-            "ml-[9px] hover:cursor-pointer font-[600] max-w-[40%] overflow-hidden text-ellipsis whitespace-nowrap",
+            "text-black dark:text-white ml-[9px] hover:cursor-pointer font-[600] max-w-[40%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostAuthorHandle:
-            "text-[#909090] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
+            "text-[#909090] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
         PostContent: "w-[100%-5px] h-full ml-[25px] mr-[17px]",
@@ -39,34 +40,6 @@ export const viewPostCard = tv({
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
     },
     variants: {
-        color: {
-            light: {
-                PostCard: "bg-white text-black border-[#E8E8E8]",
-                PostAuthorDisplayName: "text-black",
-                LinkCard: "bg-white text-black hover:bg-[#DBDBDB]",
-                LinkCardTitle: "text-black",
-            },
-            dark: {
-                PostCard: "bg-[#2C2C2C] text-[#D7D7D7] border-[#181818]",
-                PostAuthorDisplayName: "text-white",
-                PostAuthorHandle: "text-[#BABABA]",
-                PostCreatedAt: "text-[#B8B8B8]",
-                dropdown: "dark text-white",
-                skeletonIcon: "dark text-white",
-                skeletonName: "dark text-white",
-                skeletonHandle: "dark text-white",
-                skeletonText1line: "dark text-white",
-                skeletonText2line: "dark text-white",
-                chip: "dark ",
-                LinkCard: "hover:bg-[#1C1C1C]",
-                LinkCardTitle: "text-white",
-                LinkCardDescription: "text-gray-200",
-                LinkCardSiteName: "",
-            },
-            null: {
-                PostCard: " bg-transparent",
-            },
-        },
         isMobile: {
             true: {
                 PostModal: "rounded-none",

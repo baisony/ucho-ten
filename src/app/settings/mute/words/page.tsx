@@ -108,20 +108,6 @@ export default function Root() {
         }
     }
 
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
     const handleMuteAccountIncludesFollowingChange = (value: boolean) => {
         setSelectedMuteWord((prevSelectedMuteWord) => {
             if (!prevSelectedMuteWord) return
@@ -461,7 +447,7 @@ export default function Root() {
                                                     <Table
                                                         removeWrapper
                                                         aria-label={`Mute Words in ${category}`}
-                                                        className={`${color} w-full`}
+                                                        className={` w-full`}
                                                         hideHeader
                                                         onRowAction={(key) => {
                                                             setSelectedMuteWord(

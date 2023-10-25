@@ -2,24 +2,11 @@ import { tv } from "@nextui-org/react"
 
 export const layout = tv({
     slots: {
-        background: "",
+        background: "bg-white dark:bg-[#2C2C2C]",
         FeedCard:
-            "flex items-center w-full h-[80px] justify-between select-none cursor-pointer",
-        modal: "",
+            "flex items-center w-full h-[80px] justify-between select-none cursor-pointer bg-white text-black dark:bg-[#2C2C2C] dark:text-white",
     },
     variants: {
-        color: {
-            light: {
-                background: "bg-white",
-                FeedCard: "bg-white text-black",
-                modal: "light text-black",
-            },
-            dark: {
-                background: "bg-[#2C2C2C]",
-                FeedCard: "bg-[#2C2C2C] text-white",
-                modal: "dark text-white",
-            },
-        },
         isMobile: {
             true: {
                 background: "",

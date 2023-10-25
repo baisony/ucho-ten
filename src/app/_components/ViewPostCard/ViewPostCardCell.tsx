@@ -6,7 +6,6 @@ import { ViewPostCard } from "."
 
 export interface ViewPostCardCellProps {
     className?: string
-    color: "light" | "dark"
     isMobile?: boolean
     uploadImageAvailable?: boolean
     isDragActive?: boolean

@@ -23,7 +23,6 @@ import {
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { isMobile } from "react-device-detect"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import {
@@ -48,8 +47,6 @@ export default function Root() {
 
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
-    const [appearanceColor] = useAppearanceColor()
-
     //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
@@ -77,27 +74,6 @@ export default function Root() {
     const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
-
-    const color = darkMode ? "dark" : "light"
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -311,7 +287,6 @@ export default function Root() {
         if (feedInfo) {
             const feedProps: FeedProps = {
                 feedInfo,
-                color,
                 isSubscribed,
                 isPinned,
                 onClick: handleSubscribeClick,
@@ -325,7 +300,6 @@ export default function Root() {
             data.push(feedData)
         } else {
             const feedProps: FeedProps = {
-                color,
                 isSkeleton: true,
             }
 
@@ -339,7 +313,6 @@ export default function Root() {
         if (timeline) {
             const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
                 const postProps: ViewPostCardCellProps = {
-                    color,
                     isMobile,
                     postJson: post.post,
                     now,
@@ -358,7 +331,6 @@ export default function Root() {
             }).map((_) => {
                 const postProps: ViewPostCardCellProps = {
                     isSkeleton: true,
-                    color,
                     isMobile,
                     now,
                     nextQueryParams,
@@ -430,7 +402,6 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
 
 interface FeedProps {
     feedInfo?: any
-    color: "light" | "dark"
     isSubscribed?: boolean
     isPinned?: boolean
     onClick?: () => void
@@ -439,7 +410,6 @@ interface FeedProps {
 
 const FeedHeaderComponent = ({
     feedInfo,
-    color,
     isSubscribed,
     isPinned,
     onClick,
@@ -469,7 +439,7 @@ const FeedHeaderComponent = ({
     } = viewFeedPage()
 
     return (
-        <div className={ProfileContainer({ color: color })}>
+        <div className={ProfileContainer()}>
             <div className={ProfileInfoContainer()}>
                 {!isSkeleton ? (
                     feedInfo.view?.avatar ? (
@@ -485,9 +455,7 @@ const FeedHeaderComponent = ({
                     )
                 ) : (
                     <div className={ProfileImage()}>
-                        <Skeleton
-                            className={`h-full w-full rounded-[10px] ${color}`}
-                        />
+                        <Skeleton className={`h-full w-full rounded-[10px] `} />
                     </div>
                 )}
                 <div className={Buttons()}>
@@ -507,14 +475,12 @@ const FeedHeaderComponent = ({
                             />
                         )}
                     </div>
-                    <Dropdown className={dropdown({ color: color })}>
+                    <Dropdown>
                         <DropdownTrigger>
                             <div className={ProfileCopyButton()}>
                                 <FontAwesomeIcon
                                     icon={faArrowUpFromBracket}
-                                    className={ShareButton({
-                                        color: color,
-                                    })}
+                                    className={ShareButton()}
                                 />
                             </div>
                         </DropdownTrigger>
@@ -536,7 +502,7 @@ const FeedHeaderComponent = ({
                         />
                     </div>
                     <Button
-                        className={FollowButton({ color: color })}
+                        className={FollowButton()}
                         onMouseLeave={() => {
                             setOnHoverButton(false)
                         }}
@@ -553,12 +519,12 @@ const FeedHeaderComponent = ({
                             : t("button.subscribe")}
                     </Button>
                 </div>
-                <div className={ProfileDisplayName({ color: color })}>
+                <div className={ProfileDisplayName()}>
                     {!isSkeleton ? (
                         feedInfo.view?.displayName
                     ) : (
                         <Skeleton
-                            className={`h-[24px] w-[300px] rounded-[10px] ${color}`}
+                            className={`h-[24px] w-[300px] rounded-[10px] `}
                         />
                     )}
                 </div>
@@ -569,7 +535,7 @@ const FeedHeaderComponent = ({
                         }`
                     ) : (
                         <Skeleton
-                            className={`h-3 w-[80px] rounded-[10px] mt-[5px] ${color}`}
+                            className={`h-3 w-[80px] rounded-[10px] mt-[5px] `}
                         />
                     )}
                 </div>
@@ -579,13 +545,13 @@ const FeedHeaderComponent = ({
                     ) : (
                         <>
                             <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] ${color}`}
+                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
                             />
                             <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] ${color}`}
+                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
                             />
                             <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] ${color}`}
+                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
                             />
                         </>
                     )}

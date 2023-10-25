@@ -8,7 +8,7 @@ export const viewProfilePage = tv({
         HeaderImageContainer: "w-full h-[150px] relative",
         ProfileHeaderImage: "h-full w-full object-cover",
         ProfileInfoContainer:
-            "w-full h-full relative pl-[13px] pr-[8px] pb-[16px]",
+            "w-full h-full relative pl-[13px] pr-[8px] pb-[16px] text-black bg-white dark:bg-black dark:text-white",
         ProfileImage: "h-[80px] w-[80px] rounded-[10px] top-[-24px] absolute",
         ProfileDisplayName: "font-black text-[24px]",
         ProfileHandle: "",
@@ -17,28 +17,12 @@ export const viewProfilePage = tv({
             "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[1px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
         ProfileActionButton:
             "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[1px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
-        FollowButton: "mr-[8px] ml-[10px] ",
+        FollowButton: "mr-[8px] ml-[10px] text-black dark:text-white",
         Buttons: "flex justify-end h-[56px] w-full flex items-center",
         PropertyButton: "",
         PostContainer: "w-full h-full",
-
-        dropdown: "",
     },
     variants: {
-        color: {
-            light: {
-                background: "",
-                dropdown: "light text-black",
-                ProfileInfoContainer: "text-black bg-white",
-                FollowButton: "text-black light ",
-            },
-            dark: {
-                background: "",
-                dropdown: "dark text-white",
-                ProfileInfoContainer: "text-white bg-black",
-                FollowButton: "text-white dark",
-            },
-        },
         isMobile: {
             true: {
                 background: "",

@@ -3,10 +3,10 @@ import "./_i18n/config" //i18
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import React, {
     useEffect,
+    useLayoutEffect,
+    useMemo,
     useRef,
     useState,
-    useMemo,
-    useLayoutEffect,
 } from "react"
 import { layout } from "@/app/styles"
 import { TabBar } from "@/app/_components/TabBar"
@@ -46,7 +46,7 @@ import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
-import { TabQueryParamValue, isTabQueryParamValue } from "./_types/types"
+import { isTabQueryParamValue, TabQueryParamValue } from "./_types/types"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -539,15 +539,33 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         lngChange(displayLanguage[0])
     }, [displayLanguage])
 
+    useEffect(() => {
+        const mediaQueryLlistener = (e: any) => {
+            if (
+                JSON.parse(localStorage.getItem("appearanceColor")) === "system"
+            ) {
+                if (e.matches) {
+                    document.documentElement.classList.add("dark")
+                } else {
+                    document.documentElement.classList.remove("dark")
+                }
+            }
+        }
+
+        const mql = window.matchMedia("(prefers-color-scheme: dark)")
+        mql.addEventListener("change", mediaQueryLlistener)
+
+        // Clean up the event listener on component unmount
+        return () => {
+            mql.removeEventListener("change", mediaQueryLlistener)
+        }
+    }, [])
+
     return (
         <HistoryContext.Provider value={history}>
             <div
                 // className={`${noto.className}`}
-                className={`${
-                    color === "light"
-                        ? "bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)]"
-                        : "bg-cover bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]"
-                }`}
+                className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
             >
                 <div id="burger-outer-container">
                     {isMobile ? (
@@ -562,7 +580,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             }}
                         >
                             <ViewSideBar
-                                color={color}
                                 isSideBarOpen={drawerOpen}
                                 setSideBarOpen={setSideBarOpen}
                                 isMobile={isMobile}
@@ -580,7 +597,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             }}
                         >
                             <ViewSideBar
-                                color={color}
                                 isSideBarOpen={drawerOpen}
                                 setSideBarOpen={setSideBarOpen}
                                 isMobile={isMobile}
@@ -617,7 +633,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             {showTabBar && (
                                 <ViewHeader
                                     isMobile={isMobile}
-                                    color={color}
                                     //page={page}
                                     //tab={selectedTab}
                                     setSideBarOpen={setSideBarOpen}
@@ -642,7 +657,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             </div>
                             {showTabBar && (
                                 <TabBar
-                                    color={color}
                                     isMobile={isMobile}
                                     //selected={selectedTab}
                                     //setValue={setSelectedTab}

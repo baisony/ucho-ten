@@ -50,7 +50,6 @@ import {
     DropdownMenu,
     DropdownSection,
     DropdownTrigger,
-    Image,
     Modal,
     ModalContent,
     ScrollShadow,
@@ -73,7 +72,6 @@ import { useTranslation } from "react-i18next"
 
 interface Props {
     // className?: string
-    color: "light" | "dark"
     isMobile?: boolean
     // uploadImageAvailable?: boolean
     isDragActive?: boolean
@@ -92,7 +90,6 @@ interface Props {
 export const ViewPostCard = (props: Props) => {
     const {
         // className,
-        color,
         isMobile,
         // uploadImageAvailable,
         // open,
@@ -139,20 +136,6 @@ export const ViewPostCard = (props: Props) => {
         PostAuthorDisplayName,
         PostAuthorHandle,
         PostCreatedAt,
-        dropdown,
-        skeletonIcon,
-        skeletonName,
-        skeletonHandle,
-        skeletonText1line,
-        skeletonText2line,
-        chip,
-        // LinkCard,
-        // LinkCardThumbnailContainer,
-        // LinkCardThumbnail,
-        // LinkCardContent,
-        // LinkCardTitle,
-        // LinkCardDescription,
-        // LinkCardSiteName,
     } = viewPostCard()
     const quoteCardStyles = viewQuoteCard()
 
@@ -453,7 +436,6 @@ export const ViewPostCard = (props: Props) => {
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
                                 size={"sm"}
-                                className={chip({ color: color })}
                                 startContent={
                                     <Tooltip
                                         showArrow={true}
@@ -538,7 +520,6 @@ export const ViewPostCard = (props: Props) => {
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
                                 size={"sm"}
-                                className={chip({ color: color })}
                                 startContent={
                                     <FontAwesomeIcon icon={faHashtag} />
                                 }
@@ -661,7 +642,7 @@ export const ViewPostCard = (props: Props) => {
             <div
                 className={
                     quoteJson
-                        ? quoteCardStyles.PostCardContainer({ color, isMobile })
+                        ? quoteCardStyles.PostCardContainer({ isMobile })
                         : ""
                 }
             >
@@ -674,7 +655,6 @@ export const ViewPostCard = (props: Props) => {
                     <ModalContent>
                         {(onClose) => (
                             <PostModal
-                                color={color}
                                 type={"Reply"}
                                 postData={postJson}
                                 onClose={onClose}
@@ -687,7 +667,6 @@ export const ViewPostCard = (props: Props) => {
                     onOpenChange={onOpenChangeReport}
                     placement={isMobile ? "top" : "center"}
                     className={"z-[100] max-w-[600px]"}
-                    color={color}
                     target={"post"}
                     post={postJson}
                     nextQueryParams={nextQueryParams}
@@ -695,8 +674,8 @@ export const ViewPostCard = (props: Props) => {
                 <main
                     className={`${
                         quoteJson
-                            ? quoteCardStyles.PostCard({ color, isMobile })
-                            : PostCard({ color, isMobile })
+                            ? quoteCardStyles.PostCard({ isMobile })
+                            : PostCard()
                     } ${
                         isEmbedToModal
                             ? `bg-transparent border-none`
@@ -754,11 +733,7 @@ export const ViewPostCard = (props: Props) => {
                                 }}
                             >
                                 {isSkeleton ? (
-                                    <Skeleton
-                                        className={skeletonIcon({
-                                            color: color,
-                                        })}
-                                    />
+                                    <Skeleton />
                                 ) : (
                                     <>
                                         {postJsonData?.author?.avatar ? (
@@ -788,9 +763,6 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             </span>
                             <span
-                                className={PostAuthorDisplayName({
-                                    color: color,
-                                })}
                                 style={{ fontSize: "13px" }}
                                 onClick={(e) => {
                                     e.stopPropagation()
@@ -801,11 +773,7 @@ export const ViewPostCard = (props: Props) => {
                                 }}
                             >
                                 {isSkeleton ? (
-                                    <Skeleton
-                                        className={skeletonName({
-                                            color: color,
-                                        })}
-                                    />
+                                    <Skeleton />
                                 ) : (
                                     <span
                                         className={`${
@@ -820,9 +788,6 @@ export const ViewPostCard = (props: Props) => {
                                 &nbsp;-&nbsp;
                             </div>
                             <span
-                                className={PostAuthorHandle({
-                                    color: color,
-                                })}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -832,11 +797,7 @@ export const ViewPostCard = (props: Props) => {
                                 }}
                             >
                                 {isSkeleton ? (
-                                    <Skeleton
-                                        className={skeletonHandle({
-                                            color: color,
-                                        })}
-                                    />
+                                    <Skeleton />
                                 ) : (
                                     <span
                                         className={`${
@@ -855,11 +816,7 @@ export const ViewPostCard = (props: Props) => {
                                 !isMobile &&
                                 isHover &&
                                 !isSkeleton ? (
-                                    <Dropdown
-                                        className={dropdown({
-                                            color: color,
-                                        })}
-                                    >
+                                    <Dropdown>
                                         <DropdownTrigger>
                                             <FontAwesomeIcon
                                                 icon={faEllipsis}
@@ -992,16 +949,8 @@ export const ViewPostCard = (props: Props) => {
                         <div className={PostContent({ isMobile: isMobile })}>
                             {isSkeleton ? (
                                 <div className="w-full flex flex-col gap-2">
-                                    <Skeleton
-                                        className={skeletonText1line({
-                                            color: color,
-                                        })}
-                                    />
-                                    <Skeleton
-                                        className={skeletonText2line({
-                                            color: color,
-                                        })}
-                                    />
+                                    <Skeleton />
+                                    <Skeleton />
                                 </div>
                             ) : (
                                 <>
@@ -1037,7 +986,6 @@ export const ViewPostCard = (props: Props) => {
                             )}
                             {embedImages && !contentWarning && (
                                 <EmbedImages
-                                    color={color}
                                     embedImages={embedImages}
                                     onImageClick={(index: number) => {
                                         handleImageClick(index)
@@ -1065,7 +1013,6 @@ export const ViewPostCard = (props: Props) => {
                             )}
                             {embedMedia && (
                                 <EmbedMedia
-                                    color={color}
                                     embedMedia={embedMedia}
                                     onImageClick={(index: number) => {
                                         handleImageClick(index)
@@ -1076,7 +1023,6 @@ export const ViewPostCard = (props: Props) => {
                             {embedExternal && (
                                 <div className={"h-full w-full mt-[5px]"}>
                                     <Linkcard
-                                        color={color}
                                         ogpData={embedExternal.external}
                                     />
                                 </div>
@@ -1085,15 +1031,12 @@ export const ViewPostCard = (props: Props) => {
                                 embedRecordViewRecord &&
                                 !embedFeed && (
                                     <ViewPostCard
-                                        color={color}
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
                                     />
                                 )}
-                            {embedFeed && (
-                                <ViewFeedCard color={color} feed={embedFeed} />
-                            )}
+                            {embedFeed && <ViewFeedCard feed={embedFeed} />}
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
@@ -1217,7 +1160,6 @@ export const ViewPostCard = (props: Props) => {
 }
 
 interface EmbedImagesProps {
-    color: "light" | "dark"
     embedImages: AppBskyEmbedImages.View
     onImageClick: (index: number) => void
 }
@@ -1251,7 +1193,6 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
 }
 
 interface EmbedMediaProps {
-    color: "light" | "dark"
     embedMedia: AppBskyEmbedRecordWithMedia.View
     onImageClick: (index: number) => void
     nextQueryParams: URLSearchParams
@@ -1260,7 +1201,6 @@ interface EmbedMediaProps {
 const EmbedMedia = ({
     embedMedia,
     onImageClick,
-    color,
     nextQueryParams,
 }: EmbedMediaProps) => {
     const images = embedMedia.media.images
@@ -1295,7 +1235,6 @@ const EmbedMedia = ({
                 ))}
             </ScrollShadow>
             <ViewQuoteCard
-                color={color}
                 postJson={embedMedia.record.record}
                 nextQueryParams={nextQueryParams}
             />

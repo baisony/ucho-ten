@@ -6,7 +6,7 @@ export const postModal = tv({
         backgroundColor: "w-full h-full bg-[#000000] bg-opacity-10 absolute",
 
         PostModal:
-            "w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative",
+            "w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative bg-opacity-70 bg-[#DADADA] text-white dark:bg-[#2C2C2C] text-[#D7D7D7]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
@@ -43,7 +43,7 @@ export const postModal = tv({
         URLCardDescription: "font-gray mt-[1px] ",
         URLCardLink: "font-gray mt-[1px] text-[#0000FF]",
 
-        footer: "w-full h-[43px] absolute bottom-0 select-none",
+        footer: "w-full h-[43px] absolute bottom-0 select-none bg-[#DADADA] dark:bg-[#2C2C2C]",
         footerTooltip: "h-full w-full flex justify-left items-left",
         footerTooltipStyle: "h-[20px] relative ml-7　mt-3 cursor-pointer",
         footerCharacterCount:
@@ -62,20 +62,6 @@ export const postModal = tv({
         popover: "",
     },
     variants: {
-        color: {
-            light: {
-                background: "",
-                PostModal: "bg-[#DADADA] bg-opacity-70 text-white",
-                footer: "bg-[#DADADA]",
-            },
-            dark: {
-                background: "",
-                PostModal: "bg-[#2C2C2C] bg-opacity-70 text-[#D7D7D7]",
-                footer: "bg-[#2C2C2C]",
-                dropdown: "dark text-white",
-                popover: "dark text-white",
-            },
-        },
         isMobile: {
             true: {
                 PostModal: "rounded-none",
