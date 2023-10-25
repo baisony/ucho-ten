@@ -28,7 +28,6 @@ export type ReportModalProps = {
     onOpenChange?: (open: boolean) => void
     placement?: "top" | "center"
     className?: string
-    color: "light" | "dark"
     target: "post" | "account"
     post?: any
     nextQueryParams: URLSearchParams
@@ -46,7 +45,6 @@ export const ReportModal = (props: ReportModalProps) => {
         onOpenChange,
         placement,
         className,
-        color,
         target,
         post,
         nextQueryParams,
@@ -145,9 +143,6 @@ export const ReportModal = (props: ReportModalProps) => {
             isOpen={isOpen}
             placement={placement}
             onOpenChange={onOpenChange}
-            className={`${className} ${color} ${
-                color === `dark` ? `text-white` : `text-black`
-            }`}
             hideCloseButton
         >
             <ModalContent>
@@ -163,7 +158,6 @@ export const ReportModal = (props: ReportModalProps) => {
                                 }
                             >
                                 <ViewQuoteCard
-                                    color={color}
                                     profile={profile}
                                     nextQueryParams={nextQueryParams}
                                 />

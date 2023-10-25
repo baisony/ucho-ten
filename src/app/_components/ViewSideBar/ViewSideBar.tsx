@@ -43,7 +43,6 @@ import { useTranslation } from "react-i18next"
 // import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 interface Props {
     className?: string
-    color: "light" | "dark"
     isMobile?: boolean
     uploadImageAvailable?: boolean
     isDragActive?: boolean
@@ -55,7 +54,6 @@ interface Props {
 export const ViewSideBar: React.FC<Props> = (props: Props) => {
     const {
         className,
-        color,
         isMobile,
         uploadImageAvailable,
         open,
@@ -323,11 +321,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     }
     return (
         <div>
-            <Modal
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-                className={modal({ color: color })}
-            >
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -466,14 +460,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 {!isLogging ? (
                                                     t("button.signin")
                                                 ) : (
-                                                    <Spinner
-                                                        color={
-                                                            color === "dark"
-                                                                ? "white"
-                                                                : "default"
-                                                        }
-                                                        size={"sm"}
-                                                    />
+                                                    <Spinner size={"sm"} />
                                                 )}
                                             </Button>
                                         </ModalFooter>
@@ -487,7 +474,6 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
             {/* <main className={""}> */}
             <main
                 className={background({
-                    color: color,
                     isMobile: isMobile,
                     isBarOpen: isSideBarOpen,
                 })}
@@ -496,7 +482,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                 }}
             >
                 <div
-                    className={AuthorIconContainer({ color })}
+                    className={AuthorIconContainer()}
                     onClick={() => {
                         if (!agent?.session) return
                         setSideBarOpen(false)
@@ -525,18 +511,18 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         )}
                     </div>
                     <div className={"ml-[12px]"}>
-                        <div className={AuthorDisplayName({ color })}>
+                        <div className={AuthorDisplayName()}>
                             {userProfileDetailed?.displayName ||
                                 userProfileDetailed?.handle}
                         </div>
-                        <div className={AuthorHandle({ color: color })}>
+                        <div className={AuthorHandle()}>
                             @{userProfileDetailed?.handle}
                         </div>
                     </div>
                 </div>
-                <div className={Content({ color })}>
+                <div className={Content()}>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             router.push(
@@ -546,12 +532,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faBookmark}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.bookmark")}</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             router.push(
@@ -561,12 +547,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faVolumeXmark}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.mute")}</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             router.push(`/feeds?${nextQueryParams.toString()}`)
@@ -574,12 +560,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faRss}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.feeds")}</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             if (!agent?.session) return
                             setSideBarOpen(false)
@@ -592,12 +578,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faUser}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>profile</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             router.push(
@@ -607,12 +593,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faHand}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>Contents Filtering</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             router.push(
@@ -622,12 +608,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faGear}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.preferences")}</div>
                     </div>
                     <a
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         href={"https://google.com/"}
                         target={"_blank"}
                         rel="noopener noreferrer"
@@ -637,14 +623,14 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faFlag}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.bugReport")}</div>
                     </a>
                 </div>
-                <div className={Footer({ color })}>
+                <div className={Footer()}>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             router.push(`/about?${nextQueryParams.toString()}`)
@@ -652,12 +638,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faCircleQuestion}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.about")}</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             setOpenModalReason("switching")
@@ -667,12 +653,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faUsers}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.SwitchAccount")}</div>
                     </div>
                     <div
-                        className={NavBarItem({ color })}
+                        className={NavBarItem()}
                         onClick={() => {
                             if (isMobile) {
                                 const res = window.confirm(
@@ -693,7 +679,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     >
                         <FontAwesomeIcon
                             icon={faRightFromBracket}
-                            className={NavBarIcon({ color })}
+                            className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.logout")}</div>
                     </div>

@@ -1,25 +1,22 @@
-import React, { useState, useEffect, Key, useRef, useMemo } from "react"
+import React, { useEffect, useRef, useState, useMemo } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-    faPlus,
-    faChevronLeft,
     faBars,
+    faChevronLeft,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
-import { Button, ScrollShadow } from "@nextui-org/react"
+import { Button } from "@nextui-org/react"
 // import { Tabs, Tab, Chip } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 // import { useAgent } from "@/app/_atoms/agent"
 // import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 // import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 // import Slider, { Settings } from "react-slick"
-
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-//import { Pagination } from "swiper/modules"
 import {
     HeaderMenu,
     HeaderMenuType,
@@ -42,7 +39,6 @@ import { useAtom } from "jotai"
 
 interface Props {
     className?: string
-    color: "light" | "dark"
     isMobile?: boolean
     open?: boolean
     //tab: string //"home" | "search" | "inbox" | "post"
@@ -66,8 +62,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const [currentMenuType] = useCurrentMenuType()
 
     const {
-        //className,
-        color,
+        // className,
         isMobile,
         //open,
         //tab,
@@ -97,8 +92,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         bottom,
         HeaderInputArea,
     } = viewHeader()
-
-    // const AppearanceColor = color
 
     useEffect(() => {
         const search = searchParams.get("word")
@@ -185,7 +178,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     >
                         <input
                             id={"searchBar"}
-                            className={HeaderInputArea({ color: color })}
+                            className={HeaderInputArea()}
                             value={searchText}
                             autoFocus={true}
                             onChange={(e) => {

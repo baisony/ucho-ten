@@ -14,11 +14,9 @@ import {
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
 import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
-import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
-    color: "light" | "dark"
     isMobile?: boolean
     uploadImageAvailable?: boolean
     isDragActive?: boolean
@@ -40,7 +38,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const {
         className,
-        color,
         isMobile,
         uploadImageAvailable,
         open,
@@ -169,7 +166,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
     return (
         <>
             <main
-                className={`${PostCard({ color: color })} ${
+                className={`${PostCard()} ${
                     isEmbedToModal
                         ? `bg-transparent border-none`
                         : `cursor-pointer`
@@ -204,11 +201,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     }}
                                 >
                                     {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonIcon({
-                                                color: color,
-                                            })}
-                                        />
+                                        <Skeleton className={skeletonIcon()} />
                                     ) : (
                                         <>
                                             {postJson &&
@@ -264,9 +257,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     )}
                                 </span>
                                 <span
-                                    className={PostAuthorDisplayName({
-                                        color: color,
-                                    })}
+                                    className={PostAuthorDisplayName()}
                                     style={{ fontSize: "13px" }}
                                     onClick={(e) => {
                                         if (!isEmbedReportModal) return
@@ -279,11 +270,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     }}
                                 >
                                     {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonName({
-                                                color: color,
-                                            })}
-                                        />
+                                        <Skeleton className={skeletonName()} />
                                     ) : (
                                         <span>
                                             {postJson?.author?.displayName}
@@ -295,9 +282,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     &nbsp;-&nbsp;
                                 </div>
                                 <span
-                                    className={PostAuthorHandle({
-                                        color: color,
-                                    })}
+                                    className={PostAuthorHandle()}
                                     onClick={(e) => {
                                         if (!isEmbedReportModal) return
                                         e.preventDefault()
@@ -310,9 +295,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                 >
                                     {isSkeleton ? (
                                         <Skeleton
-                                            className={skeletonHandle({
-                                                color: color,
-                                            })}
+                                            className={skeletonHandle()}
                                         />
                                     ) : (
                                         <span>
@@ -341,14 +324,10 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                 {isSkeleton ? (
                                     <div className="w-full flex flex-col gap-2">
                                         <Skeleton
-                                            className={skeletonText1line({
-                                                color: color,
-                                            })}
+                                            className={skeletonText1line()}
                                         />
                                         <Skeleton
-                                            className={skeletonText2line({
-                                                color: color,
-                                            })}
+                                            className={skeletonText2line()}
                                         />
                                     </div>
                                 ) : (
@@ -415,7 +394,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                             postJson.embed.$type ===
                                                 "app.bsky.embed.external#view" && (
                                                 <Linkcard
-                                                    color={color}
                                                     ogpData={
                                                         postJson.embed.external
                                                     }

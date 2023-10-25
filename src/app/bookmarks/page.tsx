@@ -1,7 +1,6 @@
 "use client"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useEffect, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
@@ -9,30 +8,9 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
 export default function Root() {
     const [agent] = useAgent()
-    const [appearanceColor] = useAppearanceColor()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
     const [timeline, setTimeline] = useState<PostView[]>([])
-    const [darkMode, setDarkMode] = useState(false)
-    const color = darkMode ? "dark" : "light"
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     const fetchBookmarks = async () => {
         if (!agent) {
@@ -67,7 +45,6 @@ export default function Root() {
                         <ViewPostCard
                             key={index}
                             postJson={post}
-                            color={color}
                             nextQueryParams={nextQueryParams}
                         />
                     )

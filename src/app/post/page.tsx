@@ -42,7 +42,6 @@ import Textarea from "react-textarea-autosize" // 追加
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 // import Compressor from "compressorjs"
 import imageCompression, {
     Options as ImageCompressionOptions,
@@ -72,7 +71,6 @@ export default function Root() {
     const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { t } = useTranslation()
-    const [appearanceColor] = useAppearanceColor()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
     // const reg =
@@ -131,8 +129,6 @@ export default function Root() {
         footerCharacterCountText,
         footerCharacterCountCircle,
         footerTooltipStyle,
-        dropdown,
-        popover,
         ImageDeleteButton,
         ImageAddALTButton,
         ImageEditButton,
@@ -149,25 +145,6 @@ export default function Root() {
         }*/
         console.log(history[0])
     }, [])
-    const color = darkMode ? "dark" : "light"
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -377,7 +354,6 @@ export default function Root() {
         setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
-    const AppearanceColor = color
     const onEmojiClick = (event: any) => {
         if (textareaRef.current) {
             const target = textareaRef.current
@@ -477,13 +453,13 @@ export default function Root() {
 
     return (
         <main
-            className={`${background({ color: color })}
+            className={`${background()}
             md:relative md:flex md:justify-center md:items-center
         `}
         >
             <div className={backgroundColor()}></div>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            <div className={PostModal({ color: color, isMobile: isMobile })}>
+            <div className={PostModal({ isMobile: isMobile })}>
                 <div className={header()}>
                     <Button
                         variant="light"
@@ -666,7 +642,7 @@ export default function Root() {
                                         <div className={"mb-[5px]"}>
                                             <Chip
                                                 key={index}
-                                                className={`w-full ${color}`}
+                                                className={`w-full `}
                                                 style={{
                                                     textAlign: "left",
                                                     cursor: "pointer",
@@ -690,7 +666,7 @@ export default function Root() {
                             )}
                         {isOGPGetProcessing && (
                             <div className={contentRightUrlCard()}>
-                                <Linkcard color={color} skeleton={true} />
+                                <Linkcard skeleton={true} />
                             </div>
                         )}
                         {getOGPData && !isOGPGetProcessing && (
@@ -709,12 +685,12 @@ export default function Root() {
                                         size={"lg"}
                                     />
                                 </div>
-                                <Linkcard color={color} ogpData={getOGPData} />
+                                <Linkcard ogpData={getOGPData} />
                             </div>
                         )}
                     </div>
                 </div>
-                <div className={footer({ color: AppearanceColor })}>
+                <div className={footer()}>
                     <div className={footerTooltip()}>
                         <label
                             htmlFor={inputId}
@@ -767,10 +743,7 @@ export default function Root() {
                             className={footerTooltipStyle()}
                             style={{ bottom: "5%" }}
                         >
-                            <Dropdown
-                                backdrop="blur"
-                                className={dropdown({ color: color })}
-                            >
+                            <Dropdown backdrop="blur">
                                 <DropdownTrigger>
                                     {`${t("modal.post.lang")}:${Array.from(
                                         PostContentLanguage
@@ -817,10 +790,7 @@ export default function Root() {
                             </Dropdown>
                         </div>
                         <div className={footerTooltipStyle()}>
-                            <Dropdown
-                                backdrop="blur"
-                                className={dropdown({ color: color })}
-                            >
+                            <Dropdown backdrop="blur">
                                 <DropdownTrigger>
                                     <FontAwesomeIcon
                                         icon={faCirclePlus}
@@ -860,10 +830,7 @@ export default function Root() {
                         <div
                             className={`${footerTooltipStyle()} invisible md:visible`}
                         >
-                            <Popover
-                                placement="right-end"
-                                className={popover({ color: color })}
-                            >
+                            <Popover placement="right-end">
                                 <PopoverTrigger>
                                     <Button
                                         isIconOnly
@@ -880,7 +847,6 @@ export default function Root() {
                                     <Picker
                                         data={data}
                                         onEmojiSelect={onEmojiClick}
-                                        theme={color}
                                         previewPosition="none"
                                     />
                                 </PopoverContent>

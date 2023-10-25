@@ -12,7 +12,6 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
-    color: "light" | "dark"
     isMobile?: boolean
     isSkeleton?: boolean
     now?: Date
@@ -22,7 +21,7 @@ interface Props {
 export const ViewFeedCard: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const { className, color, isMobile, isSkeleton, feed } = props
+    const { className, isMobile, isSkeleton, feed } = props
     const {
         PostCard,
         PostAuthor,
@@ -41,7 +40,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
     return (
         <>
             <main
-                className={`${PostCard({ color: color })} cursor-pointer`}
+                className={`${PostCard()} cursor-pointer`}
                 onClick={(e) => {
                     e.stopPropagation()
                     const uri = new AtUri(feed.uri)
@@ -62,11 +61,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                             <div className={`${PostAuthor()}`}>
                                 <span className={PostAuthorIcon()}>
                                     {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonIcon({
-                                                color: color,
-                                            })}
-                                        />
+                                        <Skeleton className={skeletonIcon()} />
                                     ) : (
                                         <>
                                             {feed?.avatar ? (
@@ -86,17 +81,11 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                     )}
                                 </span>
                                 <span
-                                    className={PostAuthorDisplayName({
-                                        color: color,
-                                    })}
+                                    className={PostAuthorDisplayName()}
                                     style={{ fontSize: "13px" }}
                                 >
                                     {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonName({
-                                                color: color,
-                                            })}
-                                        />
+                                        <Skeleton className={skeletonName()} />
                                     ) : (
                                         <span>{feed?.displayName}</span>
                                     )}
@@ -104,16 +93,10 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                 <div className={"text-[#BABABA]"}>
                                     &nbsp;-&nbsp;
                                 </div>
-                                <span
-                                    className={PostAuthorHandle({
-                                        color: color,
-                                    })}
-                                >
+                                <span className={PostAuthorHandle()}>
                                     {isSkeleton ? (
                                         <Skeleton
-                                            className={skeletonHandle({
-                                                color: color,
-                                            })}
+                                            className={skeletonHandle()}
                                         />
                                     ) : (
                                         <span>
@@ -128,14 +111,10 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                 {isSkeleton ? (
                                     <div className="w-full flex flex-col gap-2">
                                         <Skeleton
-                                            className={skeletonText1line({
-                                                color: color,
-                                            })}
+                                            className={skeletonText1line()}
                                         />
                                         <Skeleton
-                                            className={skeletonText2line({
-                                                color: color,
-                                            })}
+                                            className={skeletonText2line()}
                                         />
                                     </div>
                                 ) : (

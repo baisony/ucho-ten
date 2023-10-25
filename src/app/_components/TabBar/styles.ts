@@ -2,22 +2,12 @@ import { tv } from "@nextui-org/react"
 
 export const tabBar = tv({
     slots: {
-        TabBar: "w-full min-w-[350px] h-[50px] flex fixed bottom-0 z-10 max-w-[600px]",
+        TabBar: "w-full min-w-[350px] h-[50px] flex fixed bottom-0 z-10 max-w-[600px] bg-white dark:bg-black",
         Container:
             "h-full w-[25%] flex justify-center items-center cursor-pointer",
-        Icon: "w-[20px] h-[20px] ",
+        Icon: "w-[20px] h-[20px] text-black dark:text-white",
     },
     variants: {
-        color: {
-            light: {
-                TabBar: "bg-white",
-                Icon: "text-black",
-            },
-            dark: {
-                TabBar: "bg-black",
-                Icon: "text-white",
-            },
-        },
         selected: {
             true: {
                 Icon: "text-[#1DA1F2]",

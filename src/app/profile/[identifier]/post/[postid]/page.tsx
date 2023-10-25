@@ -47,7 +47,6 @@ import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { PostModal } from "@/app/_components/PostModal"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { AtUri } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
@@ -68,7 +67,6 @@ export default function Root() {
     const [translateTo] = useTranslationLanguage()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const router = useRouter()
-    const [appearanceColor] = useAppearanceColor()
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
@@ -93,7 +91,6 @@ export default function Root() {
     const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
-    const color = darkMode ? "dark" : "light"
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const {
         isOpen: isOpenReport,
@@ -114,25 +111,6 @@ export default function Root() {
         ReactionButton,
         dropdown,
     } = postOnlyPage()
-
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     const FormattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -319,7 +297,6 @@ export default function Root() {
                         <span>
                             <Chip
                                 size={"sm"}
-                                className={color}
                                 startContent={
                                     <Tooltip
                                         showArrow={true}
@@ -386,7 +363,6 @@ export default function Root() {
                         <span>
                             <Chip
                                 size={"sm"}
-                                className={color}
                                 startContent={
                                     <FontAwesomeIcon icon={faHashtag} />
                                 }
@@ -456,20 +432,17 @@ export default function Root() {
 
     function renderNestedViewPostCards(
         post: any,
-        color: "dark" | "light",
         isMobile: boolean
     ): JSX.Element | null {
         if (post && post.parent) {
             const nestedViewPostCards = renderNestedViewPostCards(
                 post.parent,
-                color,
                 isMobile
             )
             return (
                 <>
                     {nestedViewPostCards}
                     <ViewPostCard
-                        color={color}
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -482,13 +455,11 @@ export default function Root() {
 
     function renderNestedRepliesViewPostCards(
         post: any,
-        color: "dark" | "light",
         isMobile: boolean
     ): JSX.Element | null {
         if (post && post.replies) {
             const nestedViewPostCards = renderNestedViewPostCards(
                 post.replies,
-                color,
                 isMobile
             ) // 再帰呼び出し
 
@@ -496,7 +467,6 @@ export default function Root() {
                 <>
                     {nestedViewPostCards}
                     <ViewPostCard
-                        color={color}
                         postJson={post.replies.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -588,7 +558,6 @@ export default function Root() {
                     <ModalContent>
                         {(onClose) => (
                             <PostModal
-                                color={color}
                                 type={modalType ? modalType : "Reply"}
                                 postData={post.post}
                                 onClose={onClose}
@@ -601,16 +570,15 @@ export default function Root() {
                     onOpenChange={onOpenChangeReport}
                     placement={isMobile ? "top" : "center"}
                     className={"z-[100] max-w-[600px]"}
-                    color={color}
                     target={"post"}
                     post={post.post}
                     nextQueryParams={nextQueryParams}
                 />
-                <main className={`${Container({ color: color })} mt-[100px]`}>
+                <main className={`${Container()} mt-[100px]`}>
                     {post?.parent && (
-                        <>{renderNestedViewPostCards(post, color, isMobile)}</>
+                        <>{renderNestedViewPostCards(post, isMobile)}</>
                     )}
-                    <div className={AuthorPost({ color: color })}>
+                    <div className={AuthorPost()}>
                         <div className={Author()}>
                             <div className={"flex items-center"}>
                                 <div
@@ -664,9 +632,7 @@ export default function Root() {
                                     "md:h-[20px] h-[10px] hover:cursor-pointer items-center"
                                 }
                             >
-                                <Dropdown
-                                    className={dropdown({ color: color })}
-                                >
+                                <Dropdown className={dropdown()}>
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
                                             icon={faEllipsis}
@@ -942,7 +908,6 @@ export default function Root() {
                                                 "app.bsky.embed.recordWithMedia#view" && (
                                                 <>
                                                     <ViewQuoteCard
-                                                        color={color}
                                                         postJson={
                                                             post.post.embed
                                                                 ?.record.record
@@ -957,14 +922,12 @@ export default function Root() {
                                     ) : post.post?.embed.$type ===
                                       "app.bsky.embed.external#view" ? (
                                         <Linkcard
-                                            color={color}
                                             ogpData={post.post.embed.external}
                                         />
                                     ) : (
                                         post.post?.embed.$type ===
                                             "app.bsky.embed.record#view" && (
                                             <ViewQuoteCard
-                                                color={color}
                                                 postJson={
                                                     post.post.embed?.record
                                                 }
@@ -1032,7 +995,6 @@ export default function Root() {
                             {post.replies.map((item: any, index: number) => (
                                 <ViewPostCard
                                     key={index}
-                                    color={color}
                                     postJson={item.post}
                                     isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}

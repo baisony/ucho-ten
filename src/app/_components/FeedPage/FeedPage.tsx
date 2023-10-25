@@ -20,14 +20,12 @@ const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
 export interface FeedPageProps {
     isActive: boolean
     feedKey: string
-    color: "light" | "dark"
     disableSlideVerticalScroll: boolean
     now?: Date
 }
 
 const FeedPage = ({
     feedKey,
-    color,
     now,
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
@@ -389,7 +387,6 @@ const FeedPage = ({
                     itemContent={(index, _) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
@@ -419,7 +416,6 @@ const FeedPage = ({
                     itemContent={(index, item) => (
                         <ViewPostCardCell
                             {...{
-                                color,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: item.post || null,
