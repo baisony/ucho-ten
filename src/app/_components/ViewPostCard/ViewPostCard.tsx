@@ -141,6 +141,7 @@ export const ViewPostCard = (props: Props) => {
         skeletonHandle,
         skeletonText1line,
         skeletonText2line,
+        chip,
     } = viewPostCard()
     const quoteCardStyles = viewQuoteCard()
 
@@ -440,6 +441,7 @@ export const ViewPostCard = (props: Props) => {
                     result.push(
                         <span key={`link-${index}-${byteStart}`}>
                             <Chip
+                                className={chip()}
                                 size={"sm"}
                                 startContent={
                                     <Tooltip
@@ -768,7 +770,6 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             </span>
                             <span
-                                style={{ fontSize: "13px" }}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -781,9 +782,10 @@ export const ViewPostCard = (props: Props) => {
                                     <Skeleton className={skeletonName()} />
                                 ) : (
                                     <span
-                                        className={`${
+                                        className={`${PostAuthorDisplayName()} ${
                                             !isMobile && `hover:underline`
                                         }`}
+                                        style={{ fontSize: "13px" }}
                                     >
                                         {postJsonData?.author?.displayName}
                                     </span>
@@ -793,7 +795,6 @@ export const ViewPostCard = (props: Props) => {
                                 &nbsp;-&nbsp;
                             </div>
                             <span
-                                className={`${PostAuthorDisplayName()}`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
