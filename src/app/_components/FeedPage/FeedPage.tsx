@@ -11,6 +11,7 @@ import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
 //import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
+import { filterDisplayPosts } from "@/app/_lib/feed/filteredDisplayPosts"
 // import { useFeedsAtom } from "@/app/_atoms/feeds"
 
 export interface FeedPageProps {
@@ -65,43 +66,6 @@ const FeedPage = ({
         }
     }, [timeline])
 
-    const formattingTimeline = (timeline: FeedViewPost[]) => {
-        const seenUris = new Set<string>()
-        const filteredData = timeline.filter((item) => {
-            const uri = item.post.uri
-
-            if (item.reply) {
-                if (item.reason) {
-                    return true
-                } else if (
-                    // @ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    // @ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                ) {
-                    return true
-                } else {
-                    return false
-                }
-            }
-            //これはおそらくparentやrootがミュートユーザーの時、recordにreplyが入って、authorが自分ではない場合は非表示
-            if (
-                // @ts-ignore
-                item.post.record?.reply &&
-                item.post.author.did !== agent?.session?.did
-            )
-                return false
-            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
-            if (!seenUris.has(uri)) {
-                seenUris.add(uri)
-                return true
-            }
-            return false
-        })
-
-        return filteredData as FeedViewPost[]
-    }
-
     const fetchTimeline = async (loadingFlag: boolean = true) => {
         console.log("start fetchtimeline", feedKey)
 
@@ -136,9 +100,10 @@ const FeedPage = ({
 
             if (response.data) {
                 const { feed } = response.data
-                const filteredData = formattingTimeline(feed)
-
-                console.log(feed)
+                let filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(feed, agent.session?.did)
+                        : feed
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
@@ -215,7 +180,10 @@ const FeedPage = ({
 
             if (data) {
                 const { feed } = data
-                const filteredData = formattingTimeline(feed)
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(feed, agent.session?.did)
+                        : feed
 
                 if (data.cursor && data.cursor !== pollingCursor.current) {
                     pollingCursor.current = data.cursor
