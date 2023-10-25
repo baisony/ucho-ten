@@ -44,6 +44,7 @@ const FeedPage = ({
     const cursor = useRef<string>("")
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
+    const latestCID = useRef<string>("")
 
     // const currentScrollPosition = useRef<number>(0)
 
@@ -181,18 +182,14 @@ const FeedPage = ({
 
                 setNewTimeline(filteredData)
 
-                if (
-                    filteredData.length > 0 &&
-                    timeline !== null &&
-                    timeline.length > 0
-                ) {
+                if (filteredData.length > 0) {
                     console.log(
                         "new and old cid",
                         filteredData[0].post.cid,
-                        timeline[0].post.cid
+                        latestCID.current
                     )
 
-                    if (filteredData[0].post.cid !== timeline[0].post.cid) {
+                    if (filteredData[0].post.cid !== latestCID.current) {
                         setHasUpdate(true)
                     } else {
                         setHasUpdate(false)
@@ -312,7 +309,11 @@ const FeedPage = ({
         setNewTimeline([])
         setHasUpdate(false)
 
-        setShouldCheckUpdate(true)
+        if (mergedTimeline.length > 0) {
+            latestCID.current = mergedTimeline[0].post.cid
+        }
+
+        // setShouldCheckUpdate(true)
     }
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {

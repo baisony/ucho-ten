@@ -23,6 +23,8 @@ import "swiper/css/pagination"
 
 SwiperCore.use([Virtual])
 
+const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
+
 const Root = () => {
     const [appearanceColor] = useAppearanceColor()
     const [menuIndex] = useAtom(menuIndexAtom)
@@ -67,7 +69,7 @@ const Root = () => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             setNow(new Date())
-        }, 60 * 1000)
+        }, NOW_COUNT_UP_INTERVAL)
 
         return () => {
             clearInterval(intervalId)
