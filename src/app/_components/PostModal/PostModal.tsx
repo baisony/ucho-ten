@@ -56,6 +56,8 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
+const MAX_ATTACHMENT_IMAGES: number = 4
+
 interface AttachmentImage {
     blob: Blob
     type: string
@@ -478,6 +480,30 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         scrollBottomRef?.current?.scrollIntoView()
     }, [])
 
+    const handlePaste = async (event: React.ClipboardEvent) => {
+        const items = event.clipboardData.items
+        const imageFiles: File[] = []
+
+        for (const item of items) {
+            if (item.type.startsWith("image/")) {
+                const file = item.getAsFile()
+
+                if (file !== null) {
+                    if (
+                        contentImages.length + imageFiles.length <
+                        MAX_ATTACHMENT_IMAGES
+                    ) {
+                        imageFiles.push(file)
+                    }
+                }
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            await addImages(imageFiles)
+        }
+    }
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
@@ -587,6 +613,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         e.currentTarget.value.length
                                     )
                                 }
+                                onPaste={handlePaste}
                             />
                             {(contentImages.length > 0 || isCompressing) && (
                                 <div className={contentRightImagesContainer()}>
