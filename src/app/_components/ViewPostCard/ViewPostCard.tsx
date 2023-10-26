@@ -364,6 +364,11 @@ export const ViewPostCard = (props: Props) => {
         [postJson]
     )
 
+    const deletehttp = (text: string) => {
+        const result = text.replace(/^https?:\/\//, "")
+        return result
+    }
+
     const renderTextWithLinks = useMemo(() => {
         if (!postJsonData?.record && !quoteJson?.value) {
             return
@@ -448,7 +453,8 @@ export const ViewPostCard = (props: Props) => {
                                         showArrow={true}
                                         color={"foreground"}
                                         content={
-                                            facetText === facet.features[0].uri
+                                            deletehttp(facetText) ===
+                                            deletehttp(facet.features[0].uri)
                                                 ? "リンク偽装の心配はありません。"
                                                 : facet.features[0].uri.includes(
                                                       facetText.replace(
@@ -462,8 +468,10 @@ export const ViewPostCard = (props: Props) => {
                                     >
                                         <FontAwesomeIcon
                                             icon={
-                                                facetText ===
-                                                facet.features[0].uri
+                                                deletehttp(facetText) ===
+                                                deletehttp(
+                                                    facet.features[0].uri
+                                                )
                                                     ? faCheckCircle
                                                     : facet.features[0].uri.includes(
                                                           facetText.replace(
@@ -479,7 +487,8 @@ export const ViewPostCard = (props: Props) => {
                                 }
                                 variant="faded"
                                 color={
-                                    facetText === facet.features[0].uri
+                                    deletehttp(facetText) ===
+                                    deletehttp(facet.features[0].uri)
                                         ? "success"
                                         : facet.features[0].uri.includes(
                                               facetText.replace("...", "")

@@ -232,6 +232,11 @@ export default function Root() {
         [post]
     )
 
+    const deletehttp = (text: string) => {
+        const result = text.replace(/^https?:\/\//, "")
+        return result
+    }
+
     const renderTextWithLinks = () => {
         const encoder = new TextEncoder()
         const decoder = new TextDecoder()
@@ -302,7 +307,8 @@ export default function Root() {
                                         showArrow={true}
                                         color={"foreground"}
                                         content={
-                                            facetText === facet.features[0].uri
+                                            deletehttp(facetText) ===
+                                            deletehttp(facet.features[0].uri)
                                                 ? "リンク偽装の心配はありません。"
                                                 : facet.features[0].uri.includes(
                                                       facetText.replace(
@@ -316,8 +322,10 @@ export default function Root() {
                                     >
                                         <FontAwesomeIcon
                                             icon={
-                                                facetText ===
-                                                facet.features[0].uri
+                                                deletehttp(facetText) ===
+                                                deletehttp(
+                                                    facet.features[0].uri
+                                                )
                                                     ? faCheckCircle
                                                     : facet.features[0].uri.includes(
                                                           facetText.replace(
@@ -333,7 +341,8 @@ export default function Root() {
                                 }
                                 variant="faded"
                                 color={
-                                    facetText === facet.features[0].uri
+                                    deletehttp(facetText) ===
+                                    deletehttp(facet.features[0].uri)
                                         ? "success"
                                         : facet.features[0].uri.includes(
                                               facetText.replace("...", "")
