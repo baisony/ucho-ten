@@ -1,18 +1,22 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
-import { Spinner } from "@nextui-org/react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
+import { faArrowsRotate, faL } from "@fortawesome/free-solid-svg-icons"
+import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
+//import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
+import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
-// import { useFeedsAtom } from "@/app/_atoms/feeds"
+import { mergePosts } from "@/app/_lib/feed/mergePosts"
 
+const FEED_FETCH_LIMIT: number = 30
+const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
 export interface FeedPageProps {
     isActive: boolean
     feedKey: string
@@ -25,65 +29,45 @@ const FeedPage = ({
     now,
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
+    const { t } = useTranslation()
+
     const [agent] = useAgent()
+    const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    // const [loading, setLoading] = useState(false)
-    // const [loading2, setLoading2] = useState(false)
+
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    // const [wait, setWait] = useState<boolean>(true)
-    // const [refreshKey, setRefreshKey] = useState(0)
-    const { t } = useTranslation()
+    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [shouldCheckUpdate, setShouldCheckUpdate] = useState<boolean>(false)
 
     const cursor = useRef<string>("")
-    const pollingCursor = useRef<string>("")
-    const isPolling = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
+    const latestCID = useRef<string>("")
+
     // const currentScrollPosition = useRef<number>(0)
 
     useEffect(() => {
+        if (
+            feedKey !== "" &&
+            infoByFeed[feedKey] &&
+            infoByFeed[feedKey].posts
+        ) {
+            setTimeline(infoByFeed[feedKey].posts)
+        }
+    }, [])
+
+    useEffect(() => {
+        console.log(`timeline ${feedKey}`, timeline)
+        console.log(shouldScrollToTop.current, scrollRef.current)
+
         if (shouldScrollToTop.current && scrollRef.current) {
             scrollRef.current.scrollTop = 0
 
             shouldScrollToTop.current = false
         }
     }, [timeline])
-
-    const formattingTimeline = (timeline: FeedViewPost[]) => {
-        const seenUris = new Set<string>()
-        const filteredData = timeline.filter((item) => {
-            const uri = item.post.uri
-
-            if (item.reply) {
-                if (item.reason) return true
-                if (
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                )
-                    return true
-                return false
-            }
-            //これはおそらくparentやrootがミュートユーザーの時、recordにreplyが入って、authorが自分ではない場合は非表示
-            if (
-                //@ts-ignore
-                item.post.record?.reply &&
-                item.post.author.did !== agent?.session?.did
-            )
-                return false
-            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
-            if (!seenUris.has(uri)) {
-                seenUris.add(uri)
-                return true
-            }
-            return false
-        })
-
-        return filteredData as FeedViewPost[]
-    }
 
     const fetchTimeline = async (loadingFlag: boolean = true) => {
         if (!agent) {
@@ -94,6 +78,8 @@ const FeedPage = ({
             return
         }
 
+        console.log("fetchtimeline", feedKey)
+
         try {
             // setLoading(loadingFlag)
 
@@ -102,22 +88,28 @@ const FeedPage = ({
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
-                    limit: 30,
+                    limit: FEED_FETCH_LIMIT,
                     cursor: cursor.current || "",
                 })
             } else {
                 response = await agent.app.bsky.feed.getFeed({
                     feed: feedKey,
                     cursor: cursor.current || "",
-                    limit: 30,
+                    limit: FEED_FETCH_LIMIT,
                 })
             }
 
             if (response.data) {
                 const { feed } = response.data
-                const filteredData = formattingTimeline(feed)
 
-                console.log(feed)
+                console.log("feed", feed)
+
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(feed, agent.session?.did)
+                        : feed
+
+                console.log("filteredData", filteredData)
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
@@ -125,46 +117,32 @@ const FeedPage = ({
                             ...currentTimeline,
                             ...filteredData,
                         ]
-                        // timelineLength = newTimeline.length
 
                         return newTimeline
                     } else {
-                        // timelineLength = filteredData.length
                         return [...filteredData]
                     }
                 })
+
+                if (filteredData.length > 0) {
+                    latestCID.current = filteredData[0].post.cid
+                } else {
+                    latestCID.current = ""
+                }
             } else {
                 setTimeline([])
                 setHasMore(false)
                 return
             }
 
-            // setLoading(false)
-
             cursor.current = response.data.cursor || ""
-
-            // if (
-            //     response.data &&
-            //     cursor.current &&
-            //     cursor.current.length > 0 &&
-            //     timelineLength < 15
-            // ) {
-            //     await fetchTimeline(false)
-            //     setHasMore(false)
-            //     return
-            // }
 
             if (cursor.current !== "") {
                 setHasMore(true)
             } else {
                 setHasMore(false)
             }
-
-            // setTimeout(() => {
-            // setWait(false)
-            // }, 1.0)
         } catch (e) {
-            // setLoading(false)
             console.error(e)
         }
     }
@@ -178,19 +156,21 @@ const FeedPage = ({
     const checkNewTimeline = async () => {
         if (!agent) return
 
-        isPolling.current = true
+        setShouldCheckUpdate(false)
 
         try {
             let response: AppBskyFeedGetTimeline.Response
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
-                    limit: 30,
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
                 })
             } else {
                 response = await agent.app.bsky.feed.getFeed({
                     feed: feedKey,
-                    limit: 30,
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
                 })
             }
 
@@ -198,89 +178,182 @@ const FeedPage = ({
 
             if (data) {
                 const { feed } = data
-                const filteredData = formattingTimeline(feed)
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(feed, agent.session?.did)
+                        : feed
 
-                if (data.cursor && data.cursor !== pollingCursor.current) {
-                    pollingCursor.current = data.cursor
+                console.log(`check new ${feedKey}`, filteredData)
+                console.log(`timeline ${feedKey}`, timeline)
 
-                    const diffTimeline = filteredData.filter((newItem) => {
-                        if (!timeline) {
-                            return true
-                        } else {
-                            return !timeline.some(
-                                (oldItem) =>
-                                    oldItem.post.uri === newItem.post.uri
-                            )
-                        }
-                    })
+                setNewTimeline(filteredData)
 
-                    setNewTimeline(diffTimeline)
+                if (filteredData.length > 0) {
+                    console.log(
+                        "new and old cid",
+                        feedKey,
+                        filteredData[0].post.cid,
+                        latestCID.current
+                    )
 
-                    isPolling.current = true
-
-                    setTimeout(() => {
-                        console.log("setTimeout")
-                        checkNewTimeline()
-                    }, 5 * 1000)
-                } else {
-                    isPolling.current = false
+                    if (
+                        filteredData[0].post.cid !== latestCID.current &&
+                        latestCID.current !== ""
+                    ) {
+                        setHasUpdate(true)
+                    } else {
+                        setHasUpdate(false)
+                    }
                 }
-            } else {
-                isPolling.current = false
+
+                if (isActive) {
+                    setShouldCheckUpdate(true)
+                }
             }
         } catch (e) {
-            isPolling.current = false
             console.error(e)
         }
     }
 
     useEffect(() => {
-        if (agent && cursor.current == "" && timeline == null && isActive) {
-            // setNewTimeline([])
-            fetchTimeline()
+        if (!agent) {
+            return
         }
 
-        isPolling.current = true
+        if (!isActive) {
+            return
+        }
 
-        setTimeout(() => {
-            console.log("setTimeout")
-            checkNewTimeline()
-        }, 15 * 1000)
+        const initialAction = async () => {
+            if (!infoByFeed[feedKey] || infoByFeed[feedKey].posts == null) {
+                setNewTimeline([])
+                await fetchTimeline()
+            } else {
+                setTimeline(infoByFeed[feedKey].posts)
+                //setNewTimeline(infoByFeed[feedKey].newPosts)
+                cursor.current = infoByFeed[feedKey].cursor
+
+                if (cursor.current !== "") {
+                    setHasMore(true)
+                }
+            }
+
+            setShouldCheckUpdate(true)
+        }
+
+        initialAction()
     }, [agent, feedKey, isActive])
+
+    useEffect(() => {
+        if (feedKey === "") {
+            return
+        }
+
+        setInfoByFeed((prevInfoByFeed) => {
+            const newPostsByFeed = prevInfoByFeed
+
+            if (prevInfoByFeed[feedKey]) {
+                prevInfoByFeed[feedKey].posts = timeline
+            } else {
+                prevInfoByFeed[feedKey] = {
+                    posts: timeline,
+                    newPosts: [],
+                    cursor: cursor.current,
+                }
+            }
+
+            return newPostsByFeed
+        })
+    }, [timeline, feedKey])
+
+    // useEffect(() => {
+    //     if (feedKey === "") {
+    //         return
+    //     }
+
+    //     setInfoByFeed((prevInfoByFeed) => {
+    //         const newPostsByFeed = prevInfoByFeed
+
+    //         if (prevInfoByFeed[feedKey]) {
+    //             prevInfoByFeed[feedKey].newPosts = newTimeline
+    //         } else {
+    //             prevInfoByFeed[feedKey] = {
+    //                 posts: [],
+    //                 newPosts: newTimeline,
+    //                 cursor: cursor.current,
+    //             }
+    //         }
+
+    //         return newPostsByFeed
+    //     })
+    // }, [newTimeline, feedKey])
+
+    useEffect(() => {
+        if (feedKey === "") {
+            return
+        }
+
+        setInfoByFeed((prevInfoByFeed) => {
+            const newPostsByFeed = prevInfoByFeed
+
+            if (prevInfoByFeed[feedKey]) {
+                prevInfoByFeed[feedKey].cursor = cursor.current
+            } else {
+                prevInfoByFeed[feedKey] = {
+                    posts: [],
+                    newPosts: [],
+                    cursor: cursor.current,
+                }
+            }
+
+            return newPostsByFeed
+        })
+    }, [cursor.current, feedKey])
 
     const handleRefresh = () => {
         shouldScrollToTop.current = true
 
-        setTimeline((prevTimeline) => {
-            if (!prevTimeline) {
-                return [...newTimeline]
-            } else {
-                return [...newTimeline, ...prevTimeline]
-            }
-        })
+        const mergedTimeline = mergePosts(newTimeline, timeline)
 
-        // setRefreshKey((prevKey) => prevKey + 1) // Reload Virtuoso
-
+        setTimeline(mergedTimeline)
         setNewTimeline([])
+        setHasUpdate(false)
 
-        if (isPolling.current !== true) {
-            setTimeout(() => {
-                console.log("setTimeout")
-                checkNewTimeline()
-            }, 5 * 1000)
+        if (mergedTimeline.length > 0) {
+            latestCID.current = mergedTimeline[0].post.cid
         }
+
+        // setShouldCheckUpdate(true)
     }
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
+        console.log("timelineWithDummy timeline", timeline)
         // Need to add data for top padding
         const dummyData: FeedViewPost = {} as FeedViewPost
 
-        if (!timeline) {
+        if (timeline == null) {
             return [dummyData]
         } else {
             return [dummyData, ...timeline]
         }
     }, [timeline])
+
+    useEffect(() => {
+        console.log("shouldCheckUpdate", shouldCheckUpdate)
+
+        if (shouldCheckUpdate == false) {
+            return
+        }
+
+        const timeoutId = setTimeout(async () => {
+            console.log("setTimeout", feedKey)
+            checkNewTimeline()
+        }, CHECK_FEED_UPDATE_INTERVAL)
+
+        return () => {
+            clearTimeout(timeoutId)
+        }
+    }, [shouldCheckUpdate])
 
     // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
     //     const newScrollPosition = e.currentTarget.scrollTop
@@ -297,7 +370,7 @@ const FeedPage = ({
 
     return (
         <>
-            {newTimeline.length > 0 && (
+            {hasUpdate && (
                 <div
                     className={
                         "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px]"
@@ -314,7 +387,7 @@ const FeedPage = ({
                     </div>
                 </div>
             )}
-            {!timeline && (
+            {timeline == null && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
@@ -322,7 +395,7 @@ const FeedPage = ({
                     initialItemCount={20}
                     atTopThreshold={100}
                     atBottomThreshold={100}
-                    itemContent={(index, item) => (
+                    itemContent={(index, _) => (
                         <ViewPostCardCell
                             {...{
                                 isMobile,
@@ -335,7 +408,7 @@ const FeedPage = ({
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
-            {timeline /* {timeline && !wait && ( */ && (
+            {timeline !== null && (
                 <Virtuoso
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
@@ -370,7 +443,8 @@ const FeedPage = ({
                     }}
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    //className="overflow-y-auto"
+                    style={{ height: "calc(100% - 50px)" }}
                 />
             )}
         </>

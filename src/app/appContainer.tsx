@@ -38,29 +38,31 @@ import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import {
     HeaderMenu,
-    useHeaderMenusAtom,
-    useMenuIndexAtom,
+    setMenuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
+import { useAtom } from "jotai"
 import { isTabQueryParamValue, TabQueryParamValue } from "./_types/types"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
-    const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
-    console.log(displayLanguage)
-    const { t, i18n } = useTranslation()
-    //lngChange(displayLanguage)
+    const { i18n } = useTranslation()
+
+    const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [appearanceColor] = useAppearanceColor()
+    const [headerMenusByHeader, setHeaderMenusByHeader] =
+        useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
-
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
@@ -68,28 +70,30 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [feedGenerators, setFeedGenerators] = useFeedGeneratorsAtom()
 
     const target = searchParams.get("target")
-    const [value, setValue] = useState(false)
-    const [isSideBarOpen, setIsSideBarOpen] = useState(false)
-    const tab: string =
-        pathName === "/"
-            ? "home"
-            : pathName === "/search" ||
-              pathName === "/inbox" ||
-              pathName === "/post"
-            ? pathName.replace("/", "")
-            : "home"
-    const [menus, setMenus] = useHeaderMenusAtom()
-    const [menuIndex, setMenuIndex] = useMenuIndexAtom()
-    const [selectedTab, setSelectedTab] = useState<string>(tab)
+    // const [value, setValue] = useState(false)
+    // const [isSideBarOpen, setIsSideBarOpen] = useState(false)
+    // const tab: string =
+    //     pathName === "/"
+    //         ? "home"
+    //         : pathName === "/search" ||
+    //           pathName === "/inbox" ||
+    //           pathName === "/post"
+    //         ? pathName.replace("/", "")
+    //         : "home"
+    //const [, setMenus] = useHeaderMenusAtom()
+    //const [menuIndex] = useAtom(menuIndexAtom)
+    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    //const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
-    const [page, setPage] = useState<
-        "profile" | "home" | "inbox" | "post" | "search"
-    >("home")
+    // const [page, setPage] = useState<
+    //     "profile" | "home" | "inbox" | "post" | "search"
+    // >("home")
     const [darkMode, setDarkMode] = useState<boolean>(false)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
     const [history, setHistory] = useState([pathName, ""])
@@ -307,22 +311,22 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [appearanceColor])
 
     useEffect(() => {
-        if (pathName.startsWith("/search")) {
-            setPage("search")
-            setSelectedTab("search")
-        } else if (pathName.startsWith("/profile")) {
-            setPage("profile")
-            setSelectedTab("home")
-        } else if (pathName.startsWith("/post")) {
-            setPage("post")
-            setSelectedTab("post")
-        } else if (pathName.startsWith("/inbox")) {
-            setPage("inbox") // TODO: ??
-            setSelectedTab("inbox")
-        } else {
-            setPage("home")
-            setSelectedTab("home")
-        }
+        // if (pathName.startsWith("/search")) {
+        //     setPage("search")
+        //     setSelectedTab("search")
+        // } else if (pathName.startsWith("/profile")) {
+        //     setPage("profile")
+        //     setSelectedTab("home")
+        // } else if (pathName.startsWith("/post")) {
+        //     setPage("post")
+        //     setSelectedTab("post")
+        // } else if (pathName.startsWith("/inbox")) {
+        //     setPage("inbox") // TODO: ??
+        //     setSelectedTab("inbox")
+        // } else {
+        //     setPage("home")
+        //     setSelectedTab("home")
+        // }
 
         setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
@@ -408,10 +412,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     // }
 
     useEffect(() => {
-        if (!feedGenerators || pathName !== "/") {
+        if (!feedGenerators) {
             return
         }
 
+        console.log("feedGenerators", feedGenerators)
+
+        const newHeaderMenusByHeader = headerMenusByHeader
         const menus: HeaderMenu[] = feedGenerators.map((feed) => {
             return {
                 displayText: feed.displayName,
@@ -424,30 +431,23 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             info: "following",
         })
 
-        setMenus(menus)
+        newHeaderMenusByHeader.home = menus
 
-        console.log(menus)
-
-        setMenuIndex(0)
-    }, [pathName, feedGenerators])
+        setHeaderMenusByHeader((prevHeaderMenus) => ({
+            ...prevHeaderMenus,
+            home: menus,
+        }))
+    }, [feedGenerators])
 
     useEffect(() => {
-        if (pathName === "/search") {
-            const menus: HeaderMenu[] = [
-                {
-                    displayText: "Posts",
-                    info: "posts",
-                },
-                {
-                    displayText: "Feeds",
-                    info: "feeds",
-                },
-                {
-                    displayText: "Users",
-                    info: "users",
-                },
-            ]
-            setMenus(menus)
+        console.log("headerMenusByHeader", headerMenusByHeader)
+    }, [headerMenusByHeader])
+
+    useEffect(() => {
+        if (pathName === "/") {
+            setCurrentMenuType("home")
+        } else if (pathName === "/search") {
+            setCurrentMenuType("search")
 
             switch (searchParams.get("target")) {
                 case "posts":
@@ -460,27 +460,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     setMenuIndex(2)
                     break
                 default:
-                    setMenuIndex(0)
                     break
             }
         } else if (pathName === "/inbox") {
-            const menus: HeaderMenu[] = [
-                {
-                    displayText: "Inbox",
-                    info: "inbox",
-                },
-            ]
-            setMenus(menus)
-            setMenuIndex(0)
-        } else if (pathName !== "/") {
-            const menus: HeaderMenu[] = [
-                {
-                    displayText: "",
-                    info: "",
-                },
-            ]
-            setMenus(menus)
-            setMenuIndex(0)
+            // setMenus(HEADER_MENUS.inbox)
+            setCurrentMenuType("inbox")
+        } else if (
+            pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
+        ) {
+            //setMenus(HEADER_MENUS.onlyPost)
+            setCurrentMenuType("onlyPost")
         }
     }, [pathName, searchParams])
 
