@@ -12,7 +12,10 @@ export const viewPostCard = tv({
             "text-black dark:text-white ml-[9px] hover:cursor-pointer font-[600] max-w-[40%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostAuthorHandle:
             "text-[#909090] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
-        PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
+        postCreatedAt:
+            "text-[#B8B8B8] font-light absolute right-[17px] text-[12px]",
+        moreButton:
+            "text-[#B8B8B8] font-light absolute right-[17px] text-[12px]",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
         PostContent:
             "w-[100%-5px] h-full ml-[25px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
