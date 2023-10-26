@@ -476,7 +476,7 @@ export default function Root() {
             await addImages(imageFiles)
         }
     }
-    
+
     return (
         <main
             className={`${background()}
