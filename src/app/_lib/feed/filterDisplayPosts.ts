@@ -55,7 +55,7 @@ export const filterDisplayPosts = (
             } else if (parentDID === userDID) {
                 // reply to my post
                 displayPost = true
-            }  else if (authorDID === userDID) {
+            } else if (authorDID === userDID) {
                 // my reply
                 displayPost = true
             } else {
