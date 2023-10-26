@@ -14,6 +14,8 @@ import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
+import { time } from "console"
+import { usePathname } from "next/navigation"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -29,6 +31,7 @@ const FeedPage = ({
     now,
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
+    const pathname = usePathname()
     const { t } = useTranslation()
 
     const [agent] = useAgent()
@@ -220,18 +223,31 @@ const FeedPage = ({
             return
         }
 
+        console.log("here")
+
         if (!isActive) {
             return
         }
 
+        console.log("here 1")
+
         const initialAction = async () => {
             if (!infoByFeed[feedKey] || infoByFeed[feedKey].posts == null) {
+                console.log("here 2")
                 setNewTimeline([])
                 await fetchTimeline()
             } else {
+                console.log("here 3")
                 setTimeline(infoByFeed[feedKey].posts)
                 //setNewTimeline(infoByFeed[feedKey].newPosts)
                 cursor.current = infoByFeed[feedKey].cursor
+
+                console.log(
+                    "infoByFeed[feedKey].latestCID",
+                    infoByFeed[feedKey].latestCID
+                )
+
+                latestCID.current = infoByFeed[feedKey].latestCID
 
                 if (cursor.current !== "") {
                     setHasMore(true)
@@ -242,7 +258,7 @@ const FeedPage = ({
         }
 
         initialAction()
-    }, [agent, feedKey, isActive])
+    }, [agent, feedKey, isActive, pathname])
 
     useEffect(() => {
         if (feedKey === "") {
@@ -253,18 +269,42 @@ const FeedPage = ({
             const newPostsByFeed = prevInfoByFeed
 
             if (prevInfoByFeed[feedKey]) {
-                prevInfoByFeed[feedKey].posts = timeline
-            } else {
-                prevInfoByFeed[feedKey] = {
+                newPostsByFeed[feedKey] = {
                     posts: timeline,
                     newPosts: [],
                     cursor: cursor.current,
+                    latestCID:
+                        timeline !== null && timeline.length > 0
+                            ? timeline[0].post.cid
+                            : "",
                 }
-            }
 
-            return newPostsByFeed
+                return newPostsByFeed
+            } else {
+                const newData = {
+                    posts: timeline,
+                    newPosts: [],
+                    cursor: cursor.current,
+                    latestCID:
+                        timeline !== null && timeline.length > 0
+                            ? timeline[0].post.cid
+                            : "",
+                }
+
+                return { ...prevInfoByFeed, newData }
+            }
         })
-    }, [timeline, feedKey])
+    }, [timeline, feedKey, cursor.current])
+
+    // useEffect(() => {
+    //     console.log("isActive")
+    //     if (shouldCheckUpdate === false) {
+    //         if (timeline !== null) {
+    //             cursor.current = timeline[0].post.cid
+    //         }
+    //         setShouldCheckUpdate(true)
+    //     }
+    // }, [isActive])
 
     // useEffect(() => {
     //     if (feedKey === "") {
@@ -288,28 +328,6 @@ const FeedPage = ({
     //     })
     // }, [newTimeline, feedKey])
 
-    useEffect(() => {
-        if (feedKey === "") {
-            return
-        }
-
-        setInfoByFeed((prevInfoByFeed) => {
-            const newPostsByFeed = prevInfoByFeed
-
-            if (prevInfoByFeed[feedKey]) {
-                prevInfoByFeed[feedKey].cursor = cursor.current
-            } else {
-                prevInfoByFeed[feedKey] = {
-                    posts: [],
-                    newPosts: [],
-                    cursor: cursor.current,
-                }
-            }
-
-            return newPostsByFeed
-        })
-    }, [cursor.current, feedKey])
-
     const handleRefresh = () => {
         shouldScrollToTop.current = true
 
@@ -331,7 +349,7 @@ const FeedPage = ({
         // Need to add data for top padding
         const dummyData: FeedViewPost = {} as FeedViewPost
 
-        if (timeline == null) {
+        if (timeline === null) {
             return [dummyData]
         } else {
             return [dummyData, ...timeline]
@@ -339,6 +357,10 @@ const FeedPage = ({
     }, [timeline])
 
     useEffect(() => {
+        if (isActive === false) {
+            return
+        }
+
         console.log("shouldCheckUpdate", shouldCheckUpdate)
 
         if (shouldCheckUpdate == false) {
@@ -353,7 +375,7 @@ const FeedPage = ({
         return () => {
             clearTimeout(timeoutId)
         }
-    }, [shouldCheckUpdate])
+    }, [shouldCheckUpdate, isActive])
 
     // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
     //     const newScrollPosition = e.currentTarget.scrollTop
@@ -387,7 +409,7 @@ const FeedPage = ({
                     </div>
                 </div>
             )}
-            {timeline == null && (
+            {timeline === null && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
