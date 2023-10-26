@@ -647,11 +647,7 @@ export const ViewPostCard = (props: Props) => {
     return (
         !isDeleted && (
             <div
-                className={
-                    quoteJson
-                        ? quoteCardStyles.PostCardContainer({ isMobile })
-                        : ""
-                }
+                className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}
             >
                 <Modal
                     isOpen={isOpenReply}
@@ -680,9 +676,7 @@ export const ViewPostCard = (props: Props) => {
                 />
                 <main
                     className={`${
-                        quoteJson
-                            ? quoteCardStyles.PostCard({ isMobile })
-                            : PostCard()
+                        quoteJson ? quoteCardStyles.PostCard() : PostCard()
                     } ${
                         isEmbedToModal
                             ? `bg-transparent border-none`
@@ -700,9 +694,9 @@ export const ViewPostCard = (props: Props) => {
                     }}
                 >
                     <div
-                        className={`${PostCardContainer({
-                            isMobile: isMobile,
-                        })} ${isEmbedToModal && `pt-[0px]`}`}
+                        className={`${PostCardContainer()} ${
+                            isEmbedToModal && `pt-[0px]`
+                        }`}
                         onMouseEnter={() => {
                             setIsHover(true)
                         }}
@@ -712,9 +706,7 @@ export const ViewPostCard = (props: Props) => {
                     >
                         {json?.reason && (
                             <span
-                                className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer ${
-                                    !isMobile && `hover:underline`
-                                }`}
+                                className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer md:hover:underline`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     router.push(
@@ -782,9 +774,7 @@ export const ViewPostCard = (props: Props) => {
                                     <Skeleton className={skeletonName()} />
                                 ) : (
                                     <span
-                                        className={`${PostAuthorDisplayName()} ${
-                                            !isMobile && `hover:underline`
-                                        }`}
+                                        className={`${PostAuthorDisplayName()} md:hover:underline`}
                                         style={{ fontSize: "13px" }}
                                     >
                                         {postJsonData?.author?.displayName}
@@ -814,13 +804,10 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             </span>
                             <div
-                                className={PostCreatedAt()}
+                                className={`${PostCreatedAt()} hidden md:block`}
                                 style={{ fontSize: "12px" }}
                             >
-                                {!isEmbedToModal &&
-                                !isMobile &&
-                                isHover &&
-                                !isSkeleton ? (
+                                {!isEmbedToModal && isHover && !isSkeleton ? (
                                     <Dropdown>
                                         <DropdownTrigger>
                                             <FontAwesomeIcon
@@ -951,7 +938,7 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             </div>
                         </div>
-                        <div className={PostContent({ isMobile: isMobile })}>
+                        <div className={PostContent()}>
                             {isSkeleton ? (
                                 <div className="w-full flex flex-col gap-2">
                                     <Skeleton className={skeletonText1line()} />
@@ -977,12 +964,8 @@ export const ViewPostCard = (props: Props) => {
                                     )}
                                     <div
                                         style={{ wordBreak: "break-word" }}
-                                        className={`${
-                                            !isEmbedToPost
-                                                ? isMobile
-                                                    ? `text-[14px]`
-                                                    : `text-[15px]`
-                                                : `text-[13px]`
+                                        className={`text-[14px] md:text-[15px] ${
+                                            !isEmbedToPost && `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}
@@ -1046,112 +1029,135 @@ export const ViewPostCard = (props: Props) => {
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
                                 <div className={`mr-[12px]`}>
-                                    {isMobile && !isEmbedToModal && (
+                                    {!isEmbedToModal && (
                                         <>
-                                            <FontAwesomeIcon
-                                                icon={faComment}
-                                                className={PostReactionButton()}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setHandleButtonClick(true)
-                                                    handleReply()
-                                                }}
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={faRetweet}
-                                                style={{
-                                                    color: isReposted
-                                                        ? "#17BF63"
-                                                        : "#909090",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setHandleButtonClick(true)
-                                                    handleRepost()
-                                                }}
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    isLiked
-                                                        ? faHeartSolid
-                                                        : faHeartRegular
+                                            <div
+                                                className={
+                                                    "mr-[12px] block md:hidden"
                                                 }
-                                                style={{
-                                                    color: isLiked
-                                                        ? "#fd7e00"
-                                                        : "#909090",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setHandleButtonClick(true)
-                                                    handleLike()
-                                                }}
-                                            />
-                                        </>
-                                    )}
-                                    {!isMobile && !isEmbedToModal && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faComment}
-                                                style={{
-                                                    display:
-                                                        isHover && !isSkeleton
-                                                            ? undefined
-                                                            : "none",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setHandleButtonClick(true)
-                                                    handleReply()
-                                                }}
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={faRetweet}
-                                                style={{
-                                                    color: isReposted
-                                                        ? "#17BF63"
-                                                        : "#909090",
-                                                    display:
-                                                        isHover && !isSkeleton
-                                                            ? undefined
-                                                            : isReposted
-                                                            ? undefined
-                                                            : "none",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setHandleButtonClick(true)
-                                                    handleRepost()
-                                                }}
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    isLiked
-                                                        ? faHeartSolid
-                                                        : faHeartRegular
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faComment}
+                                                    className={PostReactionButton()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setHandleButtonClick(
+                                                            true
+                                                        )
+                                                        handleReply()
+                                                    }}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={faRetweet}
+                                                    style={{
+                                                        color: isReposted
+                                                            ? "#17BF63"
+                                                            : "#909090",
+                                                    }}
+                                                    className={PostReactionButton()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setHandleButtonClick(
+                                                            true
+                                                        )
+                                                        handleRepost()
+                                                    }}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        isLiked
+                                                            ? faHeartSolid
+                                                            : faHeartRegular
+                                                    }
+                                                    style={{
+                                                        color: isLiked
+                                                            ? "#fd7e00"
+                                                            : "#909090",
+                                                    }}
+                                                    className={PostReactionButton()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setHandleButtonClick(
+                                                            true
+                                                        )
+                                                        handleLike()
+                                                    }}
+                                                />
+                                            </div>
+                                            <div
+                                                className={
+                                                    "text-[12px] hidden md:block"
                                                 }
-                                                style={{
-                                                    color: isLiked
-                                                        ? "#fd7e00"
-                                                        : "#909090",
-                                                    display:
-                                                        isHover && !isSkeleton
-                                                            ? undefined
-                                                            : isLiked
-                                                            ? undefined
-                                                            : "none",
-                                                }}
-                                                className={PostReactionButton()}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setHandleButtonClick(true)
-                                                    handleLike()
-                                                }}
-                                            />
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faComment}
+                                                    style={{
+                                                        display:
+                                                            isHover &&
+                                                            !isSkeleton
+                                                                ? undefined
+                                                                : "none",
+                                                    }}
+                                                    className={PostReactionButton()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setHandleButtonClick(
+                                                            true
+                                                        )
+                                                        handleReply()
+                                                    }}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={faRetweet}
+                                                    style={{
+                                                        color: isReposted
+                                                            ? "#17BF63"
+                                                            : "#909090",
+                                                        display:
+                                                            isHover &&
+                                                            !isSkeleton
+                                                                ? undefined
+                                                                : isReposted
+                                                                ? undefined
+                                                                : "none",
+                                                    }}
+                                                    className={PostReactionButton()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setHandleButtonClick(
+                                                            true
+                                                        )
+                                                        handleRepost()
+                                                    }}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        isLiked
+                                                            ? faHeartSolid
+                                                            : faHeartRegular
+                                                    }
+                                                    style={{
+                                                        color: isLiked
+                                                            ? "#fd7e00"
+                                                            : "#909090",
+                                                        display:
+                                                            isHover &&
+                                                            !isSkeleton
+                                                                ? undefined
+                                                                : isLiked
+                                                                ? undefined
+                                                                : "none",
+                                                    }}
+                                                    className={PostReactionButton()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setHandleButtonClick(
+                                                            true
+                                                        )
+                                                        handleLike()
+                                                    }}
+                                                />
+                                            </div>
                                         </>
                                     )}
                                 </div>

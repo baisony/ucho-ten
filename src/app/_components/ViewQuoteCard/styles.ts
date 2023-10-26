@@ -4,7 +4,8 @@ export const viewQuoteCard = tv({
     slots: {
         PostCard:
             "w-full border-[1.5px] rounded-[10px] md:hover:border-gray-600 bg-white text-black border-[#E8E8E8] md:hover:bg-[#F5F5F5] dark:bg-[#2C2C2C] dark:text-[#D7D7D7] dark:border-[#181818] dark:md:hover:bg-[#1C1C1C]",
-        PostCardContainer: "pl-[8px] pt-[11px] pb-[11px] w-full",
+        PostCardContainer:
+            "pl-[8px] pt-[11px] pb-[11px] w-full pb-[18px] md:pb-[24px]",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
         PostAuthorIcon: "h-[19px] w-[19px] object-cover hover:cursor-pointer",
@@ -15,7 +16,8 @@ export const viewQuoteCard = tv({
         PostCreatedAt:
             "text-[#B8B8B8] dark:text-[#B8B8B8] font-light absolute right-[17px] ",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
-        PostContent: "w-[100%-5px] h-full ml-[25px] mr-[17px]",
+        PostContent:
+            "w-[100%-5px] h-full ml-[25px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
         PostContentText: "",
         PostReactionButtonContainer: "w-full h-[20px] text-right right-[17px] ",
         PostReactionButton:
@@ -30,20 +32,6 @@ export const viewQuoteCard = tv({
         isEmbedToModal: "",
     },
     variants: {
-        isMobile: {
-            true: {
-                PostModal: "rounded-none",
-                background: "",
-                PostContent: "text-[14px] mb-[6px]",
-                PostCardContainer: "pb-[18px]",
-            },
-            false: {
-                PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
-                background: "",
-                PostContent: "text-[15px] mb-[6px]",
-                PostCardContainer: "pb-[24px]",
-            },
-        },
         isEmbedToModal: {
             true: {
                 PostModal: "bg-transparent",

@@ -11,8 +11,8 @@ export const viewProfilePage = tv({
             "w-full h-full relative pl-[13px] pr-[8px] pb-[16px] text-black bg-white dark:bg-black dark:text-white",
         ProfileImage: "h-[80px] w-[80px] rounded-[10px] top-[-24px] absolute",
         ProfileDisplayName: "font-black text-[24px]",
-        ProfileHandle: "",
-        ProfileBio: "mt-[8px] ml-[4px] mr-[20px]",
+        ProfileHandle: "text-[12px]",
+        ProfileBio: "mt-[8px] ml-[4px] mr-[20px] text-[12px]",
         ProfileCopyButton:
             "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[1px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
         ProfileActionButton:
@@ -23,16 +23,6 @@ export const viewProfilePage = tv({
         PostContainer: "w-full h-full",
     },
     variants: {
-        isMobile: {
-            true: {
-                background: "",
-                ProfileHandle: "text-[12px]",
-                ProfileBio: "text-[12px]",
-            },
-            false: {
-                background: "",
-            },
-        },
         hover: {
             true: {},
             false: {},

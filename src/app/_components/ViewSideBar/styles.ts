@@ -18,10 +18,6 @@ export const viewSideBar = tv({
         modal: "",
     },
     variants: {
-        isMobile: {
-            true: {},
-            false: {},
-        },
         isBarOpen: {
             true: {},
             false: {

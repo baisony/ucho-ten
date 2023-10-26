@@ -12,8 +12,9 @@ export const viewFeedPage = tv({
         ProfileImage: "h-[50px] w-[50px] rounded-[10px] absolute",
         ProfileDisplayName:
             "font-black text-[24px] mt-[12px] ml-[3px] text-dark dark:text-white",
-        ProfileHandle: "text-[#B8B8B8] font-medium ml-[3px]",
-        ProfileBio: "mt-[8px] mr-[20px] text-[#B8B8B8] font-medium ml-[3px]",
+        ProfileHandle: "text-[#B8B8B8] font-medium ml-[3px] text-[12px]",
+        ProfileBio:
+            "mt-[8px] mr-[20px] text-[#B8B8B8] font-medium ml-[3px] text-[12px]",
         ProfileCopyButton:
             "h-[32px] w-[32px] ml-[10px] mr-[10px] flex justify-center items-center cursor-pointer",
         ProfileActionButton:
@@ -26,16 +27,6 @@ export const viewFeedPage = tv({
         dropdown: "",
     },
     variants: {
-        isMobile: {
-            true: {
-                background: "",
-                ProfileHandle: "text-[12px]",
-                ProfileBio: "text-[12px]",
-            },
-            false: {
-                background: "",
-            },
-        },
         isPinned: {
             true: {
                 PinButton: "text-[#016EFF]",

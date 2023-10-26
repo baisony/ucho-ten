@@ -14,7 +14,8 @@ export const viewPostCard = tv({
             "text-[#909090] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
-        PostContent: "w-[100%-5px] h-full ml-[25px] mr-[17px]",
+        PostContent:
+            "w-[100%-5px] h-full ml-[25px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
         PostContentText: "",
         PostReactionButtonContainer: "w-full h-[20px] text-right right-[17px] ",
         PostReactionButton:
@@ -40,20 +41,6 @@ export const viewPostCard = tv({
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
     },
     variants: {
-        isMobile: {
-            true: {
-                PostModal: "rounded-none",
-                background: "",
-                PostContent: "text-[14px] mb-[6px]",
-                PostCardContainer: "",
-            },
-            false: {
-                PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
-                background: "",
-                PostContent: "text-[15px] mb-[6px]",
-                PostCardContainer: "",
-            },
-        },
         isEmbedToModal: {
             true: {
                 PostModal: "bg-transparent",

@@ -459,7 +459,7 @@ export default function Root() {
         >
             <div className={backgroundColor()}></div>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            <div className={PostModal({ isMobile: isMobile })}>
+            <div className={PostModal()}>
                 <div className={header()}>
                     <Button
                         variant="light"

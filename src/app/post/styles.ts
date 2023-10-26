@@ -2,11 +2,11 @@ import { tv } from "@nextui-org/react"
 
 export const createPostPage = tv({
     slots: {
-        background: "w-full h-full",
+        background: "w-full h-full flex",
         backgroundColor: "w-full h-full absolute",
 
         PostModal:
-            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#2C2C2C] w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative bg-opacity-70",
+            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#2C2C2C] w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative bg-opacity-70 rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
@@ -58,16 +58,6 @@ export const createPostPage = tv({
             "h-[20px] w-[20px] p-[0px] rounded-[50%] bg-opacity-80 bg-black",
     },
     variants: {
-        isMobile: {
-            true: {
-                PostModal: "rounded-none",
-                background: "flex",
-            },
-            false: {
-                PostModal: "rounded-[10px] overflow-hidden min-h-[400px] ",
-                background: "flex",
-            },
-        },
         uploadImageAvailable: {
             true: {
                 contentRightContainer: "h-[calc(100%-105px)]",

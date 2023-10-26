@@ -12,7 +12,6 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 interface Props {
     className?: string
-    isMobile?: boolean
     isSkeleton?: boolean
     now?: Date
     feed: GeneratorView
@@ -21,7 +20,7 @@ interface Props {
 export const ViewFeedCard: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const { className, isMobile, isSkeleton, feed } = props
+    const { className, isSkeleton, feed } = props
     const {
         PostCard,
         PostAuthor,
@@ -53,11 +52,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
             >
                 <>
                     <>
-                        <div
-                            className={`${PostCardContainer({
-                                isMobile: isMobile,
-                            })}`}
-                        >
+                        <div className={`${PostCardContainer()}`}>
                             <div className={`${PostAuthor()}`}>
                                 <span className={PostAuthorIcon()}>
                                     {isSkeleton ? (
@@ -105,9 +100,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                     )}
                                 </span>
                             </div>
-                            <div
-                                className={PostContent({ isMobile: isMobile })}
-                            >
+                            <div className={PostContent()}>
                                 {isSkeleton ? (
                                     <div className="w-full flex flex-col gap-2">
                                         <Skeleton
@@ -121,11 +114,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                     <>
                                         <div
                                             style={{ wordBreak: "break-word" }}
-                                            className={`${
-                                                isMobile
-                                                    ? `text-[14px]`
-                                                    : `text-[15px]`
-                                            }`}
+                                            className={`text-[14px] md:text-[15px]`}
                                         >
                                             {feed.description}
                                         </div>
