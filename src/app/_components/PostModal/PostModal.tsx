@@ -491,7 +491,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
                 if (file !== null) {
                     if (
-                        contentImages.length + imageFiles.length <=
+                        contentImages.length + imageFiles.length <
                         MAX_ATTACHMENT_IMAGES
                     ) {
                         imageFiles.push(file)

@@ -463,7 +463,7 @@ export default function Root() {
 
                 if (file !== null) {
                     if (
-                        contentImages.length + imageFiles.length <=
+                        contentImages.length + imageFiles.length <
                         MAX_ATTACHMENT_IMAGES
                     ) {
                         imageFiles.push(file)
