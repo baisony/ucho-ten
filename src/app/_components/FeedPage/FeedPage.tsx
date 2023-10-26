@@ -123,6 +123,12 @@ const FeedPage = ({
                         return [...filteredData]
                     }
                 })
+
+                if (filteredData.length > 0) {
+                    latestCID.current = filteredData[0].post.cid
+                } else {
+                    latestCID.current = ""
+                }
             } else {
                 setTimeline([])
                 setHasMore(false)
@@ -185,11 +191,15 @@ const FeedPage = ({
                 if (filteredData.length > 0) {
                     console.log(
                         "new and old cid",
+                        feedKey,
                         filteredData[0].post.cid,
                         latestCID.current
                     )
 
-                    if (filteredData[0].post.cid !== latestCID.current) {
+                    if (
+                        filteredData[0].post.cid !== latestCID.current &&
+                        latestCID.current !== ""
+                    ) {
                         setHasUpdate(true)
                     } else {
                         setHasUpdate(false)
