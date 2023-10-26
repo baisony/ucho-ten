@@ -473,10 +473,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
             </Modal>
             {/* <main className={""}> */}
             <main
-                className={background({
-                    isMobile: isMobile,
-                    isBarOpen: isSideBarOpen,
-                })}
+                className={background()}
                 onClick={(e) => {
                     e.stopPropagation()
                 }}

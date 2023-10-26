@@ -31,7 +31,7 @@ import Lightbox, {
     ZoomRef,
 } from "yet-another-react-lightbox"
 
-import { push as BurgerPush, slide as BurgerSlide } from "react-burger-menu"
+import { push as BurgerPush } from "react-burger-menu"
 
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
@@ -94,13 +94,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     // const [page, setPage] = useState<
     //     "profile" | "home" | "inbox" | "post" | "search"
     // >("home")
-    const [darkMode, setDarkMode] = useState<boolean>(false)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
     const [history, setHistory] = useState([pathName, ""])
 
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
-    const color = darkMode ? "dark" : "light"
 
     const { background } = layout()
 
@@ -186,11 +184,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         setHistory([pathName, history[0]])
     }, [pathName])
-
-    const modeMe = (e: any) => {
-        if (appearanceColor !== "system") return
-        setDarkMode(!!e.matches)
-    }
 
     useEffect(() => {
         if (agent?.hasSession === true) {
@@ -294,21 +287,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
         router.push(`/search?${queryParams.toString()}`)
     }, [searchText])
-
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
-
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
-
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
 
     useEffect(() => {
         // if (pathName.startsWith("/search")) {
@@ -560,48 +538,25 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
             >
                 <div id="burger-outer-container">
-                    {isMobile ? (
-                        <BurgerPush
-                            className={"backdrop-blur-[5px]"}
-                            outerContainerId="burger-outer-container"
-                            pageWrapId="main-container"
-                            styles={burgerMenuStyles}
-                            isOpen={drawerOpen}
-                            onClose={() => {
-                                setDrawerOpen(false)
-                            }}
-                        >
-                            <ViewSideBar
-                                isSideBarOpen={drawerOpen}
-                                setSideBarOpen={setSideBarOpen}
-                                isMobile={isMobile}
-                            />
-                        </BurgerPush>
-                    ) : (
-                        <BurgerSlide
-                            className={"backdrop-blur-[5px]"}
-                            outerContainerId="burger-outer-container"
-                            pageWrapId="main-container"
-                            styles={burgerMenuStyles}
-                            isOpen={drawerOpen}
-                            onClose={() => {
-                                setDrawerOpen(false)
-                            }}
-                        >
-                            <ViewSideBar
-                                isSideBarOpen={drawerOpen}
-                                setSideBarOpen={setSideBarOpen}
-                                isMobile={isMobile}
-                            />
-                        </BurgerSlide>
-                    )}
-
+                    <BurgerPush
+                        className={"backdrop-blur-[5px]"}
+                        outerContainerId="burger-outer-container"
+                        pageWrapId="main-container"
+                        styles={burgerMenuStyles}
+                        isOpen={drawerOpen}
+                        onClose={() => {
+                            setDrawerOpen(false)
+                        }}
+                    >
+                        <ViewSideBar
+                            isSideBarOpen={drawerOpen}
+                            setSideBarOpen={setSideBarOpen}
+                            isMobile={isMobile}
+                        />
+                    </BurgerPush>
                     <main
                         id="main-container"
-                        className={background({
-                            color: color,
-                            isMobile: isMobile,
-                        })}
+                        className={background()}
                         onClick={() => {
                             setSideBarOpen(false)
                         }}
@@ -643,13 +598,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             >
                                 {children}
                             </div>
-                            {showTabBar && (
-                                <TabBar
-                                    isMobile={isMobile}
-                                    //selected={selectedTab}
-                                    //setValue={setSelectedTab}
-                                />
-                            )}
+                            {showTabBar && <TabBar />}
                         </div>
                         {imageSlides && imageSlideIndex !== null && (
                             <div

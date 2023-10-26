@@ -13,16 +13,5 @@ export const linkcard = tv({
         LinkCardDescription: "text-xs mt-1 dark:text-gray-200",
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
     },
-    variants: {
-        isMobile: {
-            true: {
-                PostModal: "rounded-none",
-                background: "",
-            },
-            false: {
-                PostModal: "rounded-[10px] overflow-hidden min-h-[400px] ",
-                background: "",
-            },
-        },
-    },
+    variants: {},
 })

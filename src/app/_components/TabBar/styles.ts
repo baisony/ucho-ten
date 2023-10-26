@@ -16,15 +16,5 @@ export const tabBar = tv({
                 Icon: "",
             },
         },
-        isMobile: {
-            true: {
-                PostModal: "rounded-none",
-                background: "",
-            },
-            false: {
-                PostModal: "rounded-[10px] overflow-hidden min-h-[400px]",
-                background: "",
-            },
-        },
     },
 })

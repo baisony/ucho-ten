@@ -13,14 +13,6 @@ export const viewHeader = tv({
         bottom: "md:h-[27px] h-[30px] relative bottom-0 font-bold align-start overflow-x-scroll overflow-y-hidden",
     },
     variants: {
-        isMobile: {
-            true: {
-                background: "",
-            },
-            false: {
-                background: "",
-            },
-        },
         page: {
             // single: {
             //     bottom: "flex justify-center items-center",

@@ -17,7 +17,6 @@ import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
 
 interface Props {
     className?: string
-    isMobile?: boolean
     uploadImageAvailable?: boolean
     isDragActive?: boolean
     open?: boolean
@@ -38,7 +37,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const {
         className,
-        isMobile,
         uploadImageAvailable,
         open,
         numbersOfImage,
@@ -182,11 +180,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
             >
                 <>
                     <>
-                        <div
-                            className={`${PostCardContainer({
-                                isMobile: isMobile,
-                            })}`}
-                        >
+                        <div className={`${PostCardContainer()}`}>
                             <div className={`${PostAuthor()}`}>
                                 <span
                                     className={PostAuthorIcon()}
@@ -318,9 +312,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     )}
                                 </div>
                             </div>
-                            <div
-                                className={PostContent({ isMobile: isMobile })}
-                            >
+                            <div className={PostContent()}>
                                 {isSkeleton ? (
                                     <div className="w-full flex flex-col gap-2">
                                         <Skeleton
@@ -334,11 +326,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     <>
                                         <div
                                             style={{ wordBreak: "break-word" }}
-                                            className={`${
-                                                isMobile
-                                                    ? `text-[14px]`
-                                                    : `text-[15px]`
-                                            }`}
+                                            className={`text-[14px] md:text-[15px]`}
                                         >
                                             {renderTextWithLinks}
                                         </div>

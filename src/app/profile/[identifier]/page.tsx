@@ -889,11 +889,7 @@ const UserProfileComponent = ({
                             />
                         )}
                     </div>
-                    <div
-                        className={ProfileHandle({
-                            isMobile: isMobile,
-                        })}
-                    >
+                    <div className={ProfileHandle()}>
                         {!isSkeleton ? (
                             `@${profile.handle}`
                         ) : (
@@ -902,7 +898,7 @@ const UserProfileComponent = ({
                             />
                         )}
                     </div>
-                    <div className={ProfileBio({ isMobile: isMobile })}>
+                    <div className={ProfileBio()}>
                         {!isSkeleton ? (
                             renderTextWithLinks
                         ) : (

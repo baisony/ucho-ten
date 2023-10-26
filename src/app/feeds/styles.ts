@@ -7,14 +7,6 @@ export const layout = tv({
             "flex items-center w-full h-[80px] justify-between select-none cursor-pointer bg-white text-black dark:bg-[#2C2C2C] dark:text-white",
     },
     variants: {
-        isMobile: {
-            true: {
-                background: "",
-            },
-            false: {
-                background: "",
-            },
-        },
         page: {
             single: {
                 bottom: "flex justify-center items-center",
