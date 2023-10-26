@@ -5,6 +5,7 @@ interface FeedInfo {
     posts: FeedViewPost[] | null
     newPosts: FeedViewPost[]
     cursor: string
+    latestCID: string
 }
 
 interface InfoByFeed {
