@@ -135,7 +135,8 @@ export const ViewPostCard = (props: Props) => {
         PostAuthorIcon,
         PostAuthorDisplayName,
         PostAuthorHandle,
-        PostCreatedAt,
+        postCreatedAt,
+        moreButton,
         skeletonIcon,
         skeletonName,
         skeletonHandle,
@@ -812,140 +813,146 @@ export const ViewPostCard = (props: Props) => {
                                     </span>
                                 )}
                             </span>
-                            <div
-                                className={`${PostCreatedAt()} hidden md:block`}
-                                style={{ fontSize: "12px" }}
-                            >
-                                {!isEmbedToModal && isHover && !isSkeleton ? (
-                                    <Dropdown>
-                                        <DropdownTrigger>
-                                            <FontAwesomeIcon
-                                                icon={faEllipsis}
-                                                className={
-                                                    "h-[20px] mb-[4px] cursor-pointer text-[#909090]"
-                                                }
-                                            />
-                                        </DropdownTrigger>
-                                        <DropdownMenu
-                                            disallowEmptySelection
-                                            aria-label="Multiple selection actions"
-                                            selectionMode="multiple"
-                                        >
-                                            <DropdownItem
-                                                key="1"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faLink}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    if (!postJsonData) {
-                                                        return
-                                                    }
 
-                                                    console.log(
-                                                        `https://bsky.app/profile/${
-                                                            postJsonData.author
-                                                                .did
-                                                        }/post/${
-                                                            postJsonData.uri.match(
-                                                                /\/(\w+)$/
-                                                            )?.[1] || ""
-                                                        }`
-                                                    )
-                                                    navigator.clipboard.writeText(
-                                                        `https://bsky.app/profile/${
-                                                            postJsonData.author
-                                                                .did
-                                                        }/post/${
-                                                            postJsonData.uri.match(
-                                                                /\/(\w+)$/
-                                                            )?.[1] || ""
-                                                        }`
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "components.ViewPostCard.copyURL"
-                                                )}
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="2"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faCode}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(
-                                                        JSON.stringify(postJson)
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "components.ViewPostCard.copyJSON"
-                                                )}
-                                            </DropdownItem>
-                                            <DropdownSection title="Danger zone">
-                                                {postJsonData &&
-                                                agent?.session?.did !==
-                                                    postJsonData.author.did ? (
-                                                    <DropdownItem
-                                                        key="report"
-                                                        className="text-danger"
-                                                        color="danger"
-                                                        startContent={
-                                                            <FontAwesomeIcon
-                                                                icon={faFlag}
-                                                            />
-                                                        }
-                                                        onClick={() => {
-                                                            console.log(
-                                                                "hogehoge"
-                                                            )
-                                                            onOpenReport()
-                                                        }}
-                                                    >
-                                                        {t(
-                                                            "components.ViewPostCard.report"
-                                                        )}
-                                                    </DropdownItem>
-                                                ) : (
-                                                    <DropdownItem
-                                                        key="delete"
-                                                        className="text-danger"
-                                                        color="danger"
-                                                        startContent={
-                                                            <FontAwesomeIcon
-                                                                icon={faTrash}
-                                                            />
-                                                        }
-                                                        onClick={() => {
-                                                            handleDelete()
-                                                        }}
-                                                    >
-                                                        {t(
-                                                            "components.ViewPostCard.delete"
-                                                        )}
-                                                    </DropdownItem>
-                                                )}
-                                            </DropdownSection>
-                                        </DropdownMenu>
-                                    </Dropdown>
-                                ) : (
-                                    <>
-                                        {!isSkeleton && (
-                                            <div>
-                                                {postJsonData &&
-                                                    formattedSimpleDate(
-                                                        postJsonData.indexedAt,
-                                                        now || new Date()
-                                                    )}
-                                            </div>
+                            {!isHover && (
+                                <div className={postCreatedAt()}>
+                                    {!isSkeleton &&
+                                        postJsonData &&
+                                        formattedSimpleDate(
+                                            postJsonData.indexedAt,
+                                            now || new Date()
                                         )}
-                                    </>
-                                )}
-                            </div>
+                                </div>
+                            )}
+
+                            {isHover && (
+                                <div className={moreButton()}>
+                                    {!isEmbedToModal && !isSkeleton && (
+                                        <Dropdown>
+                                            <DropdownTrigger>
+                                                <FontAwesomeIcon
+                                                    icon={faEllipsis}
+                                                    className={
+                                                        "h-[20px] mb-[4px] cursor-pointer text-[#909090]"
+                                                    }
+                                                />
+                                            </DropdownTrigger>
+                                            <DropdownMenu
+                                                disallowEmptySelection
+                                                aria-label="Multiple selection actions"
+                                                selectionMode="multiple"
+                                            >
+                                                <DropdownItem
+                                                    key="1"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faLink}
+                                                        />
+                                                    }
+                                                    onClick={() => {
+                                                        if (!postJsonData) {
+                                                            return
+                                                        }
+
+                                                        console.log(
+                                                            `https://bsky.app/profile/${
+                                                                postJsonData
+                                                                    .author.did
+                                                            }/post/${
+                                                                postJsonData.uri.match(
+                                                                    /\/(\w+)$/
+                                                                )?.[1] || ""
+                                                            }`
+                                                        )
+                                                        navigator.clipboard.writeText(
+                                                            `https://bsky.app/profile/${
+                                                                postJsonData
+                                                                    .author.did
+                                                            }/post/${
+                                                                postJsonData.uri.match(
+                                                                    /\/(\w+)$/
+                                                                )?.[1] || ""
+                                                            }`
+                                                        )
+                                                    }}
+                                                >
+                                                    {t(
+                                                        "components.ViewPostCard.copyURL"
+                                                    )}
+                                                </DropdownItem>
+                                                <DropdownItem
+                                                    key="2"
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faCode}
+                                                        />
+                                                    }
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(
+                                                            JSON.stringify(
+                                                                postJson
+                                                            )
+                                                        )
+                                                    }}
+                                                >
+                                                    {t(
+                                                        "components.ViewPostCard.copyJSON"
+                                                    )}
+                                                </DropdownItem>
+                                                <DropdownSection title="Danger zone">
+                                                    {postJsonData &&
+                                                    agent?.session?.did !==
+                                                        postJsonData.author
+                                                            .did ? (
+                                                        <DropdownItem
+                                                            key="report"
+                                                            className="text-danger"
+                                                            color="danger"
+                                                            startContent={
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faFlag
+                                                                    }
+                                                                />
+                                                            }
+                                                            onClick={() => {
+                                                                console.log(
+                                                                    "hogehoge"
+                                                                )
+                                                                onOpenReport()
+                                                            }}
+                                                        >
+                                                            {t(
+                                                                "components.ViewPostCard.report"
+                                                            )}
+                                                        </DropdownItem>
+                                                    ) : (
+                                                        <DropdownItem
+                                                            key="delete"
+                                                            className="text-danger"
+                                                            color="danger"
+                                                            startContent={
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faTrash
+                                                                    }
+                                                                />
+                                                            }
+                                                            onClick={() => {
+                                                                handleDelete()
+                                                            }}
+                                                        >
+                                                            {t(
+                                                                "components.ViewPostCard.delete"
+                                                            )}
+                                                        </DropdownItem>
+                                                    )}
+                                                </DropdownSection>
+                                            </DropdownMenu>
+                                        </Dropdown>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <div className={PostContent()}>
                             {isSkeleton ? (
