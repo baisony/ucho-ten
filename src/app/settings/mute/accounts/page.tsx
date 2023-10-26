@@ -1,5 +1,4 @@
 "use client"
-import { isMobile } from "react-device-detect"
 import { useEffect, useState } from "react"
 
 import {
@@ -29,7 +28,7 @@ export default function Root() {
     const { background, accordion, button } = viewMutewordsPage()
 
     // eslint-disable-next-line
-    const modeMe = (e:any) => {
+    const modeMe = (e: any) => {
         setDarkMode(!!e.matches)
     }
 

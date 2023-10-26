@@ -647,11 +647,7 @@ export const ViewPostCard = (props: Props) => {
     return (
         !isDeleted && (
             <div
-                className={
-                    quoteJson
-                        ? quoteCardStyles.PostCardContainer({ isMobile })
-                        : ""
-                }
+                className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}
             >
                 <Modal
                     isOpen={isOpenReply}
@@ -680,9 +676,7 @@ export const ViewPostCard = (props: Props) => {
                 />
                 <main
                     className={`${
-                        quoteJson
-                            ? quoteCardStyles.PostCard({ isMobile })
-                            : PostCard()
+                        quoteJson ? quoteCardStyles.PostCard() : PostCard()
                     } ${
                         isEmbedToModal
                             ? `bg-transparent border-none`
@@ -700,9 +694,9 @@ export const ViewPostCard = (props: Props) => {
                     }}
                 >
                     <div
-                        className={`${PostCardContainer({
-                            isMobile: isMobile,
-                        })} ${isEmbedToModal && `pt-[0px]`}`}
+                        className={`${PostCardContainer()} ${
+                            isEmbedToModal && `pt-[0px]`
+                        }`}
                         onMouseEnter={() => {
                             setIsHover(true)
                         }}
@@ -951,7 +945,7 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             </div>
                         </div>
-                        <div className={PostContent({ isMobile: isMobile })}>
+                        <div className={PostContent()}>
                             {isSkeleton ? (
                                 <div className="w-full flex flex-col gap-2">
                                     <Skeleton className={skeletonText1line()} />
@@ -977,12 +971,8 @@ export const ViewPostCard = (props: Props) => {
                                     )}
                                     <div
                                         style={{ wordBreak: "break-word" }}
-                                        className={`${
-                                            !isEmbedToPost
-                                                ? isMobile
-                                                    ? `text-[14px]`
-                                                    : `text-[15px]`
-                                                : `text-[13px]`
+                                        className={`text-[14px] md:text-[15px] ${
+                                            !isEmbedToPost && `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}

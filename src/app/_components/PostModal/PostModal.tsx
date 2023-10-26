@@ -14,7 +14,6 @@ import React, {
     useState,
 } from "react"
 import { postModal } from "./styles"
-import { BrowserView, isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
@@ -482,7 +481,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            <div className={PostModal({ isMobile: isMobile })}>
+            <div className={PostModal()}>
                 <div className={header()}>
                     <Button
                         variant="light"
@@ -533,7 +532,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     <div className={"w-full"}>
                         <ViewPostCard
                             postJson={postData}
-                            isMobile={isMobile}
                             isEmbedToModal={true}
                             nextQueryParams={nextQueryParams}
                         />
@@ -883,31 +881,31 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
-                        <BrowserView>
-                            <div className={footerTooltipStyle()}>
-                                <Popover placement="right-end">
-                                    <PopoverTrigger>
-                                        <Button
-                                            isIconOnly
-                                            variant="light"
-                                            className={"h-[24px] text-white"}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faFaceLaughBeam}
-                                                className={"h-[20px] mb-[4px]"}
-                                            />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <Picker
-                                            data={data}
-                                            onEmojiSelect={onEmojiClick}
-                                            previewPosition="none"
+                        <div
+                            className={`${footerTooltipStyle()} hidden md:flex`}
+                        >
+                            <Popover placement="right-end">
+                                <PopoverTrigger>
+                                    <Button
+                                        isIconOnly
+                                        variant="light"
+                                        className={"h-[24px] text-white"}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faFaceLaughBeam}
+                                            className={"h-[20px] mb-[4px]"}
                                         />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </BrowserView>
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <Picker
+                                        data={data}
+                                        onEmojiSelect={onEmojiClick}
+                                        previewPosition="none"
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                         <div className={footerCharacterCount()}>
                             <div
                                 className={footerCharacterCountText()}

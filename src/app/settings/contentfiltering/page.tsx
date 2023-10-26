@@ -1,5 +1,4 @@
 "use client"
-import { isMobile } from "react-device-detect"
 import { useEffect, useState } from "react"
 
 export default function Root() {
