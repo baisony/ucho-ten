@@ -59,6 +59,8 @@ import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
+const MAX_ATTACHMENT_IMAGES: number = 4
+
 interface AttachmentImage {
     blob: Blob
     type: string
@@ -451,6 +453,30 @@ export default function Root() {
         }
     }
 
+    const handlePaste = async (event: React.ClipboardEvent) => {
+        const items = event.clipboardData.items
+        const imageFiles: File[] = []
+
+        for (const item of items) {
+            if (item.type.startsWith("image/")) {
+                const file = item.getAsFile()
+
+                if (file !== null) {
+                    if (
+                        contentImages.length + imageFiles.length <=
+                        MAX_ATTACHMENT_IMAGES
+                    ) {
+                        imageFiles.push(file)
+                    }
+                }
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            await addImages(imageFiles)
+        }
+    }
+    
     return (
         <main
             className={`${background()}
@@ -540,6 +566,7 @@ export default function Root() {
                                     e.currentTarget.value.length
                                 )
                             }
+                            onPaste={handlePaste}
                         />
                         {(contentImages.length > 0 || isCompressing) && (
                             <div className={contentRightImagesContainer()}>
