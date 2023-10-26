@@ -31,6 +31,9 @@ export const filterDisplayPosts = (
             } else if (authorDID === rootDID && authorDID === parentDID) {
                 // self reply
                 displayPost = true
+            } else if (parentDID === userDID) {
+                // reply to my post
+                displayPost = true
             } else if (authorDID === userDID) {
                 // my reply
                 displayPost = true
@@ -48,6 +51,9 @@ export const filterDisplayPosts = (
 
             if (authorDID === rootDID && authorDID === parentDID) {
                 // self reply
+                displayPost = true
+            } else if (parentDID === userDID) {
+                // reply to my post
                 displayPost = true
             } else if (authorDID === userDID) {
                 // my reply
