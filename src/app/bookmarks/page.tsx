@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 
 export default function Root() {
     const { t } = useTranslation()
-    
+
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
