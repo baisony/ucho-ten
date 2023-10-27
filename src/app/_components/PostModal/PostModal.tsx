@@ -569,8 +569,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     >
                         <div className={contentLeft()}>
                             <div
+                                className={`bg-gray-300 dark:bg-white`}
                                 style={{
-                                    backgroundColor: "white",
                                     width: "2px",
                                     height: "999px",
                                     position: "relative",

@@ -656,6 +656,7 @@ export const ViewPostCard = (props: Props) => {
         })
     }, [userPreference, postJson, quoteJson])
 
+    console.log(isEmbedToModal)
     return (
         !isDeleted && (
             <div
@@ -732,7 +733,11 @@ export const ViewPostCard = (props: Props) => {
                                     .displayName || ""}
                             </span>
                         )}
-                        <div className={`${PostAuthor()}`}>
+                        <div
+                            className={`${PostAuthor()} ${
+                                isEmbedToModal ? `z-[2]` : `z-[0]`
+                            }`}
+                        >
                             <span
                                 className={PostAuthorIcon()}
                                 onClick={(e) => {
@@ -753,22 +758,11 @@ export const ViewPostCard = (props: Props) => {
                                                     postJsonData?.author?.avatar
                                                 }
                                                 //radius={"lg"}
-                                                className={`${
-                                                    isEmbedToModal
-                                                        ? `z-[2]`
-                                                        : `z-[0]`
-                                                } rounded-[10px]`}
+                                                className={`rounded-[10px]`}
                                                 alt={postJsonData.author.did}
                                             />
                                         ) : (
-                                            <FontAwesomeIcon
-                                                className={`${
-                                                    isEmbedToModal
-                                                        ? `z-[2]`
-                                                        : `z-[0]`
-                                                } h-full w-full`}
-                                                icon={faUser}
-                                            />
+                                            <FontAwesomeIcon icon={faUser} />
                                         )}
                                     </>
                                 )}
