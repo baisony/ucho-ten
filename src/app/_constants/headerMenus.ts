@@ -10,77 +10,77 @@ const defaultHomeMenus: HeaderMenu[] = [
 const defaultSearchMenus: HeaderMenu[] = [
     {
         displayText: "Posts",
-        info: "Posts",
+        info: "posts",
     },
     {
         displayText: "Users",
-        info: "Users",
+        info: "users",
     },
     {
         displayText: "Feeds",
-        info: "Feeds",
+        info: "feeds",
     },
 ]
 const defaultInboxMenus: HeaderMenu[] = [
     {
         displayText: "Inbox",
-        info: "Inbox",
+        info: "inbox",
     },
 ]
 const defaultProfileMenus: HeaderMenu[] = [
     {
         displayText: "Profile",
-        info: "Profile",
+        info: "profile",
     },
     {
         displayText: "Replies",
-        info: "Replies",
+        info: "replies",
     },
     {
         displayText: "Media",
-        info: "Media",
+        info: "media",
     },
 ]
 
 const defaultOnlyPostMenus: HeaderMenu[] = [
     {
         displayText: "Author's",
-        info: "Author's",
+        info: "authors",
     },
     {
         displayText: "Other's",
-        info: "Other's",
+        info: "others",
     },
 ]
 
 const defaultSettingsMenus: HeaderMenu[] = [
     {
         displayText: "Settings",
-        info: "Settings",
+        info: "settings",
     },
     {
         displayText: "General",
-        info: "General",
+        info: "general",
     },
     {
         displayText: "Content Filtering",
-        info: "Content Filtering",
+        info: "contentfiltering",
     },
 ]
 const defaultBookmarksMenus: HeaderMenu[] = [
     {
         displayText: "Bookmark",
-        info: "Bookmark",
+        info: "bookmark",
     },
 ]
 const defaultMytFeedMenus: HeaderMenu[] = [
     {
         displayText: "My Feeds",
-        info: "My Feeds",
+        info: "myfeeds",
     },
     {
         displayText: "Search",
-        info: "Search",
+        info: "search",
     },
 ]
 
