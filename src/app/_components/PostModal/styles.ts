@@ -46,7 +46,7 @@ export const postModal = tv({
         footer: "w-full h-[43px] absolute bottom-0 select-none bg-[#DADADA] dark:bg-[#2C2C2C]",
         footerTooltip: "h-full w-full flex justify-left items-left",
         footerTooltipStyle:
-            "h-[20px] relative ml-7　mt-3 cursor-pointer text-white",
+            "h-[20px] relative md:ml-7 md:mt-3 ml-2 mt-3 cursor-pointer",
         footerCharacterCount:
             "h-full w-full flex justify-end items-center mr-5",
         footerCharacterCountText: "text-[16px]",
