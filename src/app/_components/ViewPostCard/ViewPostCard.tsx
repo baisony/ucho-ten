@@ -656,7 +656,6 @@ export const ViewPostCard = (props: Props) => {
         })
     }, [userPreference, postJson, quoteJson])
 
-    console.log(isEmbedToModal)
     return (
         !isDeleted && (
             <div
