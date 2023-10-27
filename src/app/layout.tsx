@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 // import { Noto_Sans_JP } from "next/font/google"
 import { Providers } from "./providers"
 import { AppConatiner } from "./appContainer"
+import Script from "next/script"
 
 import "./globals.css"
 
@@ -65,7 +66,7 @@ export default function RootLayout({
                 }}
                 suppressHydrationWarning
             >
-                <script src="noflash.js" />
+                <Script src="/noflash.js" />
                 <Providers>
                     <AppConatiner>{children}</AppConatiner>
                 </Providers>
