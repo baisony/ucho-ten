@@ -10,9 +10,9 @@ import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
     faHeart as faSolidHeart,
-    faRss,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,
     Dropdown,
@@ -444,17 +444,10 @@ const FeedHeaderComponent = ({
         <div className={ProfileContainer()}>
             <div className={ProfileInfoContainer()}>
                 {!isSkeleton ? (
-                    feedInfo.view?.avatar ? (
-                        <img
-                            className={ProfileImage()}
-                            src={feedInfo.view?.avatar}
-                        />
-                    ) : (
-                        <FontAwesomeIcon
-                            icon={faRss}
-                            className={ProfileImage()}
-                        />
-                    )
+                    <img
+                        className={ProfileImage()}
+                        src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                    />
                 ) : (
                     <div className={ProfileImage()}>
                         <Skeleton className={`h-full w-full rounded-[10px] `} />

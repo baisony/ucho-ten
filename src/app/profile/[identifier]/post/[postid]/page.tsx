@@ -29,6 +29,7 @@ import {
     faU,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Chip,
     Dropdown,
@@ -602,14 +603,12 @@ export default function Root() {
                                         )
                                     }}
                                 >
-                                    {post.post.author?.avatar ? (
-                                        <img src={post.post.author?.avatar} />
-                                    ) : (
-                                        <FontAwesomeIcon
-                                            className={`h-full w-full`}
-                                            icon={faUser}
-                                        />
-                                    )}
+                                    <img
+                                        src={
+                                            post.post?.author?.avatar ||
+                                            defaultIcon.src
+                                        }
+                                    />
                                 </div>
                                 <div>
                                     <div

@@ -17,9 +17,9 @@ import {
     faEllipsis,
     faFlag,
     faLink,
-    faUser,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Button,
     Chip,
@@ -728,19 +728,10 @@ const UserProfileComponent = ({
                 </div>
                 <div className={ProfileInfoContainer()}>
                     {!isSkeleton ? (
-                        profile?.avatar ? (
-                            <img
-                                className={ProfileImage()}
-                                src={profile.avatar}
-                            />
-                        ) : (
-                            <div className={`${ProfileImage()} bg-white`}>
-                                <FontAwesomeIcon
-                                    icon={faUser}
-                                    className={"w-full h-full"}
-                                />
-                            </div>
-                        )
+                        <img
+                            className={ProfileImage()}
+                            src={profile?.avatar || defaultIcon.src}
+                        />
                     ) : (
                         <div className={ProfileImage()}>
                             <Skeleton
