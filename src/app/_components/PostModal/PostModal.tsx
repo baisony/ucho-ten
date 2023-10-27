@@ -560,6 +560,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             postJson={postData}
                             isEmbedToModal={true}
                             nextQueryParams={nextQueryParams}
+                            t={t}
                         />
                     </div>
                     <div
@@ -568,8 +569,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     >
                         <div className={contentLeft()}>
                             <div
+                                className={`bg-gray-300 dark:bg-white`}
                                 style={{
-                                    backgroundColor: "white",
                                     width: "2px",
                                     height: "999px",
                                     position: "relative",
@@ -876,8 +877,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     <FontAwesomeIcon
                                         icon={faCirclePlus}
                                         className={
-                                            "h-[20px] mb-[4px] text-white"
+                                            "md:h-[20px] h-[10px] mb-[4px] text-white"
                                         }
+                                        size={"xs"}
                                     />
                                 </DropdownTrigger>
                                 <DropdownMenu

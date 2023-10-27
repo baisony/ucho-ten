@@ -8,7 +8,6 @@ import { Image, Skeleton } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { layout } from "@/app/search/styles"
 import { menuIndexAtom, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
@@ -17,6 +16,7 @@ import { Virtuoso } from "react-virtuoso"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useAtom } from "jotai"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 
 export default function Root() {
     const router = useRouter()
@@ -361,6 +361,7 @@ export default function Root() {
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}
@@ -390,6 +391,7 @@ export default function Root() {
                                 isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}
@@ -498,19 +500,12 @@ const UserCell = ({
                         style={{ borderRadius: "10px" }}
                     />
                 )}
-                {!skeleton && actor?.avatar ? (
+                {!skeleton && (
                     <Image
                         className={`h-[35px] w-[35px] z-[0]`}
-                        src={actor.avatar}
+                        src={actor?.avatar || defaultIcon.src}
                         alt={"avatar image"}
                     />
-                ) : (
-                    !skeleton && (
-                        <FontAwesomeIcon
-                            className={`z-[0] h-full w-full`}
-                            icon={faUser}
-                        />
-                    )
                 )}
             </div>
             <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>

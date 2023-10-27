@@ -14,8 +14,8 @@ import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import { time } from "console"
 import { usePathname } from "next/navigation"
+// import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -37,6 +37,7 @@ const FeedPage = ({
     const [agent] = useAgent()
     const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
+    // const [, setListScrollRefAtom] = useListScrollRefAtom()
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -424,6 +425,7 @@ const FeedPage = ({
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}
@@ -435,12 +437,12 @@ const FeedPage = ({
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
                             scrollRef.current = ref
+                            // setListScrollRefAtom(ref)
                         }
                     }}
                     context={{ hasMore }}
                     overscan={200}
                     increaseViewportBy={200}
-                    // useWindowScroll={true}
                     // overscan={50}
                     data={timelineWithDummy}
                     // initialItemCount={Math.min(18, timeline?.length || 0)}
@@ -456,6 +458,7 @@ const FeedPage = ({
                                 isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}

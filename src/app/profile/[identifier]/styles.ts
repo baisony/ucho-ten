@@ -12,7 +12,7 @@ export const viewProfilePage = tv({
         ProfileImage: "h-[80px] w-[80px] rounded-[10px] top-[-24px] absolute",
         ProfileDisplayName: "font-black text-[24px]",
         ProfileHandle: "text-[12px]",
-        ProfileBio: "mt-[8px] ml-[4px] mr-[20px] text-[12px]",
+        ProfileBio: "mt-[8px] mr-[20px] text-[14px]",
         ProfileCopyButton:
             "h-[32px] w-[32px] ml-[10px] mr-[10px] border-[1px] border-[#929292] rounded-full flex justify-center items-center cursor-pointer",
         ProfileActionButton:

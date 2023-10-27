@@ -29,6 +29,7 @@ import {
     faU,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Chip,
     Dropdown,
@@ -455,6 +456,7 @@ export default function Root() {
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
+                        t={t}
                     />
                 </>
             )
@@ -479,6 +481,7 @@ export default function Root() {
                         postJson={post.replies.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
+                        t={t}
                     />
                 </>
             )
@@ -583,7 +586,7 @@ export default function Root() {
                     post={post.post}
                     nextQueryParams={nextQueryParams}
                 />
-                <main className={`${Container()} mt-[100px]`}>
+                <main className={`${Container()} md:mt-[100px] mt-[85px]`}>
                     {post?.parent && (
                         <>{renderNestedViewPostCards(post, isMobile)}</>
                     )}
@@ -600,14 +603,12 @@ export default function Root() {
                                         )
                                     }}
                                 >
-                                    {post.post.author?.avatar ? (
-                                        <img src={post.post.author?.avatar} />
-                                    ) : (
-                                        <FontAwesomeIcon
-                                            className={`h-full w-full`}
-                                            icon={faUser}
-                                        />
-                                    )}
+                                    <img
+                                        src={
+                                            post.post?.author?.avatar ||
+                                            defaultIcon.src
+                                        }
+                                    />
                                 </div>
                                 <div>
                                     <div
@@ -645,7 +646,10 @@ export default function Root() {
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
                                             icon={faEllipsis}
-                                            className={"md:h-[20px] h-[10px]"}
+                                            className={
+                                                "h-[20px] flex text-[#AAAAAA]"
+                                            }
+                                            size={"xs"}
                                         />
                                     </DropdownTrigger>
                                     <DropdownMenu>
@@ -1007,6 +1011,7 @@ export default function Root() {
                                     postJson={item.post}
                                     isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}
+                                    t={t}
                                 />
                             ))}
                         </>

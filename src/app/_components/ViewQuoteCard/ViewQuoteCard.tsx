@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUser } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { Linkcard } from "../Linkcard"
 import "react-circular-progressbar/dist/styles.css"
 import { Image, ScrollShadow, Skeleton } from "@nextui-org/react"
@@ -197,57 +196,20 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     {isSkeleton ? (
                                         <Skeleton className={skeletonIcon()} />
                                     ) : (
-                                        <>
-                                            {postJson &&
-                                                (postJson?.author?.avatar ? (
-                                                    <Image
-                                                        src={
-                                                            postJson?.author
-                                                                ?.avatar
-                                                        }
-                                                        //radius={"lg"}
-                                                        className={`${
-                                                            isEmbedToModal
-                                                                ? `z-[2]`
-                                                                : `z-[0]`
-                                                        } rounded-[7px]`}
-                                                        alt={
-                                                            postJson?.author.did
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <FontAwesomeIcon
-                                                        className={`${
-                                                            isEmbedToModal
-                                                                ? `z-[2]`
-                                                                : `z-[0]`
-                                                        } h-full w-full`}
-                                                        icon={faUser}
-                                                    />
-                                                ))}
-                                            {profile &&
-                                                (profile?.avatar ? (
-                                                    <Image
-                                                        src={profile.avatar}
-                                                        //radius={"lg"}
-                                                        className={`${
-                                                            isEmbedToModal
-                                                                ? `z-[2]`
-                                                                : `z-[0]`
-                                                        } rounded-[7px]`}
-                                                        alt={profile.did}
-                                                    />
-                                                ) : (
-                                                    <FontAwesomeIcon
-                                                        className={`${
-                                                            isEmbedToModal
-                                                                ? `z-[2]`
-                                                                : `z-[0]`
-                                                        } h-full w-full`}
-                                                        icon={faUser}
-                                                    />
-                                                ))}
-                                        </>
+                                        <Image
+                                            src={
+                                                postJson?.author?.avatar ||
+                                                profile?.avatar ||
+                                                defaultIcon.src
+                                            }
+                                            //radius={"lg"}
+                                            className={`${
+                                                isEmbedToModal
+                                                    ? `z-[2]`
+                                                    : `z-[0]`
+                                            } rounded-[7px]`}
+                                            alt={postJson?.author.did}
+                                        />
                                     )}
                                 </span>
                                 <span

@@ -10,9 +10,9 @@ import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
     faHeart as faSolidHeart,
-    faRss,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,
     Dropdown,
@@ -31,7 +31,6 @@ import {
 } from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { time } from "console"
 
 // interface Props {
 //     className?: string
@@ -44,6 +43,7 @@ import { time } from "console"
 
 export default function Root() {
     const pathname = usePathname()
+    const { t } = useTranslation()
 
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
@@ -317,6 +317,7 @@ export default function Root() {
                     postJson: post.post,
                     now,
                     nextQueryParams,
+                    t,
                 }
 
                 return {
@@ -334,6 +335,7 @@ export default function Root() {
                     isMobile,
                     now,
                     nextQueryParams,
+                    t,
                 }
 
                 return {
@@ -442,17 +444,10 @@ const FeedHeaderComponent = ({
         <div className={ProfileContainer()}>
             <div className={ProfileInfoContainer()}>
                 {!isSkeleton ? (
-                    feedInfo.view?.avatar ? (
-                        <img
-                            className={ProfileImage()}
-                            src={feedInfo.view?.avatar}
-                        />
-                    ) : (
-                        <FontAwesomeIcon
-                            icon={faRss}
-                            className={ProfileImage()}
-                        />
-                    )
+                    <img
+                        className={ProfileImage()}
+                        src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                    />
                 ) : (
                     <div className={ProfileImage()}>
                         <Skeleton className={`h-full w-full rounded-[10px] `} />

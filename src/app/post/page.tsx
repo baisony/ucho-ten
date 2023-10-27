@@ -8,7 +8,7 @@ import React, {
     useState,
 } from "react"
 import { createPostPage } from "./styles"
-import { isMobile } from "react-device-detect"
+// import { isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
@@ -374,28 +374,28 @@ export default function Root() {
         e.preventDefault()
     }
 
-    const userList = [
-        {
-            name: "John Doe",
-            avatar: "https://i.pravatar.cc/100?img=1",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-        {
-            name: "Jane Doe",
-            avatar: "https://i.pravatar.cc/100?img=2",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-        {
-            name: "Kate Doe",
-            avatar: "https://i.pravatar.cc/100?img=3",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-        {
-            name: "Mark Doe",
-            avatar: "https://i.pravatar.cc/100?img=4",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-    ]
+    // const userList = [
+    //     {
+    //         name: "John Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=1",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    //     {
+    //         name: "Jane Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=2",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    //     {
+    //         name: "Kate Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=3",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    //     {
+    //         name: "Mark Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=4",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    // ]
 
     const detectURL = (text: string) => {
         // URLを検出する正規表現パターン
@@ -822,8 +822,9 @@ export default function Root() {
                                     <FontAwesomeIcon
                                         icon={faCirclePlus}
                                         className={
-                                            "h-[20px] mb-[4px] text-white"
+                                            "md:h-[20px] h-[10px] mb-[4px] text-white"
                                         }
+                                        size={"xs"}
                                     />
                                 </DropdownTrigger>
                                 <DropdownMenu

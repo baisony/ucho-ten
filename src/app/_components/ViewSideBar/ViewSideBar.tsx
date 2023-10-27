@@ -16,6 +16,7 @@ import {
     faUsers,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import "react-circular-progressbar/dist/styles.css"
 import {
     Button,
@@ -247,17 +248,13 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             >
                                 <div className={"flex items-center mb-[10px]"}>
                                     <div className={"w-[50px] h-[50px]"}>
-                                        {item.profile?.avatar ? (
-                                            <img
-                                                src={item.profile.avatar}
-                                                className={"h-full w-full"}
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                icon={faUser}
-                                                className={"h-full w-full"}
-                                            />
-                                        )}
+                                        <img
+                                            src={
+                                                item?.profile?.avatar ||
+                                                defaultIcon.src
+                                            }
+                                            className={"h-full w-full"}
+                                        />
                                     </div>
                                     <div>
                                         <div>{item.profile.displayName}</div>
@@ -495,17 +492,10 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             "h-[64px] w-[64px] rounded-[10px] overflow-hidden"
                         }
                     >
-                        {userProfileDetailed?.avatar ? (
-                            <img
-                                className={"h-[64px] w-[64px] rounded-[10px]"}
-                                src={userProfileDetailed?.avatar}
-                            />
-                        ) : (
-                            <FontAwesomeIcon
-                                icon={faUser}
-                                className={"h-full w-full"}
-                            />
-                        )}
+                        <img
+                            className={"h-[64px] w-[64px] rounded-[10px]"}
+                            src={userProfileDetailed?.avatar || defaultIcon.src}
+                        />
                     </div>
                     <div className={"ml-[12px]"}>
                         <div className={AuthorDisplayName()}>

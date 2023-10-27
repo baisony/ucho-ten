@@ -1,6 +1,5 @@
 import React from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faRss } from "@fortawesome/free-solid-svg-icons"
+import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import "react-circular-progressbar/dist/styles.css"
 import { Image, Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
@@ -58,21 +57,15 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                     {isSkeleton ? (
                                         <Skeleton className={skeletonIcon()} />
                                     ) : (
-                                        <>
-                                            {feed?.avatar ? (
-                                                <Image
-                                                    src={feed.avatar}
-                                                    //radius={"lg"}
-                                                    className={` z-[0] rounded-[7px]`}
-                                                    alt={feed.did}
-                                                />
-                                            ) : (
-                                                <FontAwesomeIcon
-                                                    className={`z-[0] h-full w-full`}
-                                                    icon={faRss}
-                                                />
-                                            )}
-                                        </>
+                                        <Image
+                                            src={
+                                                feed?.avatar ||
+                                                defaultFeedIcon.src
+                                            }
+                                            //radius={"lg"}
+                                            className={` z-[0] rounded-[7px]`}
+                                            alt={feed.did}
+                                        />
                                     )}
                                 </span>
                                 <span

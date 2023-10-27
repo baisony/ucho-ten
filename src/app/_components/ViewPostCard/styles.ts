@@ -3,7 +3,7 @@ import { tv } from "@nextui-org/react"
 export const viewPostCard = tv({
     slots: {
         PostCard:
-            "w-full min-w-[350px] border-b-[1px] bg-white text-black border-[#E8E8E8] dark:bg-[#2C2C2C] dark:text-[#D7D7D7] dark:border-[#181818]",
+            "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818]",
         PostCardContainer: "pl-[8px] pt-[11px] w-full md:pb-[24px] pb-[16px]",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
@@ -18,8 +18,8 @@ export const viewPostCard = tv({
             "text-[#B8B8B8] font-light absolute right-[17px] text-[12px]",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
         PostContent:
-            "w-[100%-5px] h-full ml-[25px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
-        PostContentText: "",
+            "w-[100%-5px] h-full ml-[36px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
+        PostContentText: "text-[14px] md:text-[15px]",
         PostReactionButtonContainer: "w-full h-[20px] text-right right-[17px] ",
         PostReactionButton:
             "md:h-[16px] h-[14px] md:pl-[8px] pl-[6px] md:pr-[8px] pr-[6px] md:ml-[60px] ml-[45px] text-[#909090] cursor-pointer select-none",
@@ -46,7 +46,12 @@ export const viewPostCard = tv({
     variants: {
         isEmbedToModal: {
             true: {
-                PostModal: "bg-transparent",
+                PostCard: "bg-transparent",
+                PostCardContainer: "pt-0 border-none",
+            },
+            false: {
+                PostCardContainer: "cursor-pointer",
+                PostContentText: "",
             },
         },
     },

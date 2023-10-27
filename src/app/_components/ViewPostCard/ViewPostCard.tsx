@@ -33,8 +33,8 @@ import {
     faRetweet,
     faStar as faHeartSolid,
     faTrash,
-    faUser,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { PostModal } from "../PostModal"
@@ -68,7 +68,6 @@ import {
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { useTranslation } from "react-i18next"
 
 interface Props {
     // className?: string
@@ -85,6 +84,7 @@ interface Props {
     now?: Date
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
+    t: any
 }
 
 export const ViewPostCard = (props: Props) => {
@@ -102,6 +102,7 @@ export const ViewPostCard = (props: Props) => {
         now,
         isEmbedToPost,
         nextQueryParams,
+        t,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -117,7 +118,7 @@ export const ViewPostCard = (props: Props) => {
             return null
         }
     }, [postJson, quoteJson])
-    const { t } = useTranslation()
+    // const { t } = useTranslation()
     const [agent] = useAgent()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
@@ -129,6 +130,7 @@ export const ViewPostCard = (props: Props) => {
         PostCard,
         PostAuthor,
         PostContent,
+        PostContentText,
         PostReactionButtonContainer,
         PostCardContainer,
         PostReactionButton,
@@ -654,6 +656,18 @@ export const ViewPostCard = (props: Props) => {
         })
     }, [userPreference, postJson, quoteJson])
 
+    useEffect(() => {
+        if (!embedRecord) return
+        if (!embedRecordViewRecord) return
+        if (
+            embedRecordViewRecord.author.viewer?.blockedBy ||
+            embedRecordViewRecord.author.viewer?.muted ||
+            embedRecordViewRecord.author.viewer?.blocking
+        ) {
+            setIsDeleted(true)
+        }
+    }, [])
+
     return (
         !isDeleted && (
             <div
@@ -686,12 +700,10 @@ export const ViewPostCard = (props: Props) => {
                 />
                 <main
                     className={`${
-                        quoteJson ? quoteCardStyles.PostCard() : PostCard()
-                    } ${
-                        isEmbedToModal
-                            ? `bg-transparent border-none`
-                            : `cursor-pointer`
-                    }`}
+                        quoteJson
+                            ? quoteCardStyles.PostCard()
+                            : PostCard({ isEmbedToModal })
+                    } ${isEmbedToModal ? `border-none` : `cursor-pointer`}`}
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                     onClick={(e) => {
                         e.stopPropagation()
@@ -704,9 +716,7 @@ export const ViewPostCard = (props: Props) => {
                     }}
                 >
                     <div
-                        className={`${PostCardContainer()} ${
-                            isEmbedToModal && `pt-[0px]`
-                        }`}
+                        className={`${PostCardContainer({ isEmbedToModal })}`}
                         onMouseEnter={() => {
                             setIsHover(true)
                         }}
@@ -730,7 +740,11 @@ export const ViewPostCard = (props: Props) => {
                                     .displayName || ""}
                             </span>
                         )}
-                        <div className={`${PostAuthor()}`}>
+                        <div
+                            className={`${PostAuthor()} ${
+                                isEmbedToModal ? `z-[2]` : `z-[0]`
+                            }`}
+                        >
                             <span
                                 className={PostAuthorIcon()}
                                 onClick={(e) => {
@@ -744,31 +758,15 @@ export const ViewPostCard = (props: Props) => {
                                 {isSkeleton ? (
                                     <Skeleton className={skeletonIcon()} />
                                 ) : (
-                                    <>
-                                        {postJsonData?.author?.avatar ? (
-                                            <img
-                                                src={
-                                                    postJsonData?.author?.avatar
-                                                }
-                                                //radius={"lg"}
-                                                className={`${
-                                                    isEmbedToModal
-                                                        ? `z-[2]`
-                                                        : `z-[0]`
-                                                } rounded-[10px]`}
-                                                alt={postJsonData.author.did}
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                className={`${
-                                                    isEmbedToModal
-                                                        ? `z-[2]`
-                                                        : `z-[0]`
-                                                } h-full w-full`}
-                                                icon={faUser}
-                                            />
-                                        )}
-                                    </>
+                                    <img
+                                        src={
+                                            postJsonData?.author?.avatar ||
+                                            defaultIcon.src
+                                        }
+                                        //radius={"lg"}
+                                        className={`rounded-[10px]`}
+                                        alt={postJsonData?.author.did}
+                                    />
                                 )}
                             </span>
                             <span
@@ -980,7 +978,7 @@ export const ViewPostCard = (props: Props) => {
                                     )}
                                     <div
                                         style={{ wordBreak: "break-word" }}
-                                        className={`text-[14px] md:text-[15px] ${
+                                        className={`${PostContentText()} ${
                                             !isEmbedToPost && `text-[13px]`
                                         }`}
                                     >
@@ -1038,6 +1036,7 @@ export const ViewPostCard = (props: Props) => {
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
+                                        t={t}
                                     />
                                 )}
                             {embedFeed && <ViewFeedCard feed={embedFeed} />}
