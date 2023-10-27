@@ -71,8 +71,6 @@ const Root = () => {
 
     useEffect(() => {
         if (tappedTabbarButton == "home") {
-            setTappedTabbarButton(null)
-
             setMenuIndexChangedByMenu(true)
             setMenuIndex(0) // at least home menu has 1 element
         }
@@ -171,6 +169,10 @@ const Root = () => {
             onActiveIndexChange={(swiper) => {
                 if (menuIndexChangedByMenu === false) {
                     setMenuIndex(swiper.activeIndex)
+                }
+
+                if (tappedTabbarButton !== null) {
+                    setTappedTabbarButton(null)
                 }
             }}
             onTouchStart={(swiper, event) => {

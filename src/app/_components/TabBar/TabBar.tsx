@@ -24,9 +24,10 @@ export const TabBar: React.FC<Props> = (props: Props) => {
     const pathname = usePathname()
 
     const [agent] = useAgent()
-    const [nextQueryParamsAtom] = useNextQueryParamsAtom()
-    const [,setTappedTabbarButtonAtom] = useTappedTabbarButtonAtom()
-    
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
+
     const { className } = props
     const reg =
         /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
@@ -52,7 +53,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                 return
         }
 
-        const tabQueryParam = nextQueryParamsAtom.get("f")
+        const tabQueryParam = nextQueryParams.get("f")
 
         if (isTabQueryParamValue(tabQueryParam)) {
             setHilightedTab(tabQueryParam)
@@ -60,7 +61,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
         }
 
         setHilightedTab("h")
-    }, [pathname, nextQueryParamsAtom])
+    }, [pathname, nextQueryParams])
 
     const checkNewNotification = async () => {
         if (!agent) {
@@ -111,8 +112,8 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "h" })}
                 onClick={() => {
-                    if (hilightedTab === "h") {
-                        setTappedTabbarButtonAtom("home")
+                    if (hilightedTab === "h" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("home")
                     } else {
                         router.push("/")
                     }
@@ -132,8 +133,8 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "s" })}
                 onClick={() => {
-                    if (hilightedTab === "s") {
-                        setTappedTabbarButtonAtom("search")
+                    if (hilightedTab === "s" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("search")
                     } else {
                         router.push("/search")
                     }
@@ -152,8 +153,8 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "i" })}
                 onClick={() => {
-                    if (hilightedTab === "i") {
-                        setTappedTabbarButtonAtom("inbox")
+                    if (hilightedTab === "i" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("inbox")
                     } else {
                         router.push("/inbox")
                     }

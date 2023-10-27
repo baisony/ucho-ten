@@ -26,7 +26,7 @@ export default function Root() {
     const [menuIndex] = useAtom(menuIndexAtom)
     //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
-    
+
     const [nextQueryParams] = useNextQueryParamsAtom()
 
     const searchWord = searchParams.get("word") || ""

@@ -21,13 +21,13 @@ export default function Root() {
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
 
-    const [loading, setLoading] = useState(false)
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
 
     const cursor = useRef<string>("")
+    const loading = useRef<boolean>(false)
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -41,20 +41,28 @@ export default function Root() {
 
     useEffect(() => {
         if (tappedTabbarButton == "inbox") {
-            setTappedTabbarButton(null)
+            if (loading.current === true) {
+                setTappedTabbarButton(null)
+                return
+            }
 
-            cursor.current = ""
+            const doFetch = async () => {
+                cursor.current = ""
 
-            setNotificationInfo((prevNotificationInfo) => {
-                const newNotificationInfo = prevNotificationInfo
+                setNotificationInfo((prevNotificationInfo) => {
+                    const newNotificationInfo = prevNotificationInfo
 
-                newNotificationInfo.notification = null
-                newNotificationInfo.cursor = ""
+                    newNotificationInfo.notification = null
+                    newNotificationInfo.cursor = ""
 
-                return newNotificationInfo
-            })
-            setNotification(null)
-            fetchNotification(true)
+                    return newNotificationInfo
+                })
+
+                setNotification(null)
+                await fetchNotification()
+            }
+
+            doFetch()
         }
     }, [tappedTabbarButton])
 
@@ -71,13 +79,13 @@ export default function Root() {
         }
     }, [notification, cursor.current])
 
-    const fetchNotification = async (loadingFlag: boolean = true) => {
+    const fetchNotification = async () => {
         try {
             if (!agent) {
                 return
             }
 
-            setLoading(loadingFlag)
+            loading.current = true
 
             const { data } = await agent.listNotifications({
                 cursor: cursor.current,
@@ -97,6 +105,7 @@ export default function Root() {
                 )
 
                 const dividedReplyNotifications = []
+
                 for (let i = 0; i < replyNotifications.length; i += 25) {
                     dividedReplyNotifications.push(
                         replyNotifications.slice(i, i + 25)
@@ -104,6 +113,7 @@ export default function Root() {
                 }
 
                 const allPosts: any[] = []
+
                 for (const dividedNotifications of dividedReplyNotifications) {
                     const posts = await agent.getPosts({
                         uris: dividedNotifications.map(
@@ -142,13 +152,22 @@ export default function Root() {
             setHasMore(false)
             console.log(e)
         } finally {
-            setLoading(false)
+            if (
+                agent &&
+                notification &&
+                notification.length < 20 &&
+                cursor.current.length > 0
+            ) {
+                loading.current = true
+            } else {
+                loading.current = false
+            }
         }
     }
 
     const loadMore = async (page: number) => {
         if (hasMore) {
-            await fetchNotification(false)
+            await fetchNotification()
         }
     }
 
@@ -158,9 +177,16 @@ export default function Root() {
                 agent &&
                 notification &&
                 notification.length < 20 &&
-                cursor.current.length > 0
+                cursor.current.length > 0 &&
+                loading.current === false
             ) {
-                await fetchNotification(false)
+                await fetchNotification()
+            } else {
+                loading.current = false
+
+                if (tappedTabbarButton !== null) {
+                    setTappedTabbarButton(null)
+                }
             }
         }
 
@@ -190,7 +216,7 @@ export default function Root() {
 
     return (
         <>
-            {(!notification || loading) && (
+            {!notification && (
                 <Virtuoso
                     totalCount={20}
                     initialItemCount={20}

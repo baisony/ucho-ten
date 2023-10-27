@@ -230,15 +230,11 @@ const FeedPage = ({
             return
         }
 
-        console.log("here 1")
-
         const initialAction = async () => {
             if (!infoByFeed[feedKey] || infoByFeed[feedKey].posts == null) {
-                console.log("here 2")
                 setNewTimeline([])
                 await fetchTimeline()
             } else {
-                console.log("here 3")
                 setTimeline(infoByFeed[feedKey].posts)
                 //setNewTimeline(infoByFeed[feedKey].newPosts)
                 cursor.current = infoByFeed[feedKey].cursor
@@ -346,7 +342,6 @@ const FeedPage = ({
     }
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
-        console.log("timelineWithDummy timeline", timeline)
         // Need to add data for top padding
         const dummyData: FeedViewPost = {} as FeedViewPost
 
