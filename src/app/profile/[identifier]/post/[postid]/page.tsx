@@ -585,7 +585,7 @@ export default function Root() {
                     post={post.post}
                     nextQueryParams={nextQueryParams}
                 />
-                <main className={`${Container()} mt-[100px]`}>
+                <main className={`${Container()} md:mt-[100px] mt-[85px]`}>
                     {post?.parent && (
                         <>{renderNestedViewPostCards(post, isMobile)}</>
                     )}
@@ -647,7 +647,10 @@ export default function Root() {
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
                                             icon={faEllipsis}
-                                            className={"md:h-[20px] h-[10px]"}
+                                            className={
+                                                "h-[20px] flex text-[#AAAAAA]"
+                                            }
+                                            size={"xs"}
                                         />
                                     </DropdownTrigger>
                                     <DropdownMenu>
