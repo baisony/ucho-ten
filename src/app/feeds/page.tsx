@@ -14,12 +14,8 @@ import {
 } from "@nextui-org/react"
 import { AtUri } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBars,
-    faGear,
-    faRss,
-    faThumbTack,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
+import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
@@ -152,14 +148,12 @@ export default function Root() {
                                             "h-[50px] w-[50px] overflow-hidden rounded-[10px] ml-[12px]"
                                         }
                                     >
-                                        {feed?.avatar ? (
-                                            <img src={feed?.avatar} />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                icon={faRss}
-                                                className={"h-full w-full"}
-                                            />
-                                        )}
+                                        <img
+                                            src={
+                                                feed?.avatar ||
+                                                defaultFeedIcon.src
+                                            }
+                                        />
                                     </div>
                                     <div className={"ml-[12px]"}>
                                         <div>{feed?.displayName}</div>
