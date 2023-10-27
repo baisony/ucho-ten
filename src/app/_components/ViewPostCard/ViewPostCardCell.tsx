@@ -18,6 +18,7 @@ export interface ViewPostCardCellProps {
     now?: Date
     isDummyHeader?: boolean
     nextQueryParams: URLSearchParams
+    t: any
 }
 
 export const ViewPostCardCell = (props: ViewPostCardCellProps) => {

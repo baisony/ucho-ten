@@ -360,6 +360,7 @@ export default function Root() {
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}
@@ -389,6 +390,7 @@ export default function Root() {
                                 isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}

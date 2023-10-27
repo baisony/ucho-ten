@@ -455,6 +455,7 @@ export default function Root() {
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
+                        t={t}
                     />
                 </>
             )
@@ -479,6 +480,7 @@ export default function Root() {
                         postJson={post.replies.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
+                        t={t}
                     />
                 </>
             )
@@ -1007,6 +1009,7 @@ export default function Root() {
                                     postJson={item.post}
                                     isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}
+                                    t={t}
                                 />
                             ))}
                         </>

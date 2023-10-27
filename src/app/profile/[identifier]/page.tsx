@@ -51,10 +51,12 @@ import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
     const router = useRouter()
-    const [nextQueryParams] = useNextQueryParamsAtom()
     const pathname = usePathname()
+    const { t } = useTranslation()
+
+    const [agent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     const username = pathname.replace("/profile/", "")
 
     const [loading, setLoading] = useState(true)
@@ -260,6 +262,7 @@ export default function Root() {
                         postJson: post.post,
                         now,
                         nextQueryParams,
+                        t,
                     }
 
                     return {
@@ -278,6 +281,7 @@ export default function Root() {
                     isMobile,
                     now,
                     nextQueryParams,
+                    t,
                 }
 
                 return {
