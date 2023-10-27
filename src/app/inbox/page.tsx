@@ -75,11 +75,22 @@ export default function Root() {
                         notification.reason === "mention"
                 )
 
-                const posts = await agent.getPosts({
-                    uris: replyNotifications.map(
-                        (notification: any) => notification.uri
-                    ),
-                })
+                const dividedReplyNotifications = []
+                for (let i = 0; i < replyNotifications.length; i += 25) {
+                    dividedReplyNotifications.push(
+                        replyNotifications.slice(i, i + 25)
+                    )
+                }
+
+                const allPosts: any[] = []
+                for (const dividedNotifications of dividedReplyNotifications) {
+                    const posts = await agent.getPosts({
+                        uris: dividedNotifications.map(
+                            (notification) => notification.uri
+                        ),
+                    })
+                    allPosts.push(...posts.data.posts)
+                }
 
                 console.log("replyNotifications", replyNotifications)
 
@@ -87,12 +98,11 @@ export default function Root() {
                     if (currentNotifications !== null) {
                         const notifications = [
                             ...currentNotifications,
-                            ...posts.data.posts,
+                            ...allPosts,
                         ]
-
                         return notifications
                     } else {
-                        return [...posts.data.posts]
+                        return [...allPosts]
                     }
                 })
 
