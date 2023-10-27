@@ -9,9 +9,12 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useNotificationInfoAtom } from "../_atoms/notification"
-import { ReactBurgerMenu } from "react-burger-menu"
+// import { ReactBurgerMenu } from "react-burger-menu"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
+    const { t } = useTranslation()
+
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
@@ -166,6 +169,7 @@ export default function Root() {
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}
@@ -194,6 +198,7 @@ export default function Root() {
                                 isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
+                                t,
                             }}
                         />
                     )}

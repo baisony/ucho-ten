@@ -5,8 +5,11 @@ import { useEffect, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { useTranslation } from "react-i18next"
 
 export default function Root() {
+    const { t } = useTranslation()
+    
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
@@ -46,6 +49,7 @@ export default function Root() {
                             key={index}
                             postJson={post}
                             nextQueryParams={nextQueryParams}
+                            t={t}
                         />
                     )
                 })}

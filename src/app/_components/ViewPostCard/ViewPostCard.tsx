@@ -85,6 +85,7 @@ interface Props {
     now?: Date
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
+    t: any
 }
 
 export const ViewPostCard = (props: Props) => {
@@ -102,6 +103,7 @@ export const ViewPostCard = (props: Props) => {
         now,
         isEmbedToPost,
         nextQueryParams,
+        t,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -117,7 +119,7 @@ export const ViewPostCard = (props: Props) => {
             return null
         }
     }, [postJson, quoteJson])
-    const { t } = useTranslation()
+    // const { t } = useTranslation()
     const [agent] = useAgent()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
@@ -1038,6 +1040,7 @@ export const ViewPostCard = (props: Props) => {
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
+                                        t={t}
                                     />
                                 )}
                             {embedFeed && <ViewFeedCard feed={embedFeed} />}

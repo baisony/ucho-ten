@@ -31,7 +31,6 @@ import {
 } from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { time } from "console"
 
 // interface Props {
 //     className?: string
@@ -44,6 +43,7 @@ import { time } from "console"
 
 export default function Root() {
     const pathname = usePathname()
+    const { t } = useTranslation()
 
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
@@ -317,6 +317,7 @@ export default function Root() {
                     postJson: post.post,
                     now,
                     nextQueryParams,
+                    t,
                 }
 
                 return {
@@ -334,6 +335,7 @@ export default function Root() {
                     isMobile,
                     now,
                     nextQueryParams,
+                    t,
                 }
 
                 return {

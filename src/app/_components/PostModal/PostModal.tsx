@@ -560,6 +560,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             postJson={postData}
                             isEmbedToModal={true}
                             nextQueryParams={nextQueryParams}
+                            t={t}
                         />
                     </div>
                     <div
