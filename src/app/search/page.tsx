@@ -19,13 +19,14 @@ import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useAtom } from "jotai"
 
 export default function Root() {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
     const [agent] = useAgent()
     const [menuIndex] = useAtom(menuIndexAtom)
     //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
-
-    const router = useRouter()
-    const searchParams = useSearchParams()
+    
     const [nextQueryParams] = useNextQueryParamsAtom()
 
     const searchWord = searchParams.get("word") || ""

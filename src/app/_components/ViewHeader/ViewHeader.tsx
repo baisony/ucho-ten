@@ -36,6 +36,7 @@ import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import { useAtom } from "jotai"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 
 interface Props {
     className?: string
@@ -55,11 +56,14 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const pathname = usePathname()
     const router = useRouter()
     const pathname = usePathname()
+
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
     const {
         // className,
@@ -92,6 +96,19 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         bottom,
         HeaderInputArea,
     } = viewHeader()
+
+    useEffect(() => {
+        if (tappedTabbarButton == "search") {
+            setTappedTabbarButton(null)
+            setSearchText("")
+
+            const queryParams = new URLSearchParams(searchParams)
+            queryParams.delete("target")
+            queryParams.delete("word")
+
+            router.push(`/search?${queryParams.toString()}`)
+        }
+    }, [tappedTabbarButton])
 
     useEffect(() => {
         const search = searchParams.get("word")
