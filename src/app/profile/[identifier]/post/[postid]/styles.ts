@@ -13,9 +13,8 @@ export const postOnlyPage = tv({
             "md:text-[16px] text-[14px] font-bold cursor-pointer",
         AuthorHandle: "md:text-[12px] text-[10px] cursor-pointer",
         PostContent:
-            "pl-[26px] pt-[6px] pr-[24px] pb-[20px] w-full text-[16px] text-black dark:text-white",
-        PostCreatedAt:
-            "pl-[14px] text-[#AAAAAA] text-[12px] text-black dark:text-white",
+            "pl-[14px] pt-[6px] pr-[24px] pb-[20px] w-full text-[16px] text-black dark:text-white",
+        PostCreatedAt: "pl-[14px] text-[#AAAAAA] text-[12px]",
         ReactionButtonContainer:
             "mt-[16px] pl-[40px] pr-[40px] mb-[16px] flex justify-between ",
         ReactionButton:
