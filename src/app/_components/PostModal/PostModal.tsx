@@ -877,8 +877,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     <FontAwesomeIcon
                                         icon={faCirclePlus}
                                         className={
-                                            "h-[20px] mb-[4px] text-white"
+                                            "md:h-[20px] h-[10px] mb-[4px] text-white"
                                         }
+                                        size={"xs"}
                                     />
                                 </DropdownTrigger>
                                 <DropdownMenu
