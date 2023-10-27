@@ -33,8 +33,8 @@ import {
     faRetweet,
     faStar as faHeartSolid,
     faTrash,
-    faUser,
 } from "@fortawesome/free-solid-svg-icons"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { PostModal } from "../PostModal"
@@ -68,7 +68,6 @@ import {
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { useTranslation } from "react-i18next"
 
 interface Props {
     // className?: string
@@ -758,20 +757,15 @@ export const ViewPostCard = (props: Props) => {
                                 {isSkeleton ? (
                                     <Skeleton className={skeletonIcon()} />
                                 ) : (
-                                    <>
-                                        {postJsonData?.author?.avatar ? (
-                                            <img
-                                                src={
-                                                    postJsonData?.author?.avatar
-                                                }
-                                                //radius={"lg"}
-                                                className={`rounded-[10px]`}
-                                                alt={postJsonData.author.did}
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon icon={faUser} />
-                                        )}
-                                    </>
+                                    <img
+                                        src={
+                                            postJsonData?.author?.avatar ||
+                                            defaultIcon.src
+                                        }
+                                        //radius={"lg"}
+                                        className={`rounded-[10px]`}
+                                        alt={postJsonData?.author.did}
+                                    />
                                 )}
                             </span>
                             <span
