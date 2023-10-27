@@ -656,6 +656,18 @@ export const ViewPostCard = (props: Props) => {
         })
     }, [userPreference, postJson, quoteJson])
 
+    useEffect(() => {
+        if (!embedRecord) return
+        if (!embedRecordViewRecord) return
+        if (
+            embedRecordViewRecord.author.viewer?.blockedBy ||
+            embedRecordViewRecord.author.viewer?.muted ||
+            embedRecordViewRecord.author.viewer?.blocking
+        ) {
+            setIsDeleted(true)
+        }
+    }, [])
+
     return (
         !isDeleted && (
             <div
