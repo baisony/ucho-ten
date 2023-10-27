@@ -689,12 +689,10 @@ export const ViewPostCard = (props: Props) => {
                 />
                 <main
                     className={`${
-                        quoteJson ? quoteCardStyles.PostCard() : PostCard()
-                    } ${
-                        isEmbedToModal
-                            ? `bg-transparent border-none`
-                            : `cursor-pointer`
-                    }`}
+                        quoteJson
+                            ? quoteCardStyles.PostCard()
+                            : PostCard({ isEmbedToModal })
+                    } ${isEmbedToModal ? `border-none` : `cursor-pointer`}`}
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                     onClick={(e) => {
                         e.stopPropagation()
@@ -707,9 +705,7 @@ export const ViewPostCard = (props: Props) => {
                     }}
                 >
                     <div
-                        className={`${PostCardContainer()} ${
-                            isEmbedToModal && `pt-[0px]`
-                        }`}
+                        className={`${PostCardContainer({ isEmbedToModal })}`}
                         onMouseEnter={() => {
                             setIsHover(true)
                         }}
