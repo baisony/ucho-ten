@@ -18,8 +18,8 @@ export const viewPostCard = tv({
             "text-[#B8B8B8] font-light absolute right-[17px] text-[12px]",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
         PostContent:
-            "w-[100%-5px] h-full ml-[25px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
-        PostContentText: "",
+            "w-[100%-5px] h-full ml-[36px] mr-[17px] mb-[6px] text-[14px] md:text-[15px]",
+        PostContentText: "text-[14px] md:text-[15px]",
         PostReactionButtonContainer: "w-full h-[20px] text-right right-[17px] ",
         PostReactionButton:
             "md:h-[16px] h-[14px] md:pl-[8px] pl-[6px] md:pr-[8px] pr-[6px] md:ml-[60px] ml-[45px] text-[#909090] cursor-pointer select-none",
@@ -51,6 +51,7 @@ export const viewPostCard = tv({
             },
             false: {
                 PostCardContainer: "cursor-pointer",
+                PostContentText: "",
             },
         },
     },

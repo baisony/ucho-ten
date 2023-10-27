@@ -130,6 +130,7 @@ export const ViewPostCard = (props: Props) => {
         PostCard,
         PostAuthor,
         PostContent,
+        PostContentText,
         PostReactionButtonContainer,
         PostCardContainer,
         PostReactionButton,
@@ -977,7 +978,7 @@ export const ViewPostCard = (props: Props) => {
                                     )}
                                     <div
                                         style={{ wordBreak: "break-word" }}
-                                        className={`text-[14px] md:text-[15px] ${
+                                        className={`${PostContentText()} ${
                                             !isEmbedToPost && `text-[13px]`
                                         }`}
                                     >
