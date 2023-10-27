@@ -9,14 +9,17 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useNotificationInfoAtom } from "../_atoms/notification"
-import { ReactBurgerMenu } from "react-burger-menu"
+import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
+// import { ReactBurgerMenu } from "react-burger-menu"
 
 export default function Root() {
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
     const [darkMode, setDarkMode] = useState(false)
@@ -33,6 +36,25 @@ export default function Root() {
             clearInterval(intervalId)
         }
     }, [])
+
+    useEffect(() => {
+        if (tappedTabbarButton == "inbox") {
+            setTappedTabbarButton(null)
+
+            cursor.current = ""
+
+            setNotificationInfo((prevNotificationInfo) => {
+                const newNotificationInfo = prevNotificationInfo
+
+                newNotificationInfo.notification = null
+                newNotificationInfo.cursor = ""
+
+                return newNotificationInfo
+            })
+            setNotification(null)
+            fetchNotification(true)
+        }
+    }, [tappedTabbarButton])
 
     useEffect(() => {
         if (notification) {
@@ -132,6 +154,7 @@ export default function Root() {
 
         fetchIfNeeded()
     }, [notification, cursor.current])
+
     useEffect(() => {
         if (!agent) return
 
@@ -155,7 +178,7 @@ export default function Root() {
 
     return (
         <>
-            {!notification && (
+            {(!notification || loading) && (
                 <Virtuoso
                     totalCount={20}
                     initialItemCount={20}
