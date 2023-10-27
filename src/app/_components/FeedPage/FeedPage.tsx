@@ -15,7 +15,7 @@ import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
 import { usePathname } from "next/navigation"
-import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
+// import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -37,7 +37,7 @@ const FeedPage = ({
     const [agent] = useAgent()
     const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [, setListScrollRefAtom] = useListScrollRefAtom()
+    // const [, setListScrollRefAtom] = useListScrollRefAtom()
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -437,7 +437,7 @@ const FeedPage = ({
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
                             scrollRef.current = ref
-                            setListScrollRefAtom(ref)
+                            // setListScrollRefAtom(ref)
                         }
                     }}
                     context={{ hasMore }}
