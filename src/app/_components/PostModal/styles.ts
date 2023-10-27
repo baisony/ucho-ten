@@ -6,7 +6,7 @@ export const postModal = tv({
         backgroundColor: "w-full h-full bg-[#000000] bg-opacity-10 absolute",
 
         PostModal:
-            "text-white dark:text-[#D7D7D7]　w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative bg-opacity-70 bg-[#DADADA] dark:bg-[#2C2C2C] rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
+            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#2C2C2C] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
