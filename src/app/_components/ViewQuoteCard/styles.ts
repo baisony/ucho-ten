@@ -34,7 +34,7 @@ export const viewQuoteCard = tv({
     variants: {
         isEmbedToModal: {
             true: {
-                PostModal: "bg-transparent",
+                PostCard: "bg-transparent",
             },
         },
     },
