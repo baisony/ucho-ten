@@ -431,10 +431,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 case "posts":
                     setMenuIndex(0)
                     break
-                case "feed":
+                case "users":
                     setMenuIndex(1)
                     break
-                case "users":
+                case "feed":
                     setMenuIndex(2)
                     break
                 default:
