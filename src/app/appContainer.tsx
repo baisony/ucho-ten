@@ -103,6 +103,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
+        router.prefetch("/")
+        router.prefetch("/search")
+        router.prefetch("/inbox")
+        router.prefetch("/post")
+    }, [])
+
+    useEffect(() => {
         const queryParams = new URLSearchParams(searchParams)
 
         let tabValue: TabQueryParamValue = "h"
@@ -434,7 +441,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 case "users":
                     setMenuIndex(1)
                     break
-                case "feed":
+                case "feeds":
                     setMenuIndex(2)
                     break
                 default:
