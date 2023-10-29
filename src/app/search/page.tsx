@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Image, Skeleton } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { layout } from "@/app/search/styles"
 import { menuIndexAtom, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
@@ -252,7 +251,11 @@ export default function Root() {
     }, [agent, searchText, searchTarget])
 
     useEffect(() => {
-        if (menus.search.length === 0 || menus.search.length < menuIndex) {
+        if (
+            menus.search.length === 0 ||
+            menus.search.length < menuIndex ||
+            !menus.search[menuIndex]
+        ) {
             return
         }
 
