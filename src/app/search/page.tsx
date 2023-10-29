@@ -321,11 +321,10 @@ export default function Root() {
                                 const queryParams = new URLSearchParams(
                                     nextQueryParams
                                 )
-                                queryParams.set("word", "フィード%20bsky.app")
+                                queryParams.set("word", "フィード bsky.app")
                                 queryParams.set("target", "posts")
-                                router.push(
-                                    `/search?${nextQueryParams.toString()}`
-                                )
+                                console.log(queryParams)
+                                router.push(`/search?${queryParams.toString()}`)
                             }}
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
