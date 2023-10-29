@@ -965,7 +965,7 @@ export default function Root() {
                             />
                             <FontAwesomeIcon
                                 icon={faQuoteLeft}
-                                className={ReactionButton()}
+                                className={`${ReactionButton()} hidden`}
                                 onClick={() => {
                                     handleQuote()
                                 }}

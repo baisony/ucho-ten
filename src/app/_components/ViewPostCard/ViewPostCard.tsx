@@ -1209,7 +1209,11 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
         >
             {embedImages.images.map((image: ViewImage, index: number) => (
                 <div
-                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[5px] bg-cover`}
+                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
+                        embedImages.images.length - 1 === index
+                            ? `mr-[0px]`
+                            : `mr-[7px]`
+                    } bg-cover`}
                     key={`image-${index}`}
                 >
                     <img
