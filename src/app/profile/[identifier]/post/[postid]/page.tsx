@@ -565,7 +565,7 @@ export default function Root() {
                     isOpen={isOpen}
                     onOpenChange={onOpenChange}
                     placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px]"}
+                    className={"z-[100] max-w-[600px] bg-transparent"}
                 >
                     <ModalContent>
                         {(onClose) => (

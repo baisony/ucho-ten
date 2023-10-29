@@ -3,7 +3,7 @@ import { tv } from "@nextui-org/react"
 export const viewPostCard = tv({
     slots: {
         PostCard:
-            "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818]",
+            "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#2C2C2C]",
         PostCardContainer:
             "pl-[8px] pt-[11px] w-full md:pb-[11px] pb-[16px] pr-[11px]",
         PostAuthor:
@@ -41,7 +41,6 @@ export const viewPostCard = tv({
             "text-sm font-bold whitespace-nowrap overflow-hidden overflow-ellipsis",
         LinkCardDescription: "text-xs mt-1",
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
-        isReacted: "",
         likeButton: "",
         repostButton: "",
     },

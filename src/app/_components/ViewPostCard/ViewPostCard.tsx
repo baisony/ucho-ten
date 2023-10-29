@@ -145,7 +145,6 @@ export const ViewPostCard = (props: Props) => {
         skeletonText1line,
         skeletonText2line,
         chip,
-        isReacted,
         likeButton,
         repostButton,
     } = viewPostCard()
@@ -685,7 +684,7 @@ export const ViewPostCard = (props: Props) => {
                     isOpen={isOpenReply}
                     onOpenChange={onOpenChangeReply}
                     placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px]"}
+                    className={"z-[100] max-w-[600px] bg-transparent"}
                 >
                     <ModalContent>
                         {(onClose) => (
@@ -712,6 +711,9 @@ export const ViewPostCard = (props: Props) => {
                             ? quoteCardStyles.PostCard()
                             : PostCard({ isEmbedToModal })
                     } ${isEmbedToModal ? `border-none` : `cursor-pointer`}`}
+                    style={{
+                        backgroundColor: isEmbedToModal ? "transparent" : "",
+                    }}
                     //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                     onClick={(e) => {
                         e.stopPropagation()
@@ -798,9 +800,11 @@ export const ViewPostCard = (props: Props) => {
                                         </span>
                                     )}
                                 </span>
-                                <div className={"text-[#BABABA]"}>
-                                    &nbsp;-&nbsp;
-                                </div>
+                                {!isSkeleton && (
+                                    <div className={"text-[#BABABA]"}>
+                                        &nbsp;-&nbsp;
+                                    </div>
+                                )}
                                 <span
                                     onClick={(e) => {
                                         e.stopPropagation()
