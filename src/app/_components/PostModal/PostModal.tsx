@@ -53,7 +53,6 @@ import imageCompression, {
 } from "browser-image-compression"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import i18n from "@/app/_i18n/config"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
@@ -82,7 +81,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
         useUserProfileDetailedAtom()
-    const [displayLanguage] = useDisplayLanguage()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
