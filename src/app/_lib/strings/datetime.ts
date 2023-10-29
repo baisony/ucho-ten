@@ -40,7 +40,7 @@ export function formattedSimpleDate(
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
 
     if (date.toDateString() === twentyFourHoursAgo.toDateString()) {
-        return `Yesterday ${hours}:${zeroIfNeeded}${minutes}`
+        return `Yest ${hours}:${zeroIfNeeded}${minutes}`
     }
 
     return `${year}/${month}/${day} ${hours}:${zeroIfNeeded}${minutes}`

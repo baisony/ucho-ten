@@ -145,6 +145,9 @@ export const ViewPostCard = (props: Props) => {
         skeletonText1line,
         skeletonText2line,
         chip,
+        isReacted,
+        likeButton,
+        repostButton,
     } = viewPostCard()
     const quoteCardStyles = viewQuoteCard()
 
@@ -660,6 +663,11 @@ export const ViewPostCard = (props: Props) => {
         if (!embedRecord) return
         if (!embedRecordViewRecord) return
         if (
+            !embedRecordViewRecord?.author ||
+            !embedRecordViewRecord?.author?.viewer
+        )
+            return
+        if (
             embedRecordViewRecord.author.viewer?.blockedBy ||
             embedRecordViewRecord.author.viewer?.muted ||
             embedRecordViewRecord.author.viewer?.blocking
@@ -745,82 +753,86 @@ export const ViewPostCard = (props: Props) => {
                                 isEmbedToModal ? `z-[2]` : `z-[0]`
                             }`}
                         >
-                            <span
-                                className={PostAuthorIcon()}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                {isSkeleton ? (
-                                    <Skeleton className={skeletonIcon()} />
-                                ) : (
-                                    <img
-                                        src={
-                                            postJsonData?.author?.avatar ||
-                                            defaultIcon.src
-                                        }
-                                        //radius={"lg"}
-                                        className={`rounded-[10px]`}
-                                        alt={postJsonData?.author.did}
-                                    />
-                                )}
-                            </span>
-                            <span
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                {isSkeleton ? (
-                                    <Skeleton className={skeletonName()} />
-                                ) : (
-                                    <span
-                                        className={`${PostAuthorDisplayName()} md:hover:underline`}
-                                        style={{ fontSize: "13px" }}
-                                    >
-                                        {postJsonData?.author?.displayName}
-                                    </span>
-                                )}
-                            </span>
-                            <div className={"text-[#BABABA]"}>
-                                &nbsp;-&nbsp;
-                            </div>
-                            <span
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
-                                }}
-                            >
-                                {isSkeleton ? (
-                                    <Skeleton className={skeletonHandle()} />
-                                ) : (
-                                    <span
-                                        className={`${PostAuthorHandle()} md:hover:underline`}
-                                    >
-                                        {postJsonData?.author?.handle}
-                                    </span>
-                                )}
+                            <span className={"flex"}>
+                                <span
+                                    className={PostAuthorIcon()}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(
+                                            `/profile/${postJsonData?.author
+                                                .did}?${nextQueryParams.toString()}`
+                                        )
+                                    }}
+                                >
+                                    {isSkeleton ? (
+                                        <Skeleton className={skeletonIcon()} />
+                                    ) : (
+                                        <img
+                                            src={
+                                                postJsonData?.author?.avatar ||
+                                                defaultIcon.src
+                                            }
+                                            //radius={"lg"}
+                                            className={`rounded-full`}
+                                            alt={postJsonData?.author?.did}
+                                        />
+                                    )}
+                                </span>
+                                <span
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(
+                                            `/profile/${postJsonData?.author
+                                                ?.did}?${nextQueryParams.toString()}`
+                                        )
+                                    }}
+                                >
+                                    {isSkeleton ? (
+                                        <Skeleton className={skeletonName()} />
+                                    ) : (
+                                        <span
+                                            className={`${PostAuthorDisplayName()} md:hover:underline`}
+                                            style={{ fontSize: "13px" }}
+                                        >
+                                            {postJsonData?.author?.displayName}
+                                        </span>
+                                    )}
+                                </span>
+                                <div className={"text-[#BABABA]"}>
+                                    &nbsp;-&nbsp;
+                                </div>
+                                <span
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(
+                                            `/profile/${postJsonData?.author
+                                                ?.did}?${nextQueryParams.toString()}`
+                                        )
+                                    }}
+                                >
+                                    {isSkeleton ? (
+                                        <Skeleton
+                                            className={skeletonHandle()}
+                                        />
+                                    ) : (
+                                        <span
+                                            className={`${PostAuthorHandle()} md:hover:underline`}
+                                        >
+                                            {postJsonData?.author?.handle}
+                                        </span>
+                                    )}
+                                </span>
                             </span>
 
                             {!isHover && (
-                                <div className={postCreatedAt()}>
+                                <span className={postCreatedAt()}>
                                     {!isSkeleton &&
                                         postJsonData &&
                                         formattedSimpleDate(
                                             postJsonData.indexedAt,
                                             now || new Date()
                                         )}
-                                </div>
+                                </span>
                             )}
 
                             {isHover && (
@@ -963,7 +975,7 @@ export const ViewPostCard = (props: Props) => {
                                     {json?.reply && (
                                         <div
                                             className={
-                                                "text-[#BABABA] text-[12px]"
+                                                "text-[#BABABA] text-[12px] dark:text-[#787878]"
                                             }
                                         >
                                             <FontAwesomeIcon icon={faReply} />{" "}
@@ -979,7 +991,7 @@ export const ViewPostCard = (props: Props) => {
                                     <div
                                         style={{ wordBreak: "break-word" }}
                                         className={`${PostContentText()} ${
-                                            !isEmbedToPost && `text-[13px]`
+                                            isEmbedToPost && `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}
@@ -1064,12 +1076,12 @@ export const ViewPostCard = (props: Props) => {
                                                 />
                                                 <FontAwesomeIcon
                                                     icon={faRetweet}
-                                                    style={{
-                                                        color: isReposted
-                                                            ? "#17BF63"
-                                                            : "#909090",
-                                                    }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${repostButton(
+                                                        {
+                                                            isReacted:
+                                                                isReposted,
+                                                        }
+                                                    )}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1084,12 +1096,9 @@ export const ViewPostCard = (props: Props) => {
                                                             ? faHeartSolid
                                                             : faHeartRegular
                                                     }
-                                                    style={{
-                                                        color: isLiked
-                                                            ? "#fd7e00"
-                                                            : "#909090",
-                                                    }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${likeButton(
+                                                        { isReacted: isLiked }
+                                                    )}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1200,7 +1209,7 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
         >
             {embedImages.images.map((image: ViewImage, index: number) => (
                 <div
-                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[5px] bg-cover`}
                     key={`image-${index}`}
                 >
                     <img
