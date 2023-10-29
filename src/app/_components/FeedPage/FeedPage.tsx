@@ -1,3 +1,5 @@
+"use client"
+
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
@@ -16,6 +18,7 @@ import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
 import { usePathname } from "next/navigation"
 // import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
+import { useQuery } from "@tanstack/react-query"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -82,28 +85,66 @@ const FeedPage = ({
             return
         }
 
+        const getTimelineFeedFetcher =
+            async (): Promise<AppBskyFeedGetTimeline.Response> => {
+                const response = await agent.getTimeline({
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: cursor.current || "",
+                })
+                return response
+            }
+
+        const getFeedFetcher =
+            async (): Promise<AppBskyFeedGetTimeline.Response> => {
+                const response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    cursor: cursor.current || "",
+                    limit: FEED_FETCH_LIMIT,
+                })
+                return response
+            }
+
         console.log("fetchtimeline", feedKey)
 
         try {
             // setLoading(loadingFlag)
 
-            let response: AppBskyFeedGetTimeline.Response
+            let response: AppBskyFeedGetTimeline.Response | undefined =
+                undefined
             // let timelineLength = 0
 
             if (feedKey === "following") {
-                response = await agent.getTimeline({
-                    limit: FEED_FETCH_LIMIT,
-                    cursor: cursor.current || "",
-                })
+                // isLoading : ロード中は true ロード終了したら false
+                // isError : 読み込みエラーが発生したら true
+                const { data, isLoading, isError } =
+                    useQuery<AppBskyFeedGetTimeline.Response>({
+                        queryKey: ["posts"],
+                        queryFn: getTimelineFeedFetcher,
+                    })
+                if (data != undefined) {
+                    response = data
+                }
+                // response = await agent.getTimeline({
+                //     limit: FEED_FETCH_LIMIT,
+                //     cursor: cursor.current || "",
+                // })
             } else {
-                response = await agent.app.bsky.feed.getFeed({
-                    feed: feedKey,
-                    cursor: cursor.current || "",
-                    limit: FEED_FETCH_LIMIT,
-                })
+                const { data, isLoading, isError } =
+                    useQuery<AppBskyFeedGetTimeline.Response>({
+                        queryKey: ["posts"],
+                        queryFn: getFeedFetcher,
+                    })
+                if (data != undefined) {
+                    response = data
+                }
+                // response = await agent.app.bsky.feed.getFeed({
+                //     feed: feedKey,
+                //     cursor: cursor.current || "",
+                //     limit: FEED_FETCH_LIMIT,
+                // })
             }
 
-            if (response.data) {
+            if (response != undefined && response.data) {
                 const { feed } = response.data
 
                 console.log("feed", feed)
