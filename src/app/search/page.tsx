@@ -9,7 +9,7 @@ import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { layout } from "@/app/search/styles"
-import { menuIndexAtom, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
+import { menuIndexAtom, useCurrentMenuType, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
@@ -27,6 +27,7 @@ export default function Root() {
 
     const [agent] = useAgent()
     const [menuIndex] = useAtom(menuIndexAtom)
+    const [currentMenuType] = useCurrentMenuType()
     //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [searchInfo, setSearchInfo] = useSearchInfoAtom()
@@ -407,6 +408,10 @@ export default function Root() {
     }, [agent, searchText, searchTarget])
 
     useEffect(() => {
+        if (currentMenuType !== "search") {
+            return
+        }
+
         if (menus.search.length === 0 || menus.search.length < menuIndex) {
             return
         }
