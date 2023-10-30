@@ -146,7 +146,7 @@ const Root = () => {
                 swiperRef.current = swiper
             }}
             cssMode={isMobile}
-            // virtual={true}
+            virtual={true}
             pagination={{ type: "custom", clickable: false }}
             hidden={true} // ??
             modules={[Pagination]}
@@ -177,7 +177,7 @@ const Root = () => {
                 return (
                     <SwiperSlide
                         key={`swiperslide-home-${index}`}
-                        //virtualIndex={index}
+                        virtualIndex={index}
                     >
                         <div
                             id={`swiperIndex-div-${index}`}

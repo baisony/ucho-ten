@@ -74,35 +74,43 @@ const FeedPageQuery = ({
         queryKey,
     }: QueryFunctionContext<
         ReturnType<(typeof getFeedKeys)["feedkey"]>
-    >): Promise<AppBskyFeedGetTimeline.Response> => {
+    >): Promise<FeedViewPost[]> => {
         console.log("getTimelineFetcher: >>")
+
         if (agent === null) {
             console.log("error")
             throw new Error("Agent does not exist")
         }
-        console.log("getTimelineFetcher: agent != null")
+
         const [_key, feedKey] = queryKey
+
         if (feedKey === "following") {
             const response = await agent.getTimeline({
                 limit: FEED_FETCH_LIMIT,
                 cursor: cursor.current || "",
             })
-            return response
+
+            return response.data.feed
         } else {
             const response = await agent.app.bsky.feed.getFeed({
                 feed: feedKey,
                 cursor: cursor.current || "",
                 limit: FEED_FETCH_LIMIT,
             })
-            return response
+
+            return response.data.feed
         }
     }
 
     const { data, isLoading, isError } = useQuery({
         queryKey: getFeedKeys.feedkey(feedKey),
         queryFn: getTimelineFetcher,
-        enabled: agent !== null,
+        enabled: agent !== null && feedKey !== "" && isActive === true,
     })
+
+    if (data !== undefined && timeline === null) {
+        setTimeline(data)
+    }
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
         console.log("timelineWithDummy timeline", timeline)
@@ -116,17 +124,8 @@ const FeedPageQuery = ({
         }
     }, [timeline])
 
-    if (isLoading) {
-        return <>Loading...</>
-    }
-
-    if (isError) {
-        return <>{Error}</>
-    }
-
     return (
         <>
-            {" "}
             <Virtuoso
                 scrollerRef={(ref) => {
                     if (ref instanceof HTMLElement) {
