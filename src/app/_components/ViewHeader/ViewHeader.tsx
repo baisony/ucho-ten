@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -24,7 +24,6 @@ import {
     setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    //headerMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -38,6 +37,7 @@ import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import { useAtom } from "jotai"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
+import Link from "next/link"
 
 interface Props {
     className?: string
@@ -204,7 +204,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     startContent={
                         <FontAwesomeIcon
                             className={"md:h-[20px] h-[18px]"}
-                            icon={isRoot === true ? faBars : faChevronLeft}
+                            icon={isRoot ? faBars : faChevronLeft}
                         />
                     }
                     onClick={() => {
@@ -293,14 +293,13 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     </div>
                 )}
                 {!showSearchInput && (
-                    <Image
-                        className={"md:h-[24px] h-[20px] cursor-pointer"}
-                        src={logoImage}
-                        alt={"logo"}
-                        onClick={() => {
-                            router.push(`/?${nextQueryParams.toString()}`)
-                        }}
-                    />
+                    <Link href={`/?${nextQueryParams.toString()}`}>
+                        <Image
+                            className={"md:h-[24px] h-[20px] cursor-pointer"}
+                            src={logoImage}
+                            alt={"logo"}
+                        />
+                    </Link>
                 )}
                 {/*selectedTab === "single" && (
                     <Button
@@ -354,178 +353,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         </SwiperSlide>
                     ))}
             </Swiper>
-            {/* {selectedTab === "home" && pinnedFeeds && (
-                    <Tabs
-                        aria-label="Options"
-                        color="primary"
-                        variant="underlined"
-                        // items={["following", ...pinnedFeeds]}
-                        selectedKey={selectedFeed}
-                        onSelectionChange={handleHomeTopTabSelectionChange}
-                        classNames={{
-                            tabList:
-                                "w-full relative rounded-none p-0 border-b border-divider",
-                            cursor: "w-full bg-[#6A52FF]",
-                            tab: "max-w-fit px-0 h-[100%]",
-                            tabContent: "group-data-[selected=true]:text-white",
-                        }}
-                        style={{ marginLeft: "40px" }}
-                    >
-                        <Tab
-                            key="following"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px]">
-                                    <span>Following</span>
-                                </div>
-                            }
-                        />
-                        {pinnedFeeds.map((feed: any, index: number) => (
-                            <Tab
-                                key={feed.uri}
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px]">
-                                        <span>{feed.displayName}</span>
-                                    </div>
-                                }
-                            />
-                        ))}
-                    </Tabs>
-                )}
-                {selectedTab === "inbox" && (
-                    <div className={HeaderContentTitle({ page: page })}>
-                        Inbox
-                    </div>
-                )}
-                {selectedTab === "post" && (
-                    <Tabs
-                        aria-label="Options"
-                        color="primary"
-                        variant="underlined"
-                        classNames={{
-                            tabList:
-                                "w-full relative rounded-none p-0 border-b border-divider",
-                            cursor: "w-full bg-[#6A52FF]",
-                            tab: "max-w-fit px-0 h-[100%]",
-                            tabContent: "group-data-[selected=true]:text-white",
-                        }}
-                    >
-                        <Tab
-                            key="1"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Author's</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="2"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Other's</span>
-                                </div>
-                            }
-                        />
-                    </Tabs>
-                )}
-                {selectedTab === "search" &&
-                    (target ? (
-                        <Tabs
-                            aria-label="Options"
-                            color="primary"
-                            variant="underlined"
-                            classNames={{
-                                tabList:
-                                    "w-full relative rounded-none p-0 border-b border-divider",
-                                cursor: "w-full bg-[#6A52FF]",
-                                tab: "max-w-fit px-0 h-[100%]",
-                                tabContent:
-                                    "group-data-[selected=true]:text-white",
-                            }}
-                            onSelectionChange={(e) => {
-                                router.push(
-                                    `/search?word=${encodeURIComponent(
-                                        searchText
-                                    )}&target=${e}`
-                                )
-                            }}
-                            selectedKey={searchParams.get("target") || "posts"}
-                        >
-                            <Tab
-                                key="posts"
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                        <span>Posts</span>
-                                    </div>
-                                }
-                            />
-                            <Tab
-                                key="feeds"
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                        <span>Feeds</span>
-                                    </div>
-                                }
-                            />
-                            <Tab
-                                key="users"
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                        <span>Users</span>
-                                    </div>
-                                }
-                            />
-                        </Tabs>
-                    ) : (
-                        <div>Search</div>
-                    ))}
-                {selectedTab === "profile" && (
-                    <Tabs
-                        aria-label="Options"
-                        color="primary"
-                        variant="underlined"
-                        classNames={{
-                            tabList:
-                                "w-full relative rounded-none p-0 border-b border-divider",
-                            cursor: "w-full bg-[#6A52FF]",
-                            tab: "max-w-fit px-0 h-[100%]",
-                            tabContent: "group-data-[selected=true]:text-white",
-                        }}
-                    >
-                        <Tab
-                            key="1"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Posts</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="2"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Replies</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="3"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Media</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="4"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Feeds</span>
-                                </div>
-                            }
-                        />
-                    </Tabs>
-                )} */}
-            {/* </ScrollShadow> */}
         </main>
     )
 }

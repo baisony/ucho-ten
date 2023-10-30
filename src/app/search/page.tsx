@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { isMobile, setUserAgent } from "react-device-detect"
+import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Image, Skeleton } from "@nextui-org/react"
@@ -23,6 +23,7 @@ import { useAtom } from "jotai"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { useSearchInfoAtom } from "../_atoms/searchInfo"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
+import Link from "next/link"
 
 export default function Root() {
     const router = useRouter()
@@ -36,8 +37,7 @@ export default function Root() {
     const [menus] = useHeaderMenusByHeaderAtom()
     const [searchInfo, setSearchInfo] = useSearchInfoAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
+    const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
     // const searchWord = searchParams.get("word") || ""
     // const target = searchParams.get("target") || "posts"
@@ -53,7 +53,6 @@ export default function Root() {
     >(null)
     const [searchText, setSearchText] = useState("")
     const [searchTarget, setSearchTarget] = useState("")
-    const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
 
     const numOfResult = useRef<number>(0)
@@ -464,45 +463,39 @@ export default function Root() {
         }
     }, [searchUsersResult])
 
+    const findFeeds = () => {
+        const queryParams = new URLSearchParams(nextQueryParams)
+        queryParams.set("word", "フィード bsky.app")
+        queryParams.set("target", "posts")
+        return `/search?${nextQueryParams.toString()}` as string
+    }
+
     return (
         <>
             {searchText === "" && (
                 <div className={"w-full h-full text-white"}>
                     <div className={"absolute bottom-[50px] w-full"}>
                         {t("pages.search.FindPerson")}
-                        <div
+                        <Link
                             className={searchSupportCard()}
-                            onClick={() => {
-                                router.push(
-                                    `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
-                                )
-                            }}
+                            href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
                                 <div>Japanese Cluster</div>
                                 <div>by @jaz.bsky.social</div>
                             </div>
-                        </div>
-                        <div
+                        </Link>
+                        <Link
                             className={searchSupportCard()}
-                            onClick={() => {
-                                const queryParams = new URLSearchParams(
-                                    nextQueryParams
-                                )
-                                queryParams.set("word", "フィード%20bsky.app")
-                                queryParams.set("target", "posts")
-                                router.push(
-                                    `/search?${nextQueryParams.toString()}`
-                                )
-                            }}
+                            href={findFeeds()}
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
                                 <div>日本語フィードを探す</div>
                                 <div>by @Ucho-ten</div>
                             </div>
-                        </div>
+                        </Link>
                         <div className={searchSupportCard()}>
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
