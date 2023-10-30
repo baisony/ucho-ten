@@ -16,7 +16,7 @@ import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import { usePathname } from "next/navigation"
+// import { usePathname } from "next/navigation"
 // import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
 import { useQuery } from "@tanstack/react-query"
 
@@ -34,11 +34,11 @@ const FeedPage = ({
     now,
     isActive, // disableSlideVerticalScroll,
 }: FeedPageProps) => {
-    const pathname = usePathname()
+    // const pathname = usePathname()
     const { t } = useTranslation()
 
     const [agent] = useAgent()
-    const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
+    // const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const [, setListScrollRefAtom] = useListScrollRefAtom()
 
@@ -55,15 +55,15 @@ const FeedPage = ({
 
     // const currentScrollPosition = useRef<number>(0)
 
-    useEffect(() => {
-        if (
-            feedKey !== "" &&
-            infoByFeed[feedKey] &&
-            infoByFeed[feedKey].posts
-        ) {
-            setTimeline(infoByFeed[feedKey].posts)
-        }
-    }, [])
+    // useEffect(() => {
+    //     if (
+    //         feedKey !== "" &&
+    //         infoByFeed[feedKey] &&
+    //         infoByFeed[feedKey].posts
+    //     ) {
+    //         setTimeline(infoByFeed[feedKey].posts)
+    //     }
+    // }, [])
 
     useEffect(() => {
         console.log(`timeline ${feedKey}`, timeline)
@@ -261,82 +261,98 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        if (!agent) {
+        if (agent === null) {
             return
         }
 
-        console.log("here")
-
-        if (!isActive) {
-            return
-        }
-
-        console.log("here 1")
-
-        const initialAction = async () => {
-            if (!infoByFeed[feedKey] || infoByFeed[feedKey].posts == null) {
-                console.log("here 2")
-                setNewTimeline([])
-                await fetchTimeline()
-            } else {
-                console.log("here 3")
-                setTimeline(infoByFeed[feedKey].posts)
-                //setNewTimeline(infoByFeed[feedKey].newPosts)
-                cursor.current = infoByFeed[feedKey].cursor
-
-                console.log(
-                    "infoByFeed[feedKey].latestCID",
-                    infoByFeed[feedKey].latestCID
-                )
-
-                latestCID.current = infoByFeed[feedKey].latestCID
-
-                if (cursor.current !== "") {
-                    setHasMore(true)
-                }
-            }
-
-            setShouldCheckUpdate(true)
-        }
-
-        initialAction()
-    }, [agent, feedKey, isActive, pathname])
-
-    useEffect(() => {
         if (feedKey === "") {
             return
         }
 
-        setInfoByFeed((prevInfoByFeed) => {
-            const newPostsByFeed = prevInfoByFeed
+        if (isActive === false) {
+            return
+        }
 
-            if (prevInfoByFeed[feedKey]) {
-                newPostsByFeed[feedKey] = {
-                    posts: timeline,
-                    newPosts: [],
-                    cursor: cursor.current,
-                    latestCID:
-                        timeline !== null && timeline.length > 0
-                            ? timeline[0].post.cid
-                            : "",
-                }
+        setNewTimeline([])
+        setHasMore(false)
+        cursor.current = ""
 
-                return newPostsByFeed
-            } else {
-                const newData = {
-                    posts: timeline,
-                    newPosts: [],
-                    cursor: cursor.current,
-                    latestCID:
-                        timeline !== null && timeline.length > 0
-                            ? timeline[0].post.cid
-                            : "",
-                }
+        fetchTimeline()
+    }, [agent, feedKey, isActive])
 
-                return { ...prevInfoByFeed, newData }
-            }
-        })
-    }, [timeline, feedKey, cursor.current])
+    // useEffect(() => {
+    //     if (!agent) {
+    //         return
+    //     }
+
+    //     console.log("here")
+
+    //     if (!isActive) {
+    //         return
+    //     }
+
+    //     const initialAction = async () => {
+    //         if (!infoByFeed[feedKey] || infoByFeed[feedKey].posts == null) {
+    //             setNewTimeline([])
+    //             await fetchTimeline()
+    //         } else {
+    //             setTimeline(infoByFeed[feedKey].posts)
+    //             //setNewTimeline(infoByFeed[feedKey].newPosts)
+    //             cursor.current = infoByFeed[feedKey].cursor
+
+    //             console.log(
+    //                 "infoByFeed[feedKey].latestCID",
+    //                 infoByFeed[feedKey].latestCID
+    //             )
+
+    //             latestCID.current = infoByFeed[feedKey].latestCID
+
+    //             if (cursor.current !== "") {
+    //                 setHasMore(true)
+    //             }
+    //         }
+
+    //         setShouldCheckUpdate(true)
+    //     }
+
+    //     initialAction()
+    // }, [agent, feedKey, isActive, pathname])
+
+    // useEffect(() => {
+    //     if (feedKey === "") {
+    //         return
+    //     }
+
+    //     setInfoByFeed((prevInfoByFeed) => {
+    //         const newPostsByFeed = prevInfoByFeed
+
+    //         if (prevInfoByFeed[feedKey]) {
+    //             newPostsByFeed[feedKey] = {
+    //                 posts: timeline,
+    //                 newPosts: [],
+    //                 cursor: cursor.current,
+    //                 latestCID:
+    //                     timeline !== null && timeline.length > 0
+    //                         ? timeline[0].post.cid
+    //                         : "",
+    //             }
+
+    //             return newPostsByFeed
+    //         } else {
+    //             const newData = {
+    //                 posts: timeline,
+    //                 newPosts: [],
+    //                 cursor: cursor.current,
+    //                 latestCID:
+    //                     timeline !== null && timeline.length > 0
+    //                         ? timeline[0].post.cid
+    //                         : "",
+    //             }
+
+    //             return { ...prevInfoByFeed, newData }
+    //         }
+    //     })
+    // }, [timeline, feedKey, cursor.current])
 
     // useEffect(() => {
     //     console.log("isActive")
@@ -387,7 +403,6 @@ const FeedPage = ({
     }
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
-        console.log("timelineWithDummy timeline", timeline)
         // Need to add data for top padding
         const dummyData: FeedViewPost = {} as FeedViewPost
 

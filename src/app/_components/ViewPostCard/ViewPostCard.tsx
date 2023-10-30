@@ -68,6 +68,7 @@ import {
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import Link from "next/link"
 
 interface Props {
     // className?: string
@@ -118,12 +119,9 @@ export const ViewPostCard = (props: Props) => {
             return null
         }
     }, [postJson, quoteJson])
-    // const { t } = useTranslation()
     const [agent] = useAgent()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
-    // const reg =
-    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
     const [loading, setLoading] = useState(false)
     const [isHover, setIsHover] = useState<boolean>(false)
     const {
@@ -153,7 +151,7 @@ export const ViewPostCard = (props: Props) => {
         !!postView?.viewer?.repost
     )
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
-    const [userPreference, setUserPreference] = useUserPreferencesAtom()
+    const [userPreference] = useUserPreferencesAtom()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
     const [, setHandleButtonClick] = useState(false)
@@ -273,9 +271,7 @@ export const ViewPostCard = (props: Props) => {
         const embedType = postView.embed.$type
 
         if (embedType === "app.bsky.embed.record#view") {
-            const embed = postView.embed as AppBskyEmbedRecord.View
-
-            return embed
+            return postView.embed as AppBskyEmbedRecord.View
         } else {
             return null
         }
@@ -314,9 +310,7 @@ export const ViewPostCard = (props: Props) => {
             (postView?.embed?.record as GeneratorView)?.$type ===
                 "app.bsky.feed.defs#generatorView"
         ) {
-            const embed = postView?.embed?.record as GeneratorView
-
-            return embed
+            return postView?.embed?.record as GeneratorView
         } else {
             return null
         }
@@ -328,7 +322,7 @@ export const ViewPostCard = (props: Props) => {
         if (!postJson) return
         try {
             setLoading(true)
-            const res = await agent.deletePost(postJson?.uri)
+            await agent.deletePost(postJson?.uri)
             setIsDeleted(true)
         } catch (e) {
             console.log(e)
@@ -368,8 +362,14 @@ export const ViewPostCard = (props: Props) => {
     )
 
     const deletehttp = (text: string) => {
-        const result = text.replace(/^https?:\/\//, "")
-        return result
+        return text.replace(/^https?:\/\//, "")
+    }
+
+    const addParamsToUrl = (hashtag: string) => {
+        const queryParams = new URLSearchParams(nextQueryParams)
+        queryParams.set("word", `${hashtag.replace("#", "")}`)
+        queryParams.set("target", "posts")
+        return `/search?${queryParams.toString()}` as string
     }
 
     const renderTextWithLinks = useMemo(() => {
@@ -428,20 +428,18 @@ export const ViewPostCard = (props: Props) => {
             switch (facet.features[0].$type) {
                 case "app.bsky.richtext.facet#mention":
                     result.push(
-                        <span
+                        <Link
                             key={`link-${index}-${byteStart}`}
                             className={"text-blue-500"}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                router.push(
-                                    `/profile/${
-                                        facet.features[0].did
-                                    }?${nextQueryParams.toString()}`
-                                )
                             }}
+                            href={`/profile/${
+                                facet.features[0].did
+                            }?${nextQueryParams.toString()}`}
                         >
                             {facetText}
-                        </span>
+                        </Link>
                     )
                     break
 
@@ -503,21 +501,20 @@ export const ViewPostCard = (props: Props) => {
                                 {facet.features[0].uri.startsWith(
                                     "https://bsky.app"
                                 ) ? (
-                                    <span
+                                    <Link
                                         key={`a-${index}-${byteStart}`}
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            router.push(
-                                                facet.features[0].uri.replace(
-                                                    "https://bsky.app",
-                                                    `${location.protocol}//${window.location.host}`
-                                                ) +
-                                                    `?${nextQueryParams.toString()}`
-                                            )
                                         }}
+                                        href={
+                                            facet.features[0].uri.replace(
+                                                "https://bsky.app",
+                                                `${location.protocol}//${window.location.host}`
+                                            ) + `?${nextQueryParams.toString()}`
+                                        }
                                     >
                                         {facetText}
-                                    </span>
+                                    </Link>
                                 ) : (
                                     <a
                                         onClick={(e) => e.stopPropagation()}
@@ -545,28 +542,15 @@ export const ViewPostCard = (props: Props) => {
                                 variant="faded"
                                 color="primary"
                             >
-                                <span
+                                <Link
                                     key={`a-${index}-${byteStart}`}
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        const queryParams = new URLSearchParams(
-                                            nextQueryParams
-                                        )
-                                        queryParams.set(
-                                            "word",
-                                            `%23${facet.features[0].tag.replace(
-                                                "#",
-                                                ""
-                                            )}`
-                                        )
-                                        queryParams.set("target", "posts")
-                                        router.push(
-                                            `/search?${nextQueryParams.toString()}`
-                                        )
                                     }}
+                                    href={addParamsToUrl(facet.features[0].tag)}
                                 >
                                     {facetText.replace("#", "")}
-                                </span>
+                                </Link>
                             </Chip>
                         </span>
                     )
@@ -657,8 +641,17 @@ export const ViewPostCard = (props: Props) => {
     }, [userPreference, postJson, quoteJson])
 
     useEffect(() => {
-        if (!embedRecord) return
-        if (!embedRecordViewRecord) return
+        if (!embedRecord) {
+            return
+        }
+
+        if (
+            !embedRecordViewRecord?.author ||
+            !embedRecordViewRecord?.author.viewer
+        ) {
+            return
+        }
+
         if (
             embedRecordViewRecord.author.viewer?.blockedBy ||
             embedRecordViewRecord.author.viewer?.muted ||
@@ -725,35 +718,31 @@ export const ViewPostCard = (props: Props) => {
                         }}
                     >
                         {json?.reason && (
-                            <span
+                            <Link
                                 className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer md:hover:underline`}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
                                 }}
+                                href={`/profile/${postJsonData?.author
+                                    .did}?${nextQueryParams.toString()}`}
                             >
                                 <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                                 {(json.reason.by as ProfileViewBasic)
                                     .displayName || ""}
-                            </span>
+                            </Link>
                         )}
                         <div
                             className={`${PostAuthor()} ${
                                 isEmbedToModal ? `z-[2]` : `z-[0]`
                             }`}
                         >
-                            <span
+                            <Link
                                 className={PostAuthorIcon()}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
                                 }}
+                                href={`/profile/${postJsonData?.author
+                                    .did}?${nextQueryParams.toString()}`}
                             >
                                 {isSkeleton ? (
                                     <Skeleton className={skeletonIcon()} />
@@ -768,15 +757,13 @@ export const ViewPostCard = (props: Props) => {
                                         alt={postJsonData?.author.did}
                                     />
                                 )}
-                            </span>
-                            <span
+                            </Link>
+                            <Link
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
                                 }}
+                                href={`/profile/${postJsonData?.author
+                                    .did}?${nextQueryParams.toString()}`}
                             >
                                 {isSkeleton ? (
                                     <Skeleton className={skeletonName()} />
@@ -788,18 +775,16 @@ export const ViewPostCard = (props: Props) => {
                                         {postJsonData?.author?.displayName}
                                     </span>
                                 )}
-                            </span>
+                            </Link>
                             <div className={"text-[#BABABA]"}>
                                 &nbsp;-&nbsp;
                             </div>
-                            <span
+                            <Link
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    router.push(
-                                        `/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`
-                                    )
                                 }}
+                                href={`/profile/${postJsonData?.author
+                                    .did}?${nextQueryParams.toString()}`}
                             >
                                 {isSkeleton ? (
                                     <Skeleton className={skeletonHandle()} />
@@ -810,7 +795,7 @@ export const ViewPostCard = (props: Props) => {
                                         {postJsonData?.author?.handle}
                                     </span>
                                 )}
-                            </span>
+                            </Link>
 
                             {!isHover && (
                                 <div className={postCreatedAt()}>
@@ -862,7 +847,7 @@ export const ViewPostCard = (props: Props) => {
                                                                 )?.[1] || ""
                                                             }`
                                                         )
-                                                        navigator.clipboard.writeText(
+                                                        void navigator.clipboard.writeText(
                                                             `https://bsky.app/profile/${
                                                                 postJsonData
                                                                     .author.did
@@ -886,7 +871,7 @@ export const ViewPostCard = (props: Props) => {
                                                         />
                                                     }
                                                     onClick={() => {
-                                                        navigator.clipboard.writeText(
+                                                        void navigator.clipboard.writeText(
                                                             JSON.stringify(
                                                                 postJson
                                                             )
@@ -936,8 +921,8 @@ export const ViewPostCard = (props: Props) => {
                                                                     }
                                                                 />
                                                             }
-                                                            onClick={() => {
-                                                                handleDelete()
+                                                            onClick={async () => {
+                                                                await handleDelete()
                                                             }}
                                                         >
                                                             {t(
@@ -1054,12 +1039,12 @@ export const ViewPostCard = (props: Props) => {
                                                 <FontAwesomeIcon
                                                     icon={faComment}
                                                     className={PostReactionButton()}
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
                                                             true
                                                         )
-                                                        handleReply()
+                                                        await handleReply()
                                                     }}
                                                 />
                                                 <FontAwesomeIcon
@@ -1070,12 +1055,12 @@ export const ViewPostCard = (props: Props) => {
                                                             : "#909090",
                                                     }}
                                                     className={PostReactionButton()}
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
                                                             true
                                                         )
-                                                        handleRepost()
+                                                        await handleRepost()
                                                     }}
                                                 />
                                                 <FontAwesomeIcon
@@ -1090,12 +1075,12 @@ export const ViewPostCard = (props: Props) => {
                                                             : "#909090",
                                                     }}
                                                     className={PostReactionButton()}
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
                                                             true
                                                         )
-                                                        handleLike()
+                                                        await handleLike()
                                                     }}
                                                 />
                                             </div>
@@ -1114,12 +1099,12 @@ export const ViewPostCard = (props: Props) => {
                                                                 : "none",
                                                     }}
                                                     className={PostReactionButton()}
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
                                                             true
                                                         )
-                                                        handleReply()
+                                                        await handleReply()
                                                     }}
                                                 />
                                                 <FontAwesomeIcon
@@ -1137,12 +1122,12 @@ export const ViewPostCard = (props: Props) => {
                                                                 : "none",
                                                     }}
                                                     className={PostReactionButton()}
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
                                                             true
                                                         )
-                                                        handleRepost()
+                                                        await handleRepost()
                                                     }}
                                                 />
                                                 <FontAwesomeIcon
@@ -1164,12 +1149,12 @@ export const ViewPostCard = (props: Props) => {
                                                                 : "none",
                                                     }}
                                                     className={PostReactionButton()}
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
                                                             true
                                                         )
-                                                        handleLike()
+                                                        await handleLike()
                                                     }}
                                                 />
                                             </div>

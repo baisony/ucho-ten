@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -24,7 +24,6 @@ import {
     setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    //headerMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -36,6 +35,9 @@ import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import { useAtom } from "jotai"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
+import Link from "next/link"
 
 interface Props {
     className?: string
@@ -55,11 +57,15 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const pathname = usePathname()
     const router = useRouter()
     const pathname = usePathname()
+
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
+    const [searchInfo, setSearchInfo] = useSearchInfoAtom()
 
     const {
         // className,
@@ -74,7 +80,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState<string>("")
-    const target = searchParams.get("target")
+    //const [searchTarget, setSearchTarget] = useState<string>("posts")
+    // const target = searchParams.get("target")
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
@@ -93,6 +100,45 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         HeaderInputArea,
     } = viewHeader()
 
+    // useEffect(() => {
+    //     if (searchInfo.searchWord !== "") {
+    //         setSearchText(searchInfo.searchWord)
+    //     }
+    // }, [])
+
+    useEffect(() => {
+        if (tappedTabbarButton == "search") {
+            setSearchText("")
+
+            setSearchInfo({
+                target: "",
+                searchWord: "",
+                // posts: null,
+                // users: null,
+                // postCursor: "",
+                // userCursor: "",
+            })
+
+            const queryParams = new URLSearchParams(searchParams)
+            queryParams.delete("target")
+            queryParams.delete("word")
+
+            setTappedTabbarButton(null)
+
+            router.push(`/search?${queryParams.toString()}`)
+        }
+    }, [tappedTabbarButton])
+
+    useEffect(() => {
+        setSearchInfo((prevSearchInfo) => {
+            const newSearchInfo = prevSearchInfo
+
+            newSearchInfo.searchWord = searchText
+
+            return newSearchInfo
+        })
+    }, [searchText])
+
     useEffect(() => {
         const search = searchParams.get("word")
 
@@ -104,7 +150,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [searchParams])
 
     useEffect(() => {
-        console.log("test", isMobile, pathname)
+        console.log(searchInfo)
+
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -121,7 +168,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 setIsRoot(false)
                 break
         }
-    }, [pathname, isMobile])
+    }, [pathname])
 
     useEffect(() => {
         if (pathname === "/search") {
@@ -157,7 +204,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     startContent={
                         <FontAwesomeIcon
                             className={"md:h-[20px] h-[18px]"}
-                            icon={isRoot === true ? faBars : faChevronLeft}
+                            icon={isRoot ? faBars : faChevronLeft}
                         />
                     }
                     onClick={() => {
@@ -187,19 +234,40 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
                                 if (e.key !== "Enter" || isComposing) return //1
-                                props.setSearchText(searchText)
+
+                                // props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
+
                                 const queryParams = new URLSearchParams(
                                     nextQueryParams
                                 )
-                                queryParams.set(
-                                    "word",
-                                    encodeURIComponent(searchText)
+
+                                const searchTarget =
+                                    searchInfo.target !== ""
+                                        ? searchInfo.target
+                                        : "posts"
+
+                                setSearchInfo((prevSearchInfo) => {
+                                    const newSearchInfo = prevSearchInfo
+
+                                    if (prevSearchInfo.target === "") {
+                                        newSearchInfo.target = "posts"
+                                    }
+
+                                    newSearchInfo.searchWord = searchText
+
+                                    return newSearchInfo
+                                })
+
+                                queryParams.set("word", searchText)
+                                queryParams.set("target", searchTarget)
+
+                                console.log(
+                                    "queryParams.toString()",
+                                    queryParams.toString()
                                 )
-                                queryParams.set("target", target || "posts")
-                                router.push(
-                                    `/search?${nextQueryParams.toString()}`
-                                )
+
+                                router.push(`/search?${queryParams.toString()}`)
                             }}
                             onCompositionStart={() => setComposing(true)}
                             onCompositionEnd={() => setComposing(false)}
@@ -225,14 +293,13 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     </div>
                 )}
                 {!showSearchInput && (
-                    <Image
-                        className={"md:h-[24px] h-[20px] cursor-pointer"}
-                        src={logoImage}
-                        alt={"logo"}
-                        onClick={() => {
-                            router.push(`/?${nextQueryParams.toString()}`)
-                        }}
-                    />
+                    <Link href={`/?${nextQueryParams.toString()}`}>
+                        <Image
+                            className={"md:h-[24px] h-[20px] cursor-pointer"}
+                            src={logoImage}
+                            alt={"logo"}
+                        />
+                    </Link>
                 )}
                 {/*selectedTab === "single" && (
                     <Button
@@ -286,178 +353,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         </SwiperSlide>
                     ))}
             </Swiper>
-            {/* {selectedTab === "home" && pinnedFeeds && (
-                    <Tabs
-                        aria-label="Options"
-                        color="primary"
-                        variant="underlined"
-                        // items={["following", ...pinnedFeeds]}
-                        selectedKey={selectedFeed}
-                        onSelectionChange={handleHomeTopTabSelectionChange}
-                        classNames={{
-                            tabList:
-                                "w-full relative rounded-none p-0 border-b border-divider",
-                            cursor: "w-full bg-[#6A52FF]",
-                            tab: "max-w-fit px-0 h-[100%]",
-                            tabContent: "group-data-[selected=true]:text-white",
-                        }}
-                        style={{ marginLeft: "40px" }}
-                    >
-                        <Tab
-                            key="following"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px]">
-                                    <span>Following</span>
-                                </div>
-                            }
-                        />
-                        {pinnedFeeds.map((feed: any, index: number) => (
-                            <Tab
-                                key={feed.uri}
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px]">
-                                        <span>{feed.displayName}</span>
-                                    </div>
-                                }
-                            />
-                        ))}
-                    </Tabs>
-                )}
-                {selectedTab === "inbox" && (
-                    <div className={HeaderContentTitle({ page: page })}>
-                        Inbox
-                    </div>
-                )}
-                {selectedTab === "post" && (
-                    <Tabs
-                        aria-label="Options"
-                        color="primary"
-                        variant="underlined"
-                        classNames={{
-                            tabList:
-                                "w-full relative rounded-none p-0 border-b border-divider",
-                            cursor: "w-full bg-[#6A52FF]",
-                            tab: "max-w-fit px-0 h-[100%]",
-                            tabContent: "group-data-[selected=true]:text-white",
-                        }}
-                    >
-                        <Tab
-                            key="1"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Author's</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="2"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Other's</span>
-                                </div>
-                            }
-                        />
-                    </Tabs>
-                )}
-                {selectedTab === "search" &&
-                    (target ? (
-                        <Tabs
-                            aria-label="Options"
-                            color="primary"
-                            variant="underlined"
-                            classNames={{
-                                tabList:
-                                    "w-full relative rounded-none p-0 border-b border-divider",
-                                cursor: "w-full bg-[#6A52FF]",
-                                tab: "max-w-fit px-0 h-[100%]",
-                                tabContent:
-                                    "group-data-[selected=true]:text-white",
-                            }}
-                            onSelectionChange={(e) => {
-                                router.push(
-                                    `/search?word=${encodeURIComponent(
-                                        searchText
-                                    )}&target=${e}`
-                                )
-                            }}
-                            selectedKey={searchParams.get("target") || "posts"}
-                        >
-                            <Tab
-                                key="posts"
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                        <span>Posts</span>
-                                    </div>
-                                }
-                            />
-                            <Tab
-                                key="feeds"
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                        <span>Feeds</span>
-                                    </div>
-                                }
-                            />
-                            <Tab
-                                key="users"
-                                title={
-                                    <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                        <span>Users</span>
-                                    </div>
-                                }
-                            />
-                        </Tabs>
-                    ) : (
-                        <div>Search</div>
-                    ))}
-                {selectedTab === "profile" && (
-                    <Tabs
-                        aria-label="Options"
-                        color="primary"
-                        variant="underlined"
-                        classNames={{
-                            tabList:
-                                "w-full relative rounded-none p-0 border-b border-divider",
-                            cursor: "w-full bg-[#6A52FF]",
-                            tab: "max-w-fit px-0 h-[100%]",
-                            tabContent: "group-data-[selected=true]:text-white",
-                        }}
-                    >
-                        <Tab
-                            key="1"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Posts</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="2"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Replies</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="3"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Media</span>
-                                </div>
-                            }
-                        />
-                        <Tab
-                            key="4"
-                            title={
-                                <div className="flex items-center pl-[15px] pr-[15px] w-[50%]">
-                                    <span>Feeds</span>
-                                </div>
-                            }
-                        />
-                    </Tabs>
-                )} */}
-            {/* </ScrollShadow> */}
         </main>
     )
 }

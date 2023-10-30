@@ -1,7 +1,4 @@
 "use client"
-
-// import { RichText, UnicodeString } from "@atproto/api"
-// import { TabBar } from "@/app/_components/TabBar"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
@@ -10,7 +7,6 @@ import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/
 import { usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-// import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import {
     faAt,
     faCopy,
@@ -39,7 +35,6 @@ import {
     useDisclosure,
 } from "@nextui-org/react"
 import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
-// import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -49,6 +44,7 @@ import {
 } from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import Link from "next/link"
 
 export default function Root() {
     const router = useRouter()
@@ -495,20 +491,17 @@ const UserProfileComponent = ({
                                 startContent={<FontAwesomeIcon icon={faLink} />}
                             >
                                 {url.startsWith("bsky.app") ? (
-                                    <span
+                                    <Link
                                         className={"cursor-pointer"}
-                                        onClick={() => {
-                                            router.push(
-                                                url.replace(
-                                                    "bsky.app",
-                                                    `${location.protocol}//${window.location.host}`
-                                                ) +
-                                                    `?${nextQueryParams.toString()}`
-                                            )
-                                        }}
+                                        href={
+                                            url.replace(
+                                                "bsky.app",
+                                                `${location.protocol}//${window.location.host}`
+                                            ) + `?${nextQueryParams.toString()}`
+                                        }
                                     >
                                         {url}
-                                    </span>
+                                    </Link>
                                 ) : (
                                     <a
                                         href={word}
@@ -533,16 +526,12 @@ const UserProfileComponent = ({
                                 variant="faded"
                                 startContent={<FontAwesomeIcon icon={faAt} />}
                             >
-                                <span
+                                <Link
                                     key={j}
-                                    onClick={() => {
-                                        router.push(
-                                            `/profile/${handle}?${nextQueryParams.toString()}`
-                                        )
-                                    }}
+                                    href={`/profile/${handle}?${nextQueryParams.toString()}`}
                                 >
                                     {handle}
-                                </span>
+                                </Link>
                             </Chip>
                         )
                     }

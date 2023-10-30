@@ -40,12 +40,11 @@ import {
 import { BskyAgent } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
+import Link from "next/link"
 
-// import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 interface Props {
     className?: string
     isMobile?: boolean
-    uploadImageAvailable?: boolean
     isDragActive?: boolean
     open?: boolean
     isSideBarOpen: boolean
@@ -53,16 +52,7 @@ interface Props {
 }
 
 export const ViewSideBar: React.FC<Props> = (props: Props) => {
-    const {
-        className,
-        isMobile,
-        uploadImageAvailable,
-        open,
-        isSideBarOpen,
-        setSideBarOpen,
-    } = props
-    const reg =
-        /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
+    const { isMobile, setSideBarOpen } = props
     const router = useRouter()
     const [accounts] = useAccounts()
     const userList = Object.entries(accounts).map(([key, value]) => ({
@@ -70,7 +60,6 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         value,
     }))
     const [userProfileDetailed] = useUserProfileDetailedAtom()
-    const [loading, setLoading] = useState(false)
     const [openModalReason, setOpenModalReason] = useState<
         "switching" | "logout" | "relogin" | ""
     >("")
@@ -91,7 +80,6 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
-        modal,
     } = viewSideBar()
     const { t } = useTranslation()
     const [agent, setAgent] = useAgent()
@@ -144,7 +132,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
             const agent = new BskyAgent({
                 service: `https://${result}`,
             })
-            const { data } = await agent.login({
+            await agent.login({
                 identifier: identity,
                 password: password,
             })
@@ -162,7 +150,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                 const { data } = await agent.getProfile({
                     actor: agent.session.did,
                 })
-                const accountData: UserAccount = {
+                existingAccountsData[agent.session.did] = {
                     service: server,
                     session: agent.session,
                     profile: {
@@ -172,14 +160,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         avatar: data?.avatar || "",
                     },
                 }
-                existingAccountsData[agent.session.did] = accountData
 
                 localStorage.setItem(
                     "Accounts",
                     JSON.stringify(existingAccountsData)
                 )
             }
-            //router.push("/")
             setIsLogging(false)
             setIsSwitching(false)
             window.location.reload()
@@ -218,8 +204,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                         const agent = new BskyAgent({
                                             service: `https://${key}`,
                                         })
-                                        const res =
-                                            await agent.resumeSession(session)
+                                        await agent.resumeSession(session)
                                         setAgent(agent)
                                         const json = {
                                             server: key,
@@ -229,7 +214,6 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             "session",
                                             JSON.stringify(json)
                                         )
-                                        //router.push("/")
                                         setIsSwitching(false)
                                         window.location.reload()
                                     } catch (e: unknown) {
@@ -254,6 +238,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                                 defaultIcon.src
                                             }
                                             className={"h-full w-full"}
+                                            alt={"avatar"}
                                         />
                                     </div>
                                     <div>
@@ -449,8 +434,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             </Button>
                                             <Button
                                                 color="primary"
-                                                onClick={() => {
-                                                    handleRelogin()
+                                                onClick={async () => {
+                                                    await handleRelogin()
                                                     //onClose()
                                                 }}
                                             >
@@ -475,17 +460,14 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     e.stopPropagation()
                 }}
             >
-                <div
+                <Link
                     className={AuthorIconContainer()}
                     onClick={() => {
                         if (!agent?.session) return
                         setSideBarOpen(false)
-                        router.push(
-                            `/profile/${
-                                agent.session.did
-                            }?${nextQueryParams.toString()}`
-                        )
                     }}
+                    href={`/profile/${agent?.session
+                        ?.did}?${nextQueryParams.toString()}`}
                 >
                     <div
                         className={
@@ -495,6 +477,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         <img
                             className={"h-[64px] w-[64px] rounded-[10px]"}
                             src={userProfileDetailed?.avatar || defaultIcon.src}
+                            alt={"avatar"}
                         />
                     </div>
                     <div className={"ml-[12px]"}>
@@ -506,99 +489,88 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                             @{userProfileDetailed?.handle}
                         </div>
                     </div>
-                </div>
+                </Link>
                 <div className={Content()}>
-                    <div
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(
-                                `/bookmarks?${nextQueryParams.toString()}`
-                            )
                         }}
+                        href={`/bookmarks?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faBookmark}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.bookmark")}</div>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(
-                                `/settings#mute?${nextQueryParams.toString()}`
-                            )
                         }}
+                        href={`/settings#mute?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faVolumeXmark}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.mute")}</div>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(`/feeds?${nextQueryParams.toString()}`)
                         }}
+                        href={`/feeds?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faRss}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.feeds")}</div>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             if (!agent?.session) return
                             setSideBarOpen(false)
-                            router.push(
-                                `/profile/${
-                                    agent.session.did
-                                }?${nextQueryParams.toString()}`
-                            )
                         }}
+                        href={`/profile/${agent?.session
+                            ?.did}?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faUser}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>profile</div>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(
-                                `/settings#filtering?${nextQueryParams.toString()}`
-                            )
                         }}
+                        href={`/settings#filtering?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faHand}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>Contents Filtering</div>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(
-                                `/settings?${nextQueryParams.toString()}`
-                            )
                         }}
+                        href={`/settings?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faGear}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
                         <div>{t("components.ViewSideBar.preferences")}</div>
-                    </div>
+                    </Link>
                     <a
                         className={NavBarItem()}
                         href={"https://google.com/"}
@@ -616,26 +588,25 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     </a>
                 </div>
                 <div className={Footer()}>
-                    <div
+                    <Link
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
-                            router.push(`/about?${nextQueryParams.toString()}`)
                         }}
+                        href={`/about?${nextQueryParams.toString()}`}
                     >
                         <FontAwesomeIcon
                             icon={faCircleQuestion}
                             className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        />
                         <div>{t("components.ViewSideBar.about")}</div>
-                    </div>
+                    </Link>
                     <div
                         className={NavBarItem()}
                         onClick={() => {
                             setSideBarOpen(false)
                             setOpenModalReason("switching")
                             onOpen()
-                            //router.push("/settings")
                         }}
                     >
                         <FontAwesomeIcon
