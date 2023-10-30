@@ -10,7 +10,6 @@ import {
 } from "@nextui-org/react"
 import { useEffect, useState } from "react"
 import { viewSettingsPage } from "@/app/settings/styles"
-import { useRouter } from "next/navigation"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
@@ -19,9 +18,9 @@ import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import Link from "next/link"
 
 export default function Root() {
-    const router = useRouter()
     const DisplayLanguages = {
         English: "en-US",
         Japanese: "ja-JP",
@@ -355,30 +354,22 @@ export default function Root() {
                             }
                             className={accordion()}
                         >
-                            <div
+                            <Link
                                 className={
                                     "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
                                 }
-                                onClick={() => {
-                                    router.push(
-                                        `/settings/mute/words?${nextQueryParams.toString()}`
-                                    )
-                                }}
+                                href={`/settings/mute/words?${nextQueryParams.toString()}`}
                             >
                                 {t("pages.mute.muteWord")}
-                            </div>
-                            <div
+                            </Link>
+                            <Link
                                 className={
                                     "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
                                 }
-                                onClick={() => {
-                                    router.push(
-                                        `/settings/mute/accounts?${nextQueryParams.toString()}`
-                                    )
-                                }}
+                                href={`/settings/mute/accounts?${nextQueryParams.toString()}`}
                             >
                                 {t("pages.mute.muteUser")}
-                            </div>
+                            </Link>
                         </AccordionItem>
                     </Accordion>
                 </div>

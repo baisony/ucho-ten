@@ -1,7 +1,10 @@
 "use client"
 import React, { useCallback, useEffect, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -60,11 +63,12 @@ import {
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import Link from "next/link"
 
 export default function Root() {
-    const [agent, setAgent] = useAgent()
+    const [agent] = useAgent()
     const { t } = useTranslation()
-    const [imageGallery, setImageGallery] = useImageGalleryAtom()
+    const [, setImageGallery] = useImageGalleryAtom()
     const [translateTo] = useTranslationLanguage()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const router = useRouter()
@@ -75,21 +79,20 @@ export default function Root() {
     const atUri1 = pathname.replace("/profile/", "at://")
     let atUri = atUri1.replace("/post/", "/app.bsky.feed.post/")
     const [timeline, setTimeline] = useState<FeedViewPost[]>([])
-    const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
-    const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
+    //const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
+    //const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [post, setPost] = useState<any>(null)
-    const [newCursor, setNewCursor] = useState<string | null>(null)
-    const [cursor, setCursor] = useState<string | null>(null)
+    //const [newCursor, setNewCursor] = useState<string | null>(null)
+    const [cursor] = useState<string | null>(null)
     const [hasCursor, setHasCursor] = useState<string | null>(null)
-    const [darkMode, setDarkMode] = useState(false)
-    const [isTranslated, setIsTranslated] = useState(false)
+    const [, setIsTranslated] = useState(false)
     const [translatedText, setTranslatedText] = useState<string | null>(null)
     const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(true)
     const [translateError, setTranslateError] = useState<boolean>(false)
     const [isLiked, setIsLiked] = useState<boolean>(false)
     const [isReposted, setIsReposted] = useState<boolean>(false)
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
-    const [isPostMine, setIsPostMine] = useState<boolean>(false)
+    const [isPostMine] = useState<boolean>(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -119,14 +122,12 @@ export default function Root() {
             const uri = item.post.uri
             if (item.reply) {
                 if (item.reason) return true
-                if (
+                return (
                     //@ts-ignore
                     item.post.author.did === item.reply.parent.author.did &&
                     //@ts-ignore
                     item.reply.parent.author.did === item.reply.root.author.did
                 )
-                    return true
-                return false
             }
             // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
             if (!seenUris.has(uri)) {
@@ -150,8 +151,8 @@ export default function Root() {
             }
             const { data } = await agent.getPostThread({ uri: atUri })
             setPost(data.thread)
-            setIsLiked(!!(data.thread.post as any).viewer?.like)
-            setIsReposted(!!(data.thread.post as any).viewer?.repost)
+            setIsLiked(!!(data.thread.post as PostView).viewer?.like)
+            setIsReposted(!!(data.thread.post as PostView).viewer?.repost)
         } catch (e) {
             console.log(e)
         }
@@ -190,7 +191,7 @@ export default function Root() {
 
     useEffect(() => {
         if (!agent) return
-        fetchPost()
+        void fetchPost()
     }, [agent, atUri])
 
     const handleImageClick = useCallback(
@@ -234,8 +235,7 @@ export default function Root() {
     )
 
     const deletehttp = (text: string) => {
-        const result = text.replace(/^https?:\/\//, "")
-        return result
+        return text.replace(/^https?:\/\//, "")
     }
 
     const renderTextWithLinks = () => {
@@ -283,18 +283,14 @@ export default function Root() {
             switch (facet.features[0].$type) {
                 case "app.bsky.richtext.facet#mention":
                     result.push(
-                        <div
+                        <Link
                             key={`link-${index}-${byteStart}`}
-                            onClick={() => {
-                                router.push(
-                                    `/profile/${
-                                        facet.features[0].did
-                                    }?${nextQueryParams.toString()}`
-                                )
-                            }}
+                            href={`/profile/${
+                                facet.features[0].did
+                            }?${nextQueryParams.toString()}`}
                         >
                             {facetText}
-                        </div>
+                        </Link>
                     )
                     break
 
@@ -506,10 +502,10 @@ export default function Root() {
         setLoading(true)
         if (isReposted) {
             setIsReposted(!isReposted)
-            const res = await agent?.deleteRepost(post.post.viewer?.repost)
+            agent?.deleteRepost(post.post.viewer?.repost)
         } else {
             setIsReposted(!isReposted)
-            const res = await agent?.repost(post.post.uri, post.post.cid)
+            agent?.repost(post.post.uri, post.post.cid)
         }
         setLoading(false)
     }
@@ -519,10 +515,10 @@ export default function Root() {
         setLoading(true)
         if (isLiked) {
             setIsLiked(!isLiked)
-            const res = await agent?.deleteLike(post.post.viewer?.like)
+            await agent?.deleteLike(post.post.viewer?.like)
         } else {
             setIsLiked(!isLiked)
-            const res = await agent?.like(post.post.uri, post.post.cid)
+            await agent?.like(post.post.uri, post.post.cid)
         }
         setLoading(false)
     }
@@ -593,47 +589,40 @@ export default function Root() {
                     <div className={AuthorPost()}>
                         <div className={Author()}>
                             <div className={"flex items-center"}>
-                                <div
+                                <Link
                                     className={AuthorIcon()}
-                                    onClick={() => {
-                                        router.push(
-                                            `/profile/${
-                                                post.post.author.did
-                                            }?${nextQueryParams.toString()}`
-                                        )
-                                    }}
+                                    href={`/profile/${
+                                        post.post.author.did
+                                    }?${nextQueryParams.toString()}`}
                                 >
                                     <img
                                         src={
                                             post.post?.author?.avatar ||
                                             defaultIcon.src
                                         }
+                                        alt={"avatar"}
                                     />
-                                </div>
+                                </Link>
                                 <div>
-                                    <div
-                                        className={AuthorDisplayName()}
-                                        onClick={() => {
-                                            router.push(
-                                                `/profile/${
-                                                    post.post.author.did
-                                                }?${nextQueryParams.toString()}`
-                                            )
-                                        }}
-                                    >
-                                        {post.post.author?.displayName}
+                                    <div>
+                                        <Link
+                                            className={AuthorDisplayName()}
+                                            href={`/profile/${
+                                                post.post.author.did
+                                            }?${nextQueryParams.toString()}`}
+                                        >
+                                            {post.post.author?.displayName}
+                                        </Link>
                                     </div>
-                                    <div
-                                        className={AuthorHandle()}
-                                        onClick={() => {
-                                            router.push(
-                                                `/profile/${
-                                                    post.post.author.did
-                                                }?${nextQueryParams.toString()}`
-                                            )
-                                        }}
-                                    >
-                                        {post.post.author?.handle}
+                                    <div>
+                                        <Link
+                                            className={AuthorHandle()}
+                                            href={`/profile/${
+                                                post.post.author.did
+                                            }?${nextQueryParams.toString()}`}
+                                        >
+                                            {post.post.author?.handle}
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -750,7 +739,7 @@ export default function Root() {
                                                     />
                                                 }
                                                 onClick={() => {
-                                                    navigator.clipboard.writeText(
+                                                    void navigator.clipboard.writeText(
                                                         JSON.stringify(
                                                             post.post
                                                         )
@@ -769,7 +758,7 @@ export default function Root() {
                                                     />
                                                 }
                                                 onClick={() => {
-                                                    navigator.clipboard.writeText(
+                                                    void navigator.clipboard.writeText(
                                                         atUri
                                                     )
                                                 }}
@@ -786,7 +775,7 @@ export default function Root() {
                                                     />
                                                 }
                                                 onClick={() => {
-                                                    navigator.clipboard.writeText(
+                                                    void navigator.clipboard.writeText(
                                                         post.post.author.did
                                                     )
                                                 }}
@@ -904,9 +893,7 @@ export default function Root() {
                                                                     ) =>
                                                                         e.stopPropagation()
                                                                     }
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
+                                                                    onClick={() => {
                                                                         handleImageClick(
                                                                             index
                                                                         )
@@ -960,14 +947,14 @@ export default function Root() {
                                 icon={faComment}
                                 className={ReactionButton()}
                                 onClick={() => {
-                                    handleReply()
+                                    void handleReply()
                                 }}
                             />
                             <FontAwesomeIcon
                                 icon={faQuoteLeft}
                                 className={ReactionButton()}
                                 onClick={() => {
-                                    handleQuote()
+                                    void handleQuote()
                                 }}
                             />
                             <FontAwesomeIcon
@@ -977,7 +964,7 @@ export default function Root() {
                                     color: isReposted ? "#17BF63" : "#909090",
                                 }}
                                 onClick={() => {
-                                    handleRepost()
+                                    void handleRepost()
                                 }}
                             />
                             <FontAwesomeIcon
@@ -987,7 +974,7 @@ export default function Root() {
                                     color: isLiked ? "#fd7e00" : "#909090",
                                 }}
                                 onClick={() => {
-                                    handleLike()
+                                    void handleLike()
                                 }}
                             />
                             <FontAwesomeIcon
@@ -998,7 +985,7 @@ export default function Root() {
                                 }
                                 className={ReactionButton()}
                                 onClick={() => {
-                                    handleBookmark()
+                                    void handleBookmark()
                                 }}
                             />
                         </div>

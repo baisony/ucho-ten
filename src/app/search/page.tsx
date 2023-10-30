@@ -23,6 +23,7 @@ import { useAtom } from "jotai"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { useSearchInfoAtom } from "../_atoms/searchInfo"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
+import Link from "next/link"
 
 export default function Root() {
     const router = useRouter()
@@ -470,20 +471,16 @@ export default function Root() {
                 <div className={"w-full h-full text-white"}>
                     <div className={"absolute bottom-[50px] w-full"}>
                         {t("pages.search.FindPerson")}
-                        <div
+                        <Link
                             className={searchSupportCard()}
-                            onClick={() => {
-                                router.push(
-                                    `/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`
-                                )
-                            }}
+                            href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
                                 <div>Japanese Cluster</div>
                                 <div>by @jaz.bsky.social</div>
                             </div>
-                        </div>
+                        </Link>
                         <div
                             className={searchSupportCard()}
                             onClick={() => {

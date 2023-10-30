@@ -2,7 +2,6 @@
 import { useAgent } from "@/app/_atoms/agent"
 import React, { useEffect, useState } from "react"
 import { layout } from "./styles"
-import { useRouter } from "next/navigation"
 import {
     Button,
     Modal,
@@ -18,10 +17,10 @@ import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import Link from "next/link"
 
 export default function Root() {
     const [agent] = useAgent()
-    const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { background, FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
@@ -57,7 +56,7 @@ export default function Root() {
         try {
             setIsLoading(true)
             const res = await agent.removeSavedFeed(selectedFeed.uri)
-            fetchFeeds()
+            await fetchFeeds()
             setIsLoading(false)
             console.log(res)
         } catch (e) {
@@ -68,6 +67,13 @@ export default function Root() {
     useEffect(() => {
         fetchFeeds()
     }, [agent])
+
+    const uriToURL = (uri: string) => {
+        const transform_uri = new AtUri(uri)
+        return `/profile/${transform_uri.hostname}/feed/${
+            transform_uri.rkey
+        }?${nextQueryParams.toString()}` as string
+    }
 
     return (
         <>
@@ -90,8 +96,8 @@ export default function Root() {
                                 </Button>
                                 <Button
                                     color="primary"
-                                    onClick={() => {
-                                        handleFeedDelete()
+                                    onClick={async () => {
+                                        await handleFeedDelete()
                                         onClose()
                                     }}
                                 >
@@ -124,17 +130,10 @@ export default function Root() {
                     {/*@ts-ignore*/}
                     {savedFeeds.map((feed: GeneratorView, index) => {
                         return (
-                            <div
+                            <Link
                                 className={FeedCard()}
                                 key={index}
-                                onClick={() => {
-                                    const uri = new AtUri(feed.uri)
-                                    router.push(
-                                        `/profile/${uri.hostname}/feed/${
-                                            uri.rkey
-                                        }?${nextQueryParams.toString()}`
-                                    )
-                                }}
+                                href={uriToURL(feed.uri)}
                             >
                                 <div className={"flex items-center ml-[12px]"}>
                                     <div className={"hidden"}>
@@ -153,6 +152,7 @@ export default function Root() {
                                                 feed?.avatar ||
                                                 defaultFeedIcon.src
                                             }
+                                            alt={"avatar"}
                                         />
                                     </div>
                                     <div className={"ml-[12px]"}>
@@ -187,7 +187,7 @@ export default function Root() {
                                                         await agent?.removePinnedFeed(
                                                             feed.uri
                                                         )
-                                                    fetchFeeds()
+                                                    await fetchFeeds()
                                                     setIsLoading(false)
                                                     console.log(res)
                                                 } else {
@@ -197,7 +197,7 @@ export default function Root() {
                                                         await agent?.addPinnedFeed(
                                                             feed.uri
                                                         )
-                                                    fetchFeeds()
+                                                    await fetchFeeds()
                                                     setIsLoading(false)
                                                     console.log(res)
                                                 }
@@ -219,7 +219,7 @@ export default function Root() {
                                         />
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         )
                     })}
                 </div>

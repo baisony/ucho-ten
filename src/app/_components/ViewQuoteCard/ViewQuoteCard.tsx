@@ -1,11 +1,9 @@
-import React, { useCallback, useMemo, useState } from "react"
+import React, { useCallback, useMemo } from "react"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { Linkcard } from "../Linkcard"
 import "react-circular-progressbar/dist/styles.css"
 import { Image, ScrollShadow, Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
-import { useAgent } from "@/app/_atoms/agent"
-import { useRouter } from "next/navigation"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
     ImageGalleryObject,
@@ -13,13 +11,10 @@ import {
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
 import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
+import Link from "next/link"
 
 interface Props {
     className?: string
-    uploadImageAvailable?: boolean
-    isDragActive?: boolean
-    open?: boolean
-    numbersOfImage?: 0 | 1 | 2 | 3 | 4
     postJson?: any
     isSkeleton?: boolean
     json?: any
@@ -31,26 +26,17 @@ interface Props {
 }
 
 export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
-    const [agent] = useAgent()
-    const [imageGallery, setImageGallery] = useImageGalleryAtom()
-    const router = useRouter()
+    const [, setImageGallery] = useImageGalleryAtom()
     const {
         className,
-        uploadImageAvailable,
-        open,
-        numbersOfImage,
         postJson,
         isSkeleton,
-        json,
         isEmbedToModal,
         now,
         isEmbedReportModal,
         profile,
         nextQueryParams,
     } = props
-    const reg =
-        /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
-    const [loading, setLoading] = useState(false)
     const {
         PostCard,
         PostAuthor,
@@ -66,9 +52,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
         skeletonText1line,
         skeletonText2line,
     } = viewQuoteCard()
-    const [isSwipeEnabled, setIsSwipeEnabled] = useState(true)
-    const [startX, setStartX] = useState(null)
-    const [startY, setStartY] = useState(null)
 
     const handleImageClick = useCallback(
         (index: number) => {
@@ -112,54 +95,19 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
 
     const renderTextWithLinks = useMemo(() => {
         if (!postJson?.value && !postJson?.record?.text) return
-        if (true) {
-            const post: any[] = []
-            const postText = postJson?.value?.text || postJson?.record?.text
-            postText?.split("\n").map((line: any, i: number) => {
-                post.push(
-                    <p key={i}>
-                        {line}
-                        <br />
-                    </p>
-                )
-            })
-            return post
-        }
+        const post: any[] = []
+        const postText = postJson?.value?.text || postJson?.record?.text
+        postText?.split("\n").map((line: any, i: number) => {
+            post.push(
+                <p key={i}>
+                    {line}
+                    <br />
+                </p>
+            )
+        })
+        return post
     }, [])
 
-    const handleMouseUp = (e: any) => {
-        // マウスダウンしていない状態でクリックされた場合は何もしない
-        if (startX === null || startY === null) return
-
-        // マウスが動いた場合の座標
-        const currentX = e.clientX
-        const currentY = e.clientY
-
-        // クリックが発生した座標との差を計算
-        const deltaX = Math.abs(currentX - startX)
-        const deltaY = Math.abs(currentY - startY)
-
-        // カーソルが一定の閾値以上動いた場合にクリックをキャンセル
-        if (deltaX > 5 || deltaY > 5) {
-            console.log("cancel click")
-            //e.preventDefault();
-            //e.stopPropagation();
-        } else {
-            e.preventDefault()
-            e.stopPropagation()
-            router.push(
-                `/profile/${postJson?.author.did}/post/${
-                    postJson?.uri.match(/\/(\w+)$/)?.[1] || ""
-                }?${nextQueryParams.toString()}`
-            )
-        }
-    }
-
-    const handleMouseDown = (e: any) => {
-        // マウスダウン時の座標を記録
-        setStartX(e.clientX)
-        setStartY(e.clientY)
-    }
     return (
         <>
             <main
@@ -169,29 +117,25 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                         : `cursor-pointer`
                 }`}
                 //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
-                onMouseDown={(e) => {
-                    handleMouseDown(e)
-                }}
-                onMouseUp={(e) => {
-                    if (isEmbedToModal) return
-                    handleMouseUp(e)
+                onClick={(e) => {
+                    if (!isEmbedReportModal) return
+                    e.preventDefault()
+                    e.stopPropagation()
                 }}
             >
                 <>
                     <>
                         <div className={`${PostCardContainer()}`}>
                             <div className={`${PostAuthor()}`}>
-                                <span
+                                <Link
                                     className={PostAuthorIcon()}
                                     onClick={(e) => {
                                         if (!isEmbedReportModal) return
                                         e.preventDefault()
                                         e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author
-                                                .did}?${nextQueryParams.toString()}`
-                                        )
                                     }}
+                                    href={`/profile/${postJson?.author
+                                        .did}?${nextQueryParams.toString()}`}
                                 >
                                     {isSkeleton ? (
                                         <Skeleton className={skeletonIcon()} />
@@ -211,19 +155,17 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                             alt={postJson?.author.did}
                                         />
                                     )}
-                                </span>
-                                <span
+                                </Link>
+                                <Link
                                     className={PostAuthorDisplayName()}
                                     style={{ fontSize: "13px" }}
                                     onClick={(e) => {
                                         if (!isEmbedReportModal) return
                                         e.preventDefault()
                                         e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author
-                                                .did}?${nextQueryParams.toString()}`
-                                        )
                                     }}
+                                    href={`/profile/${postJson?.author
+                                        .did}?${nextQueryParams.toString()}`}
                                 >
                                     {isSkeleton ? (
                                         <Skeleton className={skeletonName()} />
@@ -233,21 +175,19 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                             {profile?.displayName}
                                         </span>
                                     )}
-                                </span>
+                                </Link>
                                 <div className={"text-[#BABABA]"}>
                                     &nbsp;-&nbsp;
                                 </div>
-                                <span
+                                <Link
                                     className={PostAuthorHandle()}
                                     onClick={(e) => {
                                         if (!isEmbedReportModal) return
                                         e.preventDefault()
                                         e.stopPropagation()
-                                        router.push(
-                                            `/profile/${postJson?.author
-                                                .did}?${nextQueryParams.toString()}`
-                                        )
                                     }}
+                                    href={`/profile/${postJson?.author
+                                        .did}?${nextQueryParams.toString()}`}
                                 >
                                     {isSkeleton ? (
                                         <Skeleton
@@ -259,7 +199,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                             {profile?.handle}
                                         </span>
                                     )}
-                                </span>
+                                </Link>
                                 <div
                                     className={PostCreatedAt()}
                                     style={{ fontSize: "12px" }}
@@ -327,9 +267,7 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                                                     ) =>
                                                                         e.stopPropagation()
                                                                     }
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
+                                                                    onClick={() => {
                                                                         handleImageClick(
                                                                             index
                                                                         )
