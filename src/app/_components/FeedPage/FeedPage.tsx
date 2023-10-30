@@ -14,10 +14,7 @@ import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import {
-    QueryFunctionContext,
-    useQuery,
-} from "@tanstack/react-query"
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 // import { usePathname } from "next/navigation"
 // import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
 
