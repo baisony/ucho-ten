@@ -123,19 +123,19 @@ export default function Root() {
 
         cursor.current = ""
 
-        if (searchTarget === "posts") {
-            if (searchPostsResult === null && searchInfo.posts !== null) {
-                setSearchPostsResult(searchInfo.posts)
+        // if (searchTarget === "posts") {
+        //     if (searchPostsResult === null && searchInfo.posts !== null) {
+        //         setSearchPostsResult(searchInfo.posts)
 
-                cursor.current = searchInfo.postCursor
-            }
-        } else if (searchTarget === "users") {
-            if (searchUsersResult === null && searchInfo.users !== null) {
-                setSearchUsersResult(searchInfo.users)
+        //         cursor.current = searchInfo.postCursor
+        //     }
+        // } else if (searchTarget === "users") {
+        //     if (searchUsersResult === null && searchInfo.users !== null) {
+        //         setSearchUsersResult(searchInfo.users)
 
-                cursor.current = searchInfo.userCursor
-            }
-        }
+        //         cursor.current = searchInfo.userCursor
+        //     }
+        // }
 
         const queryParams = new URLSearchParams(nextQueryParams)
 
@@ -175,14 +175,14 @@ export default function Root() {
 
             newSearchInfo.searchWord = searchText
             newSearchInfo.target = searchTarget
-            newSearchInfo.posts = searchPostsResult
-            newSearchInfo.users = searchUsersResult
+            // newSearchInfo.posts = searchPostsResult
+            // newSearchInfo.users = searchUsersResult
 
-            if (searchTarget === "posts") {
-                newSearchInfo.postCursor = cursor.current
-            } else if (searchTarget === "users") {
-                newSearchInfo.userCursor = cursor.current
-            }
+            // if (searchTarget === "posts") {
+            //     newSearchInfo.postCursor = cursor.current
+            // } else if (searchTarget === "users") {
+            //     newSearchInfo.userCursor = cursor.current
+            // }
 
             console.log("newSearchInfo", newSearchInfo)
 
@@ -197,7 +197,7 @@ export default function Root() {
     ])
 
     const fetchSearchPostsResult = async () => {
-        console.log("")
+        console.log("cursor.current", cursor.current)
         if (!agent) {
             return
         }
@@ -348,10 +348,10 @@ export default function Root() {
         setSearchInfo({
             target: "",
             searchWord: "",
-            posts: null,
-            users: null,
-            postCursor: "",
-            userCursor: "",
+            // posts: null,
+            // users: null,
+            // postCursor: "",
+            // userCursor: "",
         })
     }
 
@@ -378,6 +378,7 @@ export default function Root() {
                 setHasMorePostsResult(false)
                 setSearchPostsResult(null)
                 cursor.current = ""
+                numOfResult.current = 0
                 fetchSearchPostsResult()
                 break
             case "users":
@@ -387,6 +388,7 @@ export default function Root() {
                 setHasMoreUsersResult(false)
                 setSearchUsersResult(null)
                 cursor.current = ""
+                numOfResult.current = 0
                 fetchSearchUsersResult()
                 break
         }

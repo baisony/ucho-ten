@@ -113,10 +113,10 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
             setSearchInfo({
                 target: "",
                 searchWord: "",
-                posts: null,
-                users: null,
-                postCursor: "",
-                userCursor: "",
+                // posts: null,
+                // users: null,
+                // postCursor: "",
+                // userCursor: "",
             })
 
             const queryParams = new URLSearchParams(searchParams)
