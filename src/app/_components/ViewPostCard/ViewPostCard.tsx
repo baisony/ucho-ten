@@ -546,20 +546,6 @@ export const ViewPostCard = (props: Props) => {
                                     key={`a-${index}-${byteStart}`}
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        const queryParams = new URLSearchParams(
-                                            nextQueryParams
-                                        )
-                                        queryParams.set(
-                                            "word",
-                                            `${facet.features[0].tag.replace(
-                                                "#",
-                                                ""
-                                            )}`
-                                        )
-                                        queryParams.set("target", "posts")
-                                        router.push(
-                                            `/search?${queryParams.toString()}`
-                                        )
                                     }}
                                     href={addParamsToUrl(facet.features[0].tag)}
                                 >
