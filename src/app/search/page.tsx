@@ -9,7 +9,11 @@ import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { layout } from "@/app/search/styles"
-import { menuIndexAtom, useCurrentMenuType, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+} from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
