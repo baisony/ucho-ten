@@ -13,6 +13,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { TabQueryParamValue, isTabQueryParamValue } from "@/app/_types/types"
+import Link from "next/link"
 
 interface Props {
     className?: string
@@ -105,13 +106,9 @@ export const TabBar: React.FC<Props> = (props: Props) => {
 
     return (
         <main className={TabBar()}>
-            <div
+            <Link
                 className={Container({ selected: hilightedTab === "h" })}
-                onClick={() => {
-                    router.push("/")
-                    //setSelectedTab("home")
-                    //props.setValue("home")
-                }}
+                href={"/"}
             >
                 <FontAwesomeIcon
                     icon={faHome}
@@ -120,14 +117,10 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         color: hilightedTab === "h" ? "#62A8DC" : undefined,
                     }}
                 />
-            </div>
-            <div
+            </Link>
+            <Link
                 className={Container({ selected: hilightedTab === "s" })}
-                onClick={() => {
-                    router.push("/search")
-                    //setSelectedTab("search")
-                    //props.setValue("search")
-                }}
+                href={"/search"}
             >
                 <FontAwesomeIcon
                     icon={faSearch}
@@ -136,16 +129,16 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         color: hilightedTab === "s" ? "#62A8DC" : undefined,
                     }}
                 />
-            </div>
-            <div
+            </Link>
+            <Link
                 className={Container({ selected: hilightedTab === "i" })}
                 onClick={() => {
-                    router.push("/inbox")
                     //setSelectedTab("inbox")
                     //props.setValue("inbox")
                     handleUpdateSeen()
                     setUnreadNotification(0)
                 }}
+                href={"/inbox"}
             >
                 <Badge
                     content={""}
@@ -162,14 +155,10 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         }}
                     />
                 </Badge>
-            </div>
-            <div
+            </Link>
+            <Link
                 className={Container({ selected: hilightedTab === "p" })}
-                onClick={() => {
-                    router.push("/post")
-                    //setSelectedTab("post")
-                    //props.setValue("post")
-                }}
+                href={"/post"}
             >
                 <FontAwesomeIcon
                     icon={faPenToSquare}
@@ -177,7 +166,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         selected: hilightedTab === "p",
                     })}
                 />
-            </div>
+            </Link>
         </main>
     )
 }
