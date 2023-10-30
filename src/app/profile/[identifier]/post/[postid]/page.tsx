@@ -348,17 +348,29 @@ export default function Root() {
                                         : "danger"
                                 }
                             >
-                                <a
-                                    key={`a-${index}-${byteStart}`}
-                                    href={facet.features[0].uri}
-                                    target={"_blank"}
-                                    rel={"noopener noreferrer"}
-                                >
-                                    <>
-                                        <FontAwesomeIcon icon={faLink} />
+                                {facet.features[0].uri.startsWith(
+                                    "https://bsky.app"
+                                ) ? (
+                                    <Link
+                                        key={`a-${index}-${byteStart}`}
+                                        href={facet.features[0].uri.replace(
+                                            "https://bsky.app",
+                                            `${location.protocol}//${window.location.host}`
+                                        )}
+                                    >
                                         {facetText}
-                                    </>
-                                </a>
+                                    </Link>
+                                ) : (
+                                    <a
+                                        onClick={(e) => e.stopPropagation()}
+                                        key={`a-${index}-${byteStart}`}
+                                        href={facet.features[0].uri}
+                                        target={"_blank"}
+                                        rel={"noopener noreferrer"}
+                                    >
+                                        {facetText}
+                                    </a>
+                                )}
                             </Chip>
                         </span>
                     )
@@ -561,7 +573,7 @@ export default function Root() {
                     isOpen={isOpen}
                     onOpenChange={onOpenChange}
                     placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px]"}
+                    className={"z-[100] max-w-[600px] bg-transparent"}
                 >
                     <ModalContent>
                         {(onClose) => (
@@ -577,7 +589,7 @@ export default function Root() {
                     isOpen={isOpenReport}
                     onOpenChange={onOpenChangeReport}
                     placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px]"}
+                    className={"z-[100] max-w-[600px] bg-transparent"}
                     target={"post"}
                     post={post.post}
                     nextQueryParams={nextQueryParams}
@@ -952,7 +964,7 @@ export default function Root() {
                             />
                             <FontAwesomeIcon
                                 icon={faQuoteLeft}
-                                className={ReactionButton()}
+                                className={`${ReactionButton()} hidden`}
                                 onClick={() => {
                                     void handleQuote()
                                 }}

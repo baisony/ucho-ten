@@ -670,7 +670,7 @@ export const ViewPostCard = (props: Props) => {
                     isOpen={isOpenReply}
                     onOpenChange={onOpenChangeReply}
                     placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px]"}
+                    className={"z-[100] max-w-[600px] bg-transparent"}
                 >
                     <ModalContent>
                         {(onClose) => (
@@ -697,7 +697,9 @@ export const ViewPostCard = (props: Props) => {
                             ? quoteCardStyles.PostCard()
                             : PostCard({ isEmbedToModal })
                     } ${isEmbedToModal ? `border-none` : `cursor-pointer`}`}
-                    //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
+                    style={{
+                        backgroundColor: isEmbedToModal ? "transparent" : "",
+                    }}
                     onClick={(e) => {
                         e.stopPropagation()
                         if (isSkeleton) return
@@ -736,66 +738,72 @@ export const ViewPostCard = (props: Props) => {
                                 isEmbedToModal ? `z-[2]` : `z-[0]`
                             }`}
                         >
-                            <Link
-                                className={PostAuthorIcon()}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                }}
-                                href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
-                            >
-                                {isSkeleton ? (
-                                    <Skeleton className={skeletonIcon()} />
-                                ) : (
-                                    <img
-                                        src={
-                                            postJsonData?.author?.avatar ||
-                                            defaultIcon.src
-                                        }
-                                        //radius={"lg"}
-                                        className={`rounded-[10px]`}
-                                        alt={postJsonData?.author.did}
-                                    />
+                            <span className={"flex"}>
+                                <Link
+                                    className={PostAuthorIcon()}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                    }}
+                                    href={`/profile/${postJsonData?.author
+                                        .did}?${nextQueryParams.toString()}`}
+                                >
+                                    {isSkeleton ? (
+                                        <Skeleton className={skeletonIcon()} />
+                                    ) : (
+                                        <img
+                                            src={
+                                                postJsonData?.author?.avatar ||
+                                                defaultIcon.src
+                                            }
+                                            //radius={"lg"}
+                                            className={``}
+                                            alt={postJsonData?.author.did}
+                                        />
+                                    )}
+                                </Link>
+                                <Link
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                    }}
+                                    href={`/profile/${postJsonData?.author
+                                        .did}?${nextQueryParams.toString()}`}
+                                >
+                                    {isSkeleton ? (
+                                        <Skeleton className={skeletonName()} />
+                                    ) : (
+                                        <span
+                                            className={`${PostAuthorDisplayName()} md:hover:underline`}
+                                            style={{ fontSize: "13px" }}
+                                        >
+                                            {postJsonData?.author?.displayName}
+                                        </span>
+                                    )}
+                                </Link>
+                                {!isSkeleton && (
+                                    <div className={"text-[#BABABA]"}>
+                                        &nbsp;-&nbsp;
+                                    </div>
                                 )}
-                            </Link>
-                            <Link
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                }}
-                                href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
-                            >
-                                {isSkeleton ? (
-                                    <Skeleton className={skeletonName()} />
-                                ) : (
-                                    <span
-                                        className={`${PostAuthorDisplayName()} md:hover:underline`}
-                                        style={{ fontSize: "13px" }}
-                                    >
-                                        {postJsonData?.author?.displayName}
-                                    </span>
-                                )}
-                            </Link>
-                            <div className={"text-[#BABABA]"}>
-                                &nbsp;-&nbsp;
-                            </div>
-                            <Link
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                }}
-                                href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
-                            >
-                                {isSkeleton ? (
-                                    <Skeleton className={skeletonHandle()} />
-                                ) : (
-                                    <span
-                                        className={`${PostAuthorHandle()} md:hover:underline`}
-                                    >
-                                        {postJsonData?.author?.handle}
-                                    </span>
-                                )}
-                            </Link>
+                                <Link
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                    }}
+                                    href={`/profile/${postJsonData?.author
+                                        .did}?${nextQueryParams.toString()}`}
+                                >
+                                    {isSkeleton ? (
+                                        <Skeleton
+                                            className={skeletonHandle()}
+                                        />
+                                    ) : (
+                                        <span
+                                            className={`${PostAuthorHandle()} md:hover:underline`}
+                                        >
+                                            {postJsonData?.author?.handle}
+                                        </span>
+                                    )}
+                                </Link>
+                            </span>
 
                             {!isHover && (
                                 <div className={postCreatedAt()}>
@@ -948,7 +956,7 @@ export const ViewPostCard = (props: Props) => {
                                     {json?.reply && (
                                         <div
                                             className={
-                                                "text-[#BABABA] text-[12px]"
+                                                "text-[#BABABA] text-[12px] dark:text-[#787878]"
                                             }
                                         >
                                             <FontAwesomeIcon icon={faReply} />{" "}
@@ -964,7 +972,7 @@ export const ViewPostCard = (props: Props) => {
                                     <div
                                         style={{ wordBreak: "break-word" }}
                                         className={`${PostContentText()} ${
-                                            !isEmbedToPost && `text-[13px]`
+                                            isEmbedToPost && `text-[13px]`
                                         }`}
                                     >
                                         {renderTextWithLinks}
@@ -1028,14 +1036,10 @@ export const ViewPostCard = (props: Props) => {
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
-                                <div className={`mr-[12px]`}>
+                                <div className={``}>
                                     {!isEmbedToModal && (
                                         <>
-                                            <div
-                                                className={
-                                                    "mr-[12px] block md:hidden"
-                                                }
-                                            >
+                                            <div className={"block md:hidden"}>
                                                 <FontAwesomeIcon
                                                     icon={faComment}
                                                     className={PostReactionButton()}
@@ -1185,7 +1189,11 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
         >
             {embedImages.images.map((image: ViewImage, index: number) => (
                 <div
-                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                    className={`mt-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
+                        embedImages.images.length - 1 === index
+                            ? `mr-[0px]`
+                            : `mr-[7px]`
+                    } bg-cover`}
                     key={`image-${index}`}
                 >
                     <img

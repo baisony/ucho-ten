@@ -4,8 +4,7 @@ export const viewQuoteCard = tv({
     slots: {
         PostCard:
             "w-full border-[1.5px] rounded-[10px] md:hover:border-gray-600 bg-white text-black border-[#E8E8E8] md:hover:bg-[#F5F5F5] dark:bg-[#2C2C2C] dark:text-[#D7D7D7] dark:border-[#181818] dark:md:hover:bg-[#1C1C1C]",
-        PostCardContainer:
-            "pl-[8px] pt-[11px] pb-[11px] w-full pb-[18px] md:pb-[24px]",
+        PostCardContainer: "pt-[11px] w-full",
         PostAuthor:
             "w-[100%-16px] h-[28px] items-center flex relative select-none",
         PostAuthorIcon: "h-[19px] w-[19px] object-cover hover:cursor-pointer",
