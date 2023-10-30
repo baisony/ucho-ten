@@ -445,6 +445,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     setMenuIndex(2)
                     break
                 default:
+                    setMenuIndex(0)
                     break
             }
         } else if (pathName === "/inbox") {
