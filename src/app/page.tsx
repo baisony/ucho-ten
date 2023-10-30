@@ -190,7 +190,7 @@ const Root = () => {
                 return (
                     <SwiperSlide
                         key={`swiperslide-home-${index}`}
-                        //virtualIndex={index}
+                        virtualIndex={index}
                     >
                         <div
                             id={`swiperIndex-div-${index}`}
