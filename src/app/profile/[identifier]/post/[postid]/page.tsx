@@ -21,7 +21,6 @@ import {
     faFlag,
     faHashtag,
     faLanguage,
-    faLink,
     faQuoteLeft,
     faRetweet,
     faStar as faSolidStar,
@@ -60,6 +59,7 @@ import {
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import Link from "next/link"
 
 export default function Root() {
     const [agent, setAgent] = useAgent()
@@ -352,17 +352,29 @@ export default function Root() {
                                         : "danger"
                                 }
                             >
-                                <a
-                                    key={`a-${index}-${byteStart}`}
-                                    href={facet.features[0].uri}
-                                    target={"_blank"}
-                                    rel={"noopener noreferrer"}
-                                >
-                                    <>
-                                        <FontAwesomeIcon icon={faLink} />
+                                {facet.features[0].uri.startsWith(
+                                    "https://bsky.app"
+                                ) ? (
+                                    <Link
+                                        key={`a-${index}-${byteStart}`}
+                                        href={facet.features[0].uri.replace(
+                                            "https://bsky.app",
+                                            `${location.protocol}//${window.location.host}`
+                                        )}
+                                    >
                                         {facetText}
-                                    </>
-                                </a>
+                                    </Link>
+                                ) : (
+                                    <a
+                                        onClick={(e) => e.stopPropagation()}
+                                        key={`a-${index}-${byteStart}`}
+                                        href={facet.features[0].uri}
+                                        target={"_blank"}
+                                        rel={"noopener noreferrer"}
+                                    >
+                                        {facetText}
+                                    </a>
+                                )}
                             </Chip>
                         </span>
                     )
