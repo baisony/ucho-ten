@@ -13,16 +13,20 @@ import { usePathname, useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { TabQueryParamValue, isTabQueryParamValue } from "@/app/_types/types"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 
 interface Props {
     className?: string
 }
 
 export const TabBar: React.FC<Props> = (props: Props) => {
-    const [agent, setAgent] = useAgent()
     const router = useRouter()
     const pathname = usePathname()
-    const [nextQueryParamsAtom] = useNextQueryParamsAtom()
+
+    const [agent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
     const { className } = props
     const reg =
@@ -49,7 +53,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                 return
         }
 
-        const tabQueryParam = nextQueryParamsAtom.get("f")
+        const tabQueryParam = nextQueryParams.get("f")
 
         if (isTabQueryParamValue(tabQueryParam)) {
             setHilightedTab(tabQueryParam)
@@ -57,7 +61,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
         }
 
         setHilightedTab("h")
-    }, [pathname, nextQueryParamsAtom])
+    }, [pathname, nextQueryParams])
 
     const checkNewNotification = async () => {
         if (!agent) {
@@ -108,6 +112,11 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "h" })}
                 onClick={() => {
+                    if (hilightedTab === "h" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("home")
+                    } else {
+                        router.push("/")
+                    }
                     router.push("/")
                     //setSelectedTab("home")
                     //props.setValue("home")
@@ -124,7 +133,11 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "s" })}
                 onClick={() => {
-                    router.push("/search")
+                    if (hilightedTab === "s" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("search")
+                    } else {
+                        router.push("/search")
+                    }
                     //setSelectedTab("search")
                     //props.setValue("search")
                 }}
@@ -140,7 +153,11 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "i" })}
                 onClick={() => {
-                    router.push("/inbox")
+                    if (hilightedTab === "i" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("inbox")
+                    } else {
+                        router.push("/inbox")
+                    }
                     //setSelectedTab("inbox")
                     //props.setValue("inbox")
                     handleUpdateSeen()

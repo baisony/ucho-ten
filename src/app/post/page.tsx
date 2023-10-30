@@ -47,6 +47,8 @@ import imageCompression, {
     Options as ImageCompressionOptions,
 } from "browser-image-compression"
 
+import i18n from "@/app/_i18n/config"
+
 import {
     AppBskyEmbedImages,
     AppBskyFeedPost,
@@ -68,13 +70,14 @@ interface AttachmentImage {
 }
 
 export default function Root() {
-    const [userProfileDetailed] = useUserProfileDetailedAtom()
-    const [agent, setAgent] = useAgent()
-    const router = useRouter()
-    const [nextQueryParams] = useNextQueryParamsAtom()
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
+
+    const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const [agent] = useAgent()
+    const router = useRouter()
+    const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
     const [PostContentLanguage, setPostContentLanguage] = useState(
@@ -84,8 +87,6 @@ export default function Root() {
     const [contentText, setContentText] = useState(postParam ? postParam : "")
     const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
     const [loading, setLoading] = useState(false)
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const hiddenInput = useRef<HTMLDivElement>(null)
     const [isDetectedURL, setIsDetectURL] = useState(false)
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
@@ -96,10 +97,17 @@ export default function Root() {
     const [isCompressing, setIsCompressing] = useState(false)
     const [compressingLength, setCompressingLength] = useState(0)
     const [OGPImage, setOGPImage] = useState<any>([])
+
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    //const hiddenInput = useRef<HTMLDivElement>(null)
+    const currentCursorPostion = useRef<number>(0)
+    const isEmojiAdding = useRef<boolean>(false)
+
     // const isImageMaxLimited =
     //    contentImages.length >= 5 || contentImages.length === 4 // 4枚まで
     // const isImageMinLimited = contentImage.length === 0 // 4枚まで
     // const [imageProcessing, setImageProcessing] = useState<boolean>(false)
+
     const {
         background,
         backgroundColor,
@@ -356,17 +364,32 @@ export default function Root() {
         setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
-    const onEmojiClick = (event: any) => {
-        if (textareaRef.current) {
-            const target = textareaRef.current
-            const cursorPosition = target.selectionStart
-            const content = `${contentText.slice(0, cursorPosition)}${
-                event.native
-            }${contentText.slice(cursorPosition, contentText.length)}`
-            setContentText(content)
-        } else {
-            setContentText(contentText + event.native)
+    const onEmojiClick = (emoji: any) => {
+        if (isEmojiAdding.current === true) {
+            return
         }
+
+        isEmojiAdding.current = true
+
+        if (textareaRef.current) {
+            // const target = textareaRef.current
+            // const cursorPosition = target.selectionStart
+
+            setContentText((prevContentText) => {
+                return `${prevContentText.slice(
+                    0,
+                    currentCursorPostion.current
+                )}${emoji.native}${prevContentText.slice(
+                    currentCursorPostion.current
+                )}`
+            })
+
+            currentCursorPostion.current += emoji.native.length
+        } else {
+            setContentText((prevContentText) => prevContentText + emoji.native)
+        }
+
+        isEmojiAdding.current = false
     }
 
     // ドラッグをキャンセルする
@@ -477,6 +500,24 @@ export default function Root() {
         }
     }
 
+    const handleOnEmojiOpenChange = (isOpen: boolean) => {
+        if (isOpen === true) {
+            currentCursorPostion.current =
+                textareaRef.current?.selectionStart || 0
+        } else {
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.setSelectionRange(
+                        currentCursorPostion.current,
+                        currentCursorPostion.current
+                    )
+
+                    textareaRef.current?.focus()
+                }
+            }, 500)
+        }
+    }
+
     return (
         <main
             className={`${background()}
@@ -542,6 +583,7 @@ export default function Root() {
                     </div>
                     <div className={contentRight()}>
                         <Textarea
+                            ref={textareaRef}
                             className={contentRightTextArea({
                                 uploadImageAvailable:
                                     contentImages.length !== 0 ||
@@ -557,15 +599,17 @@ export default function Root() {
                             onChange={(e) => {
                                 setContentText(e.target.value)
                                 detectURL(e.target.value)
+                                currentCursorPostion.current =
+                                    textareaRef.current?.selectionStart || 0
                             }}
                             onKeyDown={handleKeyDown}
                             disabled={loading}
-                            onFocus={(e) =>
-                                e.currentTarget.setSelectionRange(
-                                    e.currentTarget.value.length,
-                                    e.currentTarget.value.length
-                                )
-                            }
+                            // onFocus={(e) =>
+                            //     e.currentTarget.setSelectionRange(
+                            //         e.currentTarget.value.length,
+                            //         e.currentTarget.value.length
+                            //     )
+                            // }
                             onPaste={handlePaste}
                         />
                         {(contentImages.length > 0 || isCompressing) && (
@@ -858,7 +902,10 @@ export default function Root() {
                         <div
                             className={`${footerTooltipStyle()} invisible md:visible`}
                         >
-                            <Popover placement="right-end">
+                            <Popover
+                                placement="right-end"
+                                onOpenChange={handleOnEmojiOpenChange}
+                            >
                                 <PopoverTrigger>
                                     <Button
                                         isIconOnly
@@ -874,6 +921,7 @@ export default function Root() {
                                 <PopoverContent>
                                     <Picker
                                         data={data}
+                                        locale={i18n.language}
                                         onEmojiSelect={onEmojiClick}
                                         previewPosition="none"
                                     />

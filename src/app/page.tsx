@@ -20,6 +20,7 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
+import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
 
 SwiperCore.use([Virtual])
 
@@ -34,6 +35,8 @@ const Root = () => {
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
@@ -65,6 +68,13 @@ const Root = () => {
             setDarkMode(false)
         }
     }, [appearanceColor])
+
+    useEffect(() => {
+        if (tappedTabbarButton == "home") {
+            setMenuIndexChangedByMenu(true)
+            setMenuIndex(0) // at least home menu has 1 element
+        }
+    }, [tappedTabbarButton])
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -160,6 +170,10 @@ const Root = () => {
                 if (menuIndexChangedByMenu === false) {
                     setMenuIndex(swiper.activeIndex)
                 }
+
+                if (tappedTabbarButton !== null) {
+                    setTappedTabbarButton(null)
+                }
             }}
             onTouchStart={(swiper, event) => {
                 setMenuIndexChangedByMenu(false)
@@ -176,7 +190,7 @@ const Root = () => {
                 return (
                     <SwiperSlide
                         key={`swiperslide-home-${index}`}
-                        //virtualIndex={index}
+                        virtualIndex={index}
                     >
                         <div
                             id={`swiperIndex-div-${index}`}

@@ -38,7 +38,7 @@ import {
     Spinner,
     useDisclosure,
 } from "@nextui-org/react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import Textarea from "react-textarea-autosize"
 import Picker from "@emoji-mart/react"
@@ -53,6 +53,7 @@ import imageCompression, {
 } from "browser-image-compression"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import i18n from "@/app/_i18n/config"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -73,15 +74,17 @@ interface Props {
 
 export const PostModal: React.FC<Props> = (props: Props) => {
     const { type, postData } = props
-    const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
-        useUserProfileDetailedAtom()
+
     const { t } = useTranslation()
-    const [agent, setAgent] = useAgent()
-    const [nextQueryParams] = useNextQueryParamsAtom()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
-    const reg =
-        /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
+
+    const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
+        useUserProfileDetailedAtom()
+    const [agent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    // const reg =
+    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
     const [PostContentLanguage, setPostContentLanguage] = useState(
         new Set<string>([])
     )
@@ -90,7 +93,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
     const [loading, setLoading] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const hiddenInput = useRef<HTMLDivElement>(null)
+    const currentCursorPostion = useRef<number>(0)
+    const isEmojiAdding = useRef<boolean>(false)
+    // const hiddenInput = useRef<HTMLDivElement>(null)
     const [isDetectedURL, setIsDetectURL] = useState(false)
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
@@ -98,7 +103,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [isSetURLCard, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
     const [isGetOGPFetchError, setIsGetOGPFetchError] = useState(false)
-    const [compressProcessing, setCompressProcessing] = useState(false)
+    // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
     const [OGPImage, setOGPImage] = useState<any>([])
     const {
@@ -373,17 +378,32 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
-    const onEmojiClick = (event: any) => {
-        if (textareaRef.current) {
-            const target = textareaRef.current
-            const cursorPosition = target.selectionStart
-            const content = `${contentText.slice(0, cursorPosition)}${
-                event.native
-            }${contentText.slice(cursorPosition, contentText.length)}`
-            setContentText(content)
-        } else {
-            setContentText(contentText + event.native)
+    const onEmojiClick = (emoji: any) => {
+        if (isEmojiAdding.current === true) {
+            return
         }
+
+        isEmojiAdding.current = true
+
+        if (textareaRef.current) {
+            // const target = textareaRef.current
+            // const cursorPosition = target.selectionStart
+
+            setContentText((prevContentText) => {
+                return `${prevContentText.slice(
+                    0,
+                    currentCursorPostion.current
+                )}${emoji.native}${prevContentText.slice(
+                    currentCursorPostion.current
+                )}`
+            })
+
+            currentCursorPostion.current += emoji.native.length
+        } else {
+            setContentText((prevContentText) => prevContentText + emoji.native)
+        }
+
+        isEmojiAdding.current = false
     }
 
     // ドラッグをキャンセルする
@@ -391,28 +411,28 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         e.preventDefault()
     }
 
-    const userList = [
-        {
-            name: "John Doe",
-            avatar: "https://i.pravatar.cc/100?img=1",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-        {
-            name: "Jane Doe",
-            avatar: "https://i.pravatar.cc/100?img=2",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-        {
-            name: "Kate Doe",
-            avatar: "https://i.pravatar.cc/100?img=3",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-        {
-            name: "Mark Doe",
-            avatar: "https://i.pravatar.cc/100?img=4",
-            did: "did:plc:txandrhc7afdozk6a2itgltm",
-        },
-    ]
+    // const userList = [
+    //     {
+    //         name: "John Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=1",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    //     {
+    //         name: "Jane Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=2",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    //     {
+    //         name: "Kate Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=3",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    //     {
+    //         name: "Mark Doe",
+    //         avatar: "https://i.pravatar.cc/100?img=4",
+    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
+    //     },
+    // ]
 
     const detectURL = (text: string) => {
         // URLを検出する正規表現パターン
@@ -504,6 +524,24 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }
 
+    const handleOnEmojiOpenChange = (isOpen: boolean) => {
+        if (isOpen === true) {
+            currentCursorPostion.current =
+                textareaRef.current?.selectionStart || 0
+        } else {
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.setSelectionRange(
+                        currentCursorPostion.current,
+                        currentCursorPostion.current
+                    )
+
+                    textareaRef.current?.focus()
+                }
+            }, 500)
+        }
+    }
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
@@ -590,6 +628,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         </div>
                         <div className={contentRight()}>
                             <Textarea
+                                ref={textareaRef}
                                 className={contentRightTextArea({
                                     uploadImageAvailable:
                                         contentImages.length !== 0 ||
@@ -605,15 +644,17 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 onChange={(e) => {
                                     setContentText(e.target.value)
                                     detectURL(e.target.value)
+                                    currentCursorPostion.current =
+                                        textareaRef.current?.selectionStart || 0
                                 }}
                                 onKeyDown={handleKeyDown}
                                 disabled={loading}
-                                onFocus={(e) =>
-                                    e.currentTarget.setSelectionRange(
-                                        e.currentTarget.value.length,
-                                        e.currentTarget.value.length
-                                    )
-                                }
+                                // onFocus={(e) =>
+                                //     e.currentTarget.setSelectionRange(
+                                //         e.currentTarget.value.length,
+                                //         e.currentTarget.value.length
+                                //     )
+                                // }
                                 onPaste={handlePaste}
                             />
                             {(contentImages.length > 0 || isCompressing) && (
@@ -836,13 +877,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
                                     selectedKeys={PostContentLanguage}
-                                    onSelectionChange={(e) => {
-                                        if (Array.from(e).length < 4) {
-                                            setPostContentLanguage(
-                                                e as Set<string>
-                                            )
-                                        }
-                                    }}
+                                    // onSelectionChange={(e) => {
+                                    //     if (Array.from(e).length < 4) {
+                                    //         setPostContentLanguage(
+                                    //             e as Set<string>
+                                    //         )
+                                    //     }
+                                    // }}
                                 >
                                     <DropdownItem key="es">
                                         Espalier
@@ -913,7 +954,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         <div
                             className={`${footerTooltipStyle()} hidden md:flex`}
                         >
-                            <Popover placement="right-end">
+                            <Popover
+                                placement="right-end"
+                                onOpenChange={handleOnEmojiOpenChange}
+                            >
                                 <PopoverTrigger>
                                     <Button
                                         isIconOnly
@@ -929,6 +973,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 <PopoverContent>
                                     <Picker
                                         data={data}
+                                        locale={i18n.language}
                                         onEmojiSelect={onEmojiClick}
                                         previewPosition="none"
                                     />

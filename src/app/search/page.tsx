@@ -1,15 +1,19 @@
 "use client"
 
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { isMobile } from "react-device-detect"
+import { isMobile, setUserAgent } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Image, Skeleton } from "@nextui-org/react"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { layout } from "@/app/search/styles"
-import { menuIndexAtom, useHeaderMenusByHeaderAtom } from "../_atoms/headerMenu"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+} from "../_atoms/headerMenu"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
@@ -17,19 +21,26 @@ import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useAtom } from "jotai"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
+import { useSearchInfoAtom } from "../_atoms/searchInfo"
+import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 
 export default function Root() {
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
     const [agent] = useAgent()
     const [menuIndex] = useAtom(menuIndexAtom)
+    const [currentMenuType] = useCurrentMenuType()
     //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
-
-    const router = useRouter()
-    const searchParams = useSearchParams()
+    const [searchInfo, setSearchInfo] = useSearchInfoAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
-    const searchWord = searchParams.get("word") || ""
-    const target = searchParams.get("target") || "posts"
+    // const searchWord = searchParams.get("word") || ""
+    // const target = searchParams.get("target") || "posts"
 
     const [loading, setLoading] = useState(false)
     const [hasMorePostsResult, setHasMorePostsResult] = useState<boolean>(false)
@@ -40,8 +51,8 @@ export default function Root() {
     const [searchUsersResult, setSearchUsersResult] = useState<
         ProfileView[] | null
     >(null)
-    const [searchText, setSearchText] = useState(searchWord)
-    const [searchTarget, setSearchTarget] = useState(target)
+    const [searchText, setSearchText] = useState("")
+    const [searchTarget, setSearchTarget] = useState("")
     const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
 
@@ -65,6 +76,85 @@ export default function Root() {
     }, [])
 
     useEffect(() => {
+        console.log(searchTarget, searchText)
+        console.log(searchInfo.target, searchInfo.searchWord)
+
+        if (
+            searchInfo.target !== searchParams.get("target") ||
+            searchInfo.searchWord !== searchParams.get("word")
+        ) {
+            return
+        }
+
+        console.log("here", searchTarget, searchText)
+
+        const target = searchParams.get("target") || "posts"
+        const word = searchParams.get("word") || ""
+
+        console.log(target, word)
+
+        setSearchTarget(target)
+        setSearchText(word)
+    }, [searchParams])
+
+    useEffect(() => {
+        console.log("searchInfo", searchInfo)
+        console.log(searchParams.get("word"), searchParams.get("target"))
+
+        const searchParamsWord = searchParams.get("word")
+        const searchParamsTarget = searchParams.get("word")
+
+        if (
+            searchParamsWord !== "" &&
+            searchParamsWord !== null &&
+            searchParamsTarget !== "" &&
+            searchParamsTarget !== null
+        ) {
+            return
+        }
+
+        console.log("searchInfo", searchInfo)
+
+        if (searchInfo.searchWord === "") {
+            return
+        }
+
+        if (searchInfo.target === "") {
+            return
+        }
+
+        setSearchTarget(searchInfo.target)
+        setSearchText(searchInfo.searchWord)
+
+        cursor.current = ""
+
+        // if (searchTarget === "posts") {
+        //     if (searchPostsResult === null && searchInfo.posts !== null) {
+        //         setSearchPostsResult(searchInfo.posts)
+
+        //         cursor.current = searchInfo.postCursor
+        //     }
+        // } else if (searchTarget === "users") {
+        //     if (searchUsersResult === null && searchInfo.users !== null) {
+        //         setSearchUsersResult(searchInfo.users)
+
+        //         cursor.current = searchInfo.userCursor
+        //     }
+        // }
+
+        const queryParams = new URLSearchParams(nextQueryParams)
+
+        queryParams.set("target", searchInfo.target)
+        queryParams.set("word", searchInfo.searchWord)
+
+        console.log("here")
+        router.replace(`/search?${queryParams.toString()}`)
+
+        console.log("start search")
+        startSearch()
+    }, [pathname])
+
+    useEffect(() => {
         if (shouldScrollToTop.current === true) {
             if (shouldScrollToTop.current && scrollRef.current) {
                 scrollRef.current.scrollTop = 0
@@ -74,21 +164,63 @@ export default function Root() {
         }
     }, [searchPostsResult, searchUsersResult])
 
+    useEffect(() => {
+        if (tappedTabbarButton === "search") {
+            resetAll()
+        }
+    }, [tappedTabbarButton])
+
+    useEffect(() => {
+        if (searchTarget === "") {
+            return
+        }
+
+        setSearchInfo((prevSearchInfo) => {
+            const newSearchInfo = prevSearchInfo
+
+            newSearchInfo.searchWord = searchText
+            newSearchInfo.target = searchTarget
+            // newSearchInfo.posts = searchPostsResult
+            // newSearchInfo.users = searchUsersResult
+
+            // if (searchTarget === "posts") {
+            //     newSearchInfo.postCursor = cursor.current
+            // } else if (searchTarget === "users") {
+            //     newSearchInfo.userCursor = cursor.current
+            // }
+
+            console.log("newSearchInfo", newSearchInfo)
+
+            return newSearchInfo
+        })
+    }, [
+        searchPostsResult,
+        searchUsersResult,
+        cursor.current,
+        searchTarget,
+        searchText,
+    ])
+
     const fetchSearchPostsResult = async () => {
+        console.log("cursor.current", cursor.current)
         if (!agent) {
             return
         }
+        console.log(searchText, searchTarget)
 
         if (searchText === "") {
             return
         }
+        console.log("")
 
         try {
+            console.log("")
             const res = await fetch(
                 `https://search.bsky.social/search/posts?q=${encodeURIComponent(
                     searchText
                 )}&offset=${numOfResult.current}`
             )
+            console.log("")
 
             const json = await res.json()
 
@@ -201,8 +333,10 @@ export default function Root() {
         }
     }
 
-    useEffect(() => {
-        setSearchText(searchWord)
+    const resetAll = () => {
+        console.log("resetall")
+
+        setSearchTarget("")
 
         numOfResult.current = 0
         cursor.current = ""
@@ -212,67 +346,102 @@ export default function Root() {
 
         setHasMorePostsResult(false)
         setHasMoreUsersResult(false)
-    }, [searchWord])
 
-    useEffect(() => {
-        setSearchTarget(target)
+        setSearchTarget("")
+        setSearchText("")
 
-        numOfResult.current = 0
-        cursor.current = ""
+        setSearchInfo({
+            target: "",
+            searchWord: "",
+            // posts: null,
+            // users: null,
+            // postCursor: "",
+            // userCursor: "",
+        })
+    }
 
-        setSearchPostsResult(null)
-        setSearchUsersResult(null)
+    // useEffect(() => {
+    //     setSearchTarget("")
 
-        setHasMorePostsResult(false)
-        setHasMoreUsersResult(false)
-    }, [target])
+    //     numOfResult.current = 0
+    //     cursor.current = ""
 
-    useEffect(() => {
-        if (searchText === "" || !searchText) {
-            setLoading(false)
-            return
-        }
+    //     setSearchPostsResult(null)
+    //     setSearchUsersResult(null)
 
+    //     setHasMorePostsResult(false)
+    //     setHasMoreUsersResult(false)
+    // }, [sea])
+
+    const startSearch = () => {
+        console.log(searchTarget, searchText)
         switch (searchTarget) {
             case "posts":
+                console.log("here start search posts")
                 shouldScrollToTop.current = true
                 setLoading(true)
                 setHasMorePostsResult(false)
                 setSearchPostsResult(null)
+                cursor.current = ""
+                numOfResult.current = 0
                 fetchSearchPostsResult()
                 break
             case "users":
+                console.log("here start search users")
                 shouldScrollToTop.current = true
                 setLoading(true)
                 setHasMoreUsersResult(false)
                 setSearchUsersResult(null)
+                cursor.current = ""
+                numOfResult.current = 0
                 fetchSearchUsersResult()
                 break
         }
+    }
+
+    useEffect(() => {
+        console.log(searchText, searchTarget)
+
+        if (searchText === "") {
+            setLoading(false)
+            return
+        }
+
+        console.log("start search")
+        startSearch()
     }, [agent, searchText, searchTarget])
 
     useEffect(() => {
+        if (currentMenuType !== "search") {
+            return
+        }
+
         if (menus.search.length === 0 || menus.search.length < menuIndex) {
             return
         }
 
         const target = menus.search[menuIndex].info
 
-        const queryParams = new URLSearchParams(nextQueryParams)
-        queryParams.set("word", searchText)
-        queryParams.set("target", target)
+        // const queryParams = new URLSearchParams(nextQueryParams)
 
-        if (searchText === "") {
-            return
-        }
+        // queryParams.set("word", searchText)
+        // queryParams.set("target", target)
 
-        router.push(`/search?${queryParams.toString()}`)
+        // if (searchText === "") {
+        //     return
+        // }
 
-        /*
-        router.push(
-            `/search?word=${encodeURIComponent(searchText)}&target=${target}`
-        )
-        */
+        // router.replace(`/search?${queryParams.toString()}`)
+
+        setSearchTarget(target)
+
+        setSearchInfo((prevSearchInfo) => {
+            const newSearchInfo = prevSearchInfo
+
+            newSearchInfo.target = target
+
+            return newSearchInfo
+        })
     }, [menuIndex])
 
     const searchPostsResultWithDummy = useMemo((): PostView[] => {
@@ -345,7 +514,7 @@ export default function Root() {
                 </div>
             )}
 
-            {loading && target === "posts" && (
+            {loading && searchTarget === "posts" && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
@@ -368,7 +537,7 @@ export default function Root() {
                 />
             )}
 
-            {!loading && target === "posts" && searchText && (
+            {!loading && searchTarget === "posts" && searchText && (
                 <Virtuoso
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
@@ -403,7 +572,7 @@ export default function Root() {
                 />
             )}
 
-            {loading && target === "users" && (
+            {loading && searchTarget === "users" && (
                 <Virtuoso
                     overscan={100}
                     increaseViewportBy={200}
@@ -424,7 +593,7 @@ export default function Root() {
                 />
             )}
 
-            {!loading && target === "users" && searchText && (
+            {!loading && searchTarget === "users" && searchText && (
                 <Virtuoso
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {

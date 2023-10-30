@@ -36,6 +36,8 @@ import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import { useAtom } from "jotai"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
 
 interface Props {
     className?: string
@@ -55,11 +57,15 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     // const pathname = usePathname()
     const router = useRouter()
     const pathname = usePathname()
+
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
+    const [searchInfo, setSearchInfo] = useSearchInfoAtom()
 
     const {
         // className,
@@ -74,7 +80,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState<string>("")
-    const target = searchParams.get("target")
+    //const [searchTarget, setSearchTarget] = useState<string>("posts")
+    // const target = searchParams.get("target")
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
@@ -93,6 +100,45 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         HeaderInputArea,
     } = viewHeader()
 
+    // useEffect(() => {
+    //     if (searchInfo.searchWord !== "") {
+    //         setSearchText(searchInfo.searchWord)
+    //     }
+    // }, [])
+
+    useEffect(() => {
+        if (tappedTabbarButton == "search") {
+            setSearchText("")
+
+            setSearchInfo({
+                target: "",
+                searchWord: "",
+                // posts: null,
+                // users: null,
+                // postCursor: "",
+                // userCursor: "",
+            })
+
+            const queryParams = new URLSearchParams(searchParams)
+            queryParams.delete("target")
+            queryParams.delete("word")
+
+            setTappedTabbarButton(null)
+
+            router.push(`/search?${queryParams.toString()}`)
+        }
+    }, [tappedTabbarButton])
+
+    useEffect(() => {
+        setSearchInfo((prevSearchInfo) => {
+            const newSearchInfo = prevSearchInfo
+
+            newSearchInfo.searchWord = searchText
+
+            return newSearchInfo
+        })
+    }, [searchText])
+
     useEffect(() => {
         const search = searchParams.get("word")
 
@@ -104,7 +150,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [searchParams])
 
     useEffect(() => {
-        console.log("test", isMobile, pathname)
+        console.log(searchInfo)
+
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -121,7 +168,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 setIsRoot(false)
                 break
         }
-    }, [pathname, isMobile])
+    }, [pathname])
 
     useEffect(() => {
         if (pathname === "/search") {
@@ -187,19 +234,40 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
                                 if (e.key !== "Enter" || isComposing) return //1
-                                props.setSearchText(searchText)
+
+                                // props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
+
                                 const queryParams = new URLSearchParams(
                                     nextQueryParams
                                 )
-                                queryParams.set(
-                                    "word",
-                                    encodeURIComponent(searchText)
+
+                                const searchTarget =
+                                    searchInfo.target !== ""
+                                        ? searchInfo.target
+                                        : "posts"
+
+                                setSearchInfo((prevSearchInfo) => {
+                                    const newSearchInfo = prevSearchInfo
+
+                                    if (prevSearchInfo.target === "") {
+                                        newSearchInfo.target = "posts"
+                                    }
+
+                                    newSearchInfo.searchWord = searchText
+
+                                    return newSearchInfo
+                                })
+
+                                queryParams.set("word", searchText)
+                                queryParams.set("target", searchTarget)
+
+                                console.log(
+                                    "queryParams.toString()",
+                                    queryParams.toString()
                                 )
-                                queryParams.set("target", target || "posts")
-                                router.push(
-                                    `/search?${nextQueryParams.toString()}`
-                                )
+
+                                router.push(`/search?${queryParams.toString()}`)
                             }}
                             onCompositionStart={() => setComposing(true)}
                             onCompositionEnd={() => setComposing(false)}
