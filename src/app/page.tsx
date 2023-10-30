@@ -8,7 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "./_components/FeedPage/FeedPage"
-import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
+// import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
 // import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     HeaderMenuType,
@@ -201,7 +201,7 @@ const Root = () => {
                                 height: "100%",
                             }}
                         >
-                            <FeedPageQuery
+                            <FeedPage
                                 {...{
                                     isActive: menuIndex === index,
                                     feedKey: menu.info,
