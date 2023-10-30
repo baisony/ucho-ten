@@ -527,8 +527,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const handleOnEmojiOpenChange = (isOpen: boolean) => {
         if (isOpen === true) {
             currentCursorPostion.current =
-                textareaRef.current
-                    ?.selectionStart || 0
+                textareaRef.current?.selectionStart || 0
         } else {
             setTimeout(() => {
                 if (textareaRef.current) {

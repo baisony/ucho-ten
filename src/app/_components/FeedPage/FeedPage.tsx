@@ -235,7 +235,7 @@ const FeedPage = ({
         setNewTimeline([])
         setHasMore(false)
         cursor.current = ""
-        
+
         fetchTimeline()
     }, [agent, feedKey, isActive])
 
