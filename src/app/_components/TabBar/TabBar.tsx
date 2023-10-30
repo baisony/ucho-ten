@@ -115,11 +115,9 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                     if (hilightedTab === "h" && tappedTabbarButton === null) {
                         setTappedTabbarButton("home")
                     } else {
+                        setHilightedTab("h")
                         router.push("/")
                     }
-                    router.push("/")
-                    //setSelectedTab("home")
-                    //props.setValue("home")
                 }}
             >
                 <FontAwesomeIcon
@@ -136,10 +134,9 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                     if (hilightedTab === "s" && tappedTabbarButton === null) {
                         setTappedTabbarButton("search")
                     } else {
+                        setHilightedTab("s")
                         router.push("/search")
                     }
-                    //setSelectedTab("search")
-                    //props.setValue("search")
                 }}
             >
                 <FontAwesomeIcon
@@ -156,6 +153,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                     if (hilightedTab === "i" && tappedTabbarButton === null) {
                         setTappedTabbarButton("inbox")
                     } else {
+                        setHilightedTab("i")
                         router.push("/inbox")
                     }
                     //setSelectedTab("inbox")
@@ -183,6 +181,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
             <div
                 className={Container({ selected: hilightedTab === "p" })}
                 onClick={() => {
+                    setHilightedTab("p")
                     router.push("/post")
                     //setSelectedTab("post")
                     //props.setValue("post")
