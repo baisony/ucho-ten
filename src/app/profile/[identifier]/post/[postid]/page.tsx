@@ -1,10 +1,11 @@
 "use client"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type {
     FeedViewPost,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -34,6 +35,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
+    Button,
     Chip,
     Dropdown,
     DropdownItem,
@@ -52,7 +54,13 @@ import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { PostModal } from "@/app/_components/PostModal"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
-import { AtUri } from "@atproto/api"
+import {
+    AppBskyEmbedExternal,
+    AppBskyEmbedImages,
+    AppBskyEmbedRecord,
+    AppBskyEmbedRecordWithMedia,
+    AtUri,
+} from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { Linkcard } from "@/app/_components/Linkcard"
@@ -65,9 +73,18 @@ import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import Link from "next/link"
+import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
+import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
+import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
+import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
+import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 
 export default function Root() {
     const [agent] = useAgent()
+    const [userPreference] = useUserPreferencesAtom()
+    const [isDeleted, setIsDeleted] = useState<boolean>(false)
     const { t } = useTranslation()
     const [, setImageGallery] = useImageGalleryAtom()
     const [translateTo] = useTranslationLanguage()
@@ -96,6 +113,8 @@ export default function Root() {
     const [isPostMine] = useState<boolean>(false)
     const [isMuted, setIsMuted] = useState<boolean>(false)
     const [bookmarks, setBookmarks] = useBookmarks()
+    const [contentWarning, setContentWarning] = useState<boolean>(false)
+    const [warningReason, setWarningReason] = useState<string>("")
     const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const {
@@ -123,6 +142,14 @@ export default function Root() {
         ReactionButton,
         dropdown,
     } = postOnlyPage()
+
+    const postView = useMemo((): PostView | null => {
+        if (post?.post) {
+            return post.post as PostView
+        } else {
+            return null
+        }
+    }, [post])
 
     const FormattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -580,6 +607,139 @@ export default function Root() {
     }
     console.log(post)
 
+    const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.images#view") {
+            return embed as AppBskyEmbedImages.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+            return embed as AppBskyEmbedRecordWithMedia.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.external#view") {
+            return embed as AppBskyEmbedExternal.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (!postView?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postView.embed.$type
+
+        if (embedType === "app.bsky.embed.record#view") {
+            return postView.embed as AppBskyEmbedRecord.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedRecordViewRecord = useMemo((): ViewRecord | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.record#view") {
+            return embed.record as ViewRecord
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedFeed = useMemo((): GeneratorView | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.feed.defs#generatorView"
+        ) {
+            return postView?.embed?.record as GeneratorView
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedMuteList = useMemo((): ListView | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.graph.defs#listView"
+        ) {
+            return postView?.embed?.record as ListView
+        } else {
+            return null
+        }
+    }, [post])
+
+    const notfoundEmbedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.embed.record#viewNotFound"
+        ) {
+            return postView?.embed?.record as AppBskyEmbedRecord.View
+        } else {
+            return null
+        }
+    }, [post])
+
     const translateContentText = async () => {
         setIsTranslated(true)
         setViewTranslatedText(true)
@@ -614,6 +774,72 @@ export default function Root() {
         )
         setIsBookmarked(isBookmarked)
     }, [post])
+
+    useEffect(() => {
+        if (!userPreference) return
+        const post = postView
+        if (!post || !post.labels || post.labels.length === 0) return
+        type LabelActionsType = {
+            [key: string]: {
+                label: string
+                key: string
+            }
+        }
+
+        const labelActions: LabelActionsType = {
+            porn: {
+                label: "Adult Content",
+                key: "nsfw",
+            },
+            nudity: {
+                label: "Nudity Content",
+                key: "nudity",
+            },
+            sexual: {
+                label: "Sexual Content",
+                key: "suggestive",
+            },
+            spam: {
+                label: "Spam",
+                key: "spam",
+            },
+            impersonation: {
+                label: "Impersonation",
+                key: "impersonation",
+            },
+            gore: {
+                label: "Violence or Bloody",
+                key: "gore",
+            },
+        }
+
+        post.labels.forEach((label) => {
+            const labelType = labelActions[label.val]
+            if (labelType) {
+                const { label: warningLabel, key } = labelType
+                switch (key) {
+                    case "nsfw":
+                    case "suggestive":
+                    case "nudity":
+                    case "spam":
+                    case "impersonation":
+                    case "gore":
+                        const action = userPreference.contentLabels?.[key]
+                        if (action === "warn") {
+                            setContentWarning(true)
+                            setWarningReason(warningLabel)
+                        } else if (action === "hide") {
+                            setIsDeleted(true)
+                        }
+                        break
+                    default:
+                        break
+                }
+            } else {
+                console.log(label)
+            }
+        })
+    }, [userPreference, postView])
     return (
         post && (
             <>
@@ -971,92 +1197,66 @@ export default function Root() {
                                     <div>{translatedText}</div>
                                 </>
                             )}
-                            <div className={"overflow-x-scroll"}>
-                                {post.post?.embed &&
-                                    (post.post?.embed?.$type ===
-                                        "app.bsky.embed.images#view" ||
-                                    post.post?.embed.$type ===
-                                        "app.bsky.embed.recordWithMedia#view" ? (
-                                        <>
-                                            <ScrollShadow
-                                                hideScrollBar
-                                                orientation="horizontal"
-                                            >
-                                                <div
-                                                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-                                                >
-                                                    {(post.post.embed.$type ===
-                                                    "app.bsky.embed.recordWithMedia#view"
-                                                        ? post.post.embed.media
-                                                              .images
-                                                        : post.post.embed.images
-                                                    ).map(
-                                                        (
-                                                            image: any,
-                                                            index: number
-                                                        ) => (
-                                                            <div
-                                                                className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
-                                                                key={`image-${index}`}
-                                                            >
-                                                                <img
-                                                                    className="w-full h-full z-0 object-cover"
-                                                                    src={
-                                                                        image.thumb
-                                                                    }
-                                                                    alt={
-                                                                        image?.alt
-                                                                    }
-                                                                    onMouseUp={(
-                                                                        e
-                                                                    ) =>
-                                                                        e.stopPropagation()
-                                                                    }
-                                                                    onClick={() => {
-                                                                        handleImageClick(
-                                                                            index
-                                                                        )
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        )
-                                                    )}
-                                                </div>
-                                            </ScrollShadow>
-                                            {post.post?.embed.$type ===
-                                                "app.bsky.embed.recordWithMedia#view" && (
-                                                <>
-                                                    <ViewQuoteCard
-                                                        postJson={
-                                                            post.post.embed
-                                                                ?.record.record
-                                                        }
-                                                        nextQueryParams={
-                                                            nextQueryParams
-                                                        }
-                                                    />
-                                                </>
-                                            )}
-                                        </>
-                                    ) : post.post?.embed.$type ===
-                                      "app.bsky.embed.external#view" ? (
-                                        <Linkcard
-                                            ogpData={post.post.embed.external}
-                                        />
-                                    ) : (
-                                        post.post?.embed.$type ===
-                                            "app.bsky.embed.record#view" && (
-                                            <ViewQuoteCard
-                                                postJson={
-                                                    post.post.embed?.record
-                                                }
-                                                nextQueryParams={
-                                                    nextQueryParams
-                                                }
-                                            />
-                                        )
-                                    ))}
-                            </div>
+                            {embedImages && !contentWarning && (
+                                <EmbedImages
+                                    embedImages={embedImages}
+                                    onImageClick={(index: number) => {
+                                        handleImageClick(index)
+                                    }}
+                                />
+                            )}
+                            {contentWarning && !isDeleted && (
+                                <div
+                                    className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
+                                >
+                                    <div className={"ml-[20px]"}>
+                                        {t("components.ViewPostCard.warning")}:{" "}
+                                        {warningReason}
+                                    </div>
+                                    <Button
+                                        variant={"light"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            setContentWarning(false)
+                                        }}
+                                    >
+                                        {t("components.ViewPostCard.show")}
+                                    </Button>
+                                </div>
+                            )}
+                            {embedMedia && (
+                                <EmbedMedia
+                                    embedMedia={embedMedia}
+                                    onImageClick={(index: number) => {
+                                        handleImageClick(index)
+                                    }}
+                                    nextQueryParams={nextQueryParams}
+                                />
+                            )}
+                            {embedExternal && (
+                                <div className={"h-full w-full mt-[5px]"}>
+                                    <Linkcard
+                                        ogpData={embedExternal.external}
+                                    />
+                                </div>
+                            )}
+                            {embedRecord &&
+                                embedRecordViewRecord &&
+                                !embedFeed &&
+                                !embedMuteList &&
+                                !notfoundEmbedRecord && (
+                                    <ViewPostCard
+                                        quoteJson={embedRecordViewRecord}
+                                        isEmbedToPost={true}
+                                        nextQueryParams={nextQueryParams}
+                                        t={t}
+                                    />
+                                )}
+                            {embedFeed && <ViewFeedCard feed={embedFeed} />}
+                            {embedMuteList && (
+                                <ViewMuteListCard list={embedMuteList} />
+                            )}
+                            {notfoundEmbedRecord && <ViewNotFoundCard />}
                         </div>
                         <div className={PostCreatedAt()}>
                             {formatDate(post.post.indexedAt)}
@@ -1125,5 +1325,92 @@ export default function Root() {
                 </main>
             </>
         )
+    )
+}
+
+interface EmbedImagesProps {
+    embedImages: AppBskyEmbedImages.View
+    onImageClick: (index: number) => void
+}
+
+const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
+    return (
+        <ScrollShadow
+            isEnabled={embedImages.images.length > 1}
+            hideScrollBar={true}
+            orientation="horizontal"
+            className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+        >
+            {embedImages.images.map((image: ViewImage, index: number) => (
+                <div
+                    className={`mt-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
+                        embedImages.images.length - 1 === index
+                            ? `mr-[0px]`
+                            : `mr-[7px]`
+                    } bg-cover hover:cursor-pointer`}
+                    key={`image-${index}`}
+                >
+                    <img
+                        className="w-full h-full z-0 object-cover"
+                        src={image.thumb}
+                        alt={image.alt}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onImageClick(index)
+                        }}
+                    />
+                </div>
+            ))}
+        </ScrollShadow>
+    )
+}
+
+interface EmbedMediaProps {
+    embedMedia: AppBskyEmbedRecordWithMedia.View
+    onImageClick: (index: number) => void
+    nextQueryParams: URLSearchParams
+}
+
+const EmbedMedia = ({
+    embedMedia,
+    onImageClick,
+    nextQueryParams,
+}: EmbedMediaProps) => {
+    const images = embedMedia.media.images
+
+    if (!images || !Array.isArray(images)) {
+        return
+    }
+
+    return (
+        <>
+            <ScrollShadow
+                isEnabled={images.length > 1}
+                hideScrollBar
+                orientation="horizontal"
+                className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+            >
+                {images.map((image: ViewImage, index: number) => (
+                    <div
+                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                        key={`image-${index}`}
+                    >
+                        <img
+                            className="w-full h-full z-0 object-cover"
+                            src={image.thumb}
+                            alt={image.alt}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onImageClick(index)
+                            }}
+                        />
+                    </div>
+                ))}
+            </ScrollShadow>
+            <ViewQuoteCard
+                postJson={embedMedia.record.record}
+                nextQueryParams={nextQueryParams}
+            />
+        </>
     )
 }
