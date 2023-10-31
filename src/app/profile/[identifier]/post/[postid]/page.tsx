@@ -1,10 +1,11 @@
 "use client"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type {
     FeedViewPost,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -52,7 +53,13 @@ import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { PostModal } from "@/app/_components/PostModal"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
-import { AtUri } from "@atproto/api"
+import {
+    AppBskyEmbedExternal,
+    AppBskyEmbedImages,
+    AppBskyEmbedRecord,
+    AppBskyEmbedRecordWithMedia,
+    AtUri,
+} from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { Linkcard } from "@/app/_components/Linkcard"
@@ -65,6 +72,9 @@ import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import Link from "next/link"
+import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
+import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 
 export default function Root() {
     const [agent] = useAgent()
@@ -123,6 +133,14 @@ export default function Root() {
         ReactionButton,
         dropdown,
     } = postOnlyPage()
+
+    const postView = useMemo((): PostView | null => {
+        if (post?.post) {
+            return post.post as PostView
+        } else {
+            return null
+        }
+    }, [post])
 
     const FormattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -579,6 +597,139 @@ export default function Root() {
         setLoading(false)
     }
     console.log(post)
+
+    const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.images#view") {
+            return embed as AppBskyEmbedImages.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+            return embed as AppBskyEmbedRecordWithMedia.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.external#view") {
+            return embed as AppBskyEmbedExternal.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (!postView?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postView.embed.$type
+
+        if (embedType === "app.bsky.embed.record#view") {
+            return postView.embed as AppBskyEmbedRecord.View
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedRecordViewRecord = useMemo((): ViewRecord | null => {
+        const embed = postView?.embed || null
+
+        if (!embed?.$type) {
+            return null
+        }
+
+        if (embed.$type === "app.bsky.embed.record#view") {
+            return embed.record as ViewRecord
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedFeed = useMemo((): GeneratorView | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.feed.defs#generatorView"
+        ) {
+            return postView?.embed?.record as GeneratorView
+        } else {
+            return null
+        }
+    }, [post])
+
+    const embedMuteList = useMemo((): ListView | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.graph.defs#listView"
+        ) {
+            return postView?.embed?.record as ListView
+        } else {
+            return null
+        }
+    }, [post])
+
+    const notfoundEmbedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.embed.record#viewNotFound"
+        ) {
+            return postView?.embed?.record as AppBskyEmbedRecord.View
+        } else {
+            return null
+        }
+    }, [post])
 
     const translateContentText = async () => {
         setIsTranslated(true)
@@ -1125,5 +1276,92 @@ export default function Root() {
                 </main>
             </>
         )
+    )
+}
+
+interface EmbedImagesProps {
+    embedImages: AppBskyEmbedImages.View
+    onImageClick: (index: number) => void
+}
+
+const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
+    return (
+        <ScrollShadow
+            isEnabled={embedImages.images.length > 1}
+            hideScrollBar={true}
+            orientation="horizontal"
+            className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+        >
+            {embedImages.images.map((image: ViewImage, index: number) => (
+                <div
+                    className={`mt-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
+                        embedImages.images.length - 1 === index
+                            ? `mr-[0px]`
+                            : `mr-[7px]`
+                    } bg-cover`}
+                    key={`image-${index}`}
+                >
+                    <img
+                        className="w-full h-full z-0 object-cover"
+                        src={image.thumb}
+                        alt={image.alt}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onImageClick(index)
+                        }}
+                    />
+                </div>
+            ))}
+        </ScrollShadow>
+    )
+}
+
+interface EmbedMediaProps {
+    embedMedia: AppBskyEmbedRecordWithMedia.View
+    onImageClick: (index: number) => void
+    nextQueryParams: URLSearchParams
+}
+
+const EmbedMedia = ({
+    embedMedia,
+    onImageClick,
+    nextQueryParams,
+}: EmbedMediaProps) => {
+    const images = embedMedia.media.images
+
+    if (!images || !Array.isArray(images)) {
+        return
+    }
+
+    return (
+        <>
+            <ScrollShadow
+                isEnabled={images.length > 1}
+                hideScrollBar
+                orientation="horizontal"
+                className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+            >
+                {images.map((image: ViewImage, index: number) => (
+                    <div
+                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                        key={`image-${index}`}
+                    >
+                        <img
+                            className="w-full h-full z-0 object-cover"
+                            src={image.thumb}
+                            alt={image.alt}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onImageClick(index)
+                            }}
+                        />
+                    </div>
+                ))}
+            </ScrollShadow>
+            <ViewQuoteCard
+                postJson={embedMedia.record.record}
+                nextQueryParams={nextQueryParams}
+            />
+        </>
     )
 }
