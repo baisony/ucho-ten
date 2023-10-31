@@ -23,7 +23,7 @@ export const viewPostCard = tv({
         PostReactionButtonContainer:
             "h-[20px] mt-[15px] flex items-center justify-between ml-[36px]",
         PostReactionButton:
-            "md:h-[16px] h-[14px] ml-[50px] text-[10px] cursor-pointer select-none",
+            "text-[14px] md:text-[16px] ml-[50px] cursor-pointer select-none",
         dropdown: "",
         skeletonIcon: "h-full w-full rounded-[10px]",
         skeletonName: "h-3 w-2/5 rounded-lg ",
