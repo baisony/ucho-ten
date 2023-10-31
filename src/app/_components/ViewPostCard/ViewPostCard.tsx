@@ -1148,19 +1148,21 @@ export const ViewPostCard = (props: Props) => {
                                                     isSkeleton && `hidden`
                                                 }`}
                                             >
-                                                <FontAwesomeIcon
-                                                    icon={faComment}
+                                                <div
                                                     className={`${PostReactionButton()} ${replyButton()} group-hover:md:flex md:hidden block`}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        setHandleButtonClick(
-                                                            true
-                                                        )
-                                                        await handleReply()
-                                                    }}
-                                                />
-                                                <FontAwesomeIcon
-                                                    icon={faRetweet}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faComment}
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation()
+                                                            setHandleButtonClick(
+                                                                true
+                                                            )
+                                                            await handleReply()
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div
                                                     className={`${PostReactionButton()} ${repostButton(
                                                         {
                                                             isReacted:
@@ -1170,33 +1172,40 @@ export const ViewPostCard = (props: Props) => {
                                                         !isReposted &&
                                                         `md:hidden`
                                                     }`}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        setHandleButtonClick(
-                                                            true
-                                                        )
-                                                        await handleRepost()
-                                                    }}
-                                                />
-                                                <FontAwesomeIcon
-                                                    icon={
-                                                        isLiked
-                                                            ? faHeartSolid
-                                                            : faHeartRegular
-                                                    }
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faRetweet}
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation()
+                                                            setHandleButtonClick(
+                                                                true
+                                                            )
+                                                            await handleRepost()
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div
                                                     className={`${PostReactionButton()} ${likeButton(
                                                         { isReacted: isLiked }
                                                     )} group-hover:md:block ${
                                                         !isLiked && `md:hidden`
                                                     }`}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        setHandleButtonClick(
-                                                            true
-                                                        )
-                                                        await handleLike()
-                                                    }}
-                                                />
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={
+                                                            isLiked
+                                                                ? faHeartSolid
+                                                                : faHeartRegular
+                                                        }
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation()
+                                                            setHandleButtonClick(
+                                                                true
+                                                            )
+                                                            await handleLike()
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         </>
                                     )}
