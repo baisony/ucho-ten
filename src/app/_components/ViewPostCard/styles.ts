@@ -21,7 +21,7 @@ export const viewPostCard = tv({
             "w-[100%-5px] h-full ml-[36px] mr-[0px] text-[14px] md:text-[15px]",
         PostContentText: "text-[13px] md:text-[15px]",
         PostReactionButtonContainer:
-            "h-[20px] mt-[15px] text-right right-[0px] ",
+            "h-[20px] mt-[15px] flex items-center justify-between ml-[36px]",
         PostReactionButton:
             "md:h-[16px] h-[14px] ml-[50px] text-[10px] cursor-pointer select-none",
         dropdown: "",
@@ -44,6 +44,7 @@ export const viewPostCard = tv({
         LinkCardDescription: "text-xs mt-1",
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
         replyButton: "text-[#909090] dark:text-[#636363]",
+        bookmarkButton: "text-[#909090] dark:text-[#636363]",
         repostButton: "",
         likeButton: "",
     },
