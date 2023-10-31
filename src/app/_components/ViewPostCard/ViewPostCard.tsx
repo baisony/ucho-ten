@@ -1121,7 +1121,7 @@ export const ViewPostCard = (props: Props) => {
                                     className={`flex ${isSkeleton && `hidden`}`}
                                 >
                                     <div
-                                        className={`${bookmarkButton()} group-hover:md:block block${
+                                        className={`${bookmarkButton()} group-hover:md:block ${
                                             !isBookmarked && `md:hidden`
                                         }`}
                                     >
@@ -1152,7 +1152,7 @@ export const ViewPostCard = (props: Props) => {
                                                 }`}
                                             >
                                                 <div
-                                                    className={`${PostReactionButton()} ${replyButton()} group-hover:md:flex md:hidden block`}
+                                                    className={`${PostReactionButton()} ${replyButton()} group-hover:md:block md:hidden`}
                                                 >
                                                     <FontAwesomeIcon
                                                         icon={faComment}
