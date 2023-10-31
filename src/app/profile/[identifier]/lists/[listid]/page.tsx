@@ -26,6 +26,7 @@ import {
 } from "@/app/_components/ViewUserProfileCard/ViewUserProfileCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { AtUri } from "@atproto/api"
 
 export default function Root() {
     const pathname = usePathname()
@@ -35,7 +36,7 @@ export default function Root() {
     const [agent] = useAgent()
     //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
-    const atUri = atUri1.replace("/lists/", "/app.bsky.graph.list/")
+    let atUri = atUri1.replace("/lists/", "/app.bsky.graph.list/")
 
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
@@ -80,6 +81,13 @@ export default function Root() {
         }
 
         try {
+            if (!atUri.startsWith("at://did:")) {
+                const toAtUri = new AtUri(atUri)
+                const did = await agent.resolveHandle({
+                    handle: toAtUri.hostname,
+                })
+                atUri = atUri.replace(toAtUri.hostname, did.data.did)
+            }
             const { data } = await agent.app.bsky.graph.getList({ list: atUri })
             setIsSubscribed(!!data.list.viewer?.muted)
             setFeedInfo(data.list)
@@ -94,6 +102,13 @@ export default function Root() {
         }
 
         try {
+            if (!atUri.startsWith("at://did:")) {
+                const toAtUri = new AtUri(atUri)
+                const did = await agent.resolveHandle({
+                    handle: toAtUri.hostname,
+                })
+                atUri = atUri.replace(toAtUri.hostname, did.data.did)
+            }
             const { data } = await agent.app.bsky.graph.getList({ list: atUri })
             const { items } = data
             setTimeline(items)

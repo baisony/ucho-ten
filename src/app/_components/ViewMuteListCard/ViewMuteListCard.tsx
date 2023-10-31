@@ -1,7 +1,7 @@
 import React from "react"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import "react-circular-progressbar/dist/styles.css"
-import { Image, Skeleton } from "@nextui-org/react"
+import { Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { viewFeedCard } from "@/app/_components/ViewFeedCard/styles"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
@@ -41,7 +41,6 @@ export const ViewMuteListCard: React.FC<Props> = (props: Props) => {
         }?${nextQueryParams.toString()}` as string
     }
 
-    console.log(list)
     return (
         <main className={`${PostCard()} cursor-pointer`}>
             <Link
@@ -72,7 +71,7 @@ export const ViewMuteListCard: React.FC<Props> = (props: Props) => {
                             ) : (
                                 list?.purpose ===
                                     "app.bsky.graph.defs#modlist" && (
-                                    <span>mute list: {list?.name}</span>
+                                    <span>{list?.name}</span>
                                 )
                             )}
                         </span>
@@ -81,7 +80,9 @@ export const ViewMuteListCard: React.FC<Props> = (props: Props) => {
                             {isSkeleton ? (
                                 <Skeleton className={skeletonHandle()} />
                             ) : (
-                                <span>made by @{list?.creator?.handle}</span>
+                                <span>
+                                    Mute list made by @{list?.creator?.handle}
+                                </span>
                             )}
                         </span>
                     </div>
