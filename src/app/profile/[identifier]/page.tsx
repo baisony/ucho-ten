@@ -370,8 +370,7 @@ const UserProfileComponent = ({
     const [isUploading, setIsUploading] = useState(false)
     const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
     const { t } = useTranslation()
-    console.log(!!profile?.viewer?.following)
-    console.log(isFollowing)
+
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
