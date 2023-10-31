@@ -74,6 +74,7 @@ import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
+import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 
 interface Props {
     // className?: string
@@ -362,6 +363,27 @@ export const ViewPostCard = (props: Props) => {
                 "app.bsky.graph.defs#listView"
         ) {
             return postView?.embed?.record as ListView
+        } else {
+            return null
+        }
+    }, [postJson, quoteJson])
+
+    const notfoundEmbedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.embed.record#viewNotFound"
+        ) {
+            return postView?.embed?.record as AppBskyEmbedRecord.View
         } else {
             return null
         }
@@ -1081,7 +1103,8 @@ export const ViewPostCard = (props: Props) => {
                             {embedRecord &&
                                 embedRecordViewRecord &&
                                 !embedFeed &&
-                                !embedMuteList && (
+                                !embedMuteList &&
+                                !notfoundEmbedRecord && (
                                     <ViewPostCard
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
@@ -1093,6 +1116,7 @@ export const ViewPostCard = (props: Props) => {
                             {embedMuteList && (
                                 <ViewMuteListCard list={embedMuteList} />
                             )}
+                            {notfoundEmbedRecord && <ViewNotFoundCard />}
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
