@@ -24,13 +24,13 @@ import {
     faFlag,
     faHashtag,
     faLanguage,
-    faLink,
     faQuoteLeft,
     faRetweet,
     faStar as faSolidStar,
     faTrash,
     faU,
     faUser,
+    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
@@ -41,6 +41,7 @@ import {
     DropdownSection,
     DropdownTrigger,
     Modal,
+    ModalBody,
     ModalContent,
     ScrollShadow,
     Tooltip,
@@ -93,6 +94,7 @@ export default function Root() {
     const [isReposted, setIsReposted] = useState<boolean>(false)
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [isPostMine] = useState<boolean>(false)
+    const [isMuted, setIsMuted] = useState<boolean>(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -100,6 +102,12 @@ export default function Root() {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
         onOpenChange: onOpenChangeReport,
+    } = useDisclosure()
+
+    const {
+        isOpen: isOpenOption,
+        onOpen: onOpenOption,
+        onOpenChange: onOpenChangeOption,
     } = useDisclosure()
 
     const {
@@ -153,6 +161,7 @@ export default function Root() {
             setPost(data.thread)
             setIsLiked(!!(data.thread.post as PostView).viewer?.like)
             setIsReposted(!!(data.thread.post as PostView).viewer?.repost)
+            setIsMuted(!!(data.thread.post as PostView).author.viewer?.muted)
         } catch (e) {
             console.log(e)
         }
@@ -557,7 +566,46 @@ export default function Root() {
             setIsBookmarked(false)
         }
     }
+    const handleMute = async () => {
+        if (loading) return
+        setLoading(true)
+        if (isMuted) {
+            setIsMuted(!isMuted)
+            await agent?.unmute(post.post.author.did)
+        } else {
+            setIsMuted(!isMuted)
+            await agent?.mute(post.post.author.did)
+        }
+        setLoading(false)
+    }
     console.log(post)
+
+    const translateContentText = async () => {
+        setIsTranslated(true)
+        setViewTranslatedText(true)
+        const res = await fetch(
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
+                translateTo[0] ? translateTo[0] : `auto`
+            }&dt=t&q=` + encodeURIComponent(post.post.record.text)
+        )
+        if (res.status === 200) {
+            const json = await res.json()
+            if (json[0] !== undefined) {
+                const combinedText = json[0].reduce(
+                    (acc: string, item: any[]) => {
+                        if (item[0]) {
+                            return acc + item[0]
+                        }
+                        return acc
+                    },
+                    ""
+                )
+                setTranslatedText(combinedText)
+            }
+        } else {
+            setTranslateError(true)
+        }
+    }
 
     useEffect(() => {
         if (!post?.post?.uri) return
@@ -594,6 +642,106 @@ export default function Root() {
                     post={post.post}
                     nextQueryParams={nextQueryParams}
                 />
+                <Modal
+                    isOpen={isOpenOption}
+                    onOpenChange={onOpenChangeOption}
+                    placement={"bottom"}
+                    className={
+                        "z-[100] max-w-[600px] text-black dark:text-white"
+                    }
+                    hideCloseButton
+                >
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalBody>
+                                    <span>
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full"
+                                            }
+                                            onClick={async () => {
+                                                if (!window.navigator.share) {
+                                                    alert(
+                                                        "ご利用のブラウザでは共有できません。"
+                                                    )
+                                                    return
+                                                }
+                                                try {
+                                                    const url = new AtUri(atUri)
+                                                    const bskyURL = `https://bsky.app/profile/${
+                                                        url.host
+                                                    }/${url.pathname.replace(
+                                                        "/app.bsky.feed.post/",
+                                                        "/post/"
+                                                    )}`
+                                                    console.log(url)
+                                                    await window.navigator.share(
+                                                        {
+                                                            url: bskyURL,
+                                                        }
+                                                    )
+                                                } catch (e) {}
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faArrowUpFromBracket}
+                                                className={"w-[40px]"}
+                                            />
+                                            {t("pages.postOnlyPage.share")}
+                                        </div>
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full"
+                                            }
+                                            onClick={async () => {
+                                                await translateContentText()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faLanguage}
+                                                className={"w-[40px]"}
+                                            />
+                                            {t("pages.postOnlyPage.translate")}
+                                        </div>
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                            }
+                                            onClick={() => {
+                                                handleMute()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faVolumeXmark}
+                                                className={"w-[40px]"}
+                                            />
+                                            {!isMuted ? (
+                                                <span>Mute</span>
+                                            ) : (
+                                                <span>Un mute</span>
+                                            )}
+                                        </div>
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                            }
+                                            onClick={() => {
+                                                onOpenReport()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faFlag}
+                                                className={"w-[40px]"}
+                                            />
+                                            Report
+                                        </div>
+                                    </span>
+                                </ModalBody>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
                 <main className={`${Container()} md:mt-[100px] mt-[85px]`}>
                     {post?.parent && (
                         <>{renderNestedViewPostCards(post, isMobile)}</>
@@ -643,12 +791,14 @@ export default function Root() {
                                     "md:h-[20px] h-[10px] hover:cursor-pointer items-center"
                                 }
                             >
-                                <Dropdown className={dropdown()}>
+                                <Dropdown
+                                    className={`${dropdown()} hidden md:block`}
+                                >
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
                                             icon={faEllipsis}
                                             className={
-                                                "h-[20px] flex text-[#AAAAAA]"
+                                                "h-[20px] text-[#AAAAAA] hidden md:block"
                                             }
                                             size={"xs"}
                                         />
@@ -679,58 +829,7 @@ export default function Root() {
                                                         />
                                                     }
                                                     onClick={async () => {
-                                                        setIsTranslated(true)
-                                                        setViewTranslatedText(
-                                                            true
-                                                        )
-                                                        const res = await fetch(
-                                                            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
-                                                                translateTo[0]
-                                                                    ? translateTo[0]
-                                                                    : `auto`
-                                                            }&dt=t&q=` +
-                                                                encodeURIComponent(
-                                                                    post.post
-                                                                        .record
-                                                                        .text
-                                                                )
-                                                        )
-                                                        if (
-                                                            res.status === 200
-                                                        ) {
-                                                            const json =
-                                                                await res.json()
-                                                            if (
-                                                                json[0] !==
-                                                                undefined
-                                                            ) {
-                                                                const combinedText =
-                                                                    json[0].reduce(
-                                                                        (
-                                                                            acc: string,
-                                                                            item: any[]
-                                                                        ) => {
-                                                                            if (
-                                                                                item[0]
-                                                                            ) {
-                                                                                return (
-                                                                                    acc +
-                                                                                    item[0]
-                                                                                )
-                                                                            }
-                                                                            return acc
-                                                                        },
-                                                                        ""
-                                                                    )
-                                                                setTranslatedText(
-                                                                    combinedText
-                                                                )
-                                                            }
-                                                        } else {
-                                                            setTranslateError(
-                                                                true
-                                                            )
-                                                        }
+                                                        translateContentText()
                                                     }}
                                                 >
                                                     {t(
@@ -836,6 +935,14 @@ export default function Root() {
                                         </DropdownSection>
                                     </DropdownMenu>
                                 </Dropdown>
+                                <FontAwesomeIcon
+                                    icon={faEllipsis}
+                                    className={
+                                        "h-[20px] flex text-[#AAAAAA] md:hidden"
+                                    }
+                                    size={"xs"}
+                                    onClick={onOpenOption}
+                                />
                             </div>
                         </div>
                         <div className={PostContent()}>

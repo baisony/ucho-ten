@@ -175,7 +175,9 @@ export const ReportModal = (props: ReportModalProps) => {
                                             reasonList[e.currentKey].reasonType
                                         )
                                     }}
-                                    className={"w-[300px]"}
+                                    className={
+                                        "w-[300px] text-black dark:text-white"
+                                    }
                                     size={"sm"}
                                     aria-label={"Select-reason"}
                                 >
