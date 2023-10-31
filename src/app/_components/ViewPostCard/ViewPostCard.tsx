@@ -743,9 +743,6 @@ export const ViewPostCard = (props: Props) => {
         setIsBookmarked(isBookmarked)
     }, [postJson, quoteJson, json])
 
-    if (!postJsonData?.author?.did) {
-        console.log(postJsonData)
-    }
     return (
         !isDeleted && (
             <div
