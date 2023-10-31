@@ -35,6 +35,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
+    Button,
     Chip,
     Dropdown,
     DropdownItem,
@@ -75,9 +76,15 @@ import Link from "next/link"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
+import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
+import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
+import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 
 export default function Root() {
     const [agent] = useAgent()
+    const [userPreference] = useUserPreferencesAtom()
+    const [isDeleted, setIsDeleted] = useState<boolean>(false)
     const { t } = useTranslation()
     const [, setImageGallery] = useImageGalleryAtom()
     const [translateTo] = useTranslationLanguage()
@@ -106,6 +113,8 @@ export default function Root() {
     const [isPostMine] = useState<boolean>(false)
     const [isMuted, setIsMuted] = useState<boolean>(false)
     const [bookmarks, setBookmarks] = useBookmarks()
+    const [contentWarning, setContentWarning] = useState<boolean>(false)
+    const [warningReason, setWarningReason] = useState<string>("")
     const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const {
@@ -765,6 +774,72 @@ export default function Root() {
         )
         setIsBookmarked(isBookmarked)
     }, [post])
+
+    useEffect(() => {
+        if (!userPreference) return
+        const post = postView
+        if (!post || !post.labels || post.labels.length === 0) return
+        type LabelActionsType = {
+            [key: string]: {
+                label: string
+                key: string
+            }
+        }
+
+        const labelActions: LabelActionsType = {
+            porn: {
+                label: "Adult Content",
+                key: "nsfw",
+            },
+            nudity: {
+                label: "Nudity Content",
+                key: "nudity",
+            },
+            sexual: {
+                label: "Sexual Content",
+                key: "suggestive",
+            },
+            spam: {
+                label: "Spam",
+                key: "spam",
+            },
+            impersonation: {
+                label: "Impersonation",
+                key: "impersonation",
+            },
+            gore: {
+                label: "Violence or Bloody",
+                key: "gore",
+            },
+        }
+
+        post.labels.forEach((label) => {
+            const labelType = labelActions[label.val]
+            if (labelType) {
+                const { label: warningLabel, key } = labelType
+                switch (key) {
+                    case "nsfw":
+                    case "suggestive":
+                    case "nudity":
+                    case "spam":
+                    case "impersonation":
+                    case "gore":
+                        const action = userPreference.contentLabels?.[key]
+                        if (action === "warn") {
+                            setContentWarning(true)
+                            setWarningReason(warningLabel)
+                        } else if (action === "hide") {
+                            setIsDeleted(true)
+                        }
+                        break
+                    default:
+                        break
+                }
+            } else {
+                console.log(label)
+            }
+        })
+    }, [userPreference, postView])
     return (
         post && (
             <>
@@ -1122,92 +1197,66 @@ export default function Root() {
                                     <div>{translatedText}</div>
                                 </>
                             )}
-                            <div className={"overflow-x-scroll"}>
-                                {post.post?.embed &&
-                                    (post.post?.embed?.$type ===
-                                        "app.bsky.embed.images#view" ||
-                                    post.post?.embed.$type ===
-                                        "app.bsky.embed.recordWithMedia#view" ? (
-                                        <>
-                                            <ScrollShadow
-                                                hideScrollBar
-                                                orientation="horizontal"
-                                            >
-                                                <div
-                                                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-                                                >
-                                                    {(post.post.embed.$type ===
-                                                    "app.bsky.embed.recordWithMedia#view"
-                                                        ? post.post.embed.media
-                                                              .images
-                                                        : post.post.embed.images
-                                                    ).map(
-                                                        (
-                                                            image: any,
-                                                            index: number
-                                                        ) => (
-                                                            <div
-                                                                className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
-                                                                key={`image-${index}`}
-                                                            >
-                                                                <img
-                                                                    className="w-full h-full z-0 object-cover"
-                                                                    src={
-                                                                        image.thumb
-                                                                    }
-                                                                    alt={
-                                                                        image?.alt
-                                                                    }
-                                                                    onMouseUp={(
-                                                                        e
-                                                                    ) =>
-                                                                        e.stopPropagation()
-                                                                    }
-                                                                    onClick={() => {
-                                                                        handleImageClick(
-                                                                            index
-                                                                        )
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        )
-                                                    )}
-                                                </div>
-                                            </ScrollShadow>
-                                            {post.post?.embed.$type ===
-                                                "app.bsky.embed.recordWithMedia#view" && (
-                                                <>
-                                                    <ViewQuoteCard
-                                                        postJson={
-                                                            post.post.embed
-                                                                ?.record.record
-                                                        }
-                                                        nextQueryParams={
-                                                            nextQueryParams
-                                                        }
-                                                    />
-                                                </>
-                                            )}
-                                        </>
-                                    ) : post.post?.embed.$type ===
-                                      "app.bsky.embed.external#view" ? (
-                                        <Linkcard
-                                            ogpData={post.post.embed.external}
-                                        />
-                                    ) : (
-                                        post.post?.embed.$type ===
-                                            "app.bsky.embed.record#view" && (
-                                            <ViewQuoteCard
-                                                postJson={
-                                                    post.post.embed?.record
-                                                }
-                                                nextQueryParams={
-                                                    nextQueryParams
-                                                }
-                                            />
-                                        )
-                                    ))}
-                            </div>
+                            {embedImages && !contentWarning && (
+                                <EmbedImages
+                                    embedImages={embedImages}
+                                    onImageClick={(index: number) => {
+                                        handleImageClick(index)
+                                    }}
+                                />
+                            )}
+                            {contentWarning && !isDeleted && (
+                                <div
+                                    className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
+                                >
+                                    <div className={"ml-[20px]"}>
+                                        {t("components.ViewPostCard.warning")}:{" "}
+                                        {warningReason}
+                                    </div>
+                                    <Button
+                                        variant={"light"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            setContentWarning(false)
+                                        }}
+                                    >
+                                        {t("components.ViewPostCard.show")}
+                                    </Button>
+                                </div>
+                            )}
+                            {embedMedia && (
+                                <EmbedMedia
+                                    embedMedia={embedMedia}
+                                    onImageClick={(index: number) => {
+                                        handleImageClick(index)
+                                    }}
+                                    nextQueryParams={nextQueryParams}
+                                />
+                            )}
+                            {embedExternal && (
+                                <div className={"h-full w-full mt-[5px]"}>
+                                    <Linkcard
+                                        ogpData={embedExternal.external}
+                                    />
+                                </div>
+                            )}
+                            {embedRecord &&
+                                embedRecordViewRecord &&
+                                !embedFeed &&
+                                !embedMuteList &&
+                                !notfoundEmbedRecord && (
+                                    <ViewPostCard
+                                        quoteJson={embedRecordViewRecord}
+                                        isEmbedToPost={true}
+                                        nextQueryParams={nextQueryParams}
+                                        t={t}
+                                    />
+                                )}
+                            {embedFeed && <ViewFeedCard feed={embedFeed} />}
+                            {embedMuteList && (
+                                <ViewMuteListCard list={embedMuteList} />
+                            )}
+                            {notfoundEmbedRecord && <ViewNotFoundCard />}
                         </div>
                         <div className={PostCreatedAt()}>
                             {formatDate(post.post.indexedAt)}
@@ -1298,7 +1347,7 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
                         embedImages.images.length - 1 === index
                             ? `mr-[0px]`
                             : `mr-[7px]`
-                    } bg-cover`}
+                    } bg-cover hover:cursor-pointer`}
                     key={`image-${index}`}
                 >
                     <img
