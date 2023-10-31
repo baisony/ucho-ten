@@ -62,6 +62,7 @@ export const viewPostCard = tv({
         isEmbedToPost: {
             true: {
                 PostAuthorIcon: "h-[18px] w-[18px]",
+                PostContent: "ml-[0px]",
             },
         },
         isReacted: {

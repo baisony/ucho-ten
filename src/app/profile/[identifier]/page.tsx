@@ -595,16 +595,17 @@ const UserProfileComponent = ({
                                     Icon
                                 </h3>
                                 <div
-                                    className="rounded-[10px] h-[80px] hover:z-10 relative"
+                                    className="rounded-full h-[80px] hover:z-10 relative"
                                     onClick={handleAvatarFileSelect}
                                 >
                                     <img
                                         src={
                                             avatar instanceof File
                                                 ? URL.createObjectURL(avatar)
-                                                : profile?.avatar
+                                                : profile?.avatar ||
+                                                  defaultIcon.src
                                         }
-                                        className="h-[80px] w-[80px] rounded-[10px] object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-30 hover:cursor-pointer"
+                                        className="h-[80px] w-[80px] rounded-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-30 hover:cursor-pointer"
                                     />
                                     <input
                                         type="file"
@@ -717,18 +718,22 @@ const UserProfileComponent = ({
                     )}
                 </div>
                 <div className={ProfileInfoContainer()}>
-                    {!isSkeleton ? (
-                        <img
-                            className={ProfileImage()}
-                            src={profile?.avatar || defaultIcon.src}
-                        />
-                    ) : (
-                        <div className={ProfileImage()}>
-                            <Skeleton
-                                className={`h-[80px] w-[80px] rounded-[10px]`}
+                    <div
+                        className={`flex flex-row items-center justify-center bg-white dark:bg-black h-[90px] w-[90px] rounded-full absolute top-[-30px]`}
+                    >
+                        {!isSkeleton ? (
+                            <img
+                                className={ProfileImage()}
+                                src={profile?.avatar || defaultIcon.src}
                             />
-                        </div>
-                    )}
+                        ) : (
+                            <div className={ProfileImage()}>
+                                <Skeleton
+                                    className={`h-[80px] w-[80px] rounded-full`}
+                                />
+                            </div>
+                        )}
+                    </div>
                     <div className={Buttons()}>
                         <Dropdown
                             isDisabled={isSkeleton}

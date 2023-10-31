@@ -973,7 +973,7 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             </div>
                         </div>
-                        <div className={PostContent()}>
+                        <div className={PostContent({ isEmbedToPost })}>
                             {isSkeleton ? (
                                 <div className="w-full flex flex-col gap-2">
                                     <Skeleton className={skeletonText1line()} />
@@ -1043,13 +1043,15 @@ export const ViewPostCard = (props: Props) => {
                                     nextQueryParams={nextQueryParams}
                                 />
                             )}
-                            {embedExternal && (
-                                <div className={"h-full w-full mt-[5px]"}>
-                                    <Linkcard
-                                        ogpData={embedExternal.external}
-                                    />
-                                </div>
-                            )}
+                            {embedExternal &&
+                                !isEmbedToPost &&
+                                !isEmbedToModal && (
+                                    <div className={"h-full w-full mt-[5px]"}>
+                                        <Linkcard
+                                            ogpData={embedExternal.external}
+                                        />
+                                    </div>
+                                )}
                             {embedRecord &&
                                 embedRecordViewRecord &&
                                 !embedFeed && (
@@ -1064,16 +1066,16 @@ export const ViewPostCard = (props: Props) => {
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
-                                <div className={"flex"}>
+                                <div
+                                    className={`flex ${isSkeleton && `hidden`}`}
+                                >
                                     <FontAwesomeIcon
                                         icon={
                                             isBookmarked
                                                 ? faBookmarkSolid
                                                 : faBookmarkRegular
                                         }
-                                        className={`${bookmarkButton()} ${
-                                            isSkeleton && `hidden`
-                                        } group-hover:md:block ${
+                                        className={`${bookmarkButton()} group-hover:md:block ${
                                             !isBookmarked && `md:hidden`
                                         }`}
                                         onClick={(e) => {
@@ -1090,7 +1092,11 @@ export const ViewPostCard = (props: Props) => {
                                 <div className={``}>
                                     {!isEmbedToModal && (
                                         <>
-                                            <div className={"flex"}>
+                                            <div
+                                                className={`flex ${
+                                                    isSkeleton && `hidden`
+                                                }`}
+                                            >
                                                 <FontAwesomeIcon
                                                     icon={faComment}
                                                     className={`${PostReactionButton()} ${replyButton()} group-hover:md:flex md:hidden`}
