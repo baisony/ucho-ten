@@ -1,7 +1,14 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useEffect, useMemo, useRef, useState } from "react"
+import {
+    MutableRefObject,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
@@ -50,7 +57,8 @@ const FeedPage = ({
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [shouldCheckUpdate, setShouldCheckUpdate] = useState<boolean>(false)
-
+    const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const [cursorState, setCursorState] = useState<string>()
     const cursor = useRef<string>("")
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
@@ -61,12 +69,15 @@ const FeedPage = ({
     const getFeedKeys = {
         all: ["getFeed"] as const,
         feedkey: (feedKey: string) => [...getFeedKeys.all, feedKey] as const,
+        feedkeyWithCursor: (feedKey: string, cursor: string) =>
+            [...getFeedKeys.feedkey(feedKey), cursor] as const,
     }
 
     // const currentScrollPosition = useRef<number>(0)
+    console.log(` cursor 1:${cursorState || ""}`)
 
     useEffect(() => {
-        console.log(`timeline ${feedKey}`, timeline)
+        console.log(`timeline ${feedKey} cursor: ${cursorState} `, timeline)
         console.log(shouldScrollToTop.current, scrollRef.current)
 
         if (shouldScrollToTop.current && scrollRef.current) {
@@ -74,7 +85,9 @@ const FeedPage = ({
 
             shouldScrollToTop.current = false
         }
+        console.log(`timeline ${feedKey} cursor: ${cursorState} `)
     }, [timeline])
+    console.log(` cursor 2:${cursorState || ""}`)
 
     // const fetchTimeline = async (loadingFlag: boolean = true) => {
     //     if (!agent) {
@@ -154,11 +167,32 @@ const FeedPage = ({
     //     }
     // }
 
-    const loadMore = async (index: number) => {
+    const loadMore = useCallback(() => {
         if (hasMore) {
-            //await fetchTimeline(false)
+            console.log(`loadMore: >> cursor:${cursorState}`)
+            // setLoadMoreFeed(true)
+            return setTimeout(() => {
+                console.log(
+                    `loadMore: loadMoreFeed:>> ${loadMoreFeed} cursor:${cursorState}`
+                )
+                setLoadMoreFeed(true)
+                console.log(
+                    `loadMore: loadMoreFeed:<<${loadMoreFeed} cursor:${cursorState}`
+                )
+            }, 200)
+            // await fetchTimeline(false)
         }
-    }
+    }, [setHasMore])
+    console.log(` cursor 3:${cursorState || ""}`)
+
+    // const loadMore = async (index: number) => {
+    //     // if (hasMore) {
+    //     console.log(`loadMore: index:${index}`)
+    //     setLoadMoreFeed(true)
+    //     console.log(`loadMore: loadMoreFeed:${loadMoreFeed}`)
+    //     // await fetchTimeline(false)
+    //     // }
+    // }
 
     // const checkNewTimeline = async () => {
     //     if (!agent) return
@@ -359,10 +393,12 @@ const FeedPage = ({
         // }
         // setShouldCheckUpdate(true)
     }
+    console.log(` cursor 4:${cursorState || ""}`)
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts } = response
+            setCursorState(response.cursor)
 
             console.log("posts", posts)
 
@@ -394,14 +430,15 @@ const FeedPage = ({
             return
         }
 
-        cursor.current = response.cursor
+        setCursorState(response.cursor)
 
-        if (cursor.current !== "") {
+        if (cursorState !== "") {
             setHasMore(true)
         } else {
             setHasMore(false)
         }
     }
+    console.log(` cursor 5:${cursorState || ""}`)
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
         // Need to add data for top padding
@@ -413,6 +450,7 @@ const FeedPage = ({
             return [dummyData, ...timeline]
         }
     }, [timeline])
+    console.log(` cursor 6:${cursorState || ""}`)
 
     // useEffect(() => {
     //     if (isActive === false) {
@@ -438,20 +476,21 @@ const FeedPage = ({
     const getTimelineFetcher = async ({
         queryKey,
     }: QueryFunctionContext<
-        ReturnType<(typeof getFeedKeys)["feedkey"]>
+        ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
     >): Promise<FeedResponseObject> => {
         console.log("getTimelineFetcher: >>")
+        console.log(`getTimelineFetcher: ${cursorState || ""}`)
 
         if (agent === null) {
             console.log("error")
             throw new Error("Agent does not exist")
         }
 
-        const [_key, feedKey] = queryKey
+        const [_key, feedKey, cursorData] = queryKey
 
         if (feedKey === "following") {
             const response = await agent.getTimeline({
-                cursor: undefined, //cursor.current || "",
+                cursor: cursorState || "",
                 limit: FEED_FETCH_LIMIT,
             })
 
@@ -462,7 +501,7 @@ const FeedPage = ({
         } else {
             const response = await agent.app.bsky.feed.getFeed({
                 feed: feedKey,
-                cursor: undefined, //cursor.current || "",
+                cursor: cursorState || "",
                 limit: FEED_FETCH_LIMIT,
             })
 
@@ -473,14 +512,18 @@ const FeedPage = ({
         }
     }
 
+    console.log(`loadMoreFeed: ${loadMoreFeed} cursor:${cursorState || ""}`)
     const { data, isLoading, isError } = useQuery({
-        queryKey: getFeedKeys.feedkey(feedKey),
+        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
-        enabled: agent !== null && feedKey !== "" && isActive === true,
+        enabled: agent !== null && feedKey !== "" && isActive && loadMoreFeed,
     })
+    console.log(`after useQuery  cursor:${cursorState || ""}`)
 
     if (data !== undefined && timeline === null) {
+        console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
+        setLoadMoreFeed(false)
     }
 
     // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
@@ -546,8 +589,8 @@ const FeedPage = ({
                         }
                     }}
                     context={{ hasMore }}
-                    overscan={200}
-                    increaseViewportBy={200}
+                    // overscan={5}
+                    // increaseViewportBy={200}
                     // overscan={50}
                     data={timelineWithDummy}
                     // initialItemCount={Math.min(18, timeline?.length || 0)}
