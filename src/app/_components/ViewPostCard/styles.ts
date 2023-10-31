@@ -20,9 +20,10 @@ export const viewPostCard = tv({
         PostContent:
             "w-[100%-5px] h-full ml-[36px] mr-[0px] text-[14px] md:text-[15px]",
         PostContentText: "text-[13px] md:text-[15px]",
-        PostReactionButtonContainer: "h-[20px] mt-[10px] ml-[36px]",
+        PostReactionButtonContainer:
+            "h-[20px] mt-[15px] text-right right-[0px] ",
         PostReactionButton:
-            "md:h-[16px] h-[14px] mr-[50px] text-[10px] text-[#909090] dark:text-[#636363] cursor-pointer select-none",
+            "md:h-[16px] h-[14px] ml-[50px] text-[10px] cursor-pointer select-none",
         dropdown: "",
         skeletonIcon: "h-full w-full rounded-[10px]",
         skeletonName: "h-3 w-2/5 rounded-lg ",
@@ -42,6 +43,7 @@ export const viewPostCard = tv({
             "text-sm font-bold whitespace-nowrap overflow-hidden overflow-ellipsis",
         LinkCardDescription: "text-xs mt-1",
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
+        replyButton: "text-[#909090] dark:text-[#636363]",
         repostButton: "",
         likeButton: "",
     },
@@ -54,6 +56,16 @@ export const viewPostCard = tv({
             false: {
                 PostCardContainer: "cursor-pointer",
                 PostContentText: "",
+            },
+        },
+        isReacted: {
+            true: {
+                repostButton: "text-[#17BF63]",
+                likeButton: "text-[#fd7e00]",
+            },
+            false: {
+                repostButton: "text-[#909090] dark:text-[#636363]",
+                likeButton: "text-[#909090] dark:text-[#636363]",
             },
         },
     },

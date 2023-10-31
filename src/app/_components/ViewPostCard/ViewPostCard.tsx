@@ -33,6 +33,7 @@ import {
     faRetweet,
     faStar as faHeartSolid,
     faTrash,
+    faBookmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
@@ -143,6 +144,9 @@ export const ViewPostCard = (props: Props) => {
         skeletonText1line,
         skeletonText2line,
         chip,
+        replyButton,
+        repostButton,
+        likeButton,
     } = viewPostCard()
     const quoteCardStyles = viewQuoteCard()
 
@@ -1042,7 +1046,7 @@ export const ViewPostCard = (props: Props) => {
                                             <div className={"block md:hidden"}>
                                                 <FontAwesomeIcon
                                                     icon={faComment}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${replyButton()}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1053,12 +1057,12 @@ export const ViewPostCard = (props: Props) => {
                                                 />
                                                 <FontAwesomeIcon
                                                     icon={faRetweet}
-                                                    style={{
-                                                        color: isReposted
-                                                            ? "#17BF63"
-                                                            : "#909090",
-                                                    }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${repostButton(
+                                                        {
+                                                            isReacted:
+                                                                isReposted,
+                                                        }
+                                                    )}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1073,12 +1077,9 @@ export const ViewPostCard = (props: Props) => {
                                                             ? faHeartSolid
                                                             : faHeartRegular
                                                     }
-                                                    style={{
-                                                        color: isLiked
-                                                            ? "#fd7e00"
-                                                            : "#909090",
-                                                    }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${likeButton(
+                                                        { isReacted: isLiked }
+                                                    )}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1102,7 +1103,7 @@ export const ViewPostCard = (props: Props) => {
                                                                 ? undefined
                                                                 : "none",
                                                     }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${replyButton()}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1114,9 +1115,6 @@ export const ViewPostCard = (props: Props) => {
                                                 <FontAwesomeIcon
                                                     icon={faRetweet}
                                                     style={{
-                                                        color: isReposted
-                                                            ? "#17BF63"
-                                                            : "#909090",
                                                         display:
                                                             isHover &&
                                                             !isSkeleton
@@ -1125,7 +1123,12 @@ export const ViewPostCard = (props: Props) => {
                                                                 ? undefined
                                                                 : "none",
                                                     }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${repostButton(
+                                                        {
+                                                            isReacted:
+                                                                isReposted,
+                                                        }
+                                                    )}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
@@ -1141,9 +1144,6 @@ export const ViewPostCard = (props: Props) => {
                                                             : faHeartRegular
                                                     }
                                                     style={{
-                                                        color: isLiked
-                                                            ? "#fd7e00"
-                                                            : "#909090",
                                                         display:
                                                             isHover &&
                                                             !isSkeleton
@@ -1152,7 +1152,9 @@ export const ViewPostCard = (props: Props) => {
                                                                 ? undefined
                                                                 : "none",
                                                     }}
-                                                    className={PostReactionButton()}
+                                                    className={`${PostReactionButton()} ${likeButton(
+                                                        { isReacted: isLiked }
+                                                    )}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
