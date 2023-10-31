@@ -1121,7 +1121,7 @@ export const ViewPostCard = (props: Props) => {
                                     className={`flex ${isSkeleton && `hidden`}`}
                                 >
                                     <div
-                                        className={`${bookmarkButton()} group-hover:md:block ${
+                                        className={`${bookmarkButton()} group-hover:md:block block${
                                             !isBookmarked && `md:hidden`
                                         }`}
                                     >
