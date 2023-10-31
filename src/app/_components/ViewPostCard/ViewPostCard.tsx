@@ -693,6 +693,10 @@ export const ViewPostCard = (props: Props) => {
                     case "nsfw":
                     case "suggestive":
                     case "nudity":
+                        if (!userPreference.adultContentEnabled) {
+                            setIsDeleted(true)
+                        }
+                    case "hate":
                     case "spam":
                     case "impersonation":
                     case "gore":
