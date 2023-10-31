@@ -1120,25 +1120,28 @@ export const ViewPostCard = (props: Props) => {
                                 <div
                                     className={`flex ${isSkeleton && `hidden`}`}
                                 >
-                                    <FontAwesomeIcon
-                                        icon={
-                                            isBookmarked
-                                                ? faBookmarkSolid
-                                                : faBookmarkRegular
-                                        }
+                                    <div
                                         className={`${bookmarkButton()} group-hover:md:block ${
                                             !isBookmarked && `md:hidden`
                                         }`}
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            const postUri =
-                                                postJson?.uri ||
-                                                quoteJson?.uri ||
-                                                json?.post?.uri
-                                            if (!postUri) return
-                                            handleBookmark(postUri)
-                                        }}
-                                    />
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={
+                                                isBookmarked
+                                                    ? faBookmarkSolid
+                                                    : faBookmarkRegular
+                                            }
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                const postUri =
+                                                    postJson?.uri ||
+                                                    quoteJson?.uri ||
+                                                    json?.post?.uri
+                                                if (!postUri) return
+                                                handleBookmark(postUri)
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                                 <div className={``}>
                                     {!isEmbedToModal && (
