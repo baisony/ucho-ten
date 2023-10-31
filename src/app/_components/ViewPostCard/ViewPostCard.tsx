@@ -1150,7 +1150,7 @@ export const ViewPostCard = (props: Props) => {
                                             >
                                                 <FontAwesomeIcon
                                                     icon={faComment}
-                                                    className={`${PostReactionButton()} ${replyButton()} group-hover:md:flex md:hidden`}
+                                                    className={`${PostReactionButton()} ${replyButton()} group-hover:md:flex md:hidden block`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
                                                         setHandleButtonClick(
