@@ -59,6 +59,11 @@ export const viewPostCard = tv({
                 PostContentText: "",
             },
         },
+        isEmbedToPost: {
+            true: {
+                PostAuthorIcon: "h-[18px] w-[18px]",
+            },
+        },
         isReacted: {
             true: {
                 repostButton: "text-[#17BF63]",

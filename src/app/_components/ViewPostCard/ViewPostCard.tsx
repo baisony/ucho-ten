@@ -769,9 +769,11 @@ export const ViewPostCard = (props: Props) => {
                                 isEmbedToModal ? `z-[2]` : `z-[0]`
                             }`}
                         >
-                            <span className={"flex"}>
+                            <span className={"flex items-center"}>
                                 <Link
-                                    className={PostAuthorIcon()}
+                                    className={PostAuthorIcon({
+                                        isEmbedToPost,
+                                    })}
                                     onClick={(e) => {
                                         e.stopPropagation()
                                     }}
