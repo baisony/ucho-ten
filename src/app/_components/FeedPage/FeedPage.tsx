@@ -171,18 +171,19 @@ const FeedPage = ({
         if (hasMore) {
             console.log(`loadMore: >> cursor:${cursorState}`)
             // setLoadMoreFeed(true)
-            return setTimeout(() => {
-                console.log(
-                    `loadMore: loadMoreFeed:>> ${loadMoreFeed} cursor:${cursorState}`
-                )
-                setLoadMoreFeed(true)
-                console.log(
-                    `loadMore: loadMoreFeed:<<${loadMoreFeed} cursor:${cursorState}`
-                )
-            }, 200)
+            // return setTimeout(() => {
+            //     console.log(
+            //         `loadMore: loadMoreFeed:>> ${loadMoreFeed} cursor:${cursorState}`
+            //     )
+            setLoadMoreFeed(true)
+            //     console.log(
+            //         `loadMore: loadMoreFeed:<<${loadMoreFeed} cursor:${cursorState}`
+            //     )
+            // }, 200)
             // await fetchTimeline(false)
         }
-    }, [setHasMore])
+    }, [hasMore])
+
     console.log(` cursor 3:${cursorState || ""}`)
 
     // const loadMore = async (index: number) => {
@@ -520,7 +521,7 @@ const FeedPage = ({
     })
     console.log(`after useQuery  cursor:${cursorState || ""}`)
 
-    if (data !== undefined && timeline === null) {
+    if (data !== undefined) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
