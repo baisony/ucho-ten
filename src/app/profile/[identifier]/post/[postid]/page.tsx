@@ -792,7 +792,7 @@ export default function Root() {
                                 }
                             >
                                 <Dropdown
-                                    className={`${dropdown()} hidden md:block`}
+                                    className={`${dropdown()} hidden md:block text-black dark:text-white`}
                                 >
                                     <DropdownTrigger>
                                         <FontAwesomeIcon

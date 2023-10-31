@@ -12,10 +12,10 @@ import {
 } from "@nextui-org/react"
 import React, { useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"
 import { useTranslation } from "react-i18next"
+import { reportModalStyle } from "@/app/_components/ReportModal/styles"
 
 /**
  * SetttingsModal props.
@@ -49,6 +49,7 @@ export const ReportModal = (props: ReportModalProps) => {
         post,
         nextQueryParams,
     } = props
+    const { appearanceTextColor } = reportModalStyle()
     const [agent] = useAgent()
     const { t } = useTranslation()
     const [reportReasonText, setReportReasonText] = useState<string>("")
@@ -144,6 +145,7 @@ export const ReportModal = (props: ReportModalProps) => {
             placement={placement}
             onOpenChange={onOpenChange}
             hideCloseButton
+            className={appearanceTextColor()}
         >
             <ModalContent>
                 {(onClose) => (
@@ -181,25 +183,46 @@ export const ReportModal = (props: ReportModalProps) => {
                                     size={"sm"}
                                     aria-label={"Select-reason"}
                                 >
-                                    <SelectItem key={"spam"}>
+                                    <SelectItem
+                                        key={"spam"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.spam.reason}
                                     </SelectItem>
-                                    <SelectItem key={"sexual"}>
+                                    <SelectItem
+                                        key={"sexual"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.sexual.reason}
                                     </SelectItem>
-                                    <SelectItem key={"copyRight"}>
+                                    <SelectItem
+                                        key={"copyRight"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.copyright.reason}
                                     </SelectItem>
-                                    <SelectItem key={"rude"}>
+                                    <SelectItem
+                                        key={"rude"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.rude.reason}
                                     </SelectItem>
-                                    <SelectItem key={"violation"}>
+                                    <SelectItem
+                                        key={"violation"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.violation.reason}
                                     </SelectItem>
-                                    <SelectItem key={"misleading"}>
+                                    <SelectItem
+                                        key={"misleading"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.misleading.reason}
                                     </SelectItem>
-                                    <SelectItem key={"other"}>
+                                    <SelectItem
+                                        key={"other"}
+                                        className={appearanceTextColor()}
+                                    >
                                         {reasonList.other.reason}
                                     </SelectItem>
                                 </Select>

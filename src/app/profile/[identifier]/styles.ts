@@ -21,6 +21,7 @@ export const viewProfilePage = tv({
         Buttons: "flex justify-end h-[56px] w-full flex items-center",
         PropertyButton: "",
         PostContainer: "w-full h-full",
+        appearanceTextColor: "text-black dark:text-white",
     },
     variants: {
         hover: {

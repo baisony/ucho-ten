@@ -393,6 +393,7 @@ const UserProfileComponent = ({
         Buttons,
         PropertyButton,
         PostContainer,
+        appearanceTextColor,
     } = viewProfilePage()
 
     const bannerInputRef = useRef<HTMLInputElement | null>(null)
@@ -555,7 +556,7 @@ const UserProfileComponent = ({
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
-                className={`z-[100] max-w-[600px]`}
+                className={`z-[100] max-w-[600px] ${appearanceTextColor()}`}
                 isDismissable={isUploading}
                 hideCloseButton
             >
@@ -729,7 +730,10 @@ const UserProfileComponent = ({
                         </div>
                     )}
                     <div className={Buttons()}>
-                        <Dropdown isDisabled={isSkeleton}>
+                        <Dropdown
+                            isDisabled={isSkeleton}
+                            className={appearanceTextColor()}
+                        >
                             <DropdownTrigger>
                                 <div className={ProfileCopyButton()}>
                                     <FontAwesomeIcon
@@ -740,7 +744,7 @@ const UserProfileComponent = ({
                             </DropdownTrigger>
                             <DropdownMenu aria-label={"copy-dropdown"}>
                                 <DropdownItem
-                                    key="new"
+                                    key="copydid"
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.did
@@ -750,7 +754,7 @@ const UserProfileComponent = ({
                                     {t("pages.profile.copyDID")}
                                 </DropdownItem>
                                 <DropdownItem
-                                    key="copy"
+                                    key="copyhandle"
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.handle
@@ -760,7 +764,7 @@ const UserProfileComponent = ({
                                     {t("pages.profile.copyHandle")}
                                 </DropdownItem>
                                 <DropdownItem
-                                    key="edit"
+                                    key="copydisplayname"
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.displayName
@@ -772,7 +776,10 @@ const UserProfileComponent = ({
                             </DropdownMenu>
                         </Dropdown>
                         {!isProfileMine && !isSkeleton && (
-                            <Dropdown isDisabled={isSkeleton}>
+                            <Dropdown
+                                isDisabled={isSkeleton}
+                                className={appearanceTextColor()}
+                            >
                                 <DropdownTrigger>
                                     <div className={ProfileActionButton()}>
                                         <FontAwesomeIcon

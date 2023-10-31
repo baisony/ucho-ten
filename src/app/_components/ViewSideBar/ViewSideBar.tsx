@@ -80,6 +80,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
+        appearanceTextColor,
     } = viewSideBar()
     const { t } = useTranslation()
     const [agent, setAgent] = useAgent()
@@ -303,7 +304,11 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     }
     return (
         <div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                className={appearanceTextColor()}
+            >
                 <ModalContent>
                     {(onClose) => (
                         <>

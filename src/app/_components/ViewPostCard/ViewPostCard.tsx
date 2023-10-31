@@ -33,7 +33,6 @@ import {
     faRetweet,
     faStar as faHeartSolid,
     faTrash,
-    faBookmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
@@ -823,7 +822,11 @@ export const ViewPostCard = (props: Props) => {
                             {isHover && (
                                 <div className={moreButton()}>
                                     {!isEmbedToModal && !isSkeleton && (
-                                        <Dropdown>
+                                        <Dropdown
+                                            className={
+                                                "text-black dark:text-white"
+                                            }
+                                        >
                                             <DropdownTrigger>
                                                 <FontAwesomeIcon
                                                     icon={faEllipsis}

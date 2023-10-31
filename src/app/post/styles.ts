@@ -57,6 +57,7 @@ export const createPostPage = tv({
             "h-[20px] w-full p-[0px] rounded-[12.5%] bg-opacity-80 bg-black",
         ImageEditButton:
             "h-[20px] w-[20px] p-[0px] rounded-[50%] bg-opacity-80 bg-black",
+        appearanceTextColor: "text-black dark:text-white",
     },
     variants: {
         uploadImageAvailable: {
