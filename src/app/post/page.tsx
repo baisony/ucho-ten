@@ -142,6 +142,7 @@ export default function Root() {
         ImageDeleteButton,
         ImageAddALTButton,
         ImageEditButton,
+        appearanceTextColor,
     } = createPostPage()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
@@ -814,7 +815,10 @@ export default function Root() {
                             className={footerTooltipStyle()}
                             style={{ bottom: "5%" }}
                         >
-                            <Dropdown backdrop="blur">
+                            <Dropdown
+                                backdrop="blur"
+                                className={appearanceTextColor()}
+                            >
                                 <DropdownTrigger>
                                     {`${t("modal.post.lang")}:${Array.from(
                                         PostContentLanguage

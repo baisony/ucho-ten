@@ -46,7 +46,8 @@ export default function Root() {
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [isLoading, setIsLoading] = useState(false)
-    const { background, accordion, button } = viewSettingsPage()
+    const { background, accordion, button, appearanceTextColor } =
+        viewSettingsPage()
 
     useEffect(() => {
         if (location.hash !== "") {
@@ -178,7 +179,7 @@ export default function Root() {
                                         size={"sm"}
                                         label="Languages"
                                         selectedKeys={displayLanguage}
-                                        className={`${accordion()} max-w-xs`}
+                                        className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
                                         onChange={(event) => {
                                             handleDisplayLanguageSelectionChange(
                                                 event
@@ -190,7 +191,10 @@ export default function Root() {
                                             DisplayLanguages || {}
                                         ).map(([key, value]) => {
                                             return (
-                                                <SelectItem key={value}>
+                                                <SelectItem
+                                                    key={value}
+                                                    className={appearanceTextColor()}
+                                                >
                                                     {key}
                                                 </SelectItem>
                                             )

@@ -16,6 +16,7 @@ export const viewSideBar = tv({
         Footer: "h-[200px] pl-[18px] pt-[24px] border-t-[1px] border-[#E3E3E3] pb-[75px]  ",
         isBarOpen: "",
         modal: "",
+        appearanceTextColor: "text-black dark:text-white",
     },
     variants: {
         isBarOpen: {
