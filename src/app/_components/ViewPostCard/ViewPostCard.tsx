@@ -12,6 +12,7 @@ import {
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedPost,
 } from "@atproto/api"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
@@ -69,6 +70,7 @@ import {
 
 import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
+import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
@@ -339,6 +341,27 @@ export const ViewPostCard = (props: Props) => {
                 "app.bsky.feed.defs#generatorView"
         ) {
             return postView?.embed?.record as GeneratorView
+        } else {
+            return null
+        }
+    }, [postJson, quoteJson])
+
+    const embedMuteList = useMemo((): ListView | null => {
+        if (
+            !postView?.embed?.$type &&
+            !(postView?.embed?.record as GeneratorView)?.$type
+        ) {
+            return null
+        }
+
+        const embedType = postView?.embed?.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as GeneratorView)?.$type ===
+                "app.bsky.graph.defs#listView"
+        ) {
+            return postView?.embed?.record as ListView
         } else {
             return null
         }
@@ -698,6 +721,9 @@ export const ViewPostCard = (props: Props) => {
         setIsBookmarked(isBookmarked)
     }, [postJson, quoteJson, json])
 
+    if (!postJsonData?.author?.did) {
+        console.log(postJsonData)
+    }
     return (
         !isDeleted && (
             <div
@@ -1054,7 +1080,8 @@ export const ViewPostCard = (props: Props) => {
                                 )}
                             {embedRecord &&
                                 embedRecordViewRecord &&
-                                !embedFeed && (
+                                !embedFeed &&
+                                !embedMuteList && (
                                     <ViewPostCard
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
@@ -1063,6 +1090,9 @@ export const ViewPostCard = (props: Props) => {
                                     />
                                 )}
                             {embedFeed && <ViewFeedCard feed={embedFeed} />}
+                            {embedMuteList && (
+                                <ViewMuteListCard list={embedMuteList} />
+                            )}
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
