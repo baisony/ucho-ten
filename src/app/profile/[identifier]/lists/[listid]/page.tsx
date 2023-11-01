@@ -2,16 +2,11 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type { ListItemView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
-import {
-    faArrowUpFromBracket,
-    faHeart as faSolidHeart,
-    faThumbTack,
-} from "@fortawesome/free-solid-svg-icons"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,
@@ -26,21 +21,13 @@ import { isMobile } from "react-device-detect"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import {
-    ViewPostCardCell,
-    ViewPostCardCellProps,
-} from "@/app/_components/ViewPostCard/ViewPostCardCell"
+    ViewUserProfileCardCell,
+    ViewUserProfileCardCellProps,
+} from "@/app/_components/ViewUserProfileCard/ViewUserProfileCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-
-// interface Props {
-//     className?: string
-//     color: "light" | "dark"
-//     isMobile?: boolean
-//     isProfileMine?: true | false
-//     isSubscribe?: true | false
-//     isPinned?: true | false
-// }
 
 export default function Root() {
     const pathname = usePathname()
@@ -50,28 +37,17 @@ export default function Root() {
     const [agent] = useAgent()
     //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
-    const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
+    let atUri = atUri1.replace("/lists/", "/app.bsky.graph.list/")
 
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
-    const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
+    const [timeline, setTimeline] = useState<ListItemView[] | null>(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
-    // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
-    // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    // const [post, setPost] = useState<any>(null)
-    // const [newCursor, setNewCursor] = useState<string | null>(null)
-    // const [hasCursor, setHasCursor] = useState<string | null>(null)
-    const [darkMode, setDarkMode] = useState(false)
-    // const [isLiked, setIsLiked] = useState<boolean>(false)
-    // const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
-    // const [isPostMine, setIsPostMine] = useState<boolean>(false)
-    const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
     //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
-    const [userPreference, setUserPreference] = useState<any>(null)
-    const [now, setNow] = useState<Date>(new Date())
+    const [, setNow] = useState<Date>(new Date())
 
     const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
@@ -87,21 +63,10 @@ export default function Root() {
         }
     }, [])
 
-    const formattingTimeline = (timeline: FeedViewPost[]) => {
+    const formattingTimeline = (timeline: ListItemView[]) => {
         const seenUris = new Set<string>()
         const filteredData = timeline.filter((item) => {
-            const uri = item.post.uri
-            if (item.reply) {
-                if (item.reason) return true
-                if (
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                )
-                    return true
-                return false
-            }
+            const uri = item.subject.did
             // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
             if (!seenUris.has(uri)) {
                 seenUris.add(uri)
@@ -109,7 +74,7 @@ export default function Root() {
             }
             return false
         })
-        return filteredData as FeedViewPost[]
+        return filteredData as ListItemView[]
     }
 
     const fetchUserPreference = async () => {
@@ -118,25 +83,16 @@ export default function Root() {
         }
 
         try {
-            const res = await agent.getPreferences()
-            console.log(res)
-            setUserPreference(res)
-
-            const { feeds } = res
-            const { pinned, saved } = feeds
-
-            if (pinned) {
-                setIsPinned(pinned.includes(atUri))
-            } else {
-                setIsPinned(false)
+            if (!atUri.startsWith("at://did:")) {
+                const toAtUri = new AtUri(atUri)
+                const did = await agent.resolveHandle({
+                    handle: toAtUri.hostname,
+                })
+                atUri = atUri.replace(toAtUri.hostname, did.data.did)
             }
-
-            if (saved) {
-                console.log(saved.includes(atUri))
-                setIsSubscribed(saved.includes(atUri))
-            } else {
-                setIsSubscribed(false)
-            }
+            const { data } = await agent.app.bsky.graph.getList({ list: atUri })
+            setIsSubscribed(!!data.list.viewer?.muted)
+            setFeedInfo(data.list)
         } catch (e) {
             console.error(e)
         }
@@ -148,21 +104,19 @@ export default function Root() {
         }
 
         try {
-            const feedInfo = await agent.app.bsky.feed.getFeedGenerator({
-                feed: atUri,
-            })
-
-            console.log(feedInfo)
-
-            setFeedInfo(feedInfo.data)
-
-            const { data } = await agent.app.bsky.feed.getFeed({ feed: atUri })
-            const { feed } = data
-
-            setTimeline(feed)
+            if (!atUri.startsWith("at://did:")) {
+                const toAtUri = new AtUri(atUri)
+                const did = await agent.resolveHandle({
+                    handle: toAtUri.hostname,
+                })
+                atUri = atUri.replace(toAtUri.hostname, did.data.did)
+            }
+            const { data } = await agent.app.bsky.graph.getList({ list: atUri })
+            const { items } = data
+            setTimeline(items)
 
             if (
-                feed.length === 0 &&
+                items.length === 0 &&
                 (cursor.current === data.cursor || !data.cursor)
             ) {
                 setIsEndOfFeed(true)
@@ -193,34 +147,32 @@ export default function Root() {
         }
 
         try {
-            const { data } = await agent.app.bsky.feed.getFeed({
+            const { data } = await agent.app.bsky.graph.getList({
                 cursor: cursor.current,
-                feed: atUri,
+                list: atUri,
             })
 
-            const { feed } = data
+            const { items } = data
 
-            if (feed.length === 0) {
+            if (items.length === 0) {
                 setHasMore(false)
                 return
             }
 
-            const filteredData = formattingTimeline(feed)
+            const filteredData = formattingTimeline(items)
             const diffTimeline = filteredData.filter((newItem) => {
                 if (!timeline) {
                     return true
                 }
 
                 return !timeline.some(
-                    (oldItem) => oldItem.post.uri === newItem.post.uri
+                    (oldItem) => oldItem.subject.did === newItem.subject.did
                 )
             })
 
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
-                    const newTimeline = [...currentTimeline, ...diffTimeline]
-
-                    return newTimeline
+                    return [...currentTimeline, ...diffTimeline]
                 } else {
                     return [...diffTimeline]
                 }
@@ -252,37 +204,19 @@ export default function Root() {
         doFetch()
     }, [agent, atUri])
 
-    // const handleLikeClick = () => {
-    //     if (!agent) return
-    //     if (!feedInfo) return
-    //     try {
-    //     } catch (e) {}
-    // }
-
-    const handlePinnedClick = async () => {
-        if (!agent) return
-        if (!feedInfo) return
-        try {
-            if (isPinned) {
-                const res = await agent.removePinnedFeed(feedInfo.view.uri)
-                setIsPinned(false)
-            } else if (!isPinned) {
-                const res = await agent.addPinnedFeed(feedInfo.view.uri)
-                setIsPinned(true)
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    }
     const handleSubscribeClick = async () => {
         if (!agent) return
         if (!feedInfo) return
         try {
             if (isSubscribed) {
-                const res = await agent.removeSavedFeed(feedInfo.view.uri)
+                await agent.app.bsky.graph.unmuteActorList({
+                    list: feedInfo.uri,
+                })
                 setIsSubscribed(false)
             } else if (!isSubscribed) {
-                const res = await agent.addSavedFeed(feedInfo.view.uri)
+                await agent.app.bsky.graph.muteActorList({
+                    list: feedInfo.uri,
+                })
                 setIsSubscribed(true)
             }
         } catch (e) {
@@ -297,7 +231,6 @@ export default function Root() {
             const feedProps: FeedProps = {
                 feedInfo,
                 isSubscribed,
-                isPinned,
                 onClick: handleSubscribeClick,
             }
 
@@ -321,16 +254,15 @@ export default function Root() {
 
         if (timeline) {
             const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
-                const postProps: ViewPostCardCellProps = {
+                const profileProps: ViewUserProfileCardCellProps = {
                     isMobile,
-                    postJson: post.post,
-                    now,
+                    json: post.subject,
                     nextQueryParams,
                     t,
                 }
 
                 return {
-                    postProps,
+                    profileProps,
                 }
             })
 
@@ -338,17 +270,17 @@ export default function Root() {
         } else {
             const timelineData: CustomFeedCellProps[] = Array.from({
                 length: 20,
-            }).map((_) => {
-                const postProps: ViewPostCardCellProps = {
+            }).map(() => {
+                const profileProps: ViewUserProfileCardCellProps = {
                     isSkeleton: true,
                     isMobile,
-                    now,
+                    json: null,
                     nextQueryParams,
                     t,
                 }
 
                 return {
-                    postProps,
+                    profileProps,
                 }
             })
 
@@ -362,7 +294,7 @@ export default function Root() {
         }
 
         return data
-    }, [feedInfo, timeline])
+    }, [feedInfo, timeline, isSubscribed])
 
     return (
         <Virtuoso
@@ -392,11 +324,11 @@ export default function Root() {
 interface CustomFeedCellProps {
     isDummyHeader?: boolean
     feedProps?: FeedProps
-    postProps?: ViewPostCardCellProps
+    profileProps?: ViewUserProfileCardCellProps
 }
 
 const CustomFeedCell = (props: CustomFeedCellProps) => {
-    const { isDummyHeader, feedProps, postProps } = props
+    const { isDummyHeader, feedProps, profileProps } = props
 
     if (isDummyHeader) {
         return <div className={"md:h-[100px] h-[85px]"} />
@@ -406,15 +338,14 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
         return <FeedHeaderComponent {...feedProps} />
     }
 
-    if (postProps) {
-        return <ViewPostCardCell {...postProps} />
+    if (profileProps) {
+        return <ViewUserProfileCardCell {...profileProps} />
     }
 }
 
 interface FeedProps {
     feedInfo?: any
     isSubscribed?: boolean
-    isPinned?: boolean
     onClick?: () => void
     isSkeleton?: boolean
 }
@@ -422,7 +353,6 @@ interface FeedProps {
 const FeedHeaderComponent = ({
     feedInfo,
     isSubscribed,
-    isPinned,
     onClick,
     isSkeleton,
 }: FeedProps) => {
@@ -430,23 +360,16 @@ const FeedHeaderComponent = ({
     const [onHoverButton, setOnHoverButton] = useState(false)
 
     const {
-        background,
         ProfileContainer,
         ProfileInfoContainer,
-        HeaderImageContainer,
-        ProfileHeaderImage,
         ProfileImage,
         ProfileDisplayName,
         ProfileHandle,
         ProfileCopyButton,
-        ProfileActionButton,
         FollowButton,
         ProfileBio,
         Buttons,
         ShareButton,
-        PostContainer,
-        PinButton,
-        dropdown,
     } = viewFeedPage()
 
     return (
@@ -455,7 +378,8 @@ const FeedHeaderComponent = ({
                 {!isSkeleton ? (
                     <img
                         className={ProfileImage()}
-                        src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                        src={feedInfo?.avatar || defaultFeedIcon.src}
+                        alt={feedInfo?.name}
                     />
                 ) : (
                     <div className={ProfileImage()}>
@@ -463,22 +387,6 @@ const FeedHeaderComponent = ({
                     </div>
                 )}
                 <div className={Buttons()}>
-                    <div className={ProfileActionButton()}>
-                        {!isSkeleton && (
-                            <FontAwesomeIcon
-                                icon={
-                                    feedInfo.view?.viewer?.like
-                                        ? faSolidHeart
-                                        : faRegularHeart
-                                }
-                                style={{
-                                    color: feedInfo.view?.viewer?.like
-                                        ? "#ff0000"
-                                        : "#000000",
-                                }}
-                            />
-                        )}
-                    </div>
                     <Dropdown>
                         <DropdownTrigger>
                             <div className={ProfileCopyButton()}>
@@ -497,14 +405,6 @@ const FeedHeaderComponent = ({
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
-                    <div className={ProfileActionButton()}>
-                        <FontAwesomeIcon
-                            icon={faThumbTack}
-                            className={PinButton({
-                                isPinned: isPinned,
-                            })}
-                        />
-                    </div>
                     <Button
                         className={FollowButton()}
                         onMouseLeave={() => {
@@ -525,7 +425,7 @@ const FeedHeaderComponent = ({
                 </div>
                 <div className={ProfileDisplayName()}>
                     {!isSkeleton ? (
-                        feedInfo.view?.displayName
+                        feedInfo?.name
                     ) : (
                         <Skeleton
                             className={`h-[24px] w-[300px] rounded-[10px] `}
@@ -535,7 +435,7 @@ const FeedHeaderComponent = ({
                 <div className={ProfileHandle()}>
                     {!isSkeleton ? (
                         `${t(`pages.feedOnlyPage.createdBy`)} @${
-                            feedInfo.view.creator.handle
+                            feedInfo.creator.handle
                         }`
                     ) : (
                         <Skeleton
@@ -545,7 +445,7 @@ const FeedHeaderComponent = ({
                 </div>
                 <div className={ProfileBio()}>
                     {!isSkeleton ? (
-                        feedInfo.view?.description
+                        feedInfo?.description
                     ) : (
                         <>
                             <Skeleton

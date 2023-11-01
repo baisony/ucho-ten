@@ -8,6 +8,7 @@ import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useNotificationInfoAtom } from "../_atoms/notification"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import { useTranslation } from "react-i18next"
@@ -23,8 +24,8 @@ export default function Root() {
 
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
-    const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
+    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
 
     const cursor = useRef<string>("")
     const loading = useRef<boolean>(false)
@@ -90,6 +91,13 @@ export default function Root() {
             const { data } = await agent.listNotifications({
                 cursor: cursor.current,
             })
+            console.log(data)
+            if (
+                data.notifications.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfFeed(true)
+            }
 
             if (data) {
                 if (data.cursor) {
@@ -166,7 +174,7 @@ export default function Root() {
     }
 
     const loadMore = async (page: number) => {
-        if (hasMore) {
+        if (hasMore && !isEndOfFeed) {
             await fetchNotification()
         }
     }
@@ -262,7 +270,9 @@ export default function Root() {
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: ListFooterSpinner,
+                        Footer: !isEndOfFeed
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
                     }}
                     endReached={loadMore}
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}

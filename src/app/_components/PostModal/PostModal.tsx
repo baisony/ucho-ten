@@ -54,6 +54,7 @@ import imageCompression, {
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import i18n from "@/app/_i18n/config"
+import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -74,7 +75,7 @@ interface Props {
 
 export const PostModal: React.FC<Props> = (props: Props) => {
     const { type, postData } = props
-
+    const [appearanceColor] = useAppearanceColor()
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
@@ -106,6 +107,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
     const [OGPImage, setOGPImage] = useState<any>([])
+    const [emojiPickerColor, setEmojiPickerColor] = useState<
+        "auto" | "light" | "dark"
+    >("auto")
     const {
         PostModal,
         header,
@@ -542,6 +546,19 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }
 
+    useEffect(() => {
+        if (!window) return
+        if (appearanceColor !== "system") {
+            setEmojiPickerColor(appearanceColor)
+        } else {
+            setEmojiPickerColor(
+                window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light"
+            )
+        }
+    }, [])
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
@@ -866,7 +883,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             className={footerTooltipStyle()}
                             style={{ bottom: "5%" }}
                         >
-                            <Dropdown backdrop="blur">
+                            <Dropdown
+                                backdrop="blur"
+                                className={"text-black dark:text-white"}
+                            >
                                 <DropdownTrigger>
                                     {`${t("modal.post.lang")}:${Array.from(
                                         PostContentLanguage
@@ -913,7 +933,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             </Dropdown>
                         </div>
                         <div className={footerTooltipStyle()}>
-                            <Dropdown backdrop="blur">
+                            <Dropdown
+                                backdrop="blur"
+                                className={"text-black dark:text-white"}
+                            >
                                 <DropdownTrigger>
                                     <FontAwesomeIcon
                                         icon={faCirclePlus}
@@ -976,6 +999,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         locale={i18n.language}
                                         onEmojiSelect={onEmojiClick}
                                         previewPosition="none"
+                                        theme={emojiPickerColor}
                                     />
                                 </PopoverContent>
                             </Popover>

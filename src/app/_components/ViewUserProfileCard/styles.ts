@@ -1,6 +1,6 @@
 import { tv } from "@nextui-org/react"
 
-export const viewPostCard = tv({
+export const viewUserProfileCardStyle = tv({
     slots: {
         PostCard:
             "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#2C2C2C]",

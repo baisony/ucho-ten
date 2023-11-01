@@ -45,6 +45,7 @@ import {
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 
 export default function Root() {
     const router = useRouter()
@@ -58,6 +59,7 @@ export default function Root() {
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
+    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [profile, setProfile] = useState<any>(null)
@@ -142,6 +144,12 @@ export default function Root() {
                 actor: username,
                 cursor: cursor.current,
             })
+            if (
+                data.feed.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfFeed(true)
+            }
 
             if (data) {
                 if (data.cursor) {
@@ -313,7 +321,7 @@ export default function Root() {
             itemContent={(_, item) => <UserProfilePageCell {...item} />}
             components={{
                 // @ts-ignore
-                Footer: ListFooterSpinner,
+                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
@@ -370,8 +378,7 @@ const UserProfileComponent = ({
     const [isUploading, setIsUploading] = useState(false)
     const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
     const { t } = useTranslation()
-    console.log(!!profile?.viewer?.following)
-    console.log(isFollowing)
+
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
@@ -393,6 +400,7 @@ const UserProfileComponent = ({
         Buttons,
         PropertyButton,
         PostContainer,
+        appearanceTextColor,
     } = viewProfilePage()
 
     const bannerInputRef = useRef<HTMLInputElement | null>(null)
@@ -555,7 +563,7 @@ const UserProfileComponent = ({
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
-                className={`z-[100] max-w-[600px]`}
+                className={`z-[100] max-w-[600px] ${appearanceTextColor()}`}
                 isDismissable={isUploading}
                 hideCloseButton
             >
@@ -594,16 +602,17 @@ const UserProfileComponent = ({
                                     Icon
                                 </h3>
                                 <div
-                                    className="rounded-[10px] h-[80px] hover:z-10 relative"
+                                    className="rounded-full h-[80px] hover:z-10 relative"
                                     onClick={handleAvatarFileSelect}
                                 >
                                     <img
                                         src={
                                             avatar instanceof File
                                                 ? URL.createObjectURL(avatar)
-                                                : profile?.avatar
+                                                : profile?.avatar ||
+                                                  defaultIcon.src
                                         }
-                                        className="h-[80px] w-[80px] rounded-[10px] object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-30 hover:cursor-pointer"
+                                        className="h-[80px] w-[80px] rounded-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-30 hover:cursor-pointer"
                                     />
                                     <input
                                         type="file"
@@ -716,20 +725,27 @@ const UserProfileComponent = ({
                     )}
                 </div>
                 <div className={ProfileInfoContainer()}>
-                    {!isSkeleton ? (
-                        <img
-                            className={ProfileImage()}
-                            src={profile?.avatar || defaultIcon.src}
-                        />
-                    ) : (
-                        <div className={ProfileImage()}>
-                            <Skeleton
-                                className={`h-[80px] w-[80px] rounded-[10px]`}
+                    <div
+                        className={`flex flex-row items-center justify-center bg-white dark:bg-black h-[90px] w-[90px] rounded-full absolute top-[-30px]`}
+                    >
+                        {!isSkeleton ? (
+                            <img
+                                className={ProfileImage()}
+                                src={profile?.avatar || defaultIcon.src}
                             />
-                        </div>
-                    )}
+                        ) : (
+                            <div className={ProfileImage()}>
+                                <Skeleton
+                                    className={`h-[80px] w-[80px] rounded-full`}
+                                />
+                            </div>
+                        )}
+                    </div>
                     <div className={Buttons()}>
-                        <Dropdown isDisabled={isSkeleton}>
+                        <Dropdown
+                            isDisabled={isSkeleton}
+                            className={appearanceTextColor()}
+                        >
                             <DropdownTrigger>
                                 <div className={ProfileCopyButton()}>
                                     <FontAwesomeIcon
@@ -740,7 +756,7 @@ const UserProfileComponent = ({
                             </DropdownTrigger>
                             <DropdownMenu aria-label={"copy-dropdown"}>
                                 <DropdownItem
-                                    key="new"
+                                    key="copydid"
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.did
@@ -750,7 +766,7 @@ const UserProfileComponent = ({
                                     {t("pages.profile.copyDID")}
                                 </DropdownItem>
                                 <DropdownItem
-                                    key="copy"
+                                    key="copyhandle"
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.handle
@@ -760,7 +776,7 @@ const UserProfileComponent = ({
                                     {t("pages.profile.copyHandle")}
                                 </DropdownItem>
                                 <DropdownItem
-                                    key="edit"
+                                    key="copydisplayname"
                                     onClick={() => {
                                         navigator.clipboard.writeText(
                                             profile.displayName
@@ -772,7 +788,10 @@ const UserProfileComponent = ({
                             </DropdownMenu>
                         </Dropdown>
                         {!isProfileMine && !isSkeleton && (
-                            <Dropdown isDisabled={isSkeleton}>
+                            <Dropdown
+                                isDisabled={isSkeleton}
+                                className={appearanceTextColor()}
+                            >
                                 <DropdownTrigger>
                                     <div className={ProfileActionButton()}>
                                         <FontAwesomeIcon

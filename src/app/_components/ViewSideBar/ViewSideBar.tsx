@@ -80,6 +80,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
+        appearanceTextColor,
     } = viewSideBar()
     const { t } = useTranslation()
     const [agent, setAgent] = useAgent()
@@ -231,7 +232,11 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                 }}
                             >
                                 <div className={"flex items-center mb-[10px]"}>
-                                    <div className={"w-[50px] h-[50px]"}>
+                                    <div
+                                        className={
+                                            "w-[50px] h-[50px] rounded-full overflow-hidden"
+                                        }
+                                    >
                                         <img
                                             src={
                                                 item?.profile?.avatar ||
@@ -241,9 +246,15 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             alt={"avatar"}
                                         />
                                     </div>
-                                    <div>
+                                    <div className={"ml-[15px]"}>
                                         <div>{item.profile.displayName}</div>
-                                        <div>@{item.profile.handle}</div>
+                                        <div
+                                            className={
+                                                "text-default-400 text-sm"
+                                            }
+                                        >
+                                            @{item.profile.handle}
+                                        </div>
                                     </div>
                                 </div>
                                 <div>
@@ -303,7 +314,11 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
     }
     return (
         <div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                className={appearanceTextColor()}
+            >
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -475,7 +490,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                         }
                     >
                         <img
-                            className={"h-[64px] w-[64px] rounded-[10px]"}
+                            className={"h-[64px] w-[64px] rounded-full"}
                             src={userProfileDetailed?.avatar || defaultIcon.src}
                             alt={"avatar"}
                         />

@@ -136,9 +136,7 @@ const FeedPageQuery = ({
                 // context={{ hasMore }}
                 overscan={200}
                 increaseViewportBy={200}
-                // overscan={50}
                 data={timelineWithDummy}
-                // initialItemCount={Math.min(18, timeline?.length || 0)}
                 atTopThreshold={100}
                 atBottomThreshold={100}
                 itemContent={(index, item) => (

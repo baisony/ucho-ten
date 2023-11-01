@@ -22,6 +22,7 @@ import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
+// import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 // import { usePathname } from "next/navigation"
 // import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
 
@@ -59,6 +60,7 @@ const FeedPage = ({
     const [shouldCheckUpdate, setShouldCheckUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
+    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false)
     const cursor = useRef<string>("")
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
@@ -121,7 +123,16 @@ const FeedPage = ({
 
     //         if (response.data) {
     //             const { feed } = response.data
+    // if (
+    //     response.data.feed.length === 0 &&
+    //     (cursor.current === response.data.cursor ||
+    //         !response.data.cursor)
+    // ) {
+    //     setIsEndOfFeed(true)
+    // }
 
+    // if (response.data) {
+    //     const { feed } = response.data
     //             console.log("feed", feed)
 
     //             const filteredData =
@@ -561,7 +572,7 @@ const FeedPage = ({
             )}
             {timeline === null && (
                 <Virtuoso
-                    overscan={100}
+                    overscan={200}
                     increaseViewportBy={200}
                     totalCount={20}
                     initialItemCount={20}
@@ -590,11 +601,9 @@ const FeedPage = ({
                         }
                     }}
                     context={{ hasMore }}
-                    // overscan={5}
-                    // increaseViewportBy={200}
-                    // overscan={50}
+                    increaseViewportBy={200}
+                    overscan={200}
                     data={timelineWithDummy}
-                    // initialItemCount={Math.min(18, timeline?.length || 0)}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
@@ -613,7 +622,10 @@ const FeedPage = ({
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: ListFooterSpinner,
+                        ListFooterSpinner,
+                        // Footer: !isEndOfFeed
+                        //     ? ListFooterSpinner
+                        //     : ListFooterNoContent,
                     }}
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
