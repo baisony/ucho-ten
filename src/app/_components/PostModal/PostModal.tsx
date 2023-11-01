@@ -1087,7 +1087,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
-                        <div className={footerTooltipStyle()}>
+                        <div className={`${footerTooltipStyle()} hidden`}>
                             <Dropdown
                                 backdrop="blur"
                                 className={"text-black dark:text-white"}

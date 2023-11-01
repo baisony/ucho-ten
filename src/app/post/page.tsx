@@ -1054,7 +1054,7 @@ export default function Root() {
                                     </DropdownMenu>
                                 </Dropdown>
                             </div>
-                            <div className={footerTooltipStyle()}>
+                            <div className={`${footerTooltipStyle()} hidden`}>
                                 <Dropdown backdrop="blur">
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
