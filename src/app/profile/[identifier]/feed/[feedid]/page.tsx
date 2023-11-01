@@ -31,6 +31,7 @@ import {
 } from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 
 // interface Props {
 //     className?: string
@@ -54,6 +55,7 @@ export default function Root() {
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
+    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     // const [post, setPost] = useState<any>(null)
@@ -158,6 +160,13 @@ export default function Root() {
             const { feed } = data
 
             setTimeline(feed)
+
+            if (
+                feed.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfFeed(true)
+            }
 
             if (data.cursor) {
                 cursor.current = data.cursor
@@ -371,7 +380,7 @@ export default function Root() {
             itemContent={(_, item) => <CustomFeedCell {...item} />}
             components={{
                 // @ts-ignore
-                Footer: ListFooterSpinner,
+                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}

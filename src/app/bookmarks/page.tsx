@@ -53,6 +53,15 @@ export default function Root() {
                         />
                     )
                 })}
+                {timeline.length === 0 && (
+                    <div
+                        className={
+                            "w-full h-full flex items-center justify-center text-black dark:text-white"
+                        }
+                    >
+                        {t("pages.bookmarks.noContent")}
+                    </div>
+                )}
             </div>
         </>
     )

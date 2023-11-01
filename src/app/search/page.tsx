@@ -24,6 +24,7 @@ import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { useSearchInfoAtom } from "../_atoms/searchInfo"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import Link from "next/link"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 
 export default function Root() {
     const router = useRouter()
@@ -63,6 +64,7 @@ export default function Root() {
 
     const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
+    const [isEndOfContent, setIsEndOfContent] = useState(false)
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -225,6 +227,10 @@ export default function Root() {
 
             numOfResult.current += json.length
 
+            if (json.length === 0) {
+                setIsEndOfContent(true)
+            }
+
             const outputArray = json.map(
                 (item: any) =>
                     `at://${item.user.did as string}/${item.tid as string}`
@@ -291,6 +297,13 @@ export default function Root() {
                 term: searchText,
                 cursor: cursor.current,
             })
+
+            if (
+                data.actors.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfContent(true)
+            }
 
             setSearchUsersResult((currentSearchResults) => {
                 if (currentSearchResults !== null) {
@@ -558,7 +571,9 @@ export default function Root() {
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: ListFooterSpinner,
+                        Footer: !isEndOfContent
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
                     }}
                     endReached={loadPostsMore}
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
@@ -616,7 +631,9 @@ export default function Root() {
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: ListFooterSpinner,
+                        Footer: !isEndOfContent
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
                     }}
                     endReached={loadUsersMore}
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}

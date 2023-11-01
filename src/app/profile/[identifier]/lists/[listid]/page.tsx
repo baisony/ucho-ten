@@ -27,6 +27,7 @@ import {
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 
 export default function Root() {
     const pathname = usePathname()
@@ -41,6 +42,7 @@ export default function Root() {
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<ListItemView[] | null>(null)
+    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
     //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
@@ -112,6 +114,13 @@ export default function Root() {
             const { data } = await agent.app.bsky.graph.getList({ list: atUri })
             const { items } = data
             setTimeline(items)
+
+            if (
+                items.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfFeed(true)
+            }
 
             if (data.cursor) {
                 cursor.current = data.cursor
@@ -303,7 +312,7 @@ export default function Root() {
             itemContent={(_, item) => <CustomFeedCell {...item} />}
             components={{
                 // @ts-ignore
-                Footer: ListFooterSpinner,
+                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}

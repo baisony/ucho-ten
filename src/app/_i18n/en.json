@@ -72,6 +72,10 @@
       "title": "Mute",
       "muteWord": "Mute Word",
       "muteUser": "Mute User"
+    },
+    "bookmarks": {
+      "title": "Bookmarks",
+      "noContent": "There are not bookmarks"
     }
   },
   "components": {
@@ -168,5 +172,8 @@
     "show": "Show",
     "post": "Post",
     "newPosts": "New Posts"
+  },
+  "text": {
+    "noMoreContent": "No more content"
   }
 }
