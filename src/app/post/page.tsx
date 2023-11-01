@@ -451,7 +451,7 @@ export default function Root() {
                 throw new Error("HTTP status " + response.status)
             }
             const res = await response.json()
-            const thumb = res?.image
+            const thumb = res["image:secure_url"] || res?.image
             const uri = url
             const generatedURL = thumb?.startsWith("http")
                 ? thumb
