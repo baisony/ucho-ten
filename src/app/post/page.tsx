@@ -39,6 +39,12 @@ import {
     PopoverContent,
     PopoverTrigger,
     Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
     Textarea as NextUITextarea,
     useDisclosure,
 } from "@nextui-org/react"
@@ -167,10 +173,46 @@ export default function Root() {
         onOpen: onOpenALT,
         onOpenChange: onOpenChangeALT,
     } = useDisclosure()
+    const {
+        isOpen: isOpenLangs,
+        onOpen: onOpenLangs,
+        onOpenChange: onOpenChangeLangs,
+    } = useDisclosure()
     const [altOfImageList, setAltOfImageList] = useState(["", "", "", ""])
 
     const [editALTIndex, setEditALTIndex] = useState(0)
     const [altText, setAltText] = useState("")
+
+    const languages = [
+        {
+            name: "日本語",
+            code: "ja",
+        },
+        {
+            name: "English",
+            code: "en",
+        },
+        {
+            name: "한국어",
+            code: "ko",
+        },
+        {
+            name: "中文",
+            code: "zh",
+        },
+        {
+            name: "Español",
+            code: "es",
+        },
+        {
+            name: "Français",
+            code: "fr",
+        },
+        {
+            name: "Português",
+            code: "pt",
+        },
+    ]
 
     useEffect(() => {
         // 遷移元URLのパスが「/unchi/」の場合
@@ -558,6 +600,65 @@ export default function Root() {
 
     return (
         <>
+            <Modal
+                isOpen={isOpenLangs}
+                onOpenChange={onOpenChangeLangs}
+                placement={"bottom"}
+                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {(onCloseLangs) => (
+                        <>
+                            <ModalHeader>Select Languages</ModalHeader>
+                            <ModalBody>
+                                <div className="flex flex-col gap-3">
+                                    <Table
+                                        hideHeader
+                                        //color={selectedColor}
+                                        disallowEmptySelection
+                                        selectionMode="multiple"
+                                        selectedKeys={PostContentLanguage}
+                                        defaultSelectedKeys={
+                                            PostContentLanguage
+                                        }
+                                        onSelectionChange={(e) => {
+                                            if (Array.from(e).length < 4) {
+                                                setPostContentLanguage(
+                                                    e as Set<string>
+                                                )
+                                            }
+                                        }}
+                                        aria-label="Language table"
+                                    >
+                                        <TableHeader>
+                                            <TableColumn>Languages</TableColumn>
+                                            <TableColumn> </TableColumn>
+                                            <TableColumn> </TableColumn>
+                                            <TableColumn> </TableColumn>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {languages.map((item, index) => {
+                                                return (
+                                                    <TableRow key={item.code}>
+                                                        <TableCell>
+                                                            {item.name}
+                                                        </TableCell>
+                                                        <TableCell> </TableCell>
+                                                        <TableCell> </TableCell>
+                                                        <TableCell> </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter></ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
             <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
                 <ModalContent>
                     {(onCloseALT) => (
@@ -883,7 +984,16 @@ export default function Root() {
                                 />
                             </label>
                             <div
-                                className={footerTooltipStyle()}
+                                className={`${footerTooltipStyle()}  md:hidden`}
+                                style={{ bottom: "5%" }}
+                                onClick={() => {
+                                    onOpenLangs()
+                                }}
+                            >{`${t("modal.post.lang")}:${Array.from(
+                                PostContentLanguage
+                            ).join(",")}`}</div>
+                            <div
+                                className={`${footerTooltipStyle()} hidden md:flex`}
                                 style={{ bottom: "5%" }}
                             >
                                 <Dropdown
