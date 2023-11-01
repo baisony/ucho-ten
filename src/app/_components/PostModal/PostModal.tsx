@@ -19,7 +19,6 @@ import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
     faCirclePlus,
     faFaceLaughBeam,
-    faPen,
     faPlus,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
@@ -41,6 +40,7 @@ import {
     PopoverContent,
     PopoverTrigger,
     Spinner,
+    Textarea as NextUITextarea,
     useDisclosure,
 } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
@@ -60,7 +60,6 @@ import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import i18n from "@/app/_i18n/config"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
-import { Textarea as NextUITextarea } from "@nextui-org/react"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -92,8 +91,18 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
+    let defaultLanguage
+    if (window) {
+        defaultLanguage = [
+            (window.navigator.languages && window.navigator.languages[0]) ||
+                window.navigator.language,
+        ]
+    } else {
+        defaultLanguage = ["en"]
+    }
+
     const [PostContentLanguage, setPostContentLanguage] = useState(
-        new Set<string>([])
+        new Set<string>(defaultLanguage)
     )
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
@@ -160,7 +169,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const [editALTIndex, setEditALTIndex] = useState(0)
     const [altText, setAltText] = useState("")
-
     const trimedContentText = (): string => {
         return contentText.trim()
     }
@@ -944,13 +952,15 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
                                     selectedKeys={PostContentLanguage}
-                                    // onSelectionChange={(e) => {
-                                    //     if (Array.from(e).length < 4) {
-                                    //         setPostContentLanguage(
-                                    //             e as Set<string>
-                                    //         )
-                                    //     }
-                                    // }}
+                                    defaultSelectedKeys={PostContentLanguage}
+                                    onSelectionChange={(e) => {
+                                        console.log(PostContentLanguage)
+                                        if (Array.from(e).length < 4) {
+                                            setPostContentLanguage(
+                                                e as Set<string>
+                                            )
+                                        }
+                                    }}
                                 >
                                     <DropdownItem key="es">
                                         Espalier
