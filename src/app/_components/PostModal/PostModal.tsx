@@ -32,6 +32,11 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Image,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
     Popover,
     PopoverContent,
     PopoverTrigger,
@@ -55,6 +60,7 @@ import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import i18n from "@/app/_i18n/config"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { Textarea as NextUITextarea } from "@nextui-org/react"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -145,6 +151,15 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         ImageEditButton,
     } = postModal()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const {
+        isOpen: isOpenALT,
+        onOpen: onOpenALT,
+        onOpenChange: onOpenChangeALT,
+    } = useDisclosure()
+    const [altOfImageList, setAltOfImageList] = useState(["", "", "", ""])
+
+    const [editALTIndex, setEditALTIndex] = useState(0)
+    const [altText, setAltText] = useState("")
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -179,7 +194,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             contentImages.length === 0 &&
             !getOGPData
         )
-            setLoading(true)
+            return
+        setLoading(true)
         try {
             const blobRefs: BlobRef[] = []
             const images = contentImages.length > 0 ? contentImages : OGPImage
@@ -229,10 +245,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
 
-                for (const blobRef of blobRefs) {
+                for (const [index, blobRef] of blobRefs.entries()) {
                     const image: AppBskyEmbedImages.Image = {
                         image: blobRef,
-                        alt: "",
+                        alt: altOfImageList[index],
                     }
 
                     images.push(image)
@@ -562,9 +578,58 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }, [])
 
+    const handleALTClick = useCallback(() => {
+        const updatedAltOfImageList = [...altOfImageList]
+        updatedAltOfImageList[editALTIndex] = altText
+        setAltOfImageList(updatedAltOfImageList)
+    }, [altOfImageList, editALTIndex, altText])
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
+            <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
+                <ModalContent>
+                    {(onCloseALT) => (
+                        <>
+                            <ModalHeader>Edit ALT</ModalHeader>
+                            <ModalBody>
+                                <img
+                                    className={
+                                        "w-full h-full object-cover object-center"
+                                    }
+                                    src={URL.createObjectURL(
+                                        contentImages[editALTIndex].blob
+                                    )}
+                                />
+                                <div>
+                                    <NextUITextarea
+                                        placeholder={"ALTを入力"}
+                                        onValueChange={(e) => {
+                                            setAltText(e)
+                                        }}
+                                    ></NextUITextarea>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color={"danger"} onClick={onCloseALT}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color={"primary"}
+                                    onClick={() => {
+                                        onCloseALT()
+                                        handleALTClick()
+                                        console.log(altText)
+                                        console.log(altOfImageList)
+                                    }}
+                                >
+                                    Save
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
             <div className={PostModal()}>
                 <div className={header()}>
                     <Button
@@ -587,9 +652,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         radius={"full"}
                         size={"sm"}
                         color={"primary"}
-                        onPress={() => {
-                            handlePostClick()
-                        }}
+                        onPress={handlePostClick}
                         isDisabled={
                             loading ||
                             isOGPGetProcessing ||
@@ -746,36 +809,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             >
                                                 <button
                                                     className={`${ImageAddALTButton()} flex justify-center items-center`}
-                                                    onClick={() =>
-                                                        handleOnRemoveImage(
-                                                            index
-                                                        )
-                                                    }
+                                                    onClick={() => {
+                                                        setEditALTIndex(index)
+                                                        setAltText("")
+                                                        onOpenALT()
+                                                    }}
                                                 >
                                                     ALT
-                                                </button>
-                                            </div>
-                                            <div
-                                                style={{
-                                                    zIndex: "10",
-                                                    position: "absolute",
-                                                    bottom: 5,
-                                                    right: "20px",
-                                                }}
-                                            >
-                                                <button
-                                                    className={ImageEditButton()}
-                                                    onClick={() =>
-                                                        handleOnRemoveImage(
-                                                            index
-                                                        )
-                                                    }
-                                                >
-                                                    <FontAwesomeIcon
-                                                        icon={faPen}
-                                                        size="sm"
-                                                        className={" mb-[2px]"}
-                                                    />
                                                 </button>
                                             </div>
                                         </div>

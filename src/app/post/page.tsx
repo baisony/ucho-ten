@@ -31,10 +31,16 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Image,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
     Popover,
     PopoverContent,
     PopoverTrigger,
     Spinner,
+    Textarea as NextUITextarea,
     useDisclosure,
 } from "@nextui-org/react"
 
@@ -148,6 +154,15 @@ export default function Root() {
 
     const [darkMode, setDarkMode] = useState(false)
     const history = useContext(HistoryContext)
+    const {
+        isOpen: isOpenALT,
+        onOpen: onOpenALT,
+        onOpenChange: onOpenChangeALT,
+    } = useDisclosure()
+    const [altOfImageList, setAltOfImageList] = useState(["", "", "", ""])
+
+    const [editALTIndex, setEditALTIndex] = useState(0)
+    const [altText, setAltText] = useState("")
 
     useEffect(() => {
         // 遷移元URLのパスが「/unchi/」の場合
@@ -226,13 +241,17 @@ export default function Root() {
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
 
-                for (const blobRef of blobRefs) {
+                for (const [index, blobRef] of blobRefs.entries()) {
+                    console.log(index)
+                    console.log(altOfImageList)
                     const image: AppBskyEmbedImages.Image = {
                         image: blobRef,
-                        alt: "",
+                        alt: altOfImageList[index],
                     }
 
                     images.push(image)
+
+                    // indexを使用する
                 }
 
                 if (getOGPData) {
@@ -523,463 +542,508 @@ export default function Root() {
         }
     }
 
+    const handleALTClick = useCallback(() => {
+        const updatedAltOfImageList = [...altOfImageList]
+        updatedAltOfImageList[editALTIndex] = altText
+        setAltOfImageList(updatedAltOfImageList)
+    }, [altOfImageList, editALTIndex, altText])
+
     return (
-        <main
-            className={`${background()}
+        <>
+            <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
+                <ModalContent>
+                    {(onCloseALT) => (
+                        <>
+                            <ModalHeader>Edit ALT</ModalHeader>
+                            <ModalBody>
+                                <img
+                                    className={
+                                        "w-full h-full object-cover object-center"
+                                    }
+                                    src={URL.createObjectURL(
+                                        contentImages[editALTIndex].blob
+                                    )}
+                                />
+                                <div>
+                                    <NextUITextarea
+                                        placeholder={"ALTを入力"}
+                                        onValueChange={(e) => {
+                                            setAltText(e)
+                                        }}
+                                    ></NextUITextarea>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color={"danger"} onClick={onCloseALT}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color={"primary"}
+                                    onClick={() => {
+                                        onCloseALT()
+                                        handleALTClick()
+                                        console.log(altText)
+                                        console.log(altOfImageList)
+                                    }}
+                                >
+                                    Save
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <main
+                className={`${background()}
             md:relative md:flex md:justify-center md:items-center
         `}
-        >
-            <div className={backgroundColor()}></div>
-            {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            <div className={PostModal()}>
-                <div className={header()}>
-                    <Button
-                        variant="light"
-                        className={headerCancelButton()}
-                        isDisabled={loading}
-                        onClick={() => {
-                            // if (history[0] === "/post" || history[0] === "") {
-                            //     router.push(`/?${nextQueryParams.toString()}`)
-                            // } else {
-                            router.back()
-                            // }
-                        }}
-                    >
-                        {t("button.cancel")}
-                    </Button>
-                    <div className={headerTitle()}>{t("modal.post.title")}</div>
-                    <Button
-                        className={headerPostButton()}
-                        size={"sm"}
-                        radius={"full"}
-                        color={"primary"}
-                        onPress={handlePostClick}
-                        isDisabled={
-                            loading ||
-                            isOGPGetProcessing ||
-                            isCompressing ||
-                            ((trimedContentText().length === 0 ||
-                                trimedContentText().length > 300) &&
-                                contentImages.length === 0 &&
-                                !getOGPData)
-                        }
-                        isLoading={loading}
-                    >
-                        {loading ? "" : t("button.post")}
-                    </Button>
-                </div>
-                <div
-                    className={content({ isDragActive: isDragActive })}
-                    {...getRootProps({
-                        onDrop: handleDrop,
-                        onDragOver: handleDragOver,
-                        onClick: (e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                        },
-                    })}
-                >
-                    <div className={contentLeft()}>
-                        <div className={contentLeftAuthorIcon()}>
-                            <img
-                                className={contentLeftAuthorIconImage()}
-                                alt={"author icon"}
-                                onDragStart={handleDragStart}
-                                src={userProfileDetailed?.avatar || ""}
-                            />
-                        </div>
-                    </div>
-                    <div className={contentRight()}>
-                        <Textarea
-                            ref={textareaRef}
-                            className={contentRightTextArea({
-                                uploadImageAvailable:
-                                    contentImages.length !== 0 ||
-                                    isCompressing ||
-                                    detectedURLs.length !== 0 ||
-                                    getOGPData !== null,
-                            })}
-                            aria-label="post input area"
-                            placeholder={t("modal.post.placeholder")}
-                            value={contentText}
-                            maxLength={10000}
-                            autoFocus={true}
-                            onChange={(e) => {
-                                setContentText(e.target.value)
-                                detectURL(e.target.value)
-                                currentCursorPostion.current =
-                                    textareaRef.current?.selectionStart || 0
+            >
+                <div className={backgroundColor()}></div>
+                {isOpen && window.prompt("Please enter link", "Harry Potter")}
+                <div className={PostModal()}>
+                    <div className={header()}>
+                        <Button
+                            variant="light"
+                            className={headerCancelButton()}
+                            isDisabled={loading}
+                            onClick={() => {
+                                // if (history[0] === "/post" || history[0] === "") {
+                                //     router.push(`/?${nextQueryParams.toString()}`)
+                                // } else {
+                                router.back()
+                                // }
                             }}
-                            onKeyDown={handleKeyDown}
-                            disabled={loading}
-                            // onFocus={(e) =>
-                            //     e.currentTarget.setSelectionRange(
-                            //         e.currentTarget.value.length,
-                            //         e.currentTarget.value.length
-                            //     )
-                            // }
-                            onPaste={handlePaste}
-                        />
-                        {(contentImages.length > 0 || isCompressing) && (
-                            <div className={contentRightImagesContainer()}>
-                                {isCompressing && (
-                                    <div
-                                        className={
-                                            "relative w-full h-full z-10 flex justify-center items-center"
-                                        }
-                                    >
-                                        {t("modal.post.compressing")}...
-                                        <Spinner />
-                                    </div>
-                                )}
-                                {contentImages.map((image, index) => (
-                                    <div
-                                        key={index}
-                                        className={"relative w-1/4 h-full flex"}
-                                    >
-                                        <Image
-                                            src={URL.createObjectURL(
-                                                image.blob
-                                            )}
-                                            alt="image"
-                                            style={{
-                                                borderRadius: "10px",
-                                                objectFit: "cover",
-                                            }}
-                                            className={
-                                                "h-[105px] w-[95px] object-cover object-center"
-                                            }
-                                        />
-                                        <div
-                                            style={{
-                                                zIndex: "10",
-                                                position: "absolute",
-                                                top: 5,
-                                                left: 5,
-                                            }}
-                                        >
-                                            <button
-                                                className={ImageDeleteButton()}
-                                                onClick={() =>
-                                                    handleOnRemoveImage(index)
-                                                }
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faXmark}
-                                                    size="sm"
-                                                    className={" mb-[2px]"}
-                                                />
-                                            </button>
-                                        </div>
-                                        <div
-                                            style={{
-                                                zIndex: "10",
-                                                position: "absolute",
-                                                bottom: 5,
-                                                left: 5,
-                                            }}
-                                        >
-                                            <button
-                                                className={`${ImageAddALTButton()} flex justify-center items-center`}
-                                                onClick={() =>
-                                                    handleOnRemoveImage(index)
-                                                }
-                                            >
-                                                ALT
-                                            </button>
-                                        </div>
-                                        <div
-                                            style={{
-                                                zIndex: "10",
-                                                position: "absolute",
-                                                bottom: 5,
-                                                right: "20px",
-                                            }}
-                                        >
-                                            <button
-                                                className={ImageEditButton()}
-                                                onClick={() =>
-                                                    handleOnRemoveImage(index)
-                                                }
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faPen}
-                                                    size="sm"
-                                                    className={" mb-[2px]"}
-                                                />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                        >
+                            {t("button.cancel")}
+                        </Button>
+                        <div className={headerTitle()}>
+                            {t("modal.post.title")}
+                        </div>
+                        <Button
+                            className={headerPostButton()}
+                            size={"sm"}
+                            radius={"full"}
+                            color={"primary"}
+                            onPress={handlePostClick}
+                            isDisabled={
+                                loading ||
+                                isOGPGetProcessing ||
+                                isCompressing ||
+                                ((trimedContentText().length === 0 ||
+                                    trimedContentText().length > 300) &&
+                                    contentImages.length === 0 &&
+                                    !getOGPData)
+                            }
+                            isLoading={loading}
+                        >
+                            {loading ? "" : t("button.post")}
+                        </Button>
+                    </div>
+                    <div
+                        className={content({ isDragActive: isDragActive })}
+                        {...getRootProps({
+                            onDrop: handleDrop,
+                            onDragOver: handleDragOver,
+                            onClick: (e) => {
+                                e.stopPropagation()
+                                e.preventDefault()
+                            },
+                        })}
+                    >
+                        <div className={contentLeft()}>
+                            <div className={contentLeftAuthorIcon()}>
+                                <img
+                                    className={contentLeftAuthorIconImage()}
+                                    alt={"author icon"}
+                                    onDragStart={handleDragStart}
+                                    src={userProfileDetailed?.avatar || ""}
+                                />
                             </div>
-                        )}
-                        {isDetectedURL &&
-                            !getOGPData &&
-                            !isOGPGetProcessing && (
-                                <div className={"w-full"}>
-                                    {detectedURLs.map((url, index) => (
-                                        <div className={"mb-[5px]"}>
-                                            <Chip
-                                                key={index}
-                                                className={`w-full `}
+                        </div>
+                        <div className={contentRight()}>
+                            <Textarea
+                                ref={textareaRef}
+                                className={contentRightTextArea({
+                                    uploadImageAvailable:
+                                        contentImages.length !== 0 ||
+                                        isCompressing ||
+                                        detectedURLs.length !== 0 ||
+                                        getOGPData !== null,
+                                })}
+                                aria-label="post input area"
+                                placeholder={t("modal.post.placeholder")}
+                                value={contentText}
+                                maxLength={10000}
+                                autoFocus={true}
+                                onChange={(e) => {
+                                    setContentText(e.target.value)
+                                    detectURL(e.target.value)
+                                    currentCursorPostion.current =
+                                        textareaRef.current?.selectionStart || 0
+                                }}
+                                onKeyDown={handleKeyDown}
+                                disabled={loading}
+                                // onFocus={(e) =>
+                                //     e.currentTarget.setSelectionRange(
+                                //         e.currentTarget.value.length,
+                                //         e.currentTarget.value.length
+                                //     )
+                                // }
+                                onPaste={handlePaste}
+                            />
+                            {(contentImages.length > 0 || isCompressing) && (
+                                <div className={contentRightImagesContainer()}>
+                                    {isCompressing && (
+                                        <div
+                                            className={
+                                                "relative w-full h-full z-10 flex justify-center items-center"
+                                            }
+                                        >
+                                            {t("modal.post.compressing")}...
+                                            <Spinner />
+                                        </div>
+                                    )}
+                                    {contentImages.map((image, index) => (
+                                        <div
+                                            key={index}
+                                            className={
+                                                "relative w-1/4 h-full flex"
+                                            }
+                                        >
+                                            <Image
+                                                src={URL.createObjectURL(
+                                                    image.blob
+                                                )}
+                                                alt="image"
                                                 style={{
-                                                    textAlign: "left",
-                                                    cursor: "pointer",
+                                                    borderRadius: "10px",
+                                                    objectFit: "cover",
                                                 }}
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faPlus}
-                                                    />
+                                                className={
+                                                    "h-[105px] w-[95px] object-cover object-center"
                                                 }
-                                                onClick={() => {
-                                                    setSelectedURL(url)
-                                                    setIsSetURLCard(true)
-                                                    getOGP(url)
+                                            />
+                                            <div
+                                                style={{
+                                                    zIndex: "10",
+                                                    position: "absolute",
+                                                    top: 5,
+                                                    left: 5,
                                                 }}
                                             >
-                                                {url}
-                                            </Chip>
+                                                <button
+                                                    className={ImageDeleteButton()}
+                                                    onClick={() =>
+                                                        handleOnRemoveImage(
+                                                            index
+                                                        )
+                                                    }
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faXmark}
+                                                        size="sm"
+                                                        className={" mb-[2px]"}
+                                                    />
+                                                </button>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    zIndex: "10",
+                                                    position: "absolute",
+                                                    bottom: 5,
+                                                    left: 5,
+                                                }}
+                                            >
+                                                <button
+                                                    className={`${ImageAddALTButton()} flex justify-center items-center`}
+                                                    onClick={() => {
+                                                        setEditALTIndex(index)
+                                                        setAltText("")
+                                                        onOpenALT()
+                                                    }}
+                                                >
+                                                    ALT
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
-                        {isOGPGetProcessing && (
-                            <div className={contentRightUrlCard()}>
-                                <Linkcard skeleton={true} />
-                            </div>
-                        )}
-                        {getOGPData && !isOGPGetProcessing && (
-                            <div
-                                className={`${contentRightUrlCard()} flex relative`}
-                            >
-                                <div
-                                    className={`${contentRightUrlCardDeleteButton()} absolute z-10 right-[10px] top-[10px]`}
-                                    onClick={() => {
-                                        setIsSetURLCard(false)
-                                        setGetOGPData(undefined)
-                                    }}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faXmark}
-                                        size={"lg"}
-                                    />
+                            {isDetectedURL &&
+                                !getOGPData &&
+                                !isOGPGetProcessing && (
+                                    <div className={"w-full"}>
+                                        {detectedURLs.map((url, index) => (
+                                            <div className={"mb-[5px]"}>
+                                                <Chip
+                                                    key={index}
+                                                    className={`w-full `}
+                                                    style={{
+                                                        textAlign: "left",
+                                                        cursor: "pointer",
+                                                    }}
+                                                    startContent={
+                                                        <FontAwesomeIcon
+                                                            icon={faPlus}
+                                                        />
+                                                    }
+                                                    onClick={() => {
+                                                        setSelectedURL(url)
+                                                        setIsSetURLCard(true)
+                                                        getOGP(url)
+                                                    }}
+                                                >
+                                                    {url}
+                                                </Chip>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            {isOGPGetProcessing && (
+                                <div className={contentRightUrlCard()}>
+                                    <Linkcard skeleton={true} />
                                 </div>
-                                <Linkcard ogpData={getOGPData} />
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className={footer()}>
-                    <div className={footerTooltip()}>
-                        <label
-                            htmlFor={inputId}
-                            className={footerTooltipStyle()}
-                        >
-                            <Button
-                                isDisabled={
-                                    loading ||
-                                    isCompressing ||
-                                    contentImages.length >= 4 ||
-                                    // isImageMaxLimited ||
-                                    getOGPData ||
-                                    isOGPGetProcessing
-                                }
-                                as={"span"}
-                                isIconOnly
-                                variant="light"
-                                className={"h-[24px] text-white"}
-                                disableAnimation
-                                disableRipple
-                            >
-                                <FontAwesomeIcon
-                                    icon={faImage}
-                                    className={"h-[20px] mb-[5px]"}
-                                />
-                            </Button>
-
-                            <input
-                                hidden
-                                id={inputId}
-                                multiple
-                                type="file"
-                                accept="image/*,.png,.jpg,.jpeg"
-                                onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
-                                ) => {
-                                    handleOnAddImage(e)
-                                }}
-                                disabled={
-                                    loading ||
-                                    isCompressing ||
-                                    contentImages.length >= 4 ||
-                                    // isImageMaxLimited ||
-                                    getOGPData ||
-                                    isOGPGetProcessing
-                                }
-                            />
-                        </label>
-                        <div
-                            className={footerTooltipStyle()}
-                            style={{ bottom: "5%" }}
-                        >
-                            <Dropdown
-                                backdrop="blur"
-                                className={appearanceTextColor()}
-                            >
-                                <DropdownTrigger>
-                                    {`${t("modal.post.lang")}:${Array.from(
-                                        PostContentLanguage
-                                    ).join(",")}`}
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                    disallowEmptySelection
-                                    aria-label="Multiple selection actions"
-                                    selectionMode="multiple"
-                                    selectedKeys={PostContentLanguage}
-                                    onSelectionChange={(e) => {
-                                        if (Array.from(e).length < 4) {
-                                            setPostContentLanguage(
-                                                e as Set<string>
-                                            )
-                                        }
-                                    }}
+                            )}
+                            {getOGPData && !isOGPGetProcessing && (
+                                <div
+                                    className={`${contentRightUrlCard()} flex relative`}
                                 >
-                                    <DropdownItem key="es">
-                                        Espalier
-                                    </DropdownItem>
-                                    <DropdownItem key="fr">
-                                        Francais
-                                    </DropdownItem>
-                                    <DropdownItem key="de">
-                                        Deutsch
-                                    </DropdownItem>
-                                    <DropdownItem key="it">
-                                        Italiano
-                                    </DropdownItem>
-                                    <DropdownItem key="pt">
-                                        Portuguese
-                                    </DropdownItem>
-                                    <DropdownItem key="ru">
-                                        Русский
-                                    </DropdownItem>
-                                    <DropdownItem key="zh">中文</DropdownItem>
-                                    <DropdownItem key="ko">한국어</DropdownItem>
-                                    <DropdownItem key="en">
-                                        English
-                                    </DropdownItem>
-                                    <DropdownItem key="ja">日本語</DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </div>
-                        <div className={footerTooltipStyle()}>
-                            <Dropdown backdrop="blur">
-                                <DropdownTrigger>
-                                    <FontAwesomeIcon
-                                        icon={faCirclePlus}
-                                        className={
-                                            "md:h-[20px] h-[10px] mb-[4px] text-white"
-                                        }
-                                        size={"xs"}
-                                    />
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                    disallowEmptySelection
-                                    aria-label="Multiple selection actions"
-                                    selectionMode="multiple"
-                                    selectedKeys={PostContentLanguage}
-                                    onSelectionChange={(e) => {
-                                        if (Array.from(e).length < 4) {
-                                            //setPostContentLanguage(e as Set<string>);
-                                        }
-                                    }}
-                                >
-                                    <DropdownItem key="split">
-                                        {t("modal.post.splitSentence")}
-                                    </DropdownItem>
-                                    <DropdownItem
-                                        key="linkcard"
-                                        onPress={() => {
-                                            window.prompt(
-                                                "Please enter link",
-                                                ""
-                                            )
+                                    <div
+                                        className={`${contentRightUrlCardDeleteButton()} absolute z-10 right-[10px] top-[10px]`}
+                                        onClick={() => {
+                                            setIsSetURLCard(false)
+                                            setGetOGPData(undefined)
                                         }}
                                     >
-                                        {t("modal.post.addLinkcard")}
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </div>
-                        <div
-                            className={`${footerTooltipStyle()} invisible md:visible`}
-                        >
-                            <Popover
-                                placement="right-end"
-                                onOpenChange={handleOnEmojiOpenChange}
-                            >
-                                <PopoverTrigger>
-                                    <Button
-                                        isIconOnly
-                                        variant="light"
-                                        className={"h-[24px] text-white"}
-                                    >
                                         <FontAwesomeIcon
-                                            icon={faFaceLaughBeam}
-                                            className={"h-[20px] mb-[4px]"}
+                                            icon={faXmark}
+                                            size={"lg"}
                                         />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent>
-                                    <Picker
-                                        data={data}
-                                        locale={i18n.language}
-                                        onEmojiSelect={onEmojiClick}
-                                        previewPosition="none"
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                                    </div>
+                                    <Linkcard ogpData={getOGPData} />
+                                </div>
+                            )}
                         </div>
-                        {/*<div
+                    </div>
+                    <div className={footer()}>
+                        <div className={footerTooltip()}>
+                            <label
+                                htmlFor={inputId}
+                                className={footerTooltipStyle()}
+                            >
+                                <Button
+                                    isDisabled={
+                                        loading ||
+                                        isCompressing ||
+                                        contentImages.length >= 4 ||
+                                        // isImageMaxLimited ||
+                                        getOGPData ||
+                                        isOGPGetProcessing
+                                    }
+                                    as={"span"}
+                                    isIconOnly
+                                    variant="light"
+                                    className={"h-[24px] text-white"}
+                                    disableAnimation
+                                    disableRipple
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faImage}
+                                        className={"h-[20px] mb-[5px]"}
+                                    />
+                                </Button>
+
+                                <input
+                                    hidden
+                                    id={inputId}
+                                    multiple
+                                    type="file"
+                                    accept="image/*,.png,.jpg,.jpeg"
+                                    onChange={(
+                                        e: React.ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                        handleOnAddImage(e)
+                                    }}
+                                    disabled={
+                                        loading ||
+                                        isCompressing ||
+                                        contentImages.length >= 4 ||
+                                        // isImageMaxLimited ||
+                                        getOGPData ||
+                                        isOGPGetProcessing
+                                    }
+                                />
+                            </label>
+                            <div
+                                className={footerTooltipStyle()}
+                                style={{ bottom: "5%" }}
+                            >
+                                <Dropdown
+                                    backdrop="blur"
+                                    className={appearanceTextColor()}
+                                >
+                                    <DropdownTrigger>
+                                        {`${t("modal.post.lang")}:${Array.from(
+                                            PostContentLanguage
+                                        ).join(",")}`}
+                                    </DropdownTrigger>
+                                    <DropdownMenu
+                                        disallowEmptySelection
+                                        aria-label="Multiple selection actions"
+                                        selectionMode="multiple"
+                                        selectedKeys={PostContentLanguage}
+                                        onSelectionChange={(e) => {
+                                            if (Array.from(e).length < 4) {
+                                                setPostContentLanguage(
+                                                    e as Set<string>
+                                                )
+                                            }
+                                        }}
+                                    >
+                                        <DropdownItem key="es">
+                                            Espalier
+                                        </DropdownItem>
+                                        <DropdownItem key="fr">
+                                            Francais
+                                        </DropdownItem>
+                                        <DropdownItem key="de">
+                                            Deutsch
+                                        </DropdownItem>
+                                        <DropdownItem key="it">
+                                            Italiano
+                                        </DropdownItem>
+                                        <DropdownItem key="pt">
+                                            Portuguese
+                                        </DropdownItem>
+                                        <DropdownItem key="ru">
+                                            Русский
+                                        </DropdownItem>
+                                        <DropdownItem key="zh">
+                                            中文
+                                        </DropdownItem>
+                                        <DropdownItem key="ko">
+                                            한국어
+                                        </DropdownItem>
+                                        <DropdownItem key="en">
+                                            English
+                                        </DropdownItem>
+                                        <DropdownItem key="ja">
+                                            日本語
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </div>
+                            <div className={footerTooltipStyle()}>
+                                <Dropdown backdrop="blur">
+                                    <DropdownTrigger>
+                                        <FontAwesomeIcon
+                                            icon={faCirclePlus}
+                                            className={
+                                                "md:h-[20px] h-[10px] mb-[4px] text-white"
+                                            }
+                                            size={"xs"}
+                                        />
+                                    </DropdownTrigger>
+                                    <DropdownMenu
+                                        disallowEmptySelection
+                                        aria-label="Multiple selection actions"
+                                        selectionMode="multiple"
+                                        selectedKeys={PostContentLanguage}
+                                        onSelectionChange={(e) => {
+                                            if (Array.from(e).length < 4) {
+                                                //setPostContentLanguage(e as Set<string>);
+                                            }
+                                        }}
+                                    >
+                                        <DropdownItem key="split">
+                                            {t("modal.post.splitSentence")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="linkcard"
+                                            onPress={() => {
+                                                window.prompt(
+                                                    "Please enter link",
+                                                    ""
+                                                )
+                                            }}
+                                        >
+                                            {t("modal.post.addLinkcard")}
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </div>
+                            <div
+                                className={`${footerTooltipStyle()} invisible md:visible`}
+                            >
+                                <Popover
+                                    placement="right-end"
+                                    onOpenChange={handleOnEmojiOpenChange}
+                                >
+                                    <PopoverTrigger>
+                                        <Button
+                                            isIconOnly
+                                            variant="light"
+                                            className={"h-[24px] text-white"}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faFaceLaughBeam}
+                                                className={"h-[20px] mb-[4px]"}
+                                            />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <Picker
+                                            data={data}
+                                            locale={i18n.language}
+                                            onEmojiSelect={onEmojiClick}
+                                            previewPosition="none"
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                            {/*<div
                                 className={`${footerTooltipStyle()} top-[-3px] h-full ${
                                     contentImages.length > 4 && "text-red"
                                 }`}
                             >
                                 {contentImages.length}/4
                             </div>*/}
-                        <div className={footerCharacterCount()}>
-                            <div
-                                className={footerCharacterCountText()}
-                                style={{
-                                    color:
-                                        trimedContentText().length >= 300
-                                            ? "red"
-                                            : "white",
-                                }}
-                            >
-                                {300 - trimedContentText().length}
-                            </div>
-                            <div
-                                style={{
-                                    width: "20px",
-                                    height: "20px",
-                                    marginLeft: "5px",
-                                }}
-                            >
-                                <CircularProgressbar
-                                    value={trimedContentText().length}
-                                    maxValue={300}
-                                    styles={buildStyles({
-                                        pathColor:
+                            <div className={footerCharacterCount()}>
+                                <div
+                                    className={footerCharacterCountText()}
+                                    style={{
+                                        color:
                                             trimedContentText().length >= 300
                                                 ? "red"
-                                                : "deepskyblue",
-                                    })}
-                                />
+                                                : "white",
+                                    }}
+                                >
+                                    {300 - trimedContentText().length}
+                                </div>
+                                <div
+                                    style={{
+                                        width: "20px",
+                                        height: "20px",
+                                        marginLeft: "5px",
+                                    }}
+                                >
+                                    <CircularProgressbar
+                                        value={trimedContentText().length}
+                                        maxValue={300}
+                                        styles={buildStyles({
+                                            pathColor:
+                                                trimedContentText().length >=
+                                                300
+                                                    ? "red"
+                                                    : "deepskyblue",
+                                        })}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </>
     )
 }
