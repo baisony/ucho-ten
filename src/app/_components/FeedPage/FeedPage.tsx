@@ -1,19 +1,27 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useEffect, useMemo, useRef, useState } from "react"
+import {
+    MutableRefObject,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate, faL } from "@fortawesome/free-solid-svg-icons"
-import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
-//import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
+// import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
+// import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 // import { usePathname } from "next/navigation"
 // import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
@@ -22,15 +30,22 @@ const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
 export interface FeedPageProps {
     isActive: boolean
+    isNextActive: boolean
     feedKey: string
     disableSlideVerticalScroll: boolean
     now?: Date
+}
+
+interface FeedResponseObject {
+    posts: FeedViewPost[]
+    cursor: string // TODO: should consider adding ? to handle undefined.
 }
 
 const FeedPage = ({
     feedKey,
     now,
     isActive, // disableSlideVerticalScroll,
+    isNextActive,
 }: FeedPageProps) => {
     // const pathname = usePathname()
     const { t } = useTranslation()
@@ -44,27 +59,32 @@ const FeedPage = ({
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
-    const [shouldCheckUpdate, setShouldCheckUpdate] = useState<boolean>(false)
+    const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false)
+
     const cursor = useRef<string>("")
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
+    const shouldCheckUpdate = useRef<boolean>(false)
+
+    // const queryClient = useQueryClient()
+
+    // const shouldLoad = (isActive === true || isNextActive === true)
+
+    const getFeedKeys = {
+        all: ["getFeed"] as const,
+        feedkey: (feedKey: string) => [...getFeedKeys.all, feedKey] as const,
+        feedkeyWithCursor: (feedKey: string, cursor: string) =>
+            [...getFeedKeys.feedkey(feedKey), cursor] as const,
+    }
 
     // const currentScrollPosition = useRef<number>(0)
-
-    // useEffect(() => {
-    //     if (
-    //         feedKey !== "" &&
-    //         infoByFeed[feedKey] &&
-    //         infoByFeed[feedKey].posts
-    //     ) {
-    //         setTimeline(infoByFeed[feedKey].posts)
-    //     }
-    // }, [])
+    console.log(` cursor 1:${cursorState || ""}`)
 
     useEffect(() => {
-        console.log(`timeline ${feedKey}`, timeline)
+        console.log(`timeline ${feedKey} cursor: ${cursorState} `, timeline)
         console.log(shouldScrollToTop.current, scrollRef.current)
 
         if (shouldScrollToTop.current && scrollRef.current) {
@@ -72,9 +92,11 @@ const FeedPage = ({
 
             shouldScrollToTop.current = false
         }
+        console.log(`timeline ${feedKey} cursor: ${cursorState} `)
     }, [timeline])
+    console.log(` cursor 2:${cursorState || ""}`)
 
-    const fetchTimeline = async (loadingFlag: boolean = true) => {
+    const fetchTimeline = async () => {
         if (!agent) {
             return
         }
@@ -86,10 +108,7 @@ const FeedPage = ({
         console.log("fetchtimeline", feedKey)
 
         try {
-            // setLoading(loadingFlag)
-
             let response: AppBskyFeedGetTimeline.Response
-            // let timelineLength = 0
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
@@ -107,14 +126,13 @@ const FeedPage = ({
             if (
                 response.data.feed.length === 0 &&
                 (cursor.current === response.data.cursor ||
-                    !response.data.cursor)
+                    response.data.cursor == undefined)
             ) {
                 setIsEndOfFeed(true)
             }
 
             if (response.data) {
                 const { feed } = response.data
-
                 console.log("feed", feed)
 
                 const filteredData =
@@ -160,16 +178,19 @@ const FeedPage = ({
         }
     }
 
-    const loadMore = async (index: number) => {
+    const loadMore = useCallback(() => {
         if (hasMore) {
-            await fetchTimeline(false)
+            console.log(`loadMore: >> cursor:${cursorState}`)
+            setLoadMoreFeed(true)
         }
-    }
+    }, [hasMore])
+
+    console.log(` cursor 3:${cursorState || ""}`)
 
     const checkNewTimeline = async () => {
         if (!agent) return
 
-        setShouldCheckUpdate(false)
+        shouldCheckUpdate.current = false
 
         try {
             let response: AppBskyFeedGetTimeline.Response
@@ -218,141 +239,62 @@ const FeedPage = ({
                         setHasUpdate(false)
                     }
                 }
+            }
 
-                if (isActive) {
-                    setShouldCheckUpdate(true)
-                }
+            if (isActive) {
+                shouldCheckUpdate.current = true
+
+                console.log("set setTimeout", feedKey)
+                const timeoutId = setTimeout(() => {
+                    console.log("setTimeout", feedKey)
+                    checkNewTimeline()
+                }, CHECK_FEED_UPDATE_INTERVAL)
             }
         } catch (e) {
             console.error(e)
         }
     }
 
+    // useEffect(() => {
+    //     if (isActive === false) {
+    //         return
+    //     }
+
+    //     console.log("shouldCheckUpdate", shouldCheckUpdate)
+
+    //     if (shouldCheckUpdate.current == false) {
+    //         return
+    //     }
+
+    //     shouldCheckUpdate.current = true
+
+    //     const timeoutId = setTimeout(async () => {
+    //         console.log("setTimeout", feedKey)
+    //         checkNewTimeline()
+    //     }, CHECK_FEED_UPDATE_INTERVAL)
+
+    //     return () => {
+    //         clearTimeout(timeoutId)
+    //     }
+    // }, [shouldCheckUpdate])
+
     useEffect(() => {
-        if (agent === null) {
+        if (isActive !== true) {
             return
         }
 
-        if (feedKey === "") {
-            return
+        if (shouldCheckUpdate.current === false) {
+            shouldCheckUpdate.current = true
+
+            console.log("set setTimeout", feedKey)
+
+            const timeoutId = setTimeout(() => {
+                console.log("setTimeout", feedKey)
+
+                checkNewTimeline()
+            }, CHECK_FEED_UPDATE_INTERVAL)
         }
-
-        if (isActive === false) {
-            return
-        }
-
-        setNewTimeline([])
-        setHasMore(false)
-        cursor.current = ""
-
-        fetchTimeline()
-    }, [agent, feedKey, isActive])
-
-    // useEffect(() => {
-    //     if (!agent) {
-    //         return
-    //     }
-
-    //     console.log("here")
-
-    //     if (!isActive) {
-    //         return
-    //     }
-
-    //     const initialAction = async () => {
-    //         if (!infoByFeed[feedKey] || infoByFeed[feedKey].posts == null) {
-    //             setNewTimeline([])
-    //             await fetchTimeline()
-    //         } else {
-    //             setTimeline(infoByFeed[feedKey].posts)
-    //             //setNewTimeline(infoByFeed[feedKey].newPosts)
-    //             cursor.current = infoByFeed[feedKey].cursor
-
-    //             console.log(
-    //                 "infoByFeed[feedKey].latestCID",
-    //                 infoByFeed[feedKey].latestCID
-    //             )
-
-    //             latestCID.current = infoByFeed[feedKey].latestCID
-
-    //             if (cursor.current !== "") {
-    //                 setHasMore(true)
-    //             }
-    //         }
-
-    //         setShouldCheckUpdate(true)
-    //     }
-
-    //     initialAction()
-    // }, [agent, feedKey, isActive, pathname])
-
-    // useEffect(() => {
-    //     if (feedKey === "") {
-    //         return
-    //     }
-
-    //     setInfoByFeed((prevInfoByFeed) => {
-    //         const newPostsByFeed = prevInfoByFeed
-
-    //         if (prevInfoByFeed[feedKey]) {
-    //             newPostsByFeed[feedKey] = {
-    //                 posts: timeline,
-    //                 newPosts: [],
-    //                 cursor: cursor.current,
-    //                 latestCID:
-    //                     timeline !== null && timeline.length > 0
-    //                         ? timeline[0].post.cid
-    //                         : "",
-    //             }
-
-    //             return newPostsByFeed
-    //         } else {
-    //             const newData = {
-    //                 posts: timeline,
-    //                 newPosts: [],
-    //                 cursor: cursor.current,
-    //                 latestCID:
-    //                     timeline !== null && timeline.length > 0
-    //                         ? timeline[0].post.cid
-    //                         : "",
-    //             }
-
-    //             return { ...prevInfoByFeed, newData }
-    //         }
-    //     })
-    // }, [timeline, feedKey, cursor.current])
-
-    // useEffect(() => {
-    //     console.log("isActive")
-    //     if (shouldCheckUpdate === false) {
-    //         if (timeline !== null) {
-    //             cursor.current = timeline[0].post.cid
-    //         }
-    //         setShouldCheckUpdate(true)
-    //     }
-    // }, [isActive])
-
-    // useEffect(() => {
-    //     if (feedKey === "") {
-    //         return
-    //     }
-
-    //     setInfoByFeed((prevInfoByFeed) => {
-    //         const newPostsByFeed = prevInfoByFeed
-
-    //         if (prevInfoByFeed[feedKey]) {
-    //             prevInfoByFeed[feedKey].newPosts = newTimeline
-    //         } else {
-    //             prevInfoByFeed[feedKey] = {
-    //                 posts: [],
-    //                 newPosts: newTimeline,
-    //                 cursor: cursor.current,
-    //             }
-    //         }
-
-    //         return newPostsByFeed
-    //     })
-    // }, [newTimeline, feedKey])
+    }, [isActive])
 
     const handleRefresh = () => {
         shouldScrollToTop.current = true
@@ -367,8 +309,56 @@ const FeedPage = ({
             latestCID.current = mergedTimeline[0].post.cid
         }
 
-        // setShouldCheckUpdate(true)
+        shouldCheckUpdate.current = true
     }
+
+    console.log(` cursor 4:${cursorState || ""}`)
+
+    const handleFetchResponse = (response: FeedResponseObject) => {
+        if (response) {
+            const { posts } = response
+            setCursorState(response.cursor)
+
+            console.log("posts", posts)
+
+            const filteredData =
+                feedKey === "following"
+                    ? filterDisplayPosts(posts, agent?.session?.did)
+                    : posts
+
+            console.log("filteredData", filteredData)
+
+            setTimeline((currentTimeline) => {
+                if (currentTimeline !== null) {
+                    const newTimeline = [...currentTimeline, ...filteredData]
+
+                    return newTimeline
+                } else {
+                    return [...filteredData]
+                }
+            })
+
+            if (filteredData.length > 0) {
+                latestCID.current = filteredData[0].post.cid
+            } else {
+                latestCID.current = ""
+            }
+        } else {
+            setTimeline([])
+            setHasMore(false)
+            return
+        }
+
+        setCursorState(response.cursor)
+
+        if (cursorState !== "") {
+            setHasMore(true)
+        } else {
+            setHasMore(false)
+        }
+    }
+
+    console.log(` cursor 5:${cursorState || ""}`)
 
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
         // Need to add data for top padding
@@ -381,26 +371,87 @@ const FeedPage = ({
         }
     }, [timeline])
 
-    useEffect(() => {
-        if (isActive === false) {
-            return
+    console.log(` cursor 6:${cursorState || ""}`)
+
+    // useEffect(() => {
+    //     if (isActive === false) {
+    //         return
+    //     }
+
+    //     console.log("shouldCheckUpdate", shouldCheckUpdate)
+
+    //     if (shouldCheckUpdate == false) {
+    //         return
+    //     }
+
+    //     const timeoutId = setTimeout(async () => {
+    //         console.log("setTimeout", feedKey)
+    //         checkNewTimeline()
+    //     }, CHECK_FEED_UPDATE_INTERVAL)
+
+    //     return () => {
+    //         clearTimeout(timeoutId)
+    //     }
+    // }, [shouldCheckUpdate, isActive])
+
+    const getTimelineFetcher = async ({
+        queryKey,
+    }: QueryFunctionContext<
+        ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
+    >): Promise<FeedResponseObject> => {
+        console.log("getTimelineFetcher: >>")
+        console.log(`getTimelineFetcher: ${cursorState || ""}`)
+
+        if (agent === null) {
+            console.log("error")
+            throw new Error("Agent does not exist")
         }
 
-        console.log("shouldCheckUpdate", shouldCheckUpdate)
+        const [_key, feedKey, cursorData] = queryKey
 
-        if (shouldCheckUpdate == false) {
-            return
+        if (feedKey === "following") {
+            const response = await agent.getTimeline({
+                cursor: cursorState || "",
+                limit: FEED_FETCH_LIMIT,
+            })
+
+            return {
+                posts: response.data.feed,
+                cursor: response.data.cursor || "",
+            }
+        } else {
+            const response = await agent.app.bsky.feed.getFeed({
+                feed: feedKey,
+                cursor: cursorState || "",
+                limit: FEED_FETCH_LIMIT,
+            })
+
+            return {
+                posts: response.data.feed,
+                cursor: response.data.cursor || "",
+            }
         }
+    }
 
-        const timeoutId = setTimeout(async () => {
-            console.log("setTimeout", feedKey)
-            checkNewTimeline()
-        }, CHECK_FEED_UPDATE_INTERVAL)
+    console.log(`loadMoreFeed: ${loadMoreFeed} cursor:${cursorState || ""}`)
 
-        return () => {
-            clearTimeout(timeoutId)
-        }
-    }, [shouldCheckUpdate, isActive])
+    const { data, isLoading, isError } = useQuery({
+        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
+        queryFn: getTimelineFetcher,
+        enabled:
+            agent !== null &&
+            feedKey !== "" &&
+            isActive /*shouldLoad */ &&
+            loadMoreFeed,
+    })
+
+    console.log(`after useQuery  cursor:${cursorState || ""}`)
+
+    if (data !== undefined) {
+        console.log(`useQuery: data.cursor: ${data.cursor}`)
+        handleFetchResponse(data)
+        setLoadMoreFeed(false)
+    }
 
     // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
     //     const newScrollPosition = e.currentTarget.scrollTop
@@ -436,7 +487,7 @@ const FeedPage = ({
             )}
             {timeline === null && (
                 <Virtuoso
-                    overscan={100}
+                    overscan={200}
                     increaseViewportBy={200}
                     totalCount={20}
                     initialItemCount={20}
@@ -465,11 +516,9 @@ const FeedPage = ({
                         }
                     }}
                     context={{ hasMore }}
-                    overscan={200}
                     increaseViewportBy={200}
-                    // overscan={50}
+                    overscan={200}
                     data={timelineWithDummy}
-                    // initialItemCount={Math.min(18, timeline?.length || 0)}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (

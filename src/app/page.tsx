@@ -8,6 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "./_components/FeedPage/FeedPage"
+// import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
 // import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     HeaderMenuType,
@@ -190,7 +191,7 @@ const Root = () => {
                 return (
                     <SwiperSlide
                         key={`swiperslide-home-${index}`}
-                        virtualIndex={index}
+                        // virtualIndex={index}
                     >
                         <div
                             id={`swiperIndex-div-${index}`}
@@ -202,13 +203,23 @@ const Root = () => {
                         >
                             <FeedPage
                                 {...{
-                                    isActive: menuIndex === index,
+                                    isActive: index === menuIndex,
+                                    isNextActive: index === menuIndex + 1,
                                     feedKey: menu.info,
-                                    color,
+                                    // color,
                                     disableSlideVerticalScroll,
                                     now,
                                 }}
                             />
+                            {/*<FeedPage*/}
+                            {/*    {...{*/}
+                            {/*        isActive: menuIndex === index,*/}
+                            {/*        feedKey: menu.info,*/}
+                            {/*        color,*/}
+                            {/*        disableSlideVerticalScroll,*/}
+                            {/*        now,*/}
+                            {/*    }}*/}
+                            {/*/>*/}
                         </div>
                     </SwiperSlide>
                 )
