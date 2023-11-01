@@ -5,7 +5,10 @@ import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Image, Skeleton } from "@nextui-org/react"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    GeneratorView,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { layout } from "@/app/search/styles"
@@ -25,6 +28,7 @@ import { useSearchInfoAtom } from "../_atoms/searchInfo"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 
 export default function Root() {
     const router = useRouter()
@@ -46,11 +50,15 @@ export default function Root() {
     const [loading, setLoading] = useState(false)
     const [hasMorePostsResult, setHasMorePostsResult] = useState<boolean>(false)
     const [hasMoreUsersResult, setHasMoreUsersResult] = useState<boolean>(false)
+    const [hasMoreFeedsResult, setHasMoreFeedsResult] = useState<boolean>(false)
     const [searchPostsResult, setSearchPostsResult] = useState<
         PostView[] | null
     >(null)
     const [searchUsersResult, setSearchUsersResult] = useState<
         ProfileView[] | null
+    >(null)
+    const [searchFeedsResult, setSearchFeedsResult] = useState<
+        GeneratorView[] | null
     >(null)
     const [searchText, setSearchText] = useState("")
     const [searchTarget, setSearchTarget] = useState("")
@@ -163,7 +171,7 @@ export default function Root() {
                 shouldScrollToTop.current = false
             }
         }
-    }, [searchPostsResult, searchUsersResult])
+    }, [searchPostsResult, searchUsersResult, searchFeedsResult])
 
     useEffect(() => {
         if (tappedTabbarButton === "search") {
@@ -197,6 +205,7 @@ export default function Root() {
     }, [
         searchPostsResult,
         searchUsersResult,
+        searchFeedsResult,
         cursor.current,
         searchTarget,
         searchText,
@@ -333,6 +342,56 @@ export default function Root() {
         }
     }
 
+    const fetchSearchFeedsResult = async () => {
+        console.log("hoge")
+        setHasMoreFeedsResult(false)
+
+        if (!agent) {
+            return
+        }
+
+        try {
+            const { data } =
+                await agent.app.bsky.unspecced.getPopularFeedGenerators({
+                    cursor: cursor.current,
+                    query: searchText,
+                })
+
+            if (
+                data.feeds.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfContent(true)
+            }
+
+            setSearchFeedsResult((currentSearchResults) => {
+                if (currentSearchResults !== null) {
+                    const newSearchResults = [
+                        ...currentSearchResults,
+                        ...data.feeds,
+                    ]
+
+                    return newSearchResults
+                } else {
+                    return [...data.feeds]
+                }
+            })
+
+            if (data.cursor) {
+                cursor.current = data.cursor
+                setHasMoreFeedsResult(true)
+            } else {
+                cursor.current = ""
+                setHasMoreFeedsResult(false)
+            }
+        } catch (e) {
+            setHasMoreFeedsResult(false)
+            console.error(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const loadPostsMore = async (page: number) => {
         if (hasMorePostsResult) {
             await fetchSearchPostsResult()
@@ -342,6 +401,12 @@ export default function Root() {
     const loadUsersMore = async (page: number) => {
         if (hasMoreUsersResult) {
             await fetchSearchUsersResult()
+        }
+    }
+
+    const loadFeedsMore = async (page: number) => {
+        if (hasMoreFeedsResult) {
+            await fetchSearchFeedsResult()
         }
     }
 
@@ -355,9 +420,11 @@ export default function Root() {
 
         setSearchPostsResult(null)
         setSearchUsersResult(null)
+        setSearchFeedsResult(null)
 
         setHasMorePostsResult(false)
         setHasMoreUsersResult(false)
+        setHasMoreFeedsResult(false)
 
         setSearchTarget("")
         setSearchText("")
@@ -407,6 +474,16 @@ export default function Root() {
                 cursor.current = ""
                 numOfResult.current = 0
                 fetchSearchUsersResult()
+                break
+            case "feeds":
+                console.log("here start search feeds")
+                shouldScrollToTop.current = true
+                setLoading(true)
+                setHasMoreFeedsResult(false)
+                setSearchFeedsResult(null)
+                cursor.current = ""
+                numOfResult.current = 0
+                fetchSearchFeedsResult()
                 break
         }
     }
@@ -475,6 +552,16 @@ export default function Root() {
             return [dummyData, ...searchUsersResult]
         }
     }, [searchUsersResult])
+
+    const searchFeedsResultWithDummy = useMemo((): GeneratorView[] => {
+        const dummyData: GeneratorView = {} as GeneratorView
+
+        if (!searchFeedsResult) {
+            return [dummyData]
+        } else {
+            return [dummyData, ...searchFeedsResult]
+        }
+    }, [searchFeedsResult])
 
     const findFeeds = () => {
         const queryParams = new URLSearchParams(nextQueryParams)
@@ -608,7 +695,7 @@ export default function Root() {
                             scrollRef.current = ref
                         }
                     }}
-                    context={{ hasMore: hasMoreUsersResult }}
+                    context={{ hasMore: hasMoreFeedsResult }}
                     overscan={200}
                     increaseViewportBy={200}
                     data={searchUsersResultWithDummy}
@@ -636,6 +723,63 @@ export default function Root() {
                             : ListFooterNoContent,
                     }}
                     endReached={loadUsersMore}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+            {loading && searchTarget === "feeds" && (
+                <Virtuoso
+                    overscan={100}
+                    increaseViewportBy={200}
+                    totalCount={20}
+                    initialItemCount={20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <UserCell
+                            {...{
+                                isDummyHeader: index === 0,
+                                actor: null,
+                                skeleton: true,
+                            }}
+                        />
+                    )}
+                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                />
+            )}
+
+            {!loading && searchTarget === "feeds" && searchText && (
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                        }
+                    }}
+                    context={{ hasMore: hasMoreUsersResult }}
+                    overscan={200}
+                    increaseViewportBy={200}
+                    data={searchFeedsResultWithDummy}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, data) => (
+                        <ViewFeedCardCell
+                            {...{
+                                isMobile,
+                                isSkeleton: false,
+                                feed: data || null,
+                                isDummyHeader: index === 0,
+                                now,
+                                nextQueryParams,
+                                t,
+                            }}
+                        />
+                    )}
+                    components={{
+                        // @ts-ignore
+                        Footer: !isEndOfContent
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
+                    }}
+                    endReached={loadFeedsMore}
                     style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
                 />
             )}
