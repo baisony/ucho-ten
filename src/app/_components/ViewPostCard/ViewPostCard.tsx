@@ -783,8 +783,8 @@ export const ViewPostCard = (props: Props) => {
                             ? quoteCardStyles.PostCard()
                             : PostCard({ isEmbedToModal })
                     } ${
-                        isEmbedToModal ? `border-none` : `cursor-pointer`
-                    } group`}
+                        isEmbedToModal ? `border-none` : `cursor-pointer group`
+                    }`}
                     style={{
                         backgroundColor: isEmbedToModal ? "transparent" : "",
                     }}
@@ -1062,6 +1062,7 @@ export const ViewPostCard = (props: Props) => {
                                     onImageClick={(index: number) => {
                                         handleImageClick(index)
                                     }}
+                                    isEmbedToModal={isEmbedToModal}
                                 />
                             )}
                             {contentWarning && (
@@ -1127,7 +1128,7 @@ export const ViewPostCard = (props: Props) => {
                                     <div
                                         className={`${bookmarkButton()} group-hover:md:block ${
                                             !isBookmarked && `md:hidden`
-                                        }`}
+                                        } ${isEmbedToModal && `hidden`}`}
                                     >
                                         <FontAwesomeIcon
                                             icon={
@@ -1229,68 +1230,29 @@ export const ViewPostCard = (props: Props) => {
 interface EmbedImagesProps {
     embedImages: AppBskyEmbedImages.View
     onImageClick: (index: number) => void
+    isEmbedToModal?: boolean
 }
 
-const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
-    return (
-        <ScrollShadow
-            isEnabled={embedImages.images.length > 1}
-            hideScrollBar={true}
-            orientation="horizontal"
-            className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-        >
-            {embedImages.images.map((image: ViewImage, index: number) => (
-                <div
-                    className={`mt-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
-                        embedImages.images.length - 1 === index
-                            ? `mr-[0px]`
-                            : `mr-[7px]`
-                    } bg-cover`}
-                    key={`image-${index}`}
-                >
-                    <img
-                        className="w-full h-full z-0 object-cover"
-                        src={image.thumb}
-                        alt={image.alt}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onImageClick(index)
-                        }}
-                    />
-                </div>
-            ))}
-        </ScrollShadow>
-    )
-}
-
-interface EmbedMediaProps {
-    embedMedia: AppBskyEmbedRecordWithMedia.View
-    onImageClick: (index: number) => void
-    nextQueryParams: URLSearchParams
-}
-
-const EmbedMedia = ({
-    embedMedia,
+const EmbedImages = ({
+    embedImages,
     onImageClick,
-    nextQueryParams,
-}: EmbedMediaProps) => {
-    const images = embedMedia.media.images
-
-    if (!images || !Array.isArray(images)) {
-        return
-    }
-
+    isEmbedToModal,
+}: EmbedImagesProps) => {
     return (
-        <>
+        !isEmbedToModal && (
             <ScrollShadow
-                isEnabled={images.length > 1}
-                hideScrollBar
+                isEnabled={embedImages.images.length > 1}
+                hideScrollBar={true}
                 orientation="horizontal"
                 className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
             >
-                {images.map((image: ViewImage, index: number) => (
+                {embedImages.images.map((image: ViewImage, index: number) => (
                     <div
-                        className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                        className={`mt-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
+                            embedImages.images.length - 1 === index
+                                ? `mr-[0px]`
+                                : `mr-[7px]`
+                        } bg-cover`}
                         key={`image-${index}`}
                     >
                         <img
@@ -1305,11 +1267,61 @@ const EmbedMedia = ({
                     </div>
                 ))}
             </ScrollShadow>
-            <ViewQuoteCard
-                postJson={embedMedia.record.record}
-                nextQueryParams={nextQueryParams}
-            />
-        </>
+        )
+    )
+}
+
+interface EmbedMediaProps {
+    embedMedia: AppBskyEmbedRecordWithMedia.View
+    onImageClick: (index: number) => void
+    isEmbedToModal?: boolean
+    nextQueryParams: URLSearchParams
+}
+
+const EmbedMedia = ({
+    embedMedia,
+    onImageClick,
+    isEmbedToModal,
+    nextQueryParams,
+}: EmbedMediaProps) => {
+    const images = embedMedia.media.images
+
+    if (!images || !Array.isArray(images)) {
+        return
+    }
+
+    return (
+        !isEmbedToModal && (
+            <>
+                <ScrollShadow
+                    isEnabled={images.length > 1}
+                    hideScrollBar
+                    orientation="horizontal"
+                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+                >
+                    {images.map((image: ViewImage, index: number) => (
+                        <div
+                            className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
+                            key={`image-${index}`}
+                        >
+                            <img
+                                className="w-full h-full z-0 object-cover"
+                                src={image.thumb}
+                                alt={image.alt}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onImageClick(index)
+                                }}
+                            />
+                        </div>
+                    ))}
+                </ScrollShadow>
+                <ViewQuoteCard
+                    postJson={embedMedia.record.record}
+                    nextQueryParams={nextQueryParams}
+                />
+            </>
+        )
     )
 }
 

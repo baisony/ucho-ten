@@ -698,7 +698,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     </div>
                     <div
                         className={`${contentContainer()} h-[90%]`}
-                        ref={scrollBottomRef}
+                        //ref={scrollBottomRef}
                     >
                         <div className={contentLeft()}>
                             <div
