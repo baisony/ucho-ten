@@ -174,8 +174,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const handlePostClick = async () => {
         if (!agent) return
-        if (trimedContentText() === "" && contentImages.length === 0) return
-        setLoading(true)
+        if (
+            trimedContentText() === "" &&
+            contentImages.length === 0 &&
+            !getOGPData
+        )
+            setLoading(true)
         try {
             const blobRefs: BlobRef[] = []
             const images = contentImages.length > 0 ? contentImages : OGPImage
@@ -588,9 +592,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         }}
                         isDisabled={
                             loading ||
+                            isOGPGetProcessing ||
+                            isCompressing ||
                             ((trimedContentText().length === 0 ||
                                 trimedContentText().length > 300) &&
-                                contentImages.length === 0)
+                                contentImages.length === 0 &&
+                                !getOGPData)
                         }
                         isLoading={loading}
                     >

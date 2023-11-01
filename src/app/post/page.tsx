@@ -188,7 +188,12 @@ export default function Root() {
 
     const handlePostClick = async () => {
         if (!agent) return
-        if (trimedContentText() === "" && contentImages.length === 0) return
+        if (
+            trimedContentText() === "" &&
+            contentImages.length === 0 &&
+            !getOGPData
+        )
+            return
         setLoading(true)
         try {
             const blobRefs: BlobRef[] = []
@@ -551,9 +556,12 @@ export default function Root() {
                         onPress={handlePostClick}
                         isDisabled={
                             loading ||
+                            isOGPGetProcessing ||
+                            isCompressing ||
                             ((trimedContentText().length === 0 ||
                                 trimedContentText().length > 300) &&
-                                contentImages.length === 0)
+                                contentImages.length === 0 &&
+                                !getOGPData)
                         }
                         isLoading={loading}
                     >
