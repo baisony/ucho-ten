@@ -204,7 +204,7 @@ const Root = () => {
                             <FeedPage
                                 {...{
                                     isActive: index === menuIndex,
-                                    // isNextActive: index === menuIndex + 1,
+                                    isNextActive: index === menuIndex + 1,
                                     feedKey: menu.info,
                                     // color,
                                     disableSlideVerticalScroll,
