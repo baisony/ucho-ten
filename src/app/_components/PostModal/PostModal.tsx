@@ -19,7 +19,6 @@ import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
     faCirclePlus,
     faFaceLaughBeam,
-    faPen,
     faPlus,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
@@ -32,10 +31,24 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Image,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Radio,
+    RadioGroup,
     Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
+    Textarea as NextUITextarea,
     useDisclosure,
 } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
@@ -86,8 +99,18 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
+    let defaultLanguage: string[]
+    if (window) {
+        defaultLanguage = [
+            (window.navigator.languages && window.navigator.languages[0]) ||
+                window.navigator.language,
+        ]
+    } else {
+        defaultLanguage = ["en"]
+    }
+
     const [PostContentLanguage, setPostContentLanguage] = useState(
-        new Set<string>([])
+        new Set<string>(defaultLanguage)
     )
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
@@ -145,6 +168,53 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         ImageEditButton,
     } = postModal()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const {
+        isOpen: isOpenALT,
+        onOpen: onOpenALT,
+        onOpenChange: onOpenChangeALT,
+    } = useDisclosure()
+    const {
+        isOpen: isOpenLangs,
+        onOpen: onOpenLangs,
+        onOpenChange: onOpenChangeLangs,
+    } = useDisclosure()
+    const [altOfImageList, setAltOfImageList] = useState(["", "", "", ""])
+
+    const [editALTIndex, setEditALTIndex] = useState(0)
+    const [altText, setAltText] = useState("")
+
+    //const [selectedColor, setSelectedColor] = useState("default")
+
+    const languages = [
+        {
+            name: "日本語",
+            code: "ja",
+        },
+        {
+            name: "English",
+            code: "en",
+        },
+        {
+            name: "한국어",
+            code: "ko",
+        },
+        {
+            name: "中文",
+            code: "zh",
+        },
+        {
+            name: "Español",
+            code: "es",
+        },
+        {
+            name: "Français",
+            code: "fr",
+        },
+        {
+            name: "Português",
+            code: "pt",
+        },
+    ]
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -173,9 +243,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     }
 
     const handlePostClick = async () => {
-        console.log(agent)
         if (!agent) return
-        if (trimedContentText() === "") return
+        if (
+            trimedContentText() === "" &&
+            contentImages.length === 0 &&
+            !getOGPData
+        )
+            return
         setLoading(true)
         try {
             const blobRefs: BlobRef[] = []
@@ -226,10 +300,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
 
-                for (const blobRef of blobRefs) {
+                for (const [index, blobRef] of blobRefs.entries()) {
                     const image: AppBskyEmbedImages.Image = {
                         image: blobRef,
-                        alt: "",
+                        alt: altOfImageList[index],
                     }
 
                     images.push(image)
@@ -464,7 +538,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 throw new Error("HTTP status " + response.status)
             }
             const res = await response.json()
-            const thumb = res?.image
+            const thumb = res["image:secure_url"] || res?.image
             const uri = url
             const generatedURL = thumb?.startsWith("http")
                 ? thumb
@@ -559,9 +633,117 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }, [])
 
+    const handleALTClick = useCallback(() => {
+        const updatedAltOfImageList = [...altOfImageList]
+        updatedAltOfImageList[editALTIndex] = altText
+        setAltOfImageList(updatedAltOfImageList)
+    }, [altOfImageList, editALTIndex, altText])
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
+            <Modal
+                isOpen={isOpenLangs}
+                onOpenChange={onOpenChangeLangs}
+                placement={"bottom"}
+                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {(onCloseLangs) => (
+                        <>
+                            <ModalHeader>Select Languages</ModalHeader>
+                            <ModalBody>
+                                <div className="flex flex-col gap-3">
+                                    <Table
+                                        hideHeader
+                                        //color={selectedColor}
+                                        disallowEmptySelection
+                                        selectionMode="multiple"
+                                        selectedKeys={PostContentLanguage}
+                                        defaultSelectedKeys={
+                                            PostContentLanguage
+                                        }
+                                        onSelectionChange={(e) => {
+                                            if (Array.from(e).length < 4) {
+                                                setPostContentLanguage(
+                                                    e as Set<string>
+                                                )
+                                            }
+                                        }}
+                                        aria-label="Language table"
+                                    >
+                                        <TableHeader>
+                                            <TableColumn>Languages</TableColumn>
+                                            <TableColumn> </TableColumn>
+                                            <TableColumn> </TableColumn>
+                                            <TableColumn> </TableColumn>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {languages.map((item, index) => {
+                                                return (
+                                                    <TableRow key={item.code}>
+                                                        <TableCell>
+                                                            {item.name}
+                                                        </TableCell>
+                                                        <TableCell> </TableCell>
+                                                        <TableCell> </TableCell>
+                                                        <TableCell> </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter></ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
+                <ModalContent>
+                    {(onCloseALT) => (
+                        <>
+                            <ModalHeader>Edit ALT</ModalHeader>
+                            <ModalBody>
+                                <img
+                                    className={
+                                        "w-full h-full object-cover object-center"
+                                    }
+                                    src={URL.createObjectURL(
+                                        contentImages[editALTIndex].blob
+                                    )}
+                                />
+                                <div>
+                                    <NextUITextarea
+                                        placeholder={"ALTを入力"}
+                                        onValueChange={(e) => {
+                                            setAltText(e)
+                                        }}
+                                    ></NextUITextarea>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color={"danger"} onClick={onCloseALT}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color={"primary"}
+                                    onClick={() => {
+                                        onCloseALT()
+                                        handleALTClick()
+                                        console.log(altText)
+                                        console.log(altOfImageList)
+                                    }}
+                                >
+                                    Save
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
             <div className={PostModal()}>
                 <div className={header()}>
                     <Button
@@ -584,13 +766,15 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         radius={"full"}
                         size={"sm"}
                         color={"primary"}
-                        onPress={() => {
-                            handlePostClick()
-                        }}
+                        onPress={handlePostClick}
                         isDisabled={
                             loading ||
-                            trimedContentText().length === 0 ||
-                            trimedContentText().length > 300
+                            isOGPGetProcessing ||
+                            isCompressing ||
+                            ((trimedContentText().length === 0 ||
+                                trimedContentText().length > 300) &&
+                                contentImages.length === 0 &&
+                                !getOGPData)
                         }
                         isLoading={loading}
                     >
@@ -620,7 +804,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     </div>
                     <div
                         className={`${contentContainer()} h-[90%]`}
-                        ref={scrollBottomRef}
+                        //ref={scrollBottomRef}
                     >
                         <div className={contentLeft()}>
                             <div
@@ -739,36 +923,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             >
                                                 <button
                                                     className={`${ImageAddALTButton()} flex justify-center items-center`}
-                                                    onClick={() =>
-                                                        handleOnRemoveImage(
-                                                            index
-                                                        )
-                                                    }
+                                                    onClick={() => {
+                                                        setEditALTIndex(index)
+                                                        setAltText("")
+                                                        onOpenALT()
+                                                    }}
                                                 >
                                                     ALT
-                                                </button>
-                                            </div>
-                                            <div
-                                                style={{
-                                                    zIndex: "10",
-                                                    position: "absolute",
-                                                    bottom: 5,
-                                                    right: "20px",
-                                                }}
-                                            >
-                                                <button
-                                                    className={ImageEditButton()}
-                                                    onClick={() =>
-                                                        handleOnRemoveImage(
-                                                            index
-                                                        )
-                                                    }
-                                                >
-                                                    <FontAwesomeIcon
-                                                        icon={faPen}
-                                                        size="sm"
-                                                        className={" mb-[2px]"}
-                                                    />
                                                 </button>
                                             </div>
                                         </div>
@@ -880,7 +1041,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             />
                         </label>
                         <div
-                            className={footerTooltipStyle()}
+                            className={`${footerTooltipStyle()}  md:hidden`}
+                            style={{ bottom: "5%" }}
+                            onClick={() => {
+                                onOpenLangs()
+                            }}
+                        >{`${t("modal.post.lang")}:${Array.from(
+                            PostContentLanguage
+                        ).join(",")}`}</div>
+                        <div
+                            className={`${footerTooltipStyle()} hidden md:flex`}
                             style={{ bottom: "5%" }}
                         >
                             <Dropdown
@@ -897,42 +1067,27 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
                                     selectedKeys={PostContentLanguage}
-                                    // onSelectionChange={(e) => {
-                                    //     if (Array.from(e).length < 4) {
-                                    //         setPostContentLanguage(
-                                    //             e as Set<string>
-                                    //         )
-                                    //     }
-                                    // }}
+                                    defaultSelectedKeys={PostContentLanguage}
+                                    onSelectionChange={(e) => {
+                                        console.log(PostContentLanguage)
+                                        if (Array.from(e).length < 4) {
+                                            setPostContentLanguage(
+                                                e as Set<string>
+                                            )
+                                        }
+                                    }}
                                 >
-                                    <DropdownItem key="es">
-                                        Espalier
-                                    </DropdownItem>
-                                    <DropdownItem key="fr">
-                                        Francais
-                                    </DropdownItem>
-                                    <DropdownItem key="de">
-                                        Deutsch
-                                    </DropdownItem>
-                                    <DropdownItem key="it">
-                                        Italiano
-                                    </DropdownItem>
-                                    <DropdownItem key="pt">
-                                        Portuguese
-                                    </DropdownItem>
-                                    <DropdownItem key="ru">
-                                        Русский
-                                    </DropdownItem>
-                                    <DropdownItem key="zh">中文</DropdownItem>
-                                    <DropdownItem key="ko">한국어</DropdownItem>
-                                    <DropdownItem key="en">
-                                        English
-                                    </DropdownItem>
-                                    <DropdownItem key="ja">日本語</DropdownItem>
+                                    {languages.map((item, index) => {
+                                        return (
+                                            <DropdownItem key={item.code}>
+                                                {item.name}
+                                            </DropdownItem>
+                                        )
+                                    })}
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
-                        <div className={footerTooltipStyle()}>
+                        <div className={`${footerTooltipStyle()} hidden`}>
                             <Dropdown
                                 backdrop="blur"
                                 className={"text-black dark:text-white"}
