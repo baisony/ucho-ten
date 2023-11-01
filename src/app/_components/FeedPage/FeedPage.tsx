@@ -14,6 +14,7 @@ import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 // import { usePathname } from "next/navigation"
 // import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
 
@@ -44,7 +45,7 @@ const FeedPage = ({
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [shouldCheckUpdate, setShouldCheckUpdate] = useState<boolean>(false)
-
+    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false)
     const cursor = useRef<string>("")
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
@@ -101,6 +102,14 @@ const FeedPage = ({
                     cursor: cursor.current || "",
                     limit: FEED_FETCH_LIMIT,
                 })
+            }
+
+            if (
+                response.data.feed.length === 0 &&
+                (cursor.current === response.data.cursor ||
+                    !response.data.cursor)
+            ) {
+                setIsEndOfFeed(true)
             }
 
             if (response.data) {
@@ -479,7 +488,9 @@ const FeedPage = ({
                     )}
                     components={{
                         // @ts-ignore
-                        Footer: ListFooterSpinner,
+                        Footer: !isEndOfFeed
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
                     }}
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}

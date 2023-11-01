@@ -45,6 +45,7 @@ import {
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 
 export default function Root() {
     const router = useRouter()
@@ -58,6 +59,7 @@ export default function Root() {
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
+    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [profile, setProfile] = useState<any>(null)
@@ -142,6 +144,12 @@ export default function Root() {
                 actor: username,
                 cursor: cursor.current,
             })
+            if (
+                data.feed.length === 0 &&
+                (cursor.current === data.cursor || !data.cursor)
+            ) {
+                setIsEndOfFeed(true)
+            }
 
             if (data) {
                 if (data.cursor) {
@@ -313,7 +321,7 @@ export default function Root() {
             itemContent={(_, item) => <UserProfilePageCell {...item} />}
             components={{
                 // @ts-ignore
-                Footer: ListFooterSpinner,
+                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
