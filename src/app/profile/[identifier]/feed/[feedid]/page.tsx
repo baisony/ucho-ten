@@ -32,6 +32,7 @@ import {
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 // interface Props {
 //     className?: string
@@ -43,6 +44,9 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 // }
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("myFeeds")
+
     const pathname = usePathname()
     const { t } = useTranslation()
 

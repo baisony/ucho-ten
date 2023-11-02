@@ -19,7 +19,7 @@ import { ViewSideBar } from "@/app/_components/ViewSideBar"
 import "./sidebar.css"
 import { useAgent } from "./_atoms/agent"
 import { useUserProfileDetailedAtom } from "./_atoms/userProfileDetail"
-import { BskyAgent } from "@atproto/api"
+import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "./_atoms/preferences"
 import { useImageGalleryAtom } from "./_atoms/imageGallery"
@@ -43,7 +43,7 @@ import {
     useHeaderMenusByHeaderAtom,
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
-import { HistoryContext } from "@/app/_lib/hooks/historyContext"
+// import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
@@ -95,7 +95,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     //     "profile" | "home" | "inbox" | "post" | "search"
     // >("home")
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
-    const [history, setHistory] = useState([pathName, ""])
+    // const [history, setHistory] = useState([pathName, ""])
 
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
@@ -188,9 +188,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [router, pathName])
 
-    useEffect(() => {
-        setHistory([pathName, history[0]])
-    }, [pathName])
+    // useEffect(() => {
+    //     setHistory([pathName, history[0]])
+    // }, [pathName])
 
     useEffect(() => {
         if (agent?.hasSession === true) {
@@ -272,6 +272,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         console.log(data)
 
                         setFeedGenerators(data.feeds)
+                        updateMenuWithFeedGenerators(data.feeds)
                     } else {
                         // もしresがundefinedだった場合の処理
                         console.log("Responseがundefinedです。")
@@ -376,7 +377,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     console.log("add")
                     newMuteWords.push(json)
                 } else {
-                    console.log("この単語は既に存在します")
+                    console.log("この単語は既に存在します") // TODO: i18n
                 }
             }
         }
@@ -396,15 +397,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     //     setMenuIndex(index)
     // }
 
-    useEffect(() => {
-        if (!feedGenerators) {
+    const updateMenuWithFeedGenerators = (feeds: AppBskyFeedDefs.GeneratorView[]) => {
+        if (feeds.length === 0) {
             return
         }
-
-        console.log("feedGenerators", feedGenerators)
-
         const newHeaderMenusByHeader = headerMenusByHeader
-        const menus: HeaderMenu[] = feedGenerators.map((feed) => {
+        const menus: HeaderMenu[] = feeds.map((feed) => {
             return {
                 displayText: feed.displayName,
                 info: feed.uri,
@@ -422,44 +420,42 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             ...prevHeaderMenus,
             home: menus,
         }))
-    }, [feedGenerators])
+    }
 
-    useEffect(() => {
-        console.log("headerMenusByHeader", headerMenusByHeader)
-    }, [headerMenusByHeader])
+    // useEffect(() => {
+    //     if (pathName === "/") {
+    //         setCurrentMenuType("home")
+    //     } else if (pathName === "/search") {
+    //         setCurrentMenuType("search")
 
-    useEffect(() => {
-        if (pathName === "/") {
-            setCurrentMenuType("home")
-        } else if (pathName === "/search") {
-            setCurrentMenuType("search")
+    //         switch (searchParams.get("target")) {
+    //             case "posts":
+    //                 setMenuIndex(0)
+    //                 break
+    //             case "users":
+    //                 setMenuIndex(1)
+    //                 break
+    //             case "feeds":
+    //                 setMenuIndex(2)
+    //                 break
+    //             default:
+    //                 setMenuIndex(0)
+    //                 break
+    //         }
+    //     } else if (pathName === "/inbox") {
+    //         // setMenus(HEADER_MENUS.inbox)
+    //         setCurrentMenuType("inbox")
+    //         setMenuIndex(0)
+    //     } else if (
+    //         pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
+    //     ) {
+    //         //setMenus(HEADER_MENUS.onlyPost)
+    //         setCurrentMenuType("onlyPost")
+    //         setMenuIndex(0)
+    //     }
+    // }, [pathName, searchParams])
 
-            switch (searchParams.get("target")) {
-                case "posts":
-                    setMenuIndex(0)
-                    break
-                case "users":
-                    setMenuIndex(1)
-                    break
-                case "feeds":
-                    setMenuIndex(2)
-                    break
-                default:
-                    setMenuIndex(0)
-                    break
-            }
-        } else if (pathName === "/inbox") {
-            // setMenus(HEADER_MENUS.inbox)
-            setCurrentMenuType("inbox")
-        } else if (
-            pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
-        ) {
-            //setMenus(HEADER_MENUS.onlyPost)
-            setCurrentMenuType("onlyPost")
-        }
-    }, [pathName, searchParams])
-
-    const setSideBarOpen = (isOpen: boolean) => {
+    const handleSideBarOpen = (isOpen: boolean) => {
         setDrawerOpen(isOpen)
     }
 
@@ -540,135 +536,133 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [])
 
     return (
-        <HistoryContext.Provider value={history}>
-            <div
-                // className={`${noto.className}`}
-                className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
-            >
-                <div id="burger-outer-container">
-                    <BurgerPush
-                        className={"backdrop-blur-[5px]"}
-                        outerContainerId="burger-outer-container"
-                        pageWrapId="main-container"
-                        styles={burgerMenuStyles}
-                        isOpen={drawerOpen}
-                        onClose={() => {
-                            setDrawerOpen(false)
-                        }}
+        <div
+            // className={`${noto.className}`}
+            className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
+        >
+            <div id="burger-outer-container">
+                <BurgerPush
+                    className={"backdrop-blur-[5px]"}
+                    outerContainerId="burger-outer-container"
+                    pageWrapId="main-container"
+                    styles={burgerMenuStyles}
+                    isOpen={drawerOpen}
+                    onClose={() => {
+                        setDrawerOpen(false)
+                    }}
+                >
+                    <ViewSideBar
+                        isSideBarOpen={drawerOpen}
+                        setSideBarOpen={handleSideBarOpen}
+                        isMobile={isMobile}
+                    />
+                </BurgerPush>
+                <main
+                    id="main-container"
+                    className={background()}
+                    onClick={() => {
+                        handleSideBarOpen(false)
+                    }}
+                >
+                    {shouldFillPageBackground && (
+                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                            <div
+                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                            />
+                        </div>
+                    )}
+                    <div
+                        className={
+                            "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                        }
                     >
-                        <ViewSideBar
-                            isSideBarOpen={drawerOpen}
-                            setSideBarOpen={setSideBarOpen}
-                            isMobile={isMobile}
-                        />
-                    </BurgerPush>
-                    <main
-                        id="main-container"
-                        className={background()}
-                        onClick={() => {
-                            setSideBarOpen(false)
-                        }}
-                    >
-                        {shouldFillPageBackground && (
-                            <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                                <div
-                                    className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                                />
-                            </div>
+                        {showTabBar && (
+                            <ViewHeader
+                                isMobile={isMobile}
+                                //page={page}
+                                //tab={selectedTab}
+                                setSideBarOpen={handleSideBarOpen}
+                                setSearchText={setSearchText}
+                                //selectedTab={selectedTab}
+                                //menuIndex={menuIndex}
+                                //menus={menus}
+                                //onChangeMenuIndex={onChangeMenuIndex}
+                            />
                         )}
                         <div
-                            className={
-                                "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
-                            }
+                            // className={`${
+                            //     pathName === "/login"
+                            //         ? "h-[calc(100%)]"
+                            //         : showTabBar
+                            //         ? `pt-[0px] h-[calc(100%-50px)]`
+                            //         : `pt-[100px] h-[calc(100%-150px)]`
+                            // }`}
+                            className={`pt-[0px] h-[100%]`}
                         >
-                            {showTabBar && (
-                                <ViewHeader
-                                    isMobile={isMobile}
-                                    //page={page}
-                                    //tab={selectedTab}
-                                    setSideBarOpen={setSideBarOpen}
-                                    setSearchText={setSearchText}
-                                    //selectedTab={selectedTab}
-                                    //menuIndex={menuIndex}
-                                    //menus={menus}
-                                    //onChangeMenuIndex={onChangeMenuIndex}
-                                />
-                            )}
-                            <div
-                                // className={`${
-                                //     pathName === "/login"
-                                //         ? "h-[calc(100%)]"
-                                //         : showTabBar
-                                //         ? `pt-[0px] h-[calc(100%-50px)]`
-                                //         : `pt-[100px] h-[calc(100%-150px)]`
-                                // }`}
-                                className={`pt-[0px] h-[100%]`}
-                            >
-                                {children}
-                            </div>
-                            {showTabBar && <TabBar />}
+                            {children}
                         </div>
-                        {imageSlides && imageSlideIndex !== null && (
-                            <div
-                                onClick={(e) => {
-                                    const clickedElement =
-                                        e.target as HTMLDivElement
+                        {showTabBar && <TabBar />}
+                    </div>
+                    {imageSlides && imageSlideIndex !== null && (
+                        <div
+                            onClick={(e) => {
+                                const clickedElement =
+                                    e.target as HTMLDivElement
 
-                                    console.log(e.target)
-                                    if (
-                                        clickedElement.classList.contains(
-                                            "yarl__fullsize"
-                                        ) ||
-                                        clickedElement.classList.contains(
-                                            "yarl__flex_center"
-                                        )
-                                    ) {
-                                        setImageGallery(null)
-                                        setImageSlides(null)
-                                        setImageSlideIndex(null)
-                                    }
+                                console.log(e.target)
+                                if (
+                                    clickedElement.classList.contains(
+                                        "yarl__fullsize"
+                                    ) ||
+                                    clickedElement.classList.contains(
+                                        "yarl__flex_center"
+                                    )
+                                ) {
+                                    setImageGallery(null)
+                                    setImageSlides(null)
+                                    setImageSlideIndex(null)
+                                }
+                            }}
+                        >
+                            <Lightbox
+                                open={true}
+                                index={imageSlideIndex}
+                                plugins={[Zoom, Captions, Counter]}
+                                zoom={{
+                                    ref: zoomRef,
+                                    scrollToZoom: true,
                                 }}
-                            >
-                                <Lightbox
-                                    open={true}
-                                    index={imageSlideIndex}
-                                    plugins={[Zoom, Captions, Counter]}
-                                    zoom={{
-                                        ref: zoomRef,
-                                        scrollToZoom: true,
-                                    }}
-                                    captions={{
-                                        ref: captionsRef,
-                                        showToggle: true,
-                                        descriptionMaxLines: 2,
-                                        descriptionTextAlign: "start",
-                                    }}
-                                    close={() => {
-                                        setImageGallery(null)
-                                        setImageSlides(null)
-                                        setImageSlideIndex(null)
-                                    }}
-                                    slides={imageSlides}
-                                    carousel={{
-                                        finite: imageSlides.length <= 5,
-                                    }}
-                                    render={{
-                                        buttonPrev:
-                                            imageSlides.length <= 1
-                                                ? () => null
-                                                : undefined,
-                                        buttonNext:
-                                            imageSlides.length <= 1
-                                                ? () => null
-                                                : undefined,
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </main>
-                </div>
+                                captions={{
+                                    ref: captionsRef,
+                                    showToggle: true,
+                                    descriptionMaxLines: 2,
+                                    descriptionTextAlign: "start",
+                                }}
+                                close={() => {
+                                    setImageGallery(null)
+                                    setImageSlides(null)
+                                    setImageSlideIndex(null)
+                                }}
+                                slides={imageSlides}
+                                carousel={{
+                                    finite: imageSlides.length <= 5,
+                                }}
+                                render={{
+                                    buttonPrev:
+                                        imageSlides.length <= 1
+                                            ? () => null
+                                            : undefined,
+                                    buttonNext:
+                                        imageSlides.length <= 1
+                                            ? () => null
+                                            : undefined,
+                                }}
+                            />
+                        </div>
+                    )}
+                </main>
             </div>
-        </HistoryContext.Provider>
+        </div>
     )
 }
 

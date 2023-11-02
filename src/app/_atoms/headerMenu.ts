@@ -28,7 +28,7 @@ const headerMenusByHeader = atom<{ [k in HeaderMenuType]: HeaderMenu[] }>({
     searchTop: HEADER_MENUS.searchTop,
     search: HEADER_MENUS.search,
     inbox: HEADER_MENUS.inbox,
-    profile: HEADER_MENUS.onlyPost,
+    profile: HEADER_MENUS.profile,
     onlyPost: HEADER_MENUS.onlyPost,
     settings: HEADER_MENUS.settings,
     bookmarks: HEADER_MENUS.bookmarks,

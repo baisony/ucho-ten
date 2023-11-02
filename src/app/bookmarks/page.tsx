@@ -6,8 +6,12 @@ import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
+import { useCurrentMenuType } from "../_atoms/headerMenu"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("bookmarks")
+    
     const { t } = useTranslation()
 
     const [agent] = useAgent()

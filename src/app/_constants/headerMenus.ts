@@ -50,8 +50,8 @@ const defaultProfileMenus: HeaderMenu[] = [
         info: "media",
     },
     {
-        displayText: "Feed",
-        info: "media",
+        displayText: "Feeds",
+        info: "feeds",
     },
 ]
 

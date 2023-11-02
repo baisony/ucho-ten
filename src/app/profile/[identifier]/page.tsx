@@ -46,8 +46,12 @@ import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("profile")
+
     const router = useRouter()
     const pathname = usePathname()
     const { t } = useTranslation()

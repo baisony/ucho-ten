@@ -12,8 +12,12 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useNotificationInfoAtom } from "../_atoms/notification"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import { useTranslation } from "react-i18next"
+import { useCurrentMenuType } from "../_atoms/headerMenu"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("inbox")
+
     const { t } = useTranslation()
 
     const [agent] = useAgent()

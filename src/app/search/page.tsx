@@ -35,6 +35,7 @@ export default function Root() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
+    const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [currentMenuType] = useCurrentMenuType()
@@ -92,10 +93,11 @@ export default function Root() {
             searchInfo.target !== searchParams.get("target") ||
             searchInfo.searchWord !== searchParams.get("word")
         ) {
+            setCurrentMenuType("searchTop")
             return
         }
 
-        console.log("here", searchTarget, searchText)
+        setCurrentMenuType("search")
 
         const target = searchParams.get("target") || "posts"
         const word = searchParams.get("word") || ""

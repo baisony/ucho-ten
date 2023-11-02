@@ -28,6 +28,9 @@ SwiperCore.use([Virtual])
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 const Root = () => {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("home")
+
     const [appearanceColor] = useAppearanceColor()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)

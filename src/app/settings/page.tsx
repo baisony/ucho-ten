@@ -19,8 +19,12 @@ import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import Link from "next/link"
+import { useCurrentMenuType } from "../_atoms/headerMenu"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("settings")
+    
     const DisplayLanguages = {
         English: "en-US",
         Japanese: "ja-JP",

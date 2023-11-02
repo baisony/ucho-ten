@@ -68,7 +68,7 @@ import {
 } from "@atproto/api"
 
 import { Linkcard } from "@/app/_components/Linkcard"
-import { HistoryContext } from "@/app/_lib/hooks/historyContext"
+// import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 
@@ -167,7 +167,7 @@ export default function Root() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
     const [darkMode, setDarkMode] = useState(false)
-    const history = useContext(HistoryContext)
+    // const history = useContext(HistoryContext)
     const {
         isOpen: isOpenALT,
         onOpen: onOpenALT,
@@ -214,13 +214,13 @@ export default function Root() {
         },
     ]
 
-    useEffect(() => {
-        // 遷移元URLのパスが「/unchi/」の場合
-        /*if (history[0] === "/login") {
-            console.log("うんち爆弾！！！")
-        }*/
-        console.log(history[0])
-    }, [])
+    // useEffect(() => {
+    //     // 遷移元URLのパスが「/unchi/」の場合
+    //     /*if (history[0] === "/login") {
+    //         console.log("うんち爆弾！！！")
+    //     }*/
+    //     console.log(history[0])
+    // }, [])
 
     const trimedContentText = (): string => {
         return contentText.trim()

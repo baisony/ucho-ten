@@ -80,8 +80,12 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("onlyPost")
+
     const [agent] = useAgent()
     const [userPreference] = useUserPreferencesAtom()
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
