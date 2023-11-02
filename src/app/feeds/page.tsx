@@ -77,6 +77,7 @@ export default function Root() {
 
     return (
         <>
+            <div className={"md:h-[100px] h-[85px]"} />
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
