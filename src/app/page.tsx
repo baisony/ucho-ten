@@ -11,17 +11,17 @@ import FeedPage from "./_components/FeedPage/FeedPage"
 // import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
 // import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
-    HeaderMenuType,
     menuIndexAtom,
     setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "./_atoms/headerMenu"
+import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
+import { HeaderMenuType } from "./_constants/headerMenus"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
 
 SwiperCore.use([Virtual])
 

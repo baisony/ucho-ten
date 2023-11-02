@@ -19,13 +19,13 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import {
     HeaderMenu,
-    HeaderMenuType,
     menuIndexAtom,
     setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
+import { HeaderMenuType } from "@/app/_constants/headerMenus"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 
 import { useTranslation } from "react-i18next"

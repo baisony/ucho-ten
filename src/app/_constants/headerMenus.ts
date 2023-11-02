@@ -7,6 +7,13 @@ const defaultHomeMenus: HeaderMenu[] = [
     },
 ]
 
+const defaultSearchTopMenus: HeaderMenu[] = [
+    {
+        displayText: "Search",
+        info: "search",
+    },
+]
+
 const defaultSearchMenus: HeaderMenu[] = [
     {
         displayText: "Posts",
@@ -21,15 +28,17 @@ const defaultSearchMenus: HeaderMenu[] = [
         info: "feeds",
     },
 ]
+
 const defaultInboxMenus: HeaderMenu[] = [
     {
         displayText: "Inbox",
         info: "inbox",
     },
 ]
+
 const defaultProfileMenus: HeaderMenu[] = [
     {
-        displayText: "Profile",
+        displayText: "Profile / Posts",
         info: "profile",
     },
     {
@@ -38,6 +47,10 @@ const defaultProfileMenus: HeaderMenu[] = [
     },
     {
         displayText: "Media",
+        info: "media",
+    },
+    {
+        displayText: "Feed",
         info: "media",
     },
 ]
@@ -67,13 +80,15 @@ const defaultSettingsMenus: HeaderMenu[] = [
         info: "contentfiltering",
     },
 ]
+
 const defaultBookmarksMenus: HeaderMenu[] = [
     {
         displayText: "Bookmark",
         info: "bookmark",
     },
 ]
-const defaultMytFeedMenus: HeaderMenu[] = [
+
+const defaultMyFeedsMenus: HeaderMenu[] = [
     {
         displayText: "My Feeds",
         info: "myfeeds",
@@ -84,24 +99,45 @@ const defaultMytFeedMenus: HeaderMenu[] = [
     },
 ]
 
-interface HeaderMenus {
-    home: HeaderMenu[]
-    search: HeaderMenu[]
-    inbox: HeaderMenu[]
-    profile: HeaderMenu[]
-    onlyPost: HeaderMenu[]
-    settings: HeaderMenu[]
-    bookmarks: HeaderMenu[]
-    myFeed: HeaderMenu[]
-}
+const defaultListMenus: HeaderMenu[] = [
+    {
+        displayText: "List",
+        info: "list",
+    },
+]
+
+const defaultAboutMenus: HeaderMenu[] = [
+    {
+        displayText: "About",
+        info: "about",
+    },
+]
+
+export type HeaderMenuType =
+    | "home"
+    | "searchTop"
+    | "search"
+    | "inbox"
+    | "profile"
+    | "onlyPost"
+    | "settings"
+    | "list"
+    | "bookmarks"
+    | "myFeeds"
+    | "about"
+
+type HeaderMenus = { [k in HeaderMenuType]: HeaderMenu[] }
 
 export const HEADER_MENUS: HeaderMenus = {
     home: defaultHomeMenus,
+    searchTop: defaultSearchTopMenus,
     search: defaultSearchMenus,
     inbox: defaultInboxMenus,
     profile: defaultProfileMenus,
     onlyPost: defaultOnlyPostMenus,
     settings: defaultSettingsMenus,
     bookmarks: defaultBookmarksMenus,
-    myFeed: defaultMytFeedMenus,
+    myFeeds: defaultMyFeedsMenus,
+    list: defaultListMenus,
+    about: defaultAboutMenus,
 }

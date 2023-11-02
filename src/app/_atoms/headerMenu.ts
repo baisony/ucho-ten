@@ -1,5 +1,5 @@
 import { atom, useAtom } from "jotai"
-import { HEADER_MENUS } from "../_constants/headerMenus"
+import { HEADER_MENUS, HeaderMenuType } from "../_constants/headerMenus"
 
 export interface HeaderMenu {
     displayText: string
@@ -9,36 +9,32 @@ export interface HeaderMenu {
 // const headerMenus = atom<HeaderMenu[]>([])
 // export const useHeaderMenusAtom = () => useAtom(headerMenus)
 
-export type HeaderMenuType =
-    | "home"
-    | "search"
-    | "inbox"
-    | "profile"
-    | "onlyPost"
-    | "settings"
-    | "bookmarks"
-    | "myFeed"
-
-const menuIndexByHeader = atom<{ [key in HeaderMenuType]: number }>({
+const menuIndexByHeader = atom<{ [k in HeaderMenuType]: number }>({
     home: 0,
+    searchTop: 0,
     search: 0,
     inbox: 0,
     profile: 0,
     onlyPost: 0,
     settings: 0,
     bookmarks: 0,
-    myFeed: 0,
+    myFeeds: 0,
+    list: 0,
+    about: 0,
 })
 
-const headerMenusByHeader = atom<{ [key in HeaderMenuType]: HeaderMenu[] }>({
+const headerMenusByHeader = atom<{ [k in HeaderMenuType]: HeaderMenu[] }>({
     home: HEADER_MENUS.home,
+    searchTop: HEADER_MENUS.searchTop,
     search: HEADER_MENUS.search,
     inbox: HEADER_MENUS.inbox,
     profile: HEADER_MENUS.onlyPost,
     onlyPost: HEADER_MENUS.onlyPost,
     settings: HEADER_MENUS.settings,
     bookmarks: HEADER_MENUS.bookmarks,
-    myFeed: HEADER_MENUS.myFeed,
+    myFeeds: HEADER_MENUS.myFeeds,
+    list: HEADER_MENUS.list,
+    about: HEADER_MENUS.about,
 })
 
 export const useHeaderMenusByHeaderAtom = () => useAtom(headerMenusByHeader)
