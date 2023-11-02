@@ -81,10 +81,8 @@ const FeedPage = ({
     }
 
     // const currentScrollPosition = useRef<number>(0)
-    console.log(` cursor 1:${cursorState || ""}`)
 
     useEffect(() => {
-        console.log(`timeline ${feedKey} cursor: ${cursorState} `, timeline)
         console.log(shouldScrollToTop.current, scrollRef.current)
 
         if (shouldScrollToTop.current && scrollRef.current) {
@@ -92,9 +90,7 @@ const FeedPage = ({
 
             shouldScrollToTop.current = false
         }
-        console.log(`timeline ${feedKey} cursor: ${cursorState} `)
     }, [timeline])
-    console.log(` cursor 2:${cursorState || ""}`)
 
     const fetchTimeline = async () => {
         if (!agent) {
@@ -180,12 +176,9 @@ const FeedPage = ({
 
     const loadMore = useCallback(() => {
         if (hasMore) {
-            console.log(`loadMore: >> cursor:${cursorState}`)
             setLoadMoreFeed(true)
         }
     }, [hasMore])
-
-    console.log(` cursor 3:${cursorState || ""}`)
 
     const checkNewTimeline = async () => {
         if (!agent) return
@@ -312,8 +305,6 @@ const FeedPage = ({
         shouldCheckUpdate.current = true
     }
 
-    console.log(` cursor 4:${cursorState || ""}`)
-
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts } = response
@@ -358,8 +349,6 @@ const FeedPage = ({
         }
     }
 
-    console.log(` cursor 5:${cursorState || ""}`)
-
     const timelineWithDummy = useMemo((): FeedViewPost[] => {
         // Need to add data for top padding
         const dummyData: FeedViewPost = {} as FeedViewPost
@@ -370,8 +359,6 @@ const FeedPage = ({
             return [dummyData, ...timeline]
         }
     }, [timeline])
-
-    console.log(` cursor 6:${cursorState || ""}`)
 
     // useEffect(() => {
     //     if (isActive === false) {
@@ -400,7 +387,6 @@ const FeedPage = ({
         ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
     >): Promise<FeedResponseObject> => {
         console.log("getTimelineFetcher: >>")
-        console.log(`getTimelineFetcher: ${cursorState || ""}`)
 
         if (agent === null) {
             console.log("error")
@@ -433,8 +419,6 @@ const FeedPage = ({
         }
     }
 
-    console.log(`loadMoreFeed: ${loadMoreFeed} cursor:${cursorState || ""}`)
-
     const { data, isLoading, isError } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
@@ -444,8 +428,6 @@ const FeedPage = ({
             isActive /*shouldLoad */ &&
             loadMoreFeed,
     })
-
-    console.log(`after useQuery  cursor:${cursorState || ""}`)
 
     if (data !== undefined) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
