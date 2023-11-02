@@ -1,7 +1,7 @@
 "use client"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -42,7 +42,8 @@ export default function Root() {
 
     return (
         <>
-            <div className={"h-full w-full"}>
+            <div className={"md:h-[100px] h-[85px]"} />
+            <div className={"md:h-full w-full"}>
                 {timeline.map((post, index) => {
                     return (
                         <ViewPostCard

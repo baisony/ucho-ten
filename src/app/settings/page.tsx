@@ -8,7 +8,7 @@ import {
     SelectItem,
     Switch,
 } from "@nextui-org/react"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { viewSettingsPage } from "@/app/settings/styles"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
@@ -87,6 +87,7 @@ export default function Root() {
     return (
         hashFlagment && (
             <>
+                <div className={"md:h-[100px] h-[85px]"} />
                 <div className={`w-full h-full ${background()}`}>
                     <Accordion
                         variant="light"
