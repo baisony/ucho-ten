@@ -663,6 +663,24 @@ export default function Root() {
         }
     }, [post])
 
+    const embedRecordBlocked = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (!postView?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postView.embed.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as AppBskyEmbedRecord.View)?.$type ===
+                "app.bsky.embed.record#viewBlocked"
+        ) {
+            return postView.embed as AppBskyEmbedRecord.View
+        } else {
+            return null
+        }
+    }, [post])
+
     const embedRecordViewRecord = useMemo((): ViewRecord | null => {
         const embed = postView?.embed || null
 
@@ -1244,7 +1262,8 @@ export default function Root() {
                                 embedRecordViewRecord &&
                                 !embedFeed &&
                                 !embedMuteList &&
-                                !notfoundEmbedRecord && (
+                                !notfoundEmbedRecord &&
+                                !embedRecordBlocked && (
                                     <ViewPostCard
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
@@ -1256,7 +1275,9 @@ export default function Root() {
                             {embedMuteList && (
                                 <ViewMuteListCard list={embedMuteList} />
                             )}
-                            {notfoundEmbedRecord && <ViewNotFoundCard />}
+                            {(notfoundEmbedRecord || embedRecordBlocked) && (
+                                <ViewNotFoundCard />
+                            )}
                         </div>
                         <div className={PostCreatedAt()}>
                             {formatDate(post.post.indexedAt)}
