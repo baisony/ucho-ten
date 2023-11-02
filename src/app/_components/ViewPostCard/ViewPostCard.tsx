@@ -308,6 +308,24 @@ export const ViewPostCard = (props: Props) => {
         }
     }, [postJson, quoteJson])
 
+    const embedRecordBlocked = useMemo((): AppBskyEmbedRecord.View | null => {
+        if (!postView?.embed?.$type) {
+            return null
+        }
+
+        const embedType = postView.embed.$type
+
+        if (
+            embedType === "app.bsky.embed.record#view" &&
+            (postView?.embed?.record as AppBskyEmbedRecord.View)?.$type ===
+                "app.bsky.embed.record#viewBlocked"
+        ) {
+            return postView.embed as AppBskyEmbedRecord.View
+        } else {
+            return null
+        }
+    }, [postJson, quoteJson])
+
     const embedRecordViewRecord = useMemo((): ViewRecord | null => {
         const quoteEmbed =
             quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
@@ -1106,7 +1124,8 @@ export const ViewPostCard = (props: Props) => {
                                 embedRecordViewRecord &&
                                 !embedFeed &&
                                 !embedMuteList &&
-                                !notfoundEmbedRecord && (
+                                !notfoundEmbedRecord &&
+                                !embedRecordBlocked && (
                                     <ViewPostCard
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
@@ -1118,7 +1137,9 @@ export const ViewPostCard = (props: Props) => {
                             {embedMuteList && (
                                 <ViewMuteListCard list={embedMuteList} />
                             )}
-                            {notfoundEmbedRecord && <ViewNotFoundCard />}
+                            {(notfoundEmbedRecord || embedRecordBlocked) && (
+                                <ViewNotFoundCard />
+                            )}
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
