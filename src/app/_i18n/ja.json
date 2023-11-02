@@ -174,6 +174,13 @@
     "newPosts": "新しい投稿"
   },
   "text": {
-    "noMoreContent": "これ以上はありません"
+    "noMoreContent": "これ以上はありません",
+    "spam": "スパム",
+    "misleading": "誤解を招くコンテンツ",
+    "sexual": "望まない性的コンテンツ",
+    "copyright": "著作権侵害",
+    "rude": "反社会的な行動/言動",
+    "violation": "緊急性を要する違法行為",
+    "other": "その他"
   }
 }

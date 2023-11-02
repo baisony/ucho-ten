@@ -59,28 +59,28 @@ export const ReportModal = (props: ReportModalProps) => {
     const reasonList: Record<string, { reasonType: string; reason: string }> = {
         spam: {
             reasonType: "com.atproto.moderation.defs#reasonSpam",
-            reason: "スパム行為",
+            reason: t("text.spam"),
         },
         misleading: {
             reasonType: "com.atproto.moderation.defs#reasonMisleading",
-            reason: "誤解を招くコンテンツ",
+            reason: t("text.misleading"),
         },
         sexual: {
             reasonType: "com.atproto.moderation.defs#reasonSexual",
-            reason: "望まない性的コンテンツ",
+            reason: t("text.sexual"),
         },
-        copyright: { reasonType: "__copyright__", reason: "著作権侵害" },
+        copyright: { reasonType: "__copyright__", reason: t("text.copyright") },
         rude: {
             reasonType: "com.atproto.moderation.defs#reasonRude",
-            reason: "反社会的な行動/言動",
+            reason: t("text.rude"),
         },
         violation: {
             reasonType: "com.atproto.moderation.defs#reasonViolation",
-            reason: "緊急性を要する違法行為",
+            reason: t("text.violation"),
         },
         other: {
             reasonType: "com.atproto.moderation.defs#reasonOther",
-            reason: "その他",
+            reason: t("text.other"),
         },
     }
     const reasonTypeToReason: Record<string, string> = {
@@ -139,6 +139,7 @@ export const ReportModal = (props: ReportModalProps) => {
             setIsReportSuccess(false)
         }
     }
+    console.log(post)
     return (
         <Modal
             isOpen={isOpen}
@@ -161,7 +162,9 @@ export const ReportModal = (props: ReportModalProps) => {
                             >
                                 <ViewQuoteCard
                                     profile={profile}
+                                    postJson={post}
                                     nextQueryParams={nextQueryParams}
+                                    isEmbedReportModal={true}
                                 />
                             </div>
                             <div
@@ -268,11 +271,11 @@ export const ReportModal = (props: ReportModalProps) => {
                                         ? "success"
                                         : "danger"
                                 }
-                                disabled={
+                                isDisabled={
                                     !!(
                                         (reportReasonType ===
                                             "com.atproto.moderation.defs#reasonOther" &&
-                                            reportReasonText.length == 0) ||
+                                            reportReasonText.length === 0) ||
                                         reportReasonType === "" ||
                                         isReportSending ||
                                         isReportSuccess
