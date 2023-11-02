@@ -56,7 +56,7 @@ export default function Root() {
     const [nextQueryParams] = useNextQueryParamsAtom()
     const username = pathname.replace("/profile/", "")
 
-    const [loading, setLoading] = useState(true)
+    //const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
@@ -66,12 +66,12 @@ export default function Root() {
     // const [newCursor, setNewCursor] = useState<string | null>(null)
     // const [hasCursor, setHasCursor] = useState<string | null>(null)
     // const [isProfileMine, setIsProfileMine] = useState(false)
-    const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
+    //const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
     // const [isEditing, setIsEditing] = useState(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
 
-    const shouldScrollToTop = useRef<boolean>(false)
+    //const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -162,12 +162,7 @@ export default function Root() {
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
-                        const newTimeline = [
-                            ...currentTimeline,
-                            ...filteredData,
-                        ]
-
-                        return newTimeline
+                        return [...currentTimeline, ...filteredData]
                     } else {
                         return [...filteredData]
                     }
@@ -185,7 +180,7 @@ export default function Root() {
             setHasMore(false)
             console.error(e)
         } finally {
-            setLoading(false)
+            //setLoading(false)
         }
     }
 
@@ -206,13 +201,13 @@ export default function Root() {
 
     useEffect(() => {
         if (profile) {
-            fetchTimeline()
+            void fetchTimeline()
         }
     }, [profile])
 
     useEffect(() => {
         if (!agent) return
-        fetchProfile()
+        void fetchProfile()
     }, [agent, username])
 
     // useEffect(() => {
@@ -364,12 +359,14 @@ const UserProfileComponent = ({
     agent,
     profile,
     isProfileMine,
-    onClickDomain,
+    //onClickDomain,
     isSkeleton,
 }: UserProfileProps) => {
-    const router = useRouter()
+    // const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [onHoverButton, setOnHoverButton] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isMuted, setIsMuted] = useState(!!profile?.viewer?.muted)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
     const [description, setDescription] = useState(profile?.description)
@@ -377,6 +374,9 @@ const UserProfileComponent = ({
     const [banner, setBanner] = useState(profile?.banner)
     const [isUploading, setIsUploading] = useState(false)
     const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
+    const [copyContent, setCopyContent] = useState<
+        "did" | "handle" | "displayName" | ""
+    >("")
     const { t } = useTranslation()
 
     const {
@@ -385,7 +385,18 @@ const UserProfileComponent = ({
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
     const {
-        background,
+        isOpen: isOpenCopy,
+        onOpen: onOpenCopy,
+        onOpenChange: onOpenChangeCopy,
+    } = useDisclosure()
+
+    const {
+        isOpen: isOpenProperty,
+        onOpen: onOpenProperty,
+        onOpenChange: onOpenChangeProperty,
+    } = useDisclosure()
+    const {
+        //background,
         ProfileContainer,
         ProfileInfoContainer,
         HeaderImageContainer,
@@ -399,7 +410,7 @@ const UserProfileComponent = ({
         ProfileBio,
         Buttons,
         PropertyButton,
-        PostContainer,
+        //PostContainer,
         appearanceTextColor,
     } = viewProfilePage()
 
@@ -421,7 +432,7 @@ const UserProfileComponent = ({
         // 選択されたファイルを取得
         const selectedFile = event.target.files[0]
 
-        // 選択されたファイルに対する処理を行うことができます
+        // 選択されたファイルに対する処理を行う
         console.log("選択されたファイル:", selectedFile)
         setBanner(selectedFile)
     }
@@ -429,7 +440,7 @@ const UserProfileComponent = ({
         // 選択されたファイルを取得
         const selectedFile = event.target.files[0]
 
-        // 選択されたファイルに対する処理を行うことができます
+        // 選択されたファイルに対する処理を行う
         console.log("選択されたファイル:", selectedFile)
         setAvatar(selectedFile)
     }
@@ -557,6 +568,39 @@ const UserProfileComponent = ({
         }
     }, [profile?.description])
 
+    const copyToClipboard = useCallback(
+        (text: string, key: string) => {
+            navigator.clipboard
+                .writeText(text)
+                .then(() => {
+                    console.log("Copy successful")
+                    //@ts-ignore
+                    setCopyContent(key)
+                })
+                .catch((error) => {
+                    console.error("Copy unsuccessful", error)
+                })
+        },
+        [copyContent]
+    )
+
+    const handleMute = async () => {
+        if (isLoading) return
+        setIsLoading(true)
+        console.log(profile)
+        console.log(isMuted)
+        if (isMuted) {
+            setIsMuted(!isMuted)
+            const res = await agent?.unmute(profile.did)
+            console.log(res)
+        } else {
+            setIsMuted(!isMuted)
+            const res = await agent?.mute(profile.did)
+            console.log(res)
+        }
+        setIsLoading(false)
+    }
+
     return (
         <>
             <Modal
@@ -585,6 +629,7 @@ const UserProfileComponent = ({
                                                 ? URL.createObjectURL(banner)
                                                 : profile?.banner
                                         }
+                                        alt={"banner"}
                                         className="w-full h-[150px] object-cover opacity-100 hover:opacity-30 transition-opacity duration-300 hover:cursor-pointer"
                                     />
                                     <input
@@ -612,6 +657,7 @@ const UserProfileComponent = ({
                                                 : profile?.avatar ||
                                                   defaultIcon.src
                                         }
+                                        alt={"avatar"}
                                         className="h-[80px] w-[80px] rounded-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-30 hover:cursor-pointer"
                                     />
                                     <input
@@ -713,12 +759,118 @@ const UserProfileComponent = ({
                 profile={profile}
                 nextQueryParams={nextQueryParams}
             />
+            <Modal
+                isOpen={isOpenCopy}
+                onOpenChange={onOpenChangeCopy}
+                placement={"bottom"}
+                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {(onCloseLangs) => (
+                        <>
+                            <ModalHeader>Copy</ModalHeader>
+                            <ModalBody>
+                                <span>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={() => {
+                                            copyToClipboard(
+                                                profile["did"],
+                                                "did"
+                                            )
+                                        }}
+                                    >
+                                        DID
+                                    </div>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={() => {
+                                            copyToClipboard(
+                                                profile["handle"],
+                                                "handle"
+                                            )
+                                        }}
+                                    >
+                                        handle
+                                    </div>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={() => {
+                                            copyToClipboard(
+                                                profile["displayName"],
+                                                "displayName"
+                                            )
+                                        }}
+                                    >
+                                        Name
+                                    </div>
+                                </span>
+                            </ModalBody>
+                            <ModalFooter></ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isOpenProperty}
+                onOpenChange={onOpenChangeProperty}
+                placement={"bottom"}
+                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {(onCloseProperty) => (
+                        <>
+                            <ModalHeader>Copy</ModalHeader>
+                            <ModalBody>
+                                <span>
+                                    <div
+                                        className={
+                                            "mt-[15px] mb-[15px] w-full text-red-600"
+                                        }
+                                        onClick={() => {
+                                            void handleMute()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faVolumeXmark}
+                                            className={"w-[40px]"}
+                                        />
+                                        {!isMuted ? (
+                                            <span>Mute</span>
+                                        ) : (
+                                            <span>Un mute</span>
+                                        )}
+                                    </div>
+                                    <div
+                                        className={
+                                            "mt-[15px] mb-[15px] w-full text-red-600"
+                                        }
+                                        onClick={() => {
+                                            onOpenReport()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faFlag}
+                                            className={"w-[40px]"}
+                                        />
+                                        Report
+                                    </div>
+                                </span>
+                            </ModalBody>
+                            <ModalFooter></ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
             <div className={ProfileContainer()}>
                 <div className={HeaderImageContainer()}>
                     {!isSkeleton ? (
                         <img
                             className={ProfileHeaderImage()}
                             src={profile?.banner}
+                            alt={"banner"}
                         />
                     ) : (
                         <Skeleton className={`h-full w-full`} />
@@ -732,6 +884,7 @@ const UserProfileComponent = ({
                             <img
                                 className={ProfileImage()}
                                 src={profile?.avatar || defaultIcon.src}
+                                alt={"avatar"}
                             />
                         ) : (
                             <div className={ProfileImage()}>
@@ -742,90 +895,126 @@ const UserProfileComponent = ({
                         )}
                     </div>
                     <div className={Buttons()}>
-                        <Dropdown
-                            isDisabled={isSkeleton}
-                            className={appearanceTextColor()}
-                        >
-                            <DropdownTrigger>
-                                <div className={ProfileCopyButton()}>
+                        {!isSkeleton && (
+                            <>
+                                <div
+                                    className={`${ProfileActionButton()} flex md:hidden`}
+                                    onClick={() => {
+                                        onOpenCopy()
+                                    }}
+                                >
                                     <FontAwesomeIcon
                                         icon={faCopy}
                                         className={PropertyButton()}
                                     />
                                 </div>
-                            </DropdownTrigger>
-                            <DropdownMenu aria-label={"copy-dropdown"}>
-                                <DropdownItem
-                                    key="copydid"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(
-                                            profile.did
-                                        )
-                                    }}
+                                <Dropdown
+                                    isDisabled={isSkeleton}
+                                    className={`${appearanceTextColor()} hidden md:flex`}
                                 >
-                                    {t("pages.profile.copyDID")}
-                                </DropdownItem>
-                                <DropdownItem
-                                    key="copyhandle"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(
-                                            profile.handle
-                                        )
-                                    }}
-                                >
-                                    {t("pages.profile.copyHandle")}
-                                </DropdownItem>
-                                <DropdownItem
-                                    key="copydisplayname"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(
-                                            profile.displayName
-                                        )
-                                    }}
-                                >
-                                    {t("pages.profile.copyDisplauName")}
-                                </DropdownItem>
-                            </DropdownMenu>
-                        </Dropdown>
-                        {!isProfileMine && !isSkeleton && (
-                            <Dropdown
-                                isDisabled={isSkeleton}
-                                className={appearanceTextColor()}
-                            >
-                                <DropdownTrigger>
-                                    <div className={ProfileActionButton()}>
-                                        <FontAwesomeIcon
-                                            icon={faEllipsis}
-                                            className={PropertyButton()}
-                                        />
-                                    </div>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label={"option-dropdown"}>
-                                    <DropdownItem
-                                        key="mute"
-                                        startContent={
+                                    <DropdownTrigger>
+                                        <div
+                                            className={`${ProfileCopyButton()} hidden md:flex`}
+                                        >
                                             <FontAwesomeIcon
-                                                icon={faVolumeXmark}
+                                                icon={faCopy}
+                                                className={PropertyButton()}
                                             />
-                                        }
+                                        </div>
+                                    </DropdownTrigger>
+                                    <DropdownMenu aria-label={"copy-dropdown"}>
+                                        <DropdownItem
+                                            key="copydid"
+                                            onClick={() => {
+                                                void navigator.clipboard.writeText(
+                                                    profile.did
+                                                )
+                                            }}
+                                        >
+                                            {t("pages.profile.copyDID")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="copyhandle"
+                                            onClick={() => {
+                                                void navigator.clipboard.writeText(
+                                                    profile.handle
+                                                )
+                                            }}
+                                        >
+                                            {t("pages.profile.copyHandle")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="copydisplayname"
+                                            onClick={() => {
+                                                void navigator.clipboard.writeText(
+                                                    profile.displayName
+                                                )
+                                            }}
+                                        >
+                                            {t("pages.profile.copyDisplauName")}
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </>
+                        )}
+                        {!isProfileMine && !isSkeleton && (
+                            <>
+                                <div
+                                    className={`${ProfileActionButton()} flex md:hidden`}
+                                    onClick={() => {
+                                        onOpenProperty()
+                                    }}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faEllipsis}
+                                        className={PropertyButton()}
+                                    />
+                                </div>
+                                <Dropdown
+                                    isDisabled={isSkeleton}
+                                    className={`${appearanceTextColor()} hidden md:flex`}
+                                >
+                                    <DropdownTrigger>
+                                        <div
+                                            className={`${ProfileActionButton()} hidden md:flex`}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faEllipsis}
+                                                className={PropertyButton()}
+                                            />
+                                        </div>
+                                    </DropdownTrigger>
+                                    <DropdownMenu
+                                        aria-label={"option-dropdown"}
                                     >
-                                        {t("pages.profile.mute")}
-                                    </DropdownItem>
-                                    <DropdownItem
-                                        key="report"
-                                        className="text-danger"
-                                        color="danger"
-                                        startContent={
-                                            <FontAwesomeIcon icon={faFlag} />
-                                        }
-                                        onClick={() => {
-                                            onOpenReport()
-                                        }}
-                                    >
-                                        {t("pages.profile.report")}
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
+                                        <DropdownItem
+                                            key="mute"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faVolumeXmark}
+                                                />
+                                            }
+                                        >
+                                            {t("pages.profile.mute")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="report"
+                                            className="text-danger"
+                                            color="danger"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faFlag}
+                                                />
+                                            }
+                                            onClick={() => {
+                                                onOpenReport()
+                                            }}
+                                        >
+                                            {t("pages.profile.report")}
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </>
                         )}
                         <Button
                             isDisabled={isSkeleton}
