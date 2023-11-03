@@ -31,7 +31,7 @@ const Root = () => {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("home")
 
-    const [appearanceColor] = useAppearanceColor()
+    //const [appearanceColor] = useAppearanceColor()
     const [menuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     // const [headerMenus] = useHeaderMenusAtom()
@@ -42,7 +42,7 @@ const Root = () => {
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
 
-    const [darkMode, setDarkMode] = useState(false)
+    // const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
     const [disableSlideVerticalScroll, setDisableSlideVerticalScroll] =
         useState<boolean>(false)
@@ -52,26 +52,26 @@ const Root = () => {
 
     // const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
 
-    const color: "dark" | "light" = darkMode ? "dark" : "light"
+    // const color: "dark" | "light" = darkMode ? "dark" : "light"
 
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
+    // const modeMe = (e: any) => {
+    //     setDarkMode(!!e.matches)
+    // }
 
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
+    // useEffect(() => {
+    //     if (appearanceColor === "system") {
+    //         const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
 
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
+    //         setDarkMode(matchMedia.matches)
+    //         matchMedia.addEventListener("change", modeMe)
 
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
+    //         return () => matchMedia.removeEventListener("change", modeMe)
+    //     } else if (appearanceColor === "dark") {
+    //         setDarkMode(true)
+    //     } else if (appearanceColor === "light") {
+    //         setDarkMode(false)
+    //     }
+    // }, [appearanceColor])
 
     useEffect(() => {
         if (tappedTabbarButton == "home") {

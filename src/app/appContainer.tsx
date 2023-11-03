@@ -397,7 +397,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     //     setMenuIndex(index)
     // }
 
-    const updateMenuWithFeedGenerators = (feeds: AppBskyFeedDefs.GeneratorView[]) => {
+    const updateMenuWithFeedGenerators = (
+        feeds: AppBskyFeedDefs.GeneratorView[]
+    ) => {
         if (feeds.length === 0) {
             return
         }
