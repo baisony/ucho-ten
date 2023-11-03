@@ -583,7 +583,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         >
                             {showTabBar && (
                                 <ViewHeader
-                                    isMobile={isMobile}
+                                    //isMobile={isMobile}
                                     //page={page}
                                     //tab={selectedTab}
                                     setSideBarOpen={setSideBarOpen}

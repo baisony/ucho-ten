@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
 import { Button } from "@nextui-org/react"
+import { isMobile } from "react-device-detect"
 // import { Tabs, Tab, Chip } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 // import { useAgent } from "@/app/_atoms/agent"
@@ -41,7 +42,7 @@ import Link from "next/link"
 
 interface Props {
     className?: string
-    isMobile?: boolean
+    //isMobile?: boolean
     open?: boolean
     //tab: string //"home" | "search" | "inbox" | "post"
     //page: string // "profile" | "home" | "post" | "search"
@@ -69,7 +70,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
     const {
         // className,
-        isMobile,
+        // isMobile,
         //open,
         //tab,
         //page,
