@@ -1036,17 +1036,17 @@ export default function Root() {
                             </div>
                             <div
                                 className={
-                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center"
+                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center hidden md:block"
                                 }
                             >
                                 <Dropdown
-                                    className={`${dropdown()} hidden md:block text-black dark:text-white`}
+                                    className={`${dropdown()} text-black dark:text-white`}
                                 >
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
                                             icon={faEllipsis}
                                             className={
-                                                "h-[20px] text-[#AAAAAA] hidden md:block"
+                                                "h-[20px] text-[#AAAAAA] "
                                             }
                                             size={"xs"}
                                         />
@@ -1183,11 +1183,15 @@ export default function Root() {
                                         </DropdownSection>
                                     </DropdownMenu>
                                 </Dropdown>
+                            </div>
+                            <div
+                                className={
+                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center block md:hidden"
+                                }
+                            >
                                 <FontAwesomeIcon
                                     icon={faEllipsis}
-                                    className={
-                                        "h-[20px] flex text-[#AAAAAA] md:hidden"
-                                    }
+                                    className={"h-[20px] flex text-[#AAAAAA]"}
                                     size={"xs"}
                                     onClick={onOpenOption}
                                 />
@@ -1287,51 +1291,70 @@ export default function Root() {
                             {formatDate(post.post.indexedAt)}
                         </div>
                         <div className={ReactionButtonContainer()}>
-                            <FontAwesomeIcon
-                                icon={faComment}
-                                className={ReactionButton()}
-                                onClick={() => {
-                                    void handleReply()
-                                }}
-                            />
-                            <FontAwesomeIcon
-                                icon={faQuoteLeft}
-                                className={`${ReactionButton()} hidden`}
-                                onClick={() => {
-                                    void handleQuote()
-                                }}
-                            />
-                            <FontAwesomeIcon
-                                icon={faRetweet}
-                                className={ReactionButton()}
-                                style={{
-                                    color: isReposted ? "#17BF63" : "#909090",
-                                }}
-                                onClick={() => {
-                                    void handleRepost()
-                                }}
-                            />
-                            <FontAwesomeIcon
-                                icon={!isLiked ? faRegularStar : faSolidStar}
-                                className={ReactionButton()}
-                                style={{
-                                    color: isLiked ? "#fd7e00" : "#909090",
-                                }}
-                                onClick={() => {
-                                    void handleLike()
-                                }}
-                            />
-                            <FontAwesomeIcon
-                                icon={
-                                    !isBookmarked
-                                        ? faRegularBookmark
-                                        : faSolidBookmark
-                                }
-                                className={ReactionButton()}
-                                onClick={() => {
-                                    void handleBookmark()
-                                }}
-                            />
+                            <div className={ReactionButton()}>
+                                <FontAwesomeIcon
+                                    icon={
+                                        !isBookmarked
+                                            ? faRegularBookmark
+                                            : faSolidBookmark
+                                    }
+                                    className={ReactionButton()}
+                                    onClick={() => {
+                                        void handleBookmark()
+                                    }}
+                                />
+                            </div>
+                            <div className={ReactionButton()}>
+                                <FontAwesomeIcon
+                                    icon={faComment}
+                                    className={ReactionButton()}
+                                    onClick={() => {
+                                        void handleReply()
+                                    }}
+                                />
+                            </div>
+                            <div
+                                className={`${ReactionButton()} ${
+                                    agent?.session?.did !==
+                                        post.post.author.did && `hidden`
+                                }`}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faQuoteLeft}
+                                    className={ReactionButton()}
+                                    onClick={() => {
+                                        void handleQuote()
+                                    }}
+                                />
+                            </div>
+                            <div className={ReactionButton()}>
+                                <FontAwesomeIcon
+                                    icon={faRetweet}
+                                    className={ReactionButton()}
+                                    style={{
+                                        color: isReposted
+                                            ? "#17BF63"
+                                            : "#909090",
+                                    }}
+                                    onClick={() => {
+                                        void handleRepost()
+                                    }}
+                                />
+                            </div>
+                            <div className={ReactionButton()}>
+                                <FontAwesomeIcon
+                                    icon={
+                                        !isLiked ? faRegularStar : faSolidStar
+                                    }
+                                    className={ReactionButton()}
+                                    style={{
+                                        color: isLiked ? "#fd7e00" : "#909090",
+                                    }}
+                                    onClick={() => {
+                                        void handleLike()
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                     {post.replies && (

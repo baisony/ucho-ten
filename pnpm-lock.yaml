@@ -208,7 +208,7 @@ packages:
       graphemer: 1.4.0
       multiformats: 9.9.0
       uint8arrays: 3.0.0
-      zod: 3.21.4
+      zod: 3.22.4
     dev: false
 
   /@atproto/lexicon@0.2.1:
@@ -218,7 +218,7 @@ packages:
       '@atproto/syntax': 0.1.1
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
-      zod: 3.21.4
+      zod: 3.22.4
     dev: false
 
   /@atproto/syntax@0.1.1:
@@ -231,7 +231,7 @@ packages:
     resolution: {integrity: sha512-VVoRC/omtXFMIDUyrkFjYkwJ3vevvsGH0L1UW6mTsL40DK3iJpi0GcdJlcqdMkIFJ+QLeAluEKgEcL7bAR5LiQ==}
     dependencies:
       '@atproto/lexicon': 0.2.1
-      zod: 3.21.4
+      zod: 3.22.4
     dev: false
 
   /@babel/runtime@7.22.15:
@@ -5748,6 +5748,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  /zod@3.21.4:
-    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
