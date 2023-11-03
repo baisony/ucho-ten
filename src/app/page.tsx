@@ -98,7 +98,7 @@ const Root = () => {
             // if (currentMenuType !== prevMenyType.current) {
             //     swiperRef.current.slideTo(menuIndex, 0)
             // } else {
-                swiperRef.current.slideTo(menuIndex)
+            swiperRef.current.slideTo(menuIndex)
             // }
         }
 

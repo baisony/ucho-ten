@@ -115,7 +115,8 @@ const SettingsGeneralPage = ({
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
 
-    const { /*background, */ accordion, appearanceTextColor } = viewSettingsPage()
+    const { /*background, */ accordion, appearanceTextColor } =
+        viewSettingsPage()
 
     const handleDisplayLanguageSelectionChange = (e: any) => {
         setDisplayLanguage(e.target.value.split(","))

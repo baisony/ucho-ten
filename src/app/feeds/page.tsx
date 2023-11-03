@@ -23,7 +23,7 @@ import { useCurrentMenuType } from "../_atoms/headerMenu"
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("myFeeds")
-    
+
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { background, FeedCard } = layout()

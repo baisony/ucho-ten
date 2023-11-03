@@ -1,5 +1,6 @@
 "use client"
-import "./_i18n/config" //i18
+
+import "../../_i18n/config" //i18
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import React, {
     useEffect,
@@ -12,18 +13,13 @@ import { layout } from "@/app/styles"
 import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-// import {useRequiredSession} from "@/app/_lib/hooks/useRequiredSession";
 import { ViewSideBar } from "@/app/_components/ViewSideBar"
-//import { useSpring, animated, interpolate } from '@react-spring/web'
-//import { useDrag } from '@use-gesture/react';
-import "./sidebar.css"
-import { useAgent } from "./_atoms/agent"
-import { useUserProfileDetailedAtom } from "./_atoms/userProfileDetail"
+import { useAgent } from "../../_atoms/agent"
+import { useUserProfileDetailedAtom } from "../../_atoms/userProfileDetail"
 import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
-import { useFeedGeneratorsAtom } from "./_atoms/feedGenerators"
-import { useUserPreferencesAtom } from "./_atoms/preferences"
-import { useImageGalleryAtom } from "./_atoms/imageGallery"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { useFeedGeneratorsAtom } from "../../_atoms/feedGenerators"
+import { useUserPreferencesAtom } from "../../_atoms/preferences"
+import { useImageGalleryAtom } from "../../_atoms/imageGallery"
 import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
 import Lightbox, {
     CaptionsRef,
@@ -36,16 +32,12 @@ import { push as BurgerPush } from "react-burger-menu"
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
-import {
-    HeaderMenu,
-    useHeaderMenusByHeaderAtom,
-} from "./_atoms/headerMenu"
+import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
-// import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
-import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
-import { isTabQueryParamValue, TabQueryParamValue } from "./_types/types"
+import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
+import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -55,7 +47,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
-    // const [appearanceColor] = useAppearanceColor()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
@@ -67,32 +58,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
 
     const target = searchParams.get("target")
-    // const [value, setValue] = useState(false)
-    // const [isSideBarOpen, setIsSideBarOpen] = useState(false)
-    // const tab: string =
-    //     pathName === "/"
-    //         ? "home"
-    //         : pathName === "/search" ||
-    //           pathName === "/inbox" ||
-    //           pathName === "/post"
-    //         ? pathName.replace("/", "")
-    //         : "home"
-    //const [, setMenus] = useHeaderMenusAtom()
-    //const [menuIndex] = useAtom(menuIndexAtom)
-    // const [, setMenuIndex] = useAtom(setMenuIndexAtom)
-    // const [, setCurrentMenuType] = useCurrentMenuType()
-    //const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
-    // const [page, setPage] = useState<
-    //     "profile" | "home" | "inbox" | "post" | "search"
-    // >("home")
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
-    // const [history, setHistory] = useState([pathName, ""])
 
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
@@ -186,10 +158,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [router, pathName])
-
-    // useEffect(() => {
-    //     setHistory([pathName, history[0]])
-    // }, [pathName])
 
     useEffect(() => {
         if (agent?.hasSession === true) {
@@ -296,23 +264,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [searchText])
 
     useEffect(() => {
-        // if (pathName.startsWith("/search")) {
-        //     setPage("search")
-        //     setSelectedTab("search")
-        // } else if (pathName.startsWith("/profile")) {
-        //     setPage("profile")
-        //     setSelectedTab("home")
-        // } else if (pathName.startsWith("/post")) {
-        //     setPage("post")
-        //     setSelectedTab("post")
-        // } else if (pathName.startsWith("/inbox")) {
-        //     setPage("inbox") // TODO: ??
-        //     setSelectedTab("inbox")
-        // } else {
-        //     setPage("home")
-        //     setSelectedTab("home")
-        // }
-
         setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
 
@@ -387,15 +338,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         setMuteWords(newMuteWords)
     }, [JSON.stringify(muteWords)])
 
-    /*const [{ x, y }, api] = useSpring(() => ({ x: 0, y: 0 }))
-    const bind = useDrag(({ down, offset: [ox, oy] }) => api.start({ x: ox, y: oy, immediate: down }), {
-        bounds: { left: 0, right: 300, top: 0, bottom: 0 }
-    })*/
-
-    // const onChangeMenuIndex = (index: number) => {
-    //     setMenuIndex(index)
-    // }
-
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]
     ) => {
@@ -423,39 +365,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }))
     }
 
-    // useEffect(() => {
-    //     if (pathName === "/") {
-    //         setCurrentMenuType("home")
-    //     } else if (pathName === "/search") {
-    //         setCurrentMenuType("search")
-
-    //         switch (searchParams.get("target")) {
-    //             case "posts":
-    //                 setMenuIndex(0)
-    //                 break
-    //             case "users":
-    //                 setMenuIndex(1)
-    //                 break
-    //             case "feeds":
-    //                 setMenuIndex(2)
-    //                 break
-    //             default:
-    //                 setMenuIndex(0)
-    //                 break
-    //         }
-    //     } else if (pathName === "/inbox") {
-    //         // setMenus(HEADER_MENUS.inbox)
-    //         setCurrentMenuType("inbox")
-    //         setMenuIndex(0)
-    //     } else if (
-    //         pathName.match(/^\/profile\/did:(\w+):(\w+)\/post\/(\w+)$/)
-    //     ) {
-    //         //setMenus(HEADER_MENUS.onlyPost)
-    //         setCurrentMenuType("onlyPost")
-    //         setMenuIndex(0)
-    //     }
-    // }, [pathName, searchParams])
-
     const handleSideBarOpen = (isOpen: boolean) => {
         setDrawerOpen(isOpen)
     }
@@ -468,39 +377,20 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             left: "0",
             top: "0",
         },
-        bmBurgerBars: {
-            // background: '#373a47'
-        },
-        bmBurgerBarsHover: {
-            // background: '#a90000'
-        },
+        bmBurgerBars: {},
+        bmBurgerBarsHover: {},
         bmCrossButton: {
             height: "0",
             width: "0",
         },
-        bmCross: {
-            // background: '#bdc3c7'
-        },
-        bmMenuWrap: {
-            // overflowX: "hidden",
-            // position: "fixed",
-            // height: "100%",
-        },
-        bmMenu: {
-            // background: '#373a47',
-            // padding: '2.5em 1.5em 0',
-            // fontSize: '1.15em'
-        },
-        bmMorphShape: {
-            // fill: '#373a47'
-        },
-        bmItemList: {
-            // color: '#b8b7ad',
-            // padding: '0.8em'
-        },
-        bmItem: {},
+        bmCross: {},
+        bmMenuWrap: {},
+        bmMenu: {},
+        bmMorphShape: {},
+        bmItemList: {},
         bmOverlay: { background: "transparent" },
     }
+
     useLayoutEffect(() => {
         const lngChange = (lng: any) => {
             const lang = lng.replace(/-\w+$/, "")
@@ -538,7 +428,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     return (
         <div
-            // className={`${noto.className}`}
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
         >
             <div id="burger-outer-container">
@@ -580,28 +469,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         {showTabBar && (
                             <ViewHeader
                                 isMobile={isMobile}
-                                //page={page}
-                                //tab={selectedTab}
                                 setSideBarOpen={handleSideBarOpen}
                                 setSearchText={setSearchText}
-                                //selectedTab={selectedTab}
-                                //menuIndex={menuIndex}
-                                //menus={menus}
-                                //onChangeMenuIndex={onChangeMenuIndex}
                             />
                         )}
-                        <div
-                            // className={`${
-                            //     pathName === "/login"
-                            //         ? "h-[calc(100%)]"
-                            //         : showTabBar
-                            //         ? `pt-[0px] h-[calc(100%-50px)]`
-                            //         : `pt-[100px] h-[calc(100%-150px)]`
-                            // }`}
-                            className={`pt-[0px] h-[100%]`}
-                        >
-                            {children}
-                        </div>
+                        <div className={`pt-[0px] h-[100%]`}>{children}</div>
                         {showTabBar && <TabBar />}
                     </div>
                     {imageSlides && imageSlideIndex !== null && (
@@ -666,71 +538,3 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         </div>
     )
 }
-
-// interface BurgerSiderBarProps {
-//     isMobile: boolean
-// }
-
-// const BurgerSiderBar: React.FC<BurgerSiderBarProps> = (
-//     children,
-//     { isMobile }
-// ) => {
-//     const burgerMenuStyles = {
-//         bmBurgerButton: {
-//             position: "fixed",
-//             width: "0",
-//             height: "0",
-//             left: "0",
-//             top: "0",
-//         },
-//         bmBurgerBars: {
-//             // background: '#373a47'
-//         },
-//         bmBurgerBarsHover: {
-//             // background: '#a90000'
-//         },
-//         bmCrossButton: {
-//             height: "0",
-//             width: "0",
-//         },
-//         bmCross: {
-//             // background: '#bdc3c7'
-//         },
-//         bmMenuWrap: {
-//             // overflowX: "hidden",
-//             // position: "fixed",
-//             // height: "100%",
-//         },
-//         bmMenu: {
-//             // background: '#373a47',
-//             // padding: '2.5em 1.5em 0',
-//             // fontSize: '1.15em'
-//         },
-//         bmMorphShape: {
-//             // fill: '#373a47'
-//         },
-//         bmItemList: {
-//             // color: '#b8b7ad',
-//             // padding: '0.8em'
-//         },
-//         bmItem: {},
-//         bmOverlay: { background: "transparent" },
-//     }
-
-//     return (
-//         <>
-//             <BurgerPush
-//                 className={"backdrop-blur-[5px]"}
-//                 outerContainerId="burger-outer-container"
-//                 pageWrapId="main-container"
-//                 // styles={burgerMenuStyles}
-//                 // isOpen={drawerOpen}
-//                 // onClose={() => {
-//                 //     setDrawerOpen(false)
-//                 // }}
-//             >
-//                 {children}
-//             </BurgerPush>
-//         </>
-//     )
-// }

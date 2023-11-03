@@ -321,22 +321,20 @@ export default function Root() {
         }
 
         if (timeline) {
-            const timelineData: CustomFeedCellProps[] = timeline.map(
-                (post) => {
-                    const postProps: ViewPostCardProps = {
-                        isTop: false,
-                        isMobile,
-                        postJson: post.post,
-                        now,
-                        nextQueryParams,
-                        t,
-                    }
-
-                    return {
-                        postProps,
-                    }
+            const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
+                const postProps: ViewPostCardProps = {
+                    isTop: false,
+                    isMobile,
+                    postJson: post.post,
+                    now,
+                    nextQueryParams,
+                    t,
                 }
-            )
+
+                return {
+                    postProps,
+                }
+            })
 
             data = [...data, ...timelineData]
         } else {

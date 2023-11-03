@@ -679,44 +679,50 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "users" && searchText && searchUsersResult !== null && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            scrollRef.current = ref
-                        }
-                    }}
-                    context={{ hasMore: hasMoreFeedsResult }}
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={searchUsersResult}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <UserCell
-                            {...{
-                                isDummyHeader: index === 0,
-                                actor: data,
-                                onClick: () => {
-                                    router.push(
-                                        `/profile/${
-                                            data.did
-                                        }?${nextQueryParams.toString()}`
-                                    )
-                                },
-                            }}
-                        />
-                    )}
-                    components={{
-                        // @ts-ignore
-                        Footer: !isEndOfContent
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadUsersMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
-                />
-            )}
+            {!loading &&
+                searchTarget === "users" &&
+                searchText &&
+                searchUsersResult !== null && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                            }
+                        }}
+                        context={{ hasMore: hasMoreFeedsResult }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={searchUsersResult}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <UserCell
+                                {...{
+                                    isDummyHeader: index === 0,
+                                    actor: data,
+                                    onClick: () => {
+                                        router.push(
+                                            `/profile/${
+                                                data.did
+                                            }?${nextQueryParams.toString()}`
+                                        )
+                                    },
+                                }}
+                            />
+                        )}
+                        components={{
+                            // @ts-ignore
+                            Footer: !isEndOfContent
+                                ? ListFooterSpinner
+                                : ListFooterNoContent,
+                        }}
+                        endReached={loadUsersMore}
+                        style={{
+                            overflowY: "auto",
+                            height: "calc(100% - 50px)",
+                        }}
+                    />
+                )}
             {loading && searchTarget === "feeds" && (
                 <Virtuoso
                     overscan={100}
@@ -738,42 +744,48 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "feeds" && searchText && searchFeedsResult !== null && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            scrollRef.current = ref
-                        }
-                    }}
-                    context={{ hasMore: hasMoreUsersResult }}
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={searchFeedsResult}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <ViewFeedCardCell
-                            {...{
-                                isTop: index === 0,
-                                isMobile,
-                                isSkeleton: false,
-                                feed: data || null,
-                                now,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    components={{
-                        // @ts-ignore
-                        Footer: !isEndOfContent
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadFeedsMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
-                />
-            )}
+            {!loading &&
+                searchTarget === "feeds" &&
+                searchText &&
+                searchFeedsResult !== null && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                            }
+                        }}
+                        context={{ hasMore: hasMoreUsersResult }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={searchFeedsResult}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <ViewFeedCardCell
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    feed: data || null,
+                                    now,
+                                    nextQueryParams,
+                                    t,
+                                }}
+                            />
+                        )}
+                        components={{
+                            // @ts-ignore
+                            Footer: !isEndOfContent
+                                ? ListFooterSpinner
+                                : ListFooterNoContent,
+                        }}
+                        endReached={loadFeedsMore}
+                        style={{
+                            overflowY: "auto",
+                            height: "calc(100% - 50px)",
+                        }}
+                    />
+                )}
         </>
     )
 }
