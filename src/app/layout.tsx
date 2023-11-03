@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 // import { Noto_Sans_JP } from "next/font/google"
-import { Providers } from "./providers"
+import { Providers } from "./_components/Providers/Providers"
 import { AppConatiner } from "./_components/AppContainer/AppContainer"
 import Script from "next/script"
 
