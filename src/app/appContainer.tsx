@@ -102,6 +102,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const { background } = layout()
 
+    // "/", "/search", "/inbox", "/post" それぞれを router.prefetch() を実行する
     useEffect(() => {
         router.prefetch("/")
         router.prefetch("/search")
@@ -109,6 +110,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/post")
     }, [])
 
+    // クエリパラメータから、表示するべき画面タブの種別を取得し、setNextQueryParams() に設定する
+    // deps: [pathName, searchParams]
     useEffect(() => {
         const queryParams = new URLSearchParams(searchParams)
 
@@ -148,19 +151,27 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         setNextQueryParams(queryParams)
     }, [pathName, searchParams])
 
+    // isMobileでない場合に、キーのイベントリスナーを設定する
+    // deps: [router, pathName]
     useEffect(() => {
+        // モバイルだとキーイベントハンドラは登録しない
+        // FIXME: モバイルでのBluetoothキーボードとかつないでる場合も考慮しない？
         if (isMobile) {
             return
         }
 
+        // 設定するキーイベントハンドラ
         const handleKeyDown = (event: any) => {
             // FIXME: do not use 'any' as type
+
+            // パスが "/post" の場合は、「"Escape" で戻る」のみ対応
             if (event.key === "Escape" && pathName === "/post") {
                 event.preventDefault()
                 router.back()
                 return
             }
 
+            // フォーカスがあたっている対象が、"textarea", "input" の場合は無効として何もしない
             if (
                 event.target.tagName.toLowerCase() === "textarea" ||
                 event.target.tagName.toLowerCase() === "input"
@@ -168,6 +179,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 return
             }
 
+            // Ctrl もしくは meta(Command や Windows) キーが押されていない状態(Option , Altは？) で "n" もしくは "N" を押したら、新規ポスト作成画面へ
             if (
                 !event.ctrlKey &&
                 !event.metaKey &&
@@ -181,6 +193,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         }
 
+        // キーイベントハンドラ登録
         window.addEventListener("keydown", handleKeyDown)
 
         return () => {
@@ -188,21 +201,34 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [router, pathName])
 
+    // [pathName, history[0]] を setHistory() に渡す
+    // deps: [pathName]
     useEffect(() => {
         setHistory([pathName, history[0]])
     }, [pathName])
 
+    // セッションの復元、もしくはログイン画面へのリダイレクト
+    // deps [agent && agent.hasSession, pathName]
     useEffect(() => {
+        // セッションが成立していれば何もしない
         if (agent?.hasSession === true) {
             return
         }
 
+        // セッション復元、もしくはログイン画面へのリダイレクトをおこなうメソッド
+        // FIXME: このセッション確認とログイン画面への遷移、Next の middleware でおこなった方がいいのかも
+        // https://nextjs.org/docs/app/building-your-application/routing/middleware
         const restoreSession = async () => {
+            // ローカルストレージから "session" アイテムを取得してみる
             const sessionJson = localStorage.getItem("session")
 
+            // "session" アイテム が取得できなかった場合、"/login" ログイン画面に遷移する
             if (!sessionJson) {
+                // 現在の画面が "/login" だったら、そのまま
+                // FIXME: ここの "/login" への遷移は、下の同じパターンの所と共通処理にできるのでは？
                 if (pathName === "/login") return
                 if (router) {
+                    // router が取得できていれば、ログイン後の戻り画面として現在の画面情報を設定して、"/login" 画面に遷移する
                     router.push(
                         `/login${
                             pathName
@@ -213,21 +239,26 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         }`
                     )
                 } else {
+                    // router が取得できてなければ、location.href で "/login" 画面に遷移する
                     location.href = "/login"
                 }
                 return
             }
 
+            // "session" アイテム が取得できてれば、パースし、resumeSession を試みる
             const session = JSON.parse(sessionJson).session
             const agent = new BskyAgent({
                 service: `https://${JSON.parse(sessionJson).server}`,
             })
 
             try {
+                // resumeSession を試みる
                 await agent.resumeSession(session)
-
+                // 成功したら agent を setAgent() に設定
                 setAgent(agent)
             } catch (error) {
+                // resumeSession に失敗したら、、"/login" ログイン画面に遷移する
+                // FIXME: ここの "/login" への遷移は、上の同じパターンの所と共通処理にできるのでは？
                 console.error(error)
                 if (pathName === "/login") return
                 if (router) {
@@ -245,32 +276,37 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 }
             }
 
+            // userProfileDetailed がなくて、セッションが確立されていたら、getProfile() を呼び出す
             if (!userProfileDetailed && agent.hasSession === true) {
                 const res = await agent.getProfile({
                     actor: agent.session?.did || "",
                 })
                 const { data } = res
-
+                // getProfile()で取得した情報を、setUserProfileDetailed() で設定する
                 setUserProfileDetailed(data)
             }
 
+            // userPreferences がなくて、セッションが確立されていたら、getPreferences() を呼び出す
             if (!userPreferences && agent.hasSession === true) {
                 try {
+                    // getPreferences() を呼び出す
                     console.log("fetch preferences")
                     const res = await agent.getPreferences()
 
                     if (res) {
+                        // 成功したら、setUserPreferences() で設定する
                         console.log(res)
 
                         setUserPreferences(res)
 
+                        // UserPreferences.feed.pinned の feed のurlリストから、getFeedGenerators()を呼んで、feedの情報を取得する
                         const { data } =
                             await agent.app.bsky.feed.getFeedGenerators({
                                 feeds: res.feeds.pinned as string[],
                             })
 
                         console.log(data)
-
+                        // 取得できたフィード情報を、setFeedGenerators() で設定
                         setFeedGenerators(data.feeds)
                     } else {
                         // もしresがundefinedだった場合の処理
@@ -282,12 +318,17 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         }
 
+        // セッション回復メソッドの呼び出し
         restoreSession()
     }, [agent && agent.hasSession, pathName])
 
+    // searchText が設定されていたら検索画面に遷移する
+    // deps [searchText]
     useEffect(() => {
         console.log(searchText)
+        // searchText が空だったら何もしない
         if (searchText === "" || !searchText) return
+        // searchText になにか文字列が設定されていたら、パラメータ設定して "/search" 検索画面に遷移する
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", searchText)
         queryParams.set("target", target || "posts")
@@ -295,6 +336,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.push(`/search?${queryParams.toString()}`)
     }, [searchText])
 
+    // pathName から、表示するタブバーを setShowTabBar()で設定する
+    // deps [pathName]
     useEffect(() => {
         // if (pathName.startsWith("/search")) {
         //     setPage("search")
@@ -316,6 +359,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
 
+    // imageGallery が設定されていたら、setImageSlideIndex() と setImageSlides() を設定する
+    // deps [imageGallery]
     useEffect(() => {
         if (imageGallery && imageGallery.images.length > 0) {
             const slides: Slide[] = []
@@ -332,6 +377,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [imageGallery])
 
+    // pathName から、背景画像を表示させるかどうかの判定 useMemo()を使用
+    // deps [pathName, searchParams]
     const shouldFillPageBackground = useMemo((): boolean => {
         if (pathName.startsWith("/login")) {
             return false
@@ -347,13 +394,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [pathName, searchParams])
 
+    // muteWords の設定
+    // deps [JSON.stringify(muteWords)]
     useEffect(() => {
+        // muteWords が何も設定されてなかったら、設定しない
         if (muteWords.length === 0) return
 
         let newMuteWords = [...muteWords]
 
+        // muteWords の word ごとに設定する
         for (const word of muteWords) {
             if (typeof word === "string") {
+                // ひとまず？ word 以外は固定内容の Object を作成
                 const createdAt = new Date().getTime()
                 const json = {
                     category: null,
@@ -368,10 +420,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     deletedAt: null,
                 }
 
+                // 重複があるかチェック
                 const isDuplicate = muteWords.find(
                     (muteWord) => muteWord.word === word
                 )
 
+                // 重複してなければ、登録
                 if (!isDuplicate) {
                     console.log("add")
                     newMuteWords.push(json)
@@ -381,9 +435,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         }
 
+        // FIXME: 各要素の型チェック "string" でない要素のみ("Object" もしくは "Muteword"型のみにした方がいいのでは？) filter で選別
         newMuteWords = newMuteWords.filter(
             (muteWord) => typeof muteWord !== "string"
         )
+        // 更新した newMuteWords を setMuteWords() で設定
         setMuteWords(newMuteWords)
     }, [JSON.stringify(muteWords)])
 
@@ -396,7 +452,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     //     setMenuIndex(index)
     // }
 
+    // feedGenerators の feed 詳細情報から、 displayName と uti のみのリストを作成する
+    // deps [feedGenerators]
     useEffect(() => {
+        // feedGenerators が未定義だったら何もしない
         if (!feedGenerators) {
             return
         }
@@ -404,6 +463,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         console.log("feedGenerators", feedGenerators)
 
         const newHeaderMenusByHeader = headerMenusByHeader
+        // feedGenerators の feed 詳細情報から、 displayName と uti のみのリストを作成 -> menus
         const menus: HeaderMenu[] = feedGenerators.map((feed) => {
             return {
                 displayText: feed.displayName,
@@ -411,29 +471,39 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         })
 
+        // menus の最初に "Following" を追加
         menus.unshift({
             displayText: "Following",
             info: "following",
         })
 
-        newHeaderMenusByHeader.home = menus
+        // newHeaderMenusByHeader.home = menus
 
+        // setHeaderMenusByHeader() で HeaderMenusByHeader Atom の home: を menus で置き換える
         setHeaderMenusByHeader((prevHeaderMenus) => ({
             ...prevHeaderMenus,
             home: menus,
         }))
     }, [feedGenerators])
 
+    // FIXME: headerMenusByHeader の内容を console.log() で出力だけする(更新確認用？)
+    // deps [headerMenusByHeader]
     useEffect(() => {
         console.log("headerMenusByHeader", headerMenusByHeader)
     }, [headerMenusByHeader])
 
+    // pathName から、currentMenuType を setCurrentMenuType() で設定
+    // pathName が "/search" の場合のみ、と searchParams の "target" から menuIndex を setMenuIndex() で設定
+    // deps [pathName, searchParams]
     useEffect(() => {
+        // pathName から、currentMenuType("home" | "search" | "inbox" | "onlyPost" | その他はないの?) を setCurrentMenuType() で設定
         if (pathName === "/") {
             setCurrentMenuType("home")
         } else if (pathName === "/search") {
             setCurrentMenuType("search")
 
+            // pathName が "/search" の場合のみ、と searchParams の "target" から menuIndex ("post"=>0| "users"=>1 | "feeds"=>2 | その他=>0) を setMenuIndex() で設定
+            // FIXME: 型にした方がいいのでは？
             switch (searchParams.get("target")) {
                 case "posts":
                     setMenuIndex(0)
@@ -456,13 +526,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         ) {
             //setMenus(HEADER_MENUS.onlyPost)
             setCurrentMenuType("onlyPost")
-        }
+        } // FIXME: else はなくて大丈夫？
     }, [pathName, searchParams])
 
+    // FIXME: setDrawerOpen のエイリアスメソッド setDrawerOpen を渡せない理由があるのでしょうか？
     const setSideBarOpen = (isOpen: boolean) => {
         setDrawerOpen(isOpen)
     }
 
+    // FIXME: css 定義だけど、外に出した方がいいのでは？
     const burgerMenuStyles = {
         bmBurgerButton: {
             position: "fixed",
@@ -504,23 +576,42 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bmItem: {},
         bmOverlay: { background: "transparent" },
     }
+
+    // 表示言語設定 displayLanguage が変更されたら、i18n.changeLanguage() を設定する
+    // deps [displayLanguage]
     useLayoutEffect(() => {
         const lngChange = (lng: any) => {
+            // FIXME: displayLanguageの "-" 以降を削除して "en" とか "ja" のみにしてるけど、"-" のあとの国情報も考慮すべき
+            // 同じ言語でも、国/地域によってちがう表現をすることもある。一番は中国語。文字自体がちがう
+            // 例： 参考: https://so-zou.jp/web-app/tech/data/code/language.htm#rfc-4646
+            // zh-CN 中国語(簡体字)
+            // zh-TW 中国語(繁体字)
+            // pt    ポルトガル語
+            // pt-PT ポルトガル語(ポルトガル)
+            // pt-BR ポルトガル語(ブラジル)
+            // en-GB 英語(英国)
+            // en-US 英語(米国)
+            // "en-US" で指定して、なければ "en" にして再指定するなど。
             const lang = lng.replace(/-\w+$/, "")
             console.log(lang)
+            // FIXME: 指定言語のファイルが見つからなかった場合のエラー対策が必要
             i18n.changeLanguage(lang)
             console.log(i18n.resolvedLanguage)
         }
         lngChange(displayLanguage[0])
     }, [displayLanguage])
 
+    // テーマの設定 "system" の場合に、イベントリスナーを登録して、システム側のテーマが変更になった際に、テーマ変更をおこなう
+    // deps []
     useEffect(() => {
         const mediaQueryLlistener = (e: any) => {
+            // FIXME: Atom を使っていないのは何か理由があるのでしょうか？
             const appearanceColor = localStorage.getItem("appearanceColor")
 
             if (appearanceColor) {
                 const parsedAppearanceColor = JSON.parse(appearanceColor)
                 if (parsedAppearanceColor === "system") {
+                    // FIXME: ここでのテーマの変更は、どこかに記録しないでも大丈夫でしょうか？
                     if (e.matches) {
                         document.documentElement.classList.add("dark")
                     } else {
@@ -530,6 +621,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         }
 
+        // FIXME: ここで "color-scheme: dark" としているのは、system側が "light" だったときには、必ず "change" イベントが発生するということでしょうか？
         const mql = window.matchMedia("(prefers-color-scheme: dark)")
         mql.addEventListener("change", mediaQueryLlistener)
 
@@ -583,6 +675,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         >
                             {showTabBar && (
                                 <ViewHeader
+                                    // FIXME: isMobile は、ViewHeader 側で取得できるので、Props からはずしました。
                                     //isMobile={isMobile}
                                     //page={page}
                                     //tab={selectedTab}

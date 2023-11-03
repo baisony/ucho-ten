@@ -42,6 +42,7 @@ import Link from "next/link"
 
 interface Props {
     className?: string
+    // isMobile は、ViewHeader でも取得できるので、Props からはずしました。
     //isMobile?: boolean
     open?: boolean
     //tab: string //"home" | "search" | "inbox" | "post"
