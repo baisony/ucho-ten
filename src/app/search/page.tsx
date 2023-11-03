@@ -14,6 +14,7 @@ import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/
 import { layout } from "@/app/search/styles"
 import {
     menuIndexAtom,
+    setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
 } from "../_atoms/headerMenu"
@@ -35,6 +36,7 @@ export default function Root() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
+    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
     const [menuIndex] = useAtom(menuIndexAtom)
@@ -84,6 +86,23 @@ export default function Root() {
             clearInterval(intervalId)
         }
     }, [])
+
+    useEffect(() => {
+        switch (searchParams.get("target")) {
+            case "posts":
+                setMenuIndex(0)
+                break
+            case "users":
+                setMenuIndex(1)
+                break
+            case "feeds":
+                setMenuIndex(2)
+                break
+            default:
+                setMenuIndex(0)
+                break
+        }
+    }, [searchParams])
 
     useEffect(() => {
         console.log(searchTarget, searchText)
