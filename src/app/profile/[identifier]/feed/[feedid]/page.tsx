@@ -42,7 +42,7 @@ import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("Feed")
+    setCurrentMenuType("feed")
 
     const pathname = usePathname()
     const { t } = useTranslation()
