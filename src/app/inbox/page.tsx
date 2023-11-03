@@ -6,13 +6,13 @@ import { Virtuoso } from "react-virtuoso"
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useNotificationInfoAtom } from "../_atoms/notification"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
+import { ViewPostCard } from "../_components/ViewPostCard"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -216,16 +216,6 @@ export default function Root() {
         }
     }, [agent])
 
-    const notificationWithDummy = useMemo((): PostView[] => {
-        const dummyData: PostView = {} as PostView
-
-        if (!notification) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...notification]
-        }
-    }, [notification])
-
     return (
         <>
             {!notification && (
@@ -233,11 +223,11 @@ export default function Root() {
                     totalCount={20}
                     initialItemCount={20}
                     itemContent={(index, item) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
-                                isDummyHeader: index === 0,
                                 nextQueryParams,
                                 t,
                             }}
@@ -256,16 +246,16 @@ export default function Root() {
                     context={{ hasMore }}
                     overscan={200}
                     increaseViewportBy={200}
-                    data={notificationWithDummy}
+                    data={notification}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: data || null,
-                                isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
                                 t,

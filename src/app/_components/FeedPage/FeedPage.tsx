@@ -11,11 +11,8 @@ import {
 } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
-import { ViewPostCardCell } from "../ViewPostCard/ViewPostCardCell"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate, faL } from "@fortawesome/free-solid-svg-icons"
-// import { useInfoByFeedAtom } from "@/app/_atoms/dataByFeed"
-// import { settingContentFilteringPage } from "../SettingContentFilteringPage/styles"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
@@ -23,8 +20,7 @@ import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-// import { usePathname } from "next/navigation"
-// import { useListScrollRefAtom } from "@/app/_atoms/listScrollRef"
+import { ViewPostCard } from "../ViewPostCard"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -51,9 +47,7 @@ const FeedPage = ({
     const { t } = useTranslation()
 
     const [agent] = useAgent()
-    // const [infoByFeed, setInfoByFeed] = useInfoByFeedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    // const [, setListScrollRefAtom] = useListScrollRefAtom()
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -61,17 +55,12 @@ const FeedPage = ({
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
-    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false)
+    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
 
-    const cursor = useRef<string>("")
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
-
-    // const queryClient = useQueryClient()
-
-    // const shouldLoad = (isActive === true || isNextActive === true)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -79,8 +68,6 @@ const FeedPage = ({
         feedkeyWithCursor: (feedKey: string, cursor: string) =>
             [...getFeedKeys.feedkey(feedKey), cursor] as const,
     }
-
-    // const currentScrollPosition = useRef<number>(0)
 
     useEffect(() => {
         console.log(shouldScrollToTop.current, scrollRef.current)
@@ -91,88 +78,6 @@ const FeedPage = ({
             shouldScrollToTop.current = false
         }
     }, [timeline])
-
-    const fetchTimeline = async () => {
-        if (!agent) {
-            return
-        }
-
-        if (feedKey === "") {
-            return
-        }
-
-        console.log("fetchtimeline", feedKey)
-
-        try {
-            let response: AppBskyFeedGetTimeline.Response
-
-            if (feedKey === "following") {
-                response = await agent.getTimeline({
-                    limit: FEED_FETCH_LIMIT,
-                    cursor: cursor.current || "",
-                })
-            } else {
-                response = await agent.app.bsky.feed.getFeed({
-                    feed: feedKey,
-                    cursor: cursor.current || "",
-                    limit: FEED_FETCH_LIMIT,
-                })
-            }
-
-            if (
-                response.data.feed.length === 0 &&
-                (cursor.current === response.data.cursor ||
-                    response.data.cursor == undefined)
-            ) {
-                setIsEndOfFeed(true)
-            }
-
-            if (response.data) {
-                const { feed } = response.data
-                console.log("feed", feed)
-
-                const filteredData =
-                    feedKey === "following"
-                        ? filterDisplayPosts(feed, agent.session?.did)
-                        : feed
-
-                console.log("filteredData", filteredData)
-
-                setTimeline((currentTimeline) => {
-                    if (currentTimeline !== null) {
-                        const newTimeline = [
-                            ...currentTimeline,
-                            ...filteredData,
-                        ]
-
-                        return newTimeline
-                    } else {
-                        return [...filteredData]
-                    }
-                })
-
-                if (filteredData.length > 0) {
-                    latestCID.current = filteredData[0].post.cid
-                } else {
-                    latestCID.current = ""
-                }
-            } else {
-                setTimeline([])
-                setHasMore(false)
-                return
-            }
-
-            cursor.current = response.data.cursor || ""
-
-            if (cursor.current !== "") {
-                setHasMore(true)
-            } else {
-                setHasMore(false)
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    }
 
     const loadMore = useCallback(() => {
         if (hasMore) {
@@ -247,29 +152,6 @@ const FeedPage = ({
             console.error(e)
         }
     }
-
-    // useEffect(() => {
-    //     if (isActive === false) {
-    //         return
-    //     }
-
-    //     console.log("shouldCheckUpdate", shouldCheckUpdate)
-
-    //     if (shouldCheckUpdate.current == false) {
-    //         return
-    //     }
-
-    //     shouldCheckUpdate.current = true
-
-    //     const timeoutId = setTimeout(async () => {
-    //         console.log("setTimeout", feedKey)
-    //         checkNewTimeline()
-    //     }, CHECK_FEED_UPDATE_INTERVAL)
-
-    //     return () => {
-    //         clearTimeout(timeoutId)
-    //     }
-    // }, [shouldCheckUpdate])
 
     useEffect(() => {
         if (isActive !== true) {
@@ -349,38 +231,6 @@ const FeedPage = ({
         }
     }
 
-    const timelineWithDummy = useMemo((): FeedViewPost[] => {
-        // Need to add data for top padding
-        const dummyData: FeedViewPost = {} as FeedViewPost
-
-        if (timeline === null) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...timeline]
-        }
-    }, [timeline])
-
-    // useEffect(() => {
-    //     if (isActive === false) {
-    //         return
-    //     }
-
-    //     console.log("shouldCheckUpdate", shouldCheckUpdate)
-
-    //     if (shouldCheckUpdate == false) {
-    //         return
-    //     }
-
-    //     const timeoutId = setTimeout(async () => {
-    //         console.log("setTimeout", feedKey)
-    //         checkNewTimeline()
-    //     }, CHECK_FEED_UPDATE_INTERVAL)
-
-    //     return () => {
-    //         clearTimeout(timeoutId)
-    //     }
-    // }, [shouldCheckUpdate, isActive])
-
     const getTimelineFetcher = async ({
         queryKey,
     }: QueryFunctionContext<
@@ -435,19 +285,6 @@ const FeedPage = ({
         setLoadMoreFeed(false)
     }
 
-    // const disableScrollIfNeeded = (e: React.UIEvent<Element>) => {
-    //     const newScrollPosition = e.currentTarget.scrollTop
-
-    //     if (disableSlideVerticalScroll) {
-    //         e.currentTarget.scrollTo({
-    //             top: currentScrollPosition.current,
-    //             left: 0,
-    //         })
-    //     }
-
-    //     currentScrollPosition.current = newScrollPosition
-    // }
-
     return (
         <>
             {hasUpdate && (
@@ -476,11 +313,11 @@ const FeedPage = ({
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, _) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
-                                isDummyHeader: index === 0,
                                 nextQueryParams,
                                 t,
                             }}
@@ -500,17 +337,17 @@ const FeedPage = ({
                     context={{ hasMore }}
                     increaseViewportBy={200}
                     overscan={200}
-                    data={timelineWithDummy}
+                    data={timeline}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: item.post || null,
                                 json: item,
-                                isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
                                 t,

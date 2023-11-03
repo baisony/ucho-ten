@@ -796,6 +796,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 >
                     <div className={"w-full"}>
                         <ViewPostCard
+                            isTop={false}
                             postJson={postData}
                             isEmbedToModal={true}
                             nextQueryParams={nextQueryParams}

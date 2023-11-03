@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type {
@@ -501,6 +502,7 @@ export default function Root() {
                 <>
                     {nestedViewPostCards}
                     <ViewPostCard
+                        isTop={false}
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -526,6 +528,7 @@ export default function Root() {
                 <>
                     {nestedViewPostCards}
                     <ViewPostCard
+                        isTop={false}
                         postJson={post.replies.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -1273,6 +1276,7 @@ export default function Root() {
                                 !notfoundEmbedRecord &&
                                 !embedRecordBlocked && (
                                     <ViewPostCard
+                                        isTop={false}
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
@@ -1361,6 +1365,7 @@ export default function Root() {
                         <>
                             {post.replies.map((item: any, index: number) => (
                                 <ViewPostCard
+                                    isTop={false}
                                     key={index}
                                     postJson={item.post}
                                     isMobile={isMobile}

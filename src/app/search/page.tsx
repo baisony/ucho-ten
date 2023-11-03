@@ -20,7 +20,6 @@ import {
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
-import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useAtom } from "jotai"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
@@ -29,6 +28,7 @@ import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
+import { ViewPostCard } from "../_components/ViewPostCard"
 
 export default function Root() {
     const router = useRouter()
@@ -530,17 +530,6 @@ export default function Root() {
 
         const target = menus.search[menuIndex].info
 
-        // const queryParams = new URLSearchParams(nextQueryParams)
-
-        // queryParams.set("word", searchText)
-        // queryParams.set("target", target)
-
-        // if (searchText === "") {
-        //     return
-        // }
-
-        // router.replace(`/search?${queryParams.toString()}`)
-
         setSearchTarget(target)
 
         setSearchInfo((prevSearchInfo) => {
@@ -561,26 +550,6 @@ export default function Root() {
             return [dummyData, ...searchPostsResult]
         }
     }, [searchPostsResult])
-
-    const searchUsersResultWithDummy = useMemo((): ProfileView[] => {
-        const dummyData: ProfileView = {} as ProfileView
-
-        if (!searchUsersResult) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...searchUsersResult]
-        }
-    }, [searchUsersResult])
-
-    const searchFeedsResultWithDummy = useMemo((): GeneratorView[] => {
-        const dummyData: GeneratorView = {} as GeneratorView
-
-        if (!searchFeedsResult) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...searchFeedsResult]
-        }
-    }, [searchFeedsResult])
 
     const findFeeds = () => {
         const queryParams = new URLSearchParams(nextQueryParams)
@@ -612,6 +581,7 @@ export default function Root() {
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
                                 <div>日本語フィードを探す</div>
+                                {/* TODO: i18n */}
                                 <div>by @Ucho-ten</div>
                             </div>
                         </Link>
@@ -635,8 +605,9 @@ export default function Root() {
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
                                 isDummyHeader: index === 0,
@@ -663,8 +634,9 @@ export default function Root() {
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
                                 postJson: data || null,
@@ -707,7 +679,7 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "users" && searchText && (
+            {!loading && searchTarget === "users" && searchText && searchUsersResult !== null && (
                 <Virtuoso
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
@@ -717,7 +689,7 @@ export default function Root() {
                     context={{ hasMore: hasMoreFeedsResult }}
                     overscan={200}
                     increaseViewportBy={200}
-                    data={searchUsersResultWithDummy}
+                    data={searchUsersResult}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
@@ -766,7 +738,7 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "feeds" && searchText && (
+            {!loading && searchTarget === "feeds" && searchText && searchFeedsResult !== null && (
                 <Virtuoso
                     scrollerRef={(ref) => {
                         if (ref instanceof HTMLElement) {
@@ -776,16 +748,16 @@ export default function Root() {
                     context={{ hasMore: hasMoreUsersResult }}
                     overscan={200}
                     increaseViewportBy={200}
-                    data={searchFeedsResultWithDummy}
+                    data={searchFeedsResult}
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
                         <ViewFeedCardCell
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
                                 feed: data || null,
-                                isDummyHeader: index === 0,
                                 now,
                                 nextQueryParams,
                                 t,
@@ -822,13 +794,8 @@ const UserCell = ({
 }: UserCellProps) => {
     const { userCard } = layout()
 
-    if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
-    }
-
     return (
         <div
-            //key={`search-actor-${!skeleton ? actor.did : index}`}
             onClick={onClick}
             //@ts-ignore
             className={`${userCard()}`}

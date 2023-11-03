@@ -51,6 +51,7 @@ export default function Root() {
                 {timeline.map((post, index) => {
                     return (
                         <ViewPostCard
+                            isTop={false}
                             key={index}
                             postJson={post}
                             nextQueryParams={nextQueryParams}
