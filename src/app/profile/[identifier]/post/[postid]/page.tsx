@@ -1036,13 +1036,13 @@ export default function Root() {
                                 }
                             >
                                 <Dropdown
-                                    className={`${dropdown()} hidden md:block text-black dark:text-white`}
+                                    className={`${dropdown()} text-black dark:text-white`}
                                 >
                                     <DropdownTrigger>
                                         <FontAwesomeIcon
                                             icon={faEllipsis}
                                             className={
-                                                "h-[20px] text-[#AAAAAA] hidden md:block"
+                                                "h-[20px] text-[#AAAAAA] "
                                             }
                                             size={"xs"}
                                         />
@@ -1179,16 +1179,18 @@ export default function Root() {
                                         </DropdownSection>
                                     </DropdownMenu>
                                 </Dropdown>
-                                <div className={"md:hidden block"}>
-                                    <FontAwesomeIcon
-                                        icon={faEllipsis}
-                                        className={
-                                            "h-[20px] flex text-[#AAAAAA]"
-                                        }
-                                        size={"xs"}
-                                        onClick={onOpenOption}
-                                    />
-                                </div>
+                            </div>
+                            <div
+                                className={
+                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center block md:hidden"
+                                }
+                            >
+                                <FontAwesomeIcon
+                                    icon={faEllipsis}
+                                    className={"h-[20px] flex text-[#AAAAAA]"}
+                                    size={"xs"}
+                                    onClick={onOpenOption}
+                                />
                             </div>
                         </div>
                         <div className={PostContent()}>
