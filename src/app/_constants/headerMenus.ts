@@ -106,6 +106,13 @@ const defaultListMenus: HeaderMenu[] = [
     },
 ]
 
+const defaultFeedMenus: HeaderMenu[] = [
+    {
+        displayText: "Feed",
+        info: "feed",
+    },
+]
+
 const defaultAboutMenus: HeaderMenu[] = [
     {
         displayText: "About",
@@ -124,6 +131,7 @@ export type HeaderMenuType =
     | "list"
     | "bookmarks"
     | "myFeeds"
+    | "feed"
     | "about"
 
 type HeaderMenus = { [k in HeaderMenuType]: HeaderMenu[] }
@@ -139,5 +147,6 @@ export const HEADER_MENUS: HeaderMenus = {
     bookmarks: defaultBookmarksMenus,
     myFeeds: defaultMyFeedsMenus,
     list: defaultListMenus,
+    feed: defaultFeedMenus,
     about: defaultAboutMenus,
 }

@@ -20,6 +20,7 @@ const menuIndexByHeader = atom<{ [k in HeaderMenuType]: number }>({
     bookmarks: 0,
     myFeeds: 0,
     list: 0,
+    feed: 0,
     about: 0,
 })
 
@@ -34,6 +35,7 @@ const headerMenusByHeader = atom<{ [k in HeaderMenuType]: HeaderMenu[] }>({
     bookmarks: HEADER_MENUS.bookmarks,
     myFeeds: HEADER_MENUS.myFeeds,
     list: HEADER_MENUS.list,
+    feed: HEADER_MENUS.feed,
     about: HEADER_MENUS.about,
 })
 

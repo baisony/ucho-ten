@@ -45,7 +45,7 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("myFeeds")
+    setCurrentMenuType("Feed")
 
     const pathname = usePathname()
     const { t } = useTranslation()

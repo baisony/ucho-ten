@@ -1,6 +1,7 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
 import React, { useEffect, useState } from "react"
+import Link from "next/link"
 import { layout } from "./styles"
 import {
     Button,
@@ -17,9 +18,12 @@ import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import Link from "next/link"
+import { useCurrentMenuType } from "../_atoms/headerMenu"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("myFeeds")
+    
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { background, FeedCard } = layout()
