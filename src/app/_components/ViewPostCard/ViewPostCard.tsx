@@ -76,7 +76,8 @@ import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 
-interface Props {
+export interface ViewPostCardProps {
+    isTop: boolean
     // className?: string
     isMobile?: boolean
     // uploadImageAvailable?: boolean
@@ -94,13 +95,10 @@ interface Props {
     t: any
 }
 
-export const ViewPostCard = (props: Props) => {
+export const ViewPostCard = (props: ViewPostCardProps) => {
     const {
-        // className,
+        isTop,
         isMobile,
-        // uploadImageAvailable,
-        // open,
-        // numbersOfImage,
         postJson,
         quoteJson,
         isSkeleton,
@@ -770,6 +768,8 @@ export const ViewPostCard = (props: Props) => {
             <div
                 className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}
             >
+                {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+
                 <Modal
                     isOpen={isOpenReply}
                     onOpenChange={onOpenChangeReply}
@@ -994,7 +994,7 @@ export const ViewPostCard = (props: Props) => {
                                             <DropdownSection title="Danger zone">
                                                 {postJsonData &&
                                                 agent?.session?.did !==
-                                                    postJsonData.author.did ? (
+                                                    postJsonData?.author.did ? (
                                                     <DropdownItem
                                                         key="report"
                                                         className="text-danger"
@@ -1127,6 +1127,7 @@ export const ViewPostCard = (props: Props) => {
                                 !notfoundEmbedRecord &&
                                 !embedRecordBlocked && (
                                     <ViewPostCard
+                                        isTop={false}
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}

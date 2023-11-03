@@ -38,14 +38,11 @@ import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import {
-    ViewPostCardCell,
-    ViewPostCardCellProps,
-} from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 
 export default function Root() {
     const router = useRouter()
@@ -255,8 +252,9 @@ export default function Root() {
 
         if (timeline) {
             const timelineData: UserProfilePageCellProps[] = timeline.map(
-                (post) => {
-                    const postProps: ViewPostCardCellProps = {
+                (post, index) => {
+                    const postProps: ViewPostCardProps = {
+                        isTop: false,
                         isMobile,
                         postJson: post.post,
                         now,
@@ -274,8 +272,9 @@ export default function Root() {
         } else {
             const timelineData: UserProfilePageCellProps[] = Array.from({
                 length: 20,
-            }).map((_) => {
-                const postProps: ViewPostCardCellProps = {
+            }).map((_, index) => {
+                const postProps: ViewPostCardProps = {
+                    isTop: false,
                     isSkeleton: true,
                     isMobile,
                     now,
@@ -328,7 +327,7 @@ export default function Root() {
 interface UserProfilePageCellProps {
     isDummyHeader?: boolean
     userProfileProps?: UserProfileProps
-    postProps?: ViewPostCardCellProps
+    postProps?: ViewPostCardProps
 }
 
 const UserProfilePageCell = (props: UserProfilePageCellProps) => {
@@ -343,7 +342,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     }
 
     if (postProps) {
-        return <ViewPostCardCell {...postProps} />
+        return <ViewPostCard {...postProps} />
     }
 }
 
