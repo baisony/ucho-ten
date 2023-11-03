@@ -68,16 +68,16 @@ const defaultOnlyPostMenus: HeaderMenu[] = [
 
 const defaultSettingsMenus: HeaderMenu[] = [
     {
-        displayText: "Settings",
-        info: "settings",
-    },
-    {
         displayText: "General",
         info: "general",
     },
     {
         displayText: "Content Filtering",
         info: "contentfiltering",
+    },
+    {
+        displayText: "Mute",
+        info: "mute",
     },
 ]
 

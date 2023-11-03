@@ -50,17 +50,23 @@ export const useHeaderMenusByHeaderAtom = () => useAtom(headerMenusByHeader)
 const currentMenuType = atom<HeaderMenuType>("home")
 export const useCurrentMenuType = () => useAtom(currentMenuType)
 
-export const menuIndexAtom = atom<number>((get) => {
-    const currentType = get(currentMenuType)
-    return get(menuIndexByHeader)[currentType]
-})
+// export const menuIndexAtom = atom<number>((get) => {
+//     const currentType = get(currentMenuType)
+//     return get(menuIndexByHeader)[currentType]
+// })
 
-export const setMenuIndexAtom = atom(null, (get, set, newMenuIndex) => {
-    const currentType = get(currentMenuType)
-    const currentIndex = get(menuIndexByHeader)
-    const updatedIndex = { ...currentIndex, [currentType]: newMenuIndex }
-    set(menuIndexByHeader, updatedIndex)
-})
+export const menuIndexAtom = atom(
+    (get) => {
+        const currentType = get(currentMenuType)
+        return get(menuIndexByHeader)[currentType]
+    },
+    (get, set, newMenuIndex) => {
+        const currentType = get(currentMenuType)
+        const currentIndex = get(menuIndexByHeader)
+        const updatedIndex = { ...currentIndex, [currentType]: newMenuIndex }
+        return set(menuIndexByHeader, updatedIndex)
+    }
+)
 
 const menuIndexChangedByMenu = atom<boolean>(false)
 export const useMenuIndexChangedByMenu = () => useAtom(menuIndexChangedByMenu)

@@ -14,7 +14,6 @@ import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/
 import { layout } from "@/app/search/styles"
 import {
     menuIndexAtom,
-    setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
 } from "../_atoms/headerMenu"
@@ -36,10 +35,9 @@ export default function Root() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
-    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
-    const [menuIndex] = useAtom(menuIndexAtom)
     const [currentMenuType] = useCurrentMenuType()
     //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()

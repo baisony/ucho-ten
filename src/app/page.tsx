@@ -1,9 +1,9 @@
 "use client"
 
-import { isMobile } from "react-device-detect"
+// import { isMobile } from "react-device-detect"
 import React, { useEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+// import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
@@ -12,7 +12,6 @@ import FeedPage from "./_components/FeedPage/FeedPage"
 // import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     menuIndexAtom,
-    setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
@@ -32,8 +31,7 @@ const Root = () => {
     setCurrentMenuType("home")
 
     //const [appearanceColor] = useAppearanceColor()
-    const [menuIndex] = useAtom(menuIndexAtom)
-    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     // const [headerMenus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
@@ -48,7 +46,7 @@ const Root = () => {
         useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
-    const prevMenyType = useRef<HeaderMenuType>("home")
+    // const prevMenyType = useRef<HeaderMenuType>("home")
 
     // const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
 
@@ -91,20 +89,20 @@ const Root = () => {
     }, [])
 
     useEffect(() => {
-        console.log("home", currentMenuType, swiperRef.current, menuIndex)
+        // console.log("home", currentMenuType, swiperRef.current, menuIndex)
         if (
             currentMenuType === "home" &&
             swiperRef.current &&
             menuIndex !== swiperRef.current.activeIndex
         ) {
-            if (currentMenuType !== prevMenyType.current) {
-                swiperRef.current.slideTo(menuIndex, 0)
-            } else {
+            // if (currentMenuType !== prevMenyType.current) {
+            //     swiperRef.current.slideTo(menuIndex, 0)
+            // } else {
                 swiperRef.current.slideTo(menuIndex)
-            }
+            // }
         }
 
-        prevMenyType.current = currentMenuType
+        //prevMenyType.current = currentMenuType
     }, [currentMenuType, menuIndex, swiperRef.current])
 
     // useEffect(() => {
@@ -158,7 +156,7 @@ const Root = () => {
             onSwiper={(swiper) => {
                 swiperRef.current = swiper
             }}
-            cssMode={isMobile}
+            cssMode={false}
             // virtual={true}
             pagination={{ type: "custom", clickable: false }}
             hidden={true} // ??

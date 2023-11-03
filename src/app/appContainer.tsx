@@ -38,8 +38,6 @@ import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import {
     HeaderMenu,
-    setMenuIndexAtom,
-    useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
 } from "./_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
@@ -47,7 +45,6 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
-import { useAtom } from "jotai"
 import { isTabQueryParamValue, TabQueryParamValue } from "./_types/types"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
@@ -58,7 +55,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
-    const [appearanceColor] = useAppearanceColor()
+    // const [appearanceColor] = useAppearanceColor()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
@@ -67,7 +64,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
-    const [feedGenerators, setFeedGenerators] = useFeedGeneratorsAtom()
+    const [, setFeedGenerators] = useFeedGeneratorsAtom()
 
     const target = searchParams.get("target")
     // const [value, setValue] = useState(false)
@@ -82,8 +79,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     //         : "home"
     //const [, setMenus] = useHeaderMenusAtom()
     //const [menuIndex] = useAtom(menuIndexAtom)
-    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
-    const [, setCurrentMenuType] = useCurrentMenuType()
+    // const [, setMenuIndex] = useAtom(setMenuIndexAtom)
+    // const [, setCurrentMenuType] = useCurrentMenuType()
     //const [selectedTab, setSelectedTab] = useState<string>(tab)
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)

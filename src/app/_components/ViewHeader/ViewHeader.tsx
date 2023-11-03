@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
@@ -20,7 +22,6 @@ import SwiperCore from "swiper/core"
 import {
     HeaderMenu,
     menuIndexAtom,
-    setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
@@ -31,7 +32,7 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 
 import "swiper/css"
-import "swiper/css/pagination"
+// import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import { useAtom } from "jotai"
@@ -52,15 +53,11 @@ interface Props {
 }
 
 export const ViewHeader: React.FC<Props> = (props: Props) => {
-    // const [agent] = useAgent()
-    // const [userPreferences] = useUserPreferencesAtom()
-    // const pathname = usePathname()
     const router = useRouter()
     const pathname = usePathname()
 
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndex] = useAtom(menuIndexAtom)
-    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
     const [tappedTabbarButton, setTappedTabbarButton] =
@@ -325,6 +322,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
+                cssMode={false}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
                 className={bottom()}
