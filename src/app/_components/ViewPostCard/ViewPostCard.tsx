@@ -24,41 +24,19 @@ import {
 } from "@fortawesome/free-regular-svg-icons"
 import {
     faBookmark as faBookmarkSolid,
-    faCheckCircle,
-    faCircleQuestion,
-    faCircleXmark,
-    faCode,
-    faEllipsis,
-    faFlag,
-    faHashtag,
-    faLink,
     faReply,
     faRetweet,
     faStar as faHeartSolid,
-    faTrash,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { PostModal } from "../PostModal"
 import { Linkcard } from "@/app/_components/Linkcard"
-import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
+// import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { ReportModal } from "@/app/_components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
-import {
-    Button,
-    Chip,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownSection,
-    DropdownTrigger,
-    Modal,
-    ModalContent,
-    ScrollShadow,
-    Tooltip,
-    useDisclosure,
-} from "@nextui-org/react"
+import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
@@ -79,6 +57,7 @@ import EmbedMedia from "./EmbedMedia"
 import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import MoreDropDownMenu from "./MoreDropDownMenu"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -526,6 +505,30 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         setIsBookmarked(isBookmarked)
     }, [postJson, quoteJson, json])
 
+    const handleMenuClickCopyURL = () => {
+        if (!postJsonData) {
+            return
+        }
+
+        const urlToCopy = `https://bsky.app/profile/${
+            postJsonData.author.did
+        }/post/${postJsonData.uri.match(/\/(\w+)$/)?.[1] || ""}`
+
+        void navigator.clipboard.writeText(urlToCopy)
+    }
+
+    const handleMenuClickCopyJSON = () => {
+        navigator.clipboard.writeText(JSON.stringify(postJson))
+    }
+
+    const handleMenuClickReport = () => {
+        onOpenReport()
+    }
+
+    const handleMenuClickDelete = () => {
+        handleDelete()
+    }
+
     if (isSkeleton === true) {
         return <ViewPostCardSkelton {...{ isTop }} />
     }
@@ -668,125 +671,29 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             <div
                                 className={`${moreButton()} group-hover:md:flex md:hidden hidden`}
                             >
-                                {!isEmbedToModal && (
-                                    <Dropdown
-                                        className={"text-black dark:text-white"}
-                                    >
-                                        <DropdownTrigger>
-                                            <FontAwesomeIcon
-                                                icon={faEllipsis}
-                                                className={
-                                                    "h-[20px] mb-[4px] cursor-pointer text-[#909090]"
-                                                }
-                                            />
-                                        </DropdownTrigger>
-                                        <DropdownMenu
-                                            disallowEmptySelection
-                                            aria-label="Multiple selection actions"
-                                            selectionMode="multiple"
-                                        >
-                                            <DropdownItem
-                                                key="1"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faLink}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    if (!postJsonData) {
-                                                        return
-                                                    }
-
-                                                    console.log(
-                                                        `https://bsky.app/profile/${
-                                                            postJsonData.author
-                                                                .did
-                                                        }/post/${
-                                                            postJsonData.uri.match(
-                                                                /\/(\w+)$/
-                                                            )?.[1] || ""
-                                                        }`
-                                                    )
-                                                    void navigator.clipboard.writeText(
-                                                        `https://bsky.app/profile/${
-                                                            postJsonData.author
-                                                                .did
-                                                        }/post/${
-                                                            postJsonData.uri.match(
-                                                                /\/(\w+)$/
-                                                            )?.[1] || ""
-                                                        }`
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "components.ViewPostCard.copyURL"
-                                                )}
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="2"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faCode}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    void navigator.clipboard.writeText(
-                                                        JSON.stringify(postJson)
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "components.ViewPostCard.copyJSON"
-                                                )}
-                                            </DropdownItem>
-                                            <DropdownSection title="Danger zone">
-                                                {postJsonData &&
+                                {!isEmbedToModal &&
+                                    postJsonData &&
+                                    postJson && (
+                                        <MoreDropDownMenu
+                                            isThisUser={
                                                 agent?.session?.did !==
-                                                    postJsonData?.author.did ? (
-                                                    <DropdownItem
-                                                        key="report"
-                                                        className="text-danger"
-                                                        color="danger"
-                                                        startContent={
-                                                            <FontAwesomeIcon
-                                                                icon={faFlag}
-                                                            />
-                                                        }
-                                                        onClick={() => {
-                                                            console.log(
-                                                                "hogehoge"
-                                                            )
-                                                            onOpenReport()
-                                                        }}
-                                                    >
-                                                        {t(
-                                                            "components.ViewPostCard.report"
-                                                        )}
-                                                    </DropdownItem>
-                                                ) : (
-                                                    <DropdownItem
-                                                        key="delete"
-                                                        className="text-danger"
-                                                        color="danger"
-                                                        startContent={
-                                                            <FontAwesomeIcon
-                                                                icon={faTrash}
-                                                            />
-                                                        }
-                                                        onClick={async () => {
-                                                            await handleDelete()
-                                                        }}
-                                                    >
-                                                        {t(
-                                                            "components.ViewPostCard.delete"
-                                                        )}
-                                                    </DropdownItem>
-                                                )}
-                                            </DropdownSection>
-                                        </DropdownMenu>
-                                    </Dropdown>
-                                )}
+                                                postJsonData?.author.did
+                                            }
+                                            onClickCopyURL={
+                                                handleMenuClickCopyURL
+                                            }
+                                            onClickCopyJSON={
+                                                handleMenuClickCopyJSON
+                                            }
+                                            onClickReport={
+                                                handleMenuClickReport
+                                            }
+                                            onClickDelete={
+                                                handleMenuClickDelete
+                                            }
+                                            t={t}
+                                        />
+                                    )}
                             </div>
                         </div>
                         <div className={PostContent({ isEmbedToPost })}>
