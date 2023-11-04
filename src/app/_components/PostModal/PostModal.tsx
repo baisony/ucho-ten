@@ -50,6 +50,8 @@ import {
     TableRow,
     Textarea as NextUITextarea,
     useDisclosure,
+    DropdownProps,
+    Selection,
 } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
@@ -69,6 +71,8 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import i18n from "@/app/_i18n/config"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { LANGUAGES } from "@/app/_constants/lanuages"
+import LanguagesSelectionModal from "../LanguageSelectionModal"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -100,18 +104,19 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
-    let defaultLanguage: string[]
+    let defaultLanguages: string[]
+
     if (window) {
-        defaultLanguage = [
+        defaultLanguages = [
             (window.navigator.languages && window.navigator.languages[0]) ||
                 window.navigator.language,
         ]
     } else {
-        defaultLanguage = ["en"]
+        defaultLanguages = ["en"]
     }
 
-    const [PostContentLanguage, setPostContentLanguage] = useState(
-        new Set<string>(defaultLanguage)
+    const [postContentLanguages, setPostContentLanguages] = useState(
+        new Set<string>(defaultLanguages)
     )
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
@@ -168,7 +173,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         ImageAddALTButton,
         ImageEditButton,
     } = postModal()
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const { isOpen /*onOpen, onOpenChange*/ } = useDisclosure()
     const {
         isOpen: isOpenALT,
         onOpen: onOpenALT,
@@ -185,37 +190,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [altText, setAltText] = useState("")
 
     //const [selectedColor, setSelectedColor] = useState("default")
-
-    const languages = [
-        {
-            name: "日本語",
-            code: "ja",
-        },
-        {
-            name: "English",
-            code: "en",
-        },
-        {
-            name: "한국어",
-            code: "ko",
-        },
-        {
-            name: "中文",
-            code: "zh",
-        },
-        {
-            name: "Español",
-            code: "es",
-        },
-        {
-            name: "Français",
-            code: "fr",
-        },
-        {
-            name: "Português",
-            code: "pt",
-        },
-    ]
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -275,7 +249,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 Omit<AppBskyFeedPost.Record, "createdAt"> = {
                 text: rt.text.trimStart().trimEnd(),
                 facets: rt.facets,
-                langs: Array.from(PostContentLanguage),
+                langs: Array.from(postContentLanguages),
             }
 
             if (type === "Reply") {
@@ -490,29 +464,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         e.preventDefault()
     }
 
-    // const userList = [
-    //     {
-    //         name: "John Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=1",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    //     {
-    //         name: "Jane Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=2",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    //     {
-    //         name: "Kate Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=3",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    //     {
-    //         name: "Mark Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=4",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    // ]
-
     const detectURL = (text: string) => {
         // URLを検出する正規表現パターン
         const urlPattern =
@@ -640,68 +591,25 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         setAltOfImageList(updatedAltOfImageList)
     }, [altOfImageList, editALTIndex, altText])
 
+    const handleLanguagesSelectionChange = (keys: Selection) => {
+        if (Array.from(keys).length < 4) {
+            setPostContentLanguages(
+                keys as Set<string>
+            )
+        }
+    }
+
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            <Modal
+            
+            <LanguagesSelectionModal 
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
-                placement={"bottom"}
-                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
-                hideCloseButton
-            >
-                <ModalContent>
-                    {(onCloseLangs) => (
-                        <>
-                            <ModalHeader>Select Languages</ModalHeader>
-                            <ModalBody>
-                                <div className="flex flex-col gap-3">
-                                    <Table
-                                        hideHeader
-                                        //color={selectedColor}
-                                        disallowEmptySelection
-                                        selectionMode="multiple"
-                                        selectedKeys={PostContentLanguage}
-                                        defaultSelectedKeys={
-                                            PostContentLanguage
-                                        }
-                                        onSelectionChange={(e) => {
-                                            if (Array.from(e).length < 4) {
-                                                setPostContentLanguage(
-                                                    e as Set<string>
-                                                )
-                                            }
-                                        }}
-                                        aria-label="Language table"
-                                    >
-                                        <TableHeader>
-                                            <TableColumn>Languages</TableColumn>
-                                            <TableColumn> </TableColumn>
-                                            <TableColumn> </TableColumn>
-                                            <TableColumn> </TableColumn>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {languages.map((item, index) => {
-                                                return (
-                                                    <TableRow key={item.code}>
-                                                        <TableCell>
-                                                            {item.name}
-                                                        </TableCell>
-                                                        <TableCell> </TableCell>
-                                                        <TableCell> </TableCell>
-                                                        <TableCell> </TableCell>
-                                                    </TableRow>
-                                                )
-                                            })}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            </ModalBody>
-                            <ModalFooter></ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+                onSelectionChange={handleLanguagesSelectionChange}
+                postContentLanguages={postContentLanguages}
+            />
+
             <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
                 <ModalContent>
                     {(onCloseALT) => (
@@ -1053,7 +961,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 onOpenLangs()
                             }}
                         >{`${t("modal.post.lang")}:${Array.from(
-                            PostContentLanguage
+                            postContentLanguages
                         ).join(",")}`}</div>
                         <div
                             className={`${footerTooltipStyle()} hidden md:flex`}
@@ -1065,25 +973,25 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             >
                                 <DropdownTrigger>
                                     {`${t("modal.post.lang")}:${Array.from(
-                                        PostContentLanguage
+                                        postContentLanguages
                                     ).join(",")}`}
                                 </DropdownTrigger>
                                 <DropdownMenu
                                     disallowEmptySelection
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
-                                    selectedKeys={PostContentLanguage}
-                                    defaultSelectedKeys={PostContentLanguage}
+                                    selectedKeys={postContentLanguages}
+                                    defaultSelectedKeys={postContentLanguages}
                                     onSelectionChange={(e) => {
-                                        console.log(PostContentLanguage)
+                                        console.log(postContentLanguages)
                                         if (Array.from(e).length < 4) {
-                                            setPostContentLanguage(
+                                            setPostContentLanguages(
                                                 e as Set<string>
                                             )
                                         }
                                     }}
                                 >
-                                    {languages.map((item, index) => {
+                                    {LANGUAGES.map((item, index) => {
                                         return (
                                             <DropdownItem key={item.code}>
                                                 {item.name}
@@ -1111,10 +1019,11 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     disallowEmptySelection
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
-                                    selectedKeys={PostContentLanguage}
+                                    selectedKeys={postContentLanguages}
                                     onSelectionChange={(e) => {
                                         if (Array.from(e).length < 4) {
                                             //setPostContentLanguage(e as Set<string>);
+                                            //
                                         }
                                     }}
                                 >
