@@ -22,8 +22,8 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
     const feedURI = new AtUri(feed.uri)
     return (
         <>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} /> }
-            
+            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+
             <Link
                 className={`${userCard()}`}
                 style={{ cursor: isSkeleton ? "default" : "pointer" }}

@@ -1113,9 +1113,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                         </div>
                         {!isEmbedToPost && (
                             <div className={PostReactionButtonContainer()}>
-                                <div
-                                    className={`flex`}
-                                >
+                                <div className={`flex`}>
                                     <div
                                         className={`${bookmarkButton()} group-hover:md:block ${
                                             !isBookmarked && `md:hidden`
@@ -1142,9 +1140,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 <div className={``}>
                                     {!isEmbedToModal && (
                                         <>
-                                            <div
-                                                className={`flex`}
-                                            >
+                                            <div className={`flex`}>
                                                 <div
                                                     className={`${PostReactionButton()} ${replyButton()} group-hover:md:block md:hidden`}
                                                 >
