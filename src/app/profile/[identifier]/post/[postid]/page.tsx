@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type {
     FeedViewPost,
@@ -77,14 +77,77 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { menuIndexAtom, useCurrentMenuType, useMenuIndexChangedByMenu } from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
+import { useAtom } from "jotai"
 
-export default function Root() {
-    const [, setCurrentMenuType] = useCurrentMenuType()
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination } from "swiper/modules"
+
+import "swiper/css"
+import "swiper/css/pagination"
+
+const Page = () => {
+    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("onlyPost")
 
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+
+    const swiperRef = useRef<SwiperCore | null>(null)
+
+    useEffect(() => {
+        if (
+            currentMenuType === "onlyPost" &&
+            swiperRef.current &&
+            menuIndex !== swiperRef.current.activeIndex
+        ) {
+            swiperRef.current.slideTo(menuIndex)
+        }
+    }, [currentMenuType, menuIndex, swiperRef.current])
+
+    return (
+        <>
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                cssMode={false}
+                pagination={{ type: "custom", clickable: false }}
+                modules={[Pagination]}
+                className="swiper-settings"
+                style={{ height: "100%" }}
+                touchAngle={30}
+                touchRatio={0.8}
+                touchReleaseOnEdges={true}
+                touchMoveStopPropagation={true}
+                preventInteractionOnTransition={true}
+                onActiveIndexChange={(swiper) => {
+                    if (menuIndexChangedByMenu === false) {
+                        setMenuIndex(swiper.activeIndex)
+                    }
+                }}
+                onTouchStart={(swiper, event) => {
+                    setMenuIndexChangedByMenu(false)
+                }}
+            >
+                <SwiperSlide>
+                    <AuthorsPostPage />
+                </SwiperSlide>
+                <SwiperSlide>
+                    <div className="w-full h-full"></div>
+                </SwiperSlide>
+            </Swiper>
+        </>
+    )
+}
+
+export default Page
+
+const AuthorsPostPage = () => {
     const [agent] = useAgent()
     const [userPreference] = useUserPreferencesAtom()
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
@@ -156,28 +219,28 @@ export default function Root() {
         }
     }, [thread])
 
-    const FormattingTimeline = (timeline: FeedViewPost[]) => {
-        const seenUris = new Set<string>()
-        const filteredData = timeline.filter((item) => {
-            const uri = item.post.uri
-            if (item.reply) {
-                if (item.reason) return true
-                return (
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                )
-            }
-            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
-            if (!seenUris.has(uri)) {
-                seenUris.add(uri)
-                return true
-            }
-            return false
-        })
-        return filteredData as FeedViewPost[]
-    }
+    // const FormattingTimeline = (timeline: FeedViewPost[]) => {
+    //     const seenUris = new Set<string>()
+    //     const filteredData = timeline.filter((item) => {
+    //         const uri = item.post.uri
+    //         if (item.reply) {
+    //             if (item.reason) return true
+    //             return (
+    //                 //@ts-ignore
+    //                 item.post.author.did === item.reply.parent.author.did &&
+    //                 //@ts-ignore
+    //                 item.reply.parent.author.did === item.reply.root.author.did
+    //             )
+    //         }
+    //         // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+    //         if (!seenUris.has(uri)) {
+    //             seenUris.add(uri)
+    //             return true
+    //         }
+    //         return false
+    //     })
+    //     return filteredData as FeedViewPost[]
+    // }
 
     const fetchPost = async () => {
         if (!agent) return
