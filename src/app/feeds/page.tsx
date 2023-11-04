@@ -1,6 +1,6 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { layout } from "./styles"
 import {
@@ -18,12 +18,79 @@ import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { useCurrentMenuType } from "../_atoms/headerMenu"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useMenuIndexChangedByMenu,
+} from "../_atoms/headerMenu"
 
-export default function Root() {
-    const [, setCurrentMenuType] = useCurrentMenuType()
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination } from "swiper/modules"
+
+import "swiper/css"
+import "swiper/css/pagination"
+import { useAtom } from "jotai"
+
+const Page = () => {
+    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("myFeeds")
 
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+
+    const swiperRef = useRef<SwiperCore | null>(null)
+
+    useEffect(() => {
+        if (
+            currentMenuType === "myFeeds" &&
+            swiperRef.current &&
+            menuIndex !== swiperRef.current.activeIndex
+        ) {
+            swiperRef.current.slideTo(menuIndex)
+        }
+    }, [currentMenuType, menuIndex, swiperRef.current])
+
+    return (
+        <>
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                cssMode={false}
+                pagination={{ type: "custom", clickable: false }}
+                modules={[Pagination]}
+                className="swiper-my-feeds"
+                style={{ height: "100%" }}
+                touchAngle={30}
+                touchRatio={0.8}
+                touchReleaseOnEdges={true}
+                touchMoveStopPropagation={true}
+                preventInteractionOnTransition={true}
+                onActiveIndexChange={(swiper) => {
+                    if (menuIndexChangedByMenu === false) {
+                        setMenuIndex(swiper.activeIndex)
+                    }
+                }}
+                onTouchStart={(swiper, event) => {
+                    setMenuIndexChangedByMenu(false)
+                }}
+            >
+                <SwiperSlide>
+                    <MyFeedsPage />
+                </SwiperSlide>
+                <SwiperSlide>
+                    <div className="w-full h-full"></div>
+                </SwiperSlide>
+            </Swiper>
+        </>
+    )
+}
+
+export default Page
+
+const MyFeedsPage = () => {
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { background, FeedCard } = layout()

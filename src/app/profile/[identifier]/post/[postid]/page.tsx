@@ -77,7 +77,11 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { menuIndexAtom, useCurrentMenuType, useMenuIndexChangedByMenu } from "@/app/_atoms/headerMenu"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useMenuIndexChangedByMenu,
+} from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { useAtom } from "jotai"
@@ -118,7 +122,7 @@ const Page = () => {
                 cssMode={false}
                 pagination={{ type: "custom", clickable: false }}
                 modules={[Pagination]}
-                className="swiper-settings"
+                className="swiper-only-post"
                 style={{ height: "100%" }}
                 touchAngle={30}
                 touchRatio={0.8}
