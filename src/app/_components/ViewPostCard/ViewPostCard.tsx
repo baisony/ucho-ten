@@ -78,12 +78,8 @@ import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 
 export interface ViewPostCardProps {
     isTop: boolean
-    // className?: string
     isMobile?: boolean
-    // uploadImageAvailable?: boolean
     isDragActive?: boolean
-    // open?: boolean
-    // numbersOfImage?: 0 | 1 | 2 | 3 | 4
     postJson?: PostView
     quoteJson?: ViewRecord
     isSkeleton?: boolean
@@ -421,25 +417,22 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }
 
     const handleImageClick = useCallback(
-        (index: number) => {
-            if (embedImages?.images) {
-                const images: ImageObject[] = []
+        (images: ViewImage[], index: number) => {
+            if (images !== undefined) {
+                const imageObjects: ImageObject[] = []
 
-                for (const image of embedImages.images) {
-                    const currentImage: ImageObject = {
-                        fullsize: "",
-                        alt: "",
+                for (const image of images) {
+                    const currentImageObject: ImageObject = {
+                        fullsize: image.fullsize,
+                        alt: image.alt,
                     }
 
-                    currentImage.fullsize = image.fullsize
-                    currentImage.alt = image.alt
-
-                    images.push(currentImage)
+                    imageObjects.push(currentImageObject)
                 }
 
-                if (images.length > 0) {
+                if (imageObjects.length > 0) {
                     const gelleryObject: ImageGalleryObject = {
-                        images,
+                        images: imageObjects,
                         index,
                     }
 
@@ -545,15 +538,15 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         content={
                                             deletehttp(facetText) ===
                                             deletehttp(facet.features[0].uri)
-                                                ? "リンク偽装の心配はありません。"
+                                                ? "リンク偽装の心配はありません。" // TODO: i18n
                                                 : facet.features[0].uri.includes(
                                                       facetText.replace(
                                                           "...",
                                                           ""
                                                       )
                                                   )
-                                                ? "URL短縮の可能性があります。"
-                                                : "リンク偽装の可能性があります。"
+                                                ? "URL短縮の可能性があります。" // TODO: i18n
+                                                : "リンク偽装の可能性があります。" // TODO: i18n
                                         }
                                     >
                                         <FontAwesomeIcon
@@ -1077,8 +1070,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             {embedImages && !contentWarning && (
                                 <EmbedImages
                                     embedImages={embedImages}
-                                    onImageClick={(index: number) => {
-                                        handleImageClick(index)
+                                    onImageClick={(images, index) => {
+                                        handleImageClick(images, index)
                                     }}
                                     isEmbedToModal={isEmbedToModal}
                                 />
@@ -1105,8 +1098,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             {embedMedia && (
                                 <EmbedMedia
                                     embedMedia={embedMedia}
-                                    onImageClick={(index: number) => {
-                                        handleImageClick(index)
+                                    onImageClick={(images, index) => {
+                                        handleImageClick(images, index)
                                     }}
                                     nextQueryParams={nextQueryParams}
                                 />
@@ -1251,7 +1244,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
 interface EmbedImagesProps {
     embedImages: AppBskyEmbedImages.View
-    onImageClick: (index: number) => void
+    onImageClick: (images: ViewImage[], index: number) => void
     isEmbedToModal?: boolean
 }
 
@@ -1283,7 +1276,7 @@ const EmbedImages = ({
                             alt={image.alt}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                onImageClick(index)
+                                onImageClick(embedImages.images,index)
                             }}
                         />
                     </div>
@@ -1295,7 +1288,7 @@ const EmbedImages = ({
 
 interface EmbedMediaProps {
     embedMedia: AppBskyEmbedRecordWithMedia.View
-    onImageClick: (index: number) => void
+    onImageClick: (images: ViewImage[], index: number) => void
     isEmbedToModal?: boolean
     nextQueryParams: URLSearchParams
 }
@@ -1332,7 +1325,7 @@ const EmbedMedia = ({
                                 alt={image.alt}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    onImageClick(index)
+                                    onImageClick(images, index)
                                 }}
                             />
                         </div>
