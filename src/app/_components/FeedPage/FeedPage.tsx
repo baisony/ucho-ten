@@ -21,6 +21,7 @@ import { mergePosts } from "@/app/_lib/feed/mergePosts"
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -318,6 +319,7 @@ const FeedPage = ({
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
+                                bodyText: undefined,
                                 nextQueryParams,
                                 t,
                             }}
@@ -346,6 +348,10 @@ const FeedPage = ({
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
+                                bodyText: processPostBodyText(
+                                    nextQueryParams,
+                                    item.post || null
+                                ),
                                 postJson: item.post || null,
                                 json: item,
                                 now,

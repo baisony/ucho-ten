@@ -29,6 +29,7 @@ import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { ViewPostCard } from "../_components/ViewPostCard"
+import { processPostBodyText } from "../_lib/post/processPostBodyText"
 
 export default function Root() {
     const router = useRouter()
@@ -610,7 +611,7 @@ export default function Root() {
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
-                                isDummyHeader: index === 0,
+                                bodyText: undefined,
                                 nextQueryParams,
                                 t,
                             }}
@@ -639,6 +640,10 @@ export default function Root() {
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
+                                bodyText: processPostBodyText(
+                                    nextQueryParams,
+                                    data || null
+                                ),
                                 postJson: data || null,
                                 isDummyHeader: index === 0,
                                 now,

@@ -82,6 +82,7 @@ import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -503,6 +504,10 @@ export default function Root() {
                     {nestedViewPostCards}
                     <ViewPostCard
                         isTop={false}
+                        bodyText={processPostBodyText(
+                            nextQueryParams,
+                            post.parent.post
+                        )}
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -529,6 +534,10 @@ export default function Root() {
                     {nestedViewPostCards}
                     <ViewPostCard
                         isTop={false}
+                        bodyText={processPostBodyText(
+                            nextQueryParams,
+                            post.replies.post
+                        )}
                         postJson={post.replies.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -1277,6 +1286,11 @@ export default function Root() {
                                 !embedRecordBlocked && (
                                     <ViewPostCard
                                         isTop={false}
+                                        bodyText={processPostBodyText(
+                                            nextQueryParams,
+                                            null,
+                                            embedRecordViewRecord
+                                        )}
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
@@ -1367,6 +1381,10 @@ export default function Root() {
                                 <ViewPostCard
                                     isTop={false}
                                     key={index}
+                                    bodyText={processPostBodyText(
+                                        nextQueryParams,
+                                        item.post
+                                    )}
                                     postJson={item.post}
                                     isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}

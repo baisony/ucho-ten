@@ -7,6 +7,7 @@ import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
+import { processPostBodyText } from "../_lib/post/processPostBodyText"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -54,6 +55,10 @@ export default function Root() {
                             isTop={false}
                             key={index}
                             postJson={post}
+                            bodyText={processPostBodyText(
+                                nextQueryParams,
+                                post
+                            )}
                             nextQueryParams={nextQueryParams}
                             t={t}
                         />

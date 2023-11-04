@@ -75,15 +75,20 @@ import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import ViewPostCardSkelton from "./ViewPostCardSkelton"
+import EmbedMedia from "./EmbedMedia"
+import EmbedImages from "./EmbedImages"
+import { LABEL_ACTIONS } from "@/app/_constants/labels"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 export interface ViewPostCardProps {
     isTop: boolean
+    isSkeleton?: boolean
     isMobile?: boolean
     isDragActive?: boolean
     postJson?: PostView
     quoteJson?: ViewRecord
-    isSkeleton?: boolean
     json?: FeedViewPost
+    bodyText: React.ReactNode
     isEmbedToModal?: boolean
     now?: Date
     isEmbedToPost?: boolean
@@ -95,10 +100,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     const {
         isTop,
         isMobile,
+        isSkeleton,
         postJson,
         quoteJson,
-        isSkeleton,
         json,
+        bodyText,
         isEmbedToModal,
         now,
         isEmbedToPost,
@@ -447,255 +453,19 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         return text.replace(/^https?:\/\//, "")
     }
 
-    const addParamsToUrl = (hashtag: string) => {
-        const queryParams = new URLSearchParams(nextQueryParams)
-        queryParams.set("word", `${hashtag.replace("#", "")}`)
-        queryParams.set("target", "posts")
-        return `/search?${queryParams.toString()}` as string
-    }
-
-    const renderTextWithLinks = useMemo(() => {
-        if (!postJsonData?.record && !quoteJson?.value) {
+    useEffect(() => {
+        if (!userPreference) {
             return
         }
 
-        const record = (quoteJson?.value ||
-            postJsonData?.record) as AppBskyFeedPost.Record
-
-        const encoder = new TextEncoder()
-        const decoder = new TextDecoder()
-
-        if (!record?.facets && record?.text) {
-            const post: any[] = []
-            record.text.split("\n").map((line: any, i: number) => {
-                post.push(
-                    <p key={i}>
-                        {line}
-                        <br />
-                    </p>
-                )
-            })
-            return post
-        }
-
-        const { text, facets } = record
-        const text_bytes = encoder.encode(text)
-        const result: any[] = []
-
-        let lastOffset = 0
-
-        ;(facets || []).forEach((facet: any, index: number) => {
-            const { byteStart, byteEnd } = facet.index
-
-            const facetText = decoder.decode(
-                text_bytes.slice(byteStart, byteEnd)
-            )
-
-            // 直前のテキストを追加
-            if (byteStart > lastOffset) {
-                const nonLinkText = decoder.decode(
-                    text_bytes.slice(lastOffset, byteStart)
-                )
-                const textChunks = nonLinkText
-                    .split("\n")
-                    .map((line, index, array) => (
-                        <span key={`text-${byteStart}-${index}`}>
-                            {line}
-                            {index !== array.length - 1 && <br />}
-                        </span>
-                    ))
-                result.push(textChunks)
-            }
-
-            switch (facet.features[0].$type) {
-                case "app.bsky.richtext.facet#mention":
-                    result.push(
-                        <Link
-                            key={`link-${index}-${byteStart}`}
-                            className={"text-blue-500"}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                            }}
-                            href={`/profile/${
-                                facet.features[0].did
-                            }?${nextQueryParams.toString()}`}
-                        >
-                            {facetText}
-                        </Link>
-                    )
-                    break
-
-                case "app.bsky.richtext.facet#link":
-                    result.push(
-                        <span key={`link-${index}-${byteStart}`}>
-                            <Chip
-                                className={chip()}
-                                size={"sm"}
-                                startContent={
-                                    <Tooltip
-                                        showArrow={true}
-                                        color={"foreground"}
-                                        content={
-                                            deletehttp(facetText) ===
-                                            deletehttp(facet.features[0].uri)
-                                                ? "リンク偽装の心配はありません。" // TODO: i18n
-                                                : facet.features[0].uri.includes(
-                                                      facetText.replace(
-                                                          "...",
-                                                          ""
-                                                      )
-                                                  )
-                                                ? "URL短縮の可能性があります。" // TODO: i18n
-                                                : "リンク偽装の可能性があります。" // TODO: i18n
-                                        }
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={
-                                                deletehttp(facetText) ===
-                                                deletehttp(
-                                                    facet.features[0].uri
-                                                )
-                                                    ? faCheckCircle
-                                                    : facet.features[0].uri.includes(
-                                                          facetText.replace(
-                                                              "...",
-                                                              ""
-                                                          )
-                                                      )
-                                                    ? faCircleQuestion
-                                                    : faCircleXmark
-                                            }
-                                        />
-                                    </Tooltip>
-                                }
-                                variant="faded"
-                                color={
-                                    deletehttp(facetText) ===
-                                    deletehttp(facet.features[0].uri)
-                                        ? "success"
-                                        : facet.features[0].uri.includes(
-                                              facetText.replace("...", "")
-                                          )
-                                        ? "default"
-                                        : "danger"
-                                }
-                            >
-                                {facet.features[0].uri.startsWith(
-                                    "https://bsky.app"
-                                ) ? (
-                                    <Link
-                                        key={`a-${index}-${byteStart}`}
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                        }}
-                                        href={
-                                            facet.features[0].uri.replace(
-                                                "https://bsky.app",
-                                                `${location.protocol}//${window.location.host}`
-                                            ) + `?${nextQueryParams.toString()}`
-                                        }
-                                    >
-                                        {facetText}
-                                    </Link>
-                                ) : (
-                                    <a
-                                        onClick={(e) => e.stopPropagation()}
-                                        key={`a-${index}-${byteStart}`}
-                                        href={facet.features[0].uri}
-                                        target={"_blank"}
-                                        rel={"noopener noreferrer"}
-                                    >
-                                        {facetText}
-                                    </a>
-                                )}
-                            </Chip>
-                        </span>
-                    )
-                    break
-
-                case "app.bsky.richtext.facet#tag":
-                    result.push(
-                        <span key={`link-${index}-${byteStart}`}>
-                            <Chip
-                                size={"sm"}
-                                startContent={
-                                    <FontAwesomeIcon icon={faHashtag} />
-                                }
-                                variant="faded"
-                                color="primary"
-                            >
-                                <Link
-                                    key={`a-${index}-${byteStart}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                    }}
-                                    href={addParamsToUrl(facet.features[0].tag)}
-                                >
-                                    {facetText.replace("#", "")}
-                                </Link>
-                            </Chip>
-                        </span>
-                    )
-                    break
-            }
-            lastOffset = byteEnd
-        })
-
-        if (lastOffset < text_bytes.length) {
-            const nonLinkText = decoder.decode(text_bytes.slice(lastOffset))
-            const textWithLineBreaks = nonLinkText
-                .split("\n")
-                .map((line, index) => (
-                    <span key={`div-${lastOffset}-${index}`}>
-                        {line}
-                        {index !== nonLinkText.length - 1 && <br />}
-                    </span>
-                ))
-            result.push(textWithLineBreaks)
-        }
-        return result
-    }, [postJson, quoteJson])
-
-    useEffect(() => {
-        if (!userPreference) return
         const post = postJson || quoteJson
-        if (!post || !post.labels || post.labels.length === 0) return
-        type LabelActionsType = {
-            [key: string]: {
-                label: string
-                key: string
-            }
-        }
 
-        const labelActions: LabelActionsType = {
-            porn: {
-                label: "Adult Content",
-                key: "nsfw",
-            },
-            nudity: {
-                label: "Nudity Content",
-                key: "nudity",
-            },
-            sexual: {
-                label: "Sexual Content",
-                key: "suggestive",
-            },
-            spam: {
-                label: "Spam",
-                key: "spam",
-            },
-            impersonation: {
-                label: "Impersonation",
-                key: "impersonation",
-            },
-            gore: {
-                label: "Violence or Bloody",
-                key: "gore",
-            },
+        if (!post || !post.labels || post.labels.length === 0) {
+            return
         }
 
         post.labels.forEach((label) => {
-            const labelType = labelActions[label.val]
+            const labelType = LABEL_ACTIONS[label.val]
             if (labelType) {
                 const { label: warningLabel, key } = labelType
                 switch (key) {
@@ -1035,14 +805,16 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     }
                                 </div>
                             )}
-                            <div
-                                style={{ wordBreak: "break-word" }}
-                                className={`${PostContentText()} ${
-                                    isEmbedToPost && `text-[13px]`
-                                }`}
-                            >
-                                {renderTextWithLinks}
-                            </div>
+                            {bodyText !== undefined && (
+                                <div
+                                    style={{ wordBreak: "break-word" }}
+                                    className={`${PostContentText()} ${
+                                        isEmbedToPost && `text-[13px]`
+                                    }`}
+                                >
+                                    {bodyText}
+                                </div>
+                            )}
                             {embedImages && !contentWarning && (
                                 <EmbedImages
                                     embedImages={embedImages}
@@ -1097,6 +869,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 !embedRecordBlocked && (
                                     <ViewPostCard
                                         isTop={false}
+                                        bodyText={processPostBodyText(
+                                            nextQueryParams,
+                                            null,
+                                            embedRecordViewRecord
+                                        )}
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
@@ -1208,104 +985,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                     </div>
                 </main>
             </div>
-        )
-    )
-}
-
-interface EmbedImagesProps {
-    embedImages: AppBskyEmbedImages.View
-    onImageClick: (images: ViewImage[], index: number) => void
-    isEmbedToModal?: boolean
-}
-
-const EmbedImages = ({
-    embedImages,
-    onImageClick,
-    isEmbedToModal,
-}: EmbedImagesProps) => {
-    return (
-        !isEmbedToModal && (
-            <ScrollShadow
-                isEnabled={embedImages.images.length > 1}
-                hideScrollBar={true}
-                orientation="horizontal"
-                className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-            >
-                {embedImages.images.map((image: ViewImage, index: number) => (
-                    <div
-                        className={`mt-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] ${
-                            embedImages.images.length - 1 === index
-                                ? `mr-[0px]`
-                                : `mr-[7px]`
-                        } bg-cover`}
-                        key={`image-${index}`}
-                    >
-                        <img
-                            className="w-full h-full z-0 object-cover"
-                            src={image.thumb}
-                            alt={image.alt}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onImageClick(embedImages.images, index)
-                            }}
-                        />
-                    </div>
-                ))}
-            </ScrollShadow>
-        )
-    )
-}
-
-interface EmbedMediaProps {
-    embedMedia: AppBskyEmbedRecordWithMedia.View
-    onImageClick: (images: ViewImage[], index: number) => void
-    isEmbedToModal?: boolean
-    nextQueryParams: URLSearchParams
-}
-
-const EmbedMedia = ({
-    embedMedia,
-    onImageClick,
-    isEmbedToModal,
-    nextQueryParams,
-}: EmbedMediaProps) => {
-    const images = embedMedia.media.images
-
-    if (!images || !Array.isArray(images)) {
-        return
-    }
-
-    return (
-        !isEmbedToModal && (
-            <>
-                <ScrollShadow
-                    isEnabled={images.length > 1}
-                    hideScrollBar
-                    orientation="horizontal"
-                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-                >
-                    {images.map((image: ViewImage, index: number) => (
-                        <div
-                            className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
-                            key={`image-${index}`}
-                        >
-                            <img
-                                className="w-full h-full z-0 object-cover"
-                                src={image.thumb}
-                                alt={image.alt}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onImageClick(images, index)
-                                }}
-                            />
-                        </div>
-                    ))}
-                </ScrollShadow>
-                <ViewQuoteCard
-                    postJson={embedMedia.record.record}
-                    nextQueryParams={nextQueryParams}
-                />
-            </>
         )
     )
 }

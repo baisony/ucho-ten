@@ -13,6 +13,7 @@ import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { ViewPostCard } from "../_components/ViewPostCard"
+import { processPostBodyText } from "../_lib/post/processPostBodyText"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -228,6 +229,7 @@ export default function Root() {
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
+                                bodyText: undefined,
                                 nextQueryParams,
                                 t,
                             }}
@@ -255,6 +257,10 @@ export default function Root() {
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
+                                bodyText: processPostBodyText(
+                                    nextQueryParams,
+                                    data || null
+                                ),
                                 postJson: data || null,
                                 now,
                                 nextQueryParams,

@@ -30,6 +30,7 @@ import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 // interface Props {
 //     className?: string
@@ -325,6 +326,7 @@ export default function Root() {
                 const postProps: ViewPostCardProps = {
                     isTop: false,
                     isMobile,
+                    bodyText: processPostBodyText(nextQueryParams, post.post),
                     postJson: post.post,
                     now,
                     nextQueryParams,
@@ -345,6 +347,7 @@ export default function Root() {
                     isTop: false,
                     isSkeleton: true,
                     isMobile,
+                    bodyText: undefined,
                     now,
                     nextQueryParams,
                     t,

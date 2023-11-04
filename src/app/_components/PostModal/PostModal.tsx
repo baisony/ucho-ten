@@ -68,6 +68,7 @@ import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import i18n from "@/app/_i18n/config"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -797,6 +798,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     <div className={"w-full"}>
                         <ViewPostCard
                             isTop={false}
+                            bodyText={processPostBodyText(
+                                nextQueryParams,
+                                postData
+                            )}
                             postJson={postData}
                             isEmbedToModal={true}
                             nextQueryParams={nextQueryParams}
