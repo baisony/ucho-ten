@@ -18,13 +18,9 @@ import {
 import {
     faArrowUpFromBracket,
     faBookmark as faSolidBookmark,
-    faCheckCircle,
-    faCircleQuestion,
-    faCircleXmark,
     faCode,
     faEllipsis,
     faFlag,
-    faHashtag,
     faLanguage,
     faQuoteLeft,
     faRetweet,
@@ -37,7 +33,6 @@ import {
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Button,
-    Chip,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -47,7 +42,6 @@ import {
     ModalBody,
     ModalContent,
     ScrollShadow,
-    Tooltip,
     useDisclosure,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
@@ -60,6 +54,8 @@ import {
     AppBskyEmbedImages,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
+    AppBskyFeedDefs,
+    AppBskyFeedPost,
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
@@ -83,6 +79,7 @@ import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { LABEL_ACTIONS } from "@/app/_constants/labels"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -105,7 +102,9 @@ export default function Root() {
     const [timeline, setTimeline] = useState<FeedViewPost[]>([])
     //const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
     //const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    const [post, setPost] = useState<any>(null)
+    const [thread, setThread] = useState<AppBskyFeedDefs.ThreadViewPost | null>(
+        null
+    )
     //const [newCursor, setNewCursor] = useState<string | null>(null)
     const [cursor] = useState<string | null>(null)
     const [hasCursor, setHasCursor] = useState<string | null>(null)
@@ -150,12 +149,12 @@ export default function Root() {
     } = postOnlyPage()
 
     const postView = useMemo((): PostView | null => {
-        if (post?.post) {
-            return post.post as PostView
+        if (thread?.post) {
+            return thread.post as PostView
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const FormattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -191,7 +190,8 @@ export default function Root() {
                 atUri = atUri.replace(toAtUri.hostname, did.data.did)
             }
             const { data } = await agent.getPostThread({ uri: atUri })
-            setPost(data.thread)
+            // @ts-ignore - it's hard to handle unknown types
+            setThread(data.thread)
             setIsLiked(!!(data.thread.post as PostView).viewer?.like)
             setIsReposted(!!(data.thread.post as PostView).viewer?.repost)
             setIsMuted(!!(data.thread.post as PostView).author.viewer?.muted)
@@ -200,36 +200,37 @@ export default function Root() {
         }
     }
 
-    const loadMore = async (page: any) => {
-        if (!agent) return
-        if (!cursor) return
-        if (loading) return
-        if (loading2) return
-        try {
-            setLoading2(true)
-            const { data } = await agent.getAuthorFeed({
-                cursor: !hasCursor ? cursor : hasCursor,
-                actor: username,
-            })
-            const { feed } = data
-            if (data.cursor) {
-                setHasCursor(data.cursor)
-            }
-            const filteredData = FormattingTimeline(feed)
-            const diffTimeline = filteredData.filter((newItem) => {
-                return !timeline.some(
-                    (oldItem) => oldItem.post.uri === newItem.post.uri
-                )
-            })
+    // TODO: should be implemented.
+    // const loadMore = async (page: any) => {
+    //     if (!agent) return
+    //     if (!cursor) return
+    //     if (loading) return
+    //     if (loading2) return
+    //     try {
+    //         setLoading2(true)
+    //         const { data } = await agent.getAuthorFeed({
+    //             cursor: !hasCursor ? cursor : hasCursor,
+    //             actor: username,
+    //         })
+    //         const { feed } = data
+    //         if (data.cursor) {
+    //             setHasCursor(data.cursor)
+    //         }
+    //         const filteredData = FormattingTimeline(feed)
+    //         const diffTimeline = filteredData.filter((newItem) => {
+    //             return !timeline.some(
+    //                 (oldItem) => oldItem.post.uri === newItem.post.uri
+    //             )
+    //         })
 
-            //取得データをリストに追加
-            setTimeline([...timeline, ...diffTimeline])
-            setLoading2(false)
-        } catch (e) {
-            setLoading2(false)
-            console.log(e)
-        }
-    }
+    //         //取得データをリストに追加
+    //         setTimeline([...timeline, ...diffTimeline])
+    //         setLoading2(false)
+    //     } catch (e) {
+    //         setLoading2(false)
+    //         console.log(e)
+    //     }
+    // }
 
     useEffect(() => {
         if (!agent) return
@@ -239,12 +240,12 @@ export default function Root() {
     const handleImageClick = useCallback(
         (index: number) => {
             if (
-                post.post?.embed?.images &&
-                Array.isArray(post.post?.embed.images)
+                postView?.embed?.images &&
+                Array.isArray(postView?.embed.images)
             ) {
                 const images: ImageObject[] = []
 
-                for (const image of post.post.embed.images) {
+                for (const image of postView?.embed.images) {
                     const currentImage: ImageObject = {
                         fullsize: "",
                         alt: "",
@@ -273,208 +274,8 @@ export default function Root() {
                 }
             }
         },
-        [post]
+        [postView]
     )
-
-    const deletehttp = (text: string) => {
-        return text.replace(/^https?:\/\//, "")
-    }
-
-    const renderTextWithLinks = () => {
-        const encoder = new TextEncoder()
-        const decoder = new TextDecoder()
-        if (!post.post.record?.facets) {
-            const memo: any[] = []
-            post.post.record.text.split("\n").map((line: any, i: number) => {
-                memo.push(
-                    <p key={i}>
-                        {line}
-                        <br />
-                    </p>
-                )
-            })
-            return memo
-        }
-        const { text, facets } = post.post.record
-        const text_bytes = encoder.encode(text)
-        const result: any[] = []
-        let lastOffset = 0
-
-        facets.forEach((facet: any, index: number) => {
-            const { byteStart, byteEnd } = facet.index
-            const facetText = decoder.decode(
-                text_bytes.slice(byteStart, byteEnd)
-            )
-
-            // 直前のテキストを追加
-            if (byteStart > lastOffset) {
-                const nonLinkText = decoder.decode(
-                    text_bytes.slice(lastOffset, byteStart)
-                )
-                const textChunks = nonLinkText
-                    .split("\n")
-                    .map((line, index, array) => (
-                        <span key={`text-${byteStart}-${index}`}>
-                            {line}
-                            {index !== array.length - 1 && <br />}
-                        </span>
-                    ))
-                result.push(textChunks)
-            }
-
-            switch (facet.features[0].$type) {
-                case "app.bsky.richtext.facet#mention":
-                    result.push(
-                        <Link
-                            key={`link-${index}-${byteStart}`}
-                            href={`/profile/${
-                                facet.features[0].did
-                            }?${nextQueryParams.toString()}`}
-                        >
-                            {facetText}
-                        </Link>
-                    )
-                    break
-
-                case "app.bsky.richtext.facet#link":
-                    result.push(
-                        <span>
-                            <Chip
-                                size={"sm"}
-                                startContent={
-                                    <Tooltip
-                                        showArrow={true}
-                                        color={"foreground"}
-                                        content={
-                                            deletehttp(facetText) ===
-                                            deletehttp(facet.features[0].uri)
-                                                ? "リンク偽装の心配はありません。"
-                                                : facet.features[0].uri.includes(
-                                                      facetText.replace(
-                                                          "...",
-                                                          ""
-                                                      )
-                                                  )
-                                                ? "URL短縮の可能性があります。"
-                                                : "リンク偽装の可能性があります。"
-                                        }
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={
-                                                deletehttp(facetText) ===
-                                                deletehttp(
-                                                    facet.features[0].uri
-                                                )
-                                                    ? faCheckCircle
-                                                    : facet.features[0].uri.includes(
-                                                          facetText.replace(
-                                                              "...",
-                                                              ""
-                                                          )
-                                                      )
-                                                    ? faCircleQuestion
-                                                    : faCircleXmark
-                                            }
-                                        />
-                                    </Tooltip>
-                                }
-                                variant="faded"
-                                color={
-                                    deletehttp(facetText) ===
-                                    deletehttp(facet.features[0].uri)
-                                        ? "success"
-                                        : facet.features[0].uri.includes(
-                                              facetText.replace("...", "")
-                                          )
-                                        ? "default"
-                                        : "danger"
-                                }
-                            >
-                                {facet.features[0].uri.startsWith(
-                                    "https://bsky.app"
-                                ) ? (
-                                    <Link
-                                        key={`a-${index}-${byteStart}`}
-                                        href={facet.features[0].uri.replace(
-                                            "https://bsky.app",
-                                            `${location.protocol}//${window.location.host}`
-                                        )}
-                                    >
-                                        {facetText}
-                                    </Link>
-                                ) : (
-                                    <a
-                                        onClick={(e) => e.stopPropagation()}
-                                        key={`a-${index}-${byteStart}`}
-                                        href={facet.features[0].uri}
-                                        target={"_blank"}
-                                        rel={"noopener noreferrer"}
-                                    >
-                                        {facetText}
-                                    </a>
-                                )}
-                            </Chip>
-                        </span>
-                    )
-                    break
-
-                case "app.bsky.richtext.facet#tag":
-                    result.push(
-                        <span>
-                            <Chip
-                                size={"sm"}
-                                startContent={
-                                    <FontAwesomeIcon icon={faHashtag} />
-                                }
-                                variant="faded"
-                                color="primary"
-                            >
-                                <div
-                                    key={`a-${index}-${byteStart}`}
-                                    onClick={() => {
-                                        const queryParams = new URLSearchParams(
-                                            nextQueryParams
-                                        )
-                                        queryParams.set(
-                                            "word",
-                                            facet.features[0].tag.replace(
-                                                "#",
-                                                "%23"
-                                            )
-                                        )
-                                        queryParams.set("target", "posts")
-                                        router.push(
-                                            `/search?${nextQueryParams.toString()}`
-                                        )
-                                    }}
-                                >
-                                    {facetText.replace("#", "")}
-                                </div>
-                            </Chip>
-                        </span>
-                    )
-                    break
-            }
-
-            lastOffset = byteEnd
-        })
-
-        // 最後のテキストを追加
-        if (lastOffset < text_bytes.length) {
-            const nonLinkText = decoder.decode(text_bytes.slice(lastOffset))
-            const textWithLineBreaks = nonLinkText
-                .split("\n")
-                .map((line, index) => (
-                    <span key={`div-${lastOffset}-${index}`}>
-                        {line}
-                        {index !== nonLinkText.length - 1 && <br />}
-                    </span>
-                ))
-            result.push(textWithLineBreaks)
-        }
-
-        return result
-    }
 
     function formatDate(inputDate: string): string {
         const date = new Date(inputDate)
@@ -504,10 +305,7 @@ export default function Root() {
                     {nestedViewPostCards}
                     <ViewPostCard
                         isTop={false}
-                        bodyText={processPostBodyText(
-                            nextQueryParams,
-                            post.parent.post
-                        )}
+                        bodyText={processPostBodyText(nextQueryParams, post)}
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -519,35 +317,35 @@ export default function Root() {
         return null
     }
 
-    function renderNestedRepliesViewPostCards(
-        post: any,
-        isMobile: boolean
-    ): JSX.Element | null {
-        if (post && post.replies) {
-            const nestedViewPostCards = renderNestedViewPostCards(
-                post.replies,
-                isMobile
-            ) // 再帰呼び出し
+    // function renderNestedRepliesViewPostCards(
+    //     post: any,
+    //     isMobile: boolean
+    // ): JSX.Element | null {
+    //     if (post && post.replies) {
+    //         const nestedViewPostCards = renderNestedViewPostCards(
+    //             post.replies,
+    //             isMobile
+    //         ) // 再帰呼び出し
 
-            return (
-                <>
-                    {nestedViewPostCards}
-                    <ViewPostCard
-                        isTop={false}
-                        bodyText={processPostBodyText(
-                            nextQueryParams,
-                            post.replies.post
-                        )}
-                        postJson={post.replies.post}
-                        isMobile={isMobile}
-                        nextQueryParams={nextQueryParams}
-                        t={t}
-                    />
-                </>
-            )
-        }
-        return null // ネストが終了したらnullを返す
-    }
+    //         return (
+    //             <>
+    //                 {nestedViewPostCards}
+    //                 <ViewPostCard
+    //                     isTop={false}
+    //                     bodyText={processPostBodyText(
+    //                         nextQueryParams,
+    //                         post.replies.post
+    //                     )}
+    //                     postJson={post.replies.post}
+    //                     isMobile={isMobile}
+    //                     nextQueryParams={nextQueryParams}
+    //                     t={t}
+    //                 />
+    //             </>
+    //         )
+    //     }
+    //     return null // ネストが終了したらnullを返す
+    // }
 
     const handleReply = async () => {
         console.log("open")
@@ -562,34 +360,56 @@ export default function Root() {
     }
 
     const handleRepost = async () => {
-        if (loading) return
+        if (loading) {
+            return
+        }
+
+        if (!postView?.viewer?.repost) {
+            return
+        }
+
         setLoading(true)
+
         if (isReposted) {
             setIsReposted(!isReposted)
-            agent?.deleteRepost(post.post.viewer?.repost)
+            agent?.deleteRepost(postView?.viewer?.repost)
         } else {
             setIsReposted(!isReposted)
-            agent?.repost(post.post.uri, post.post.cid)
+            agent?.repost(postView?.uri, postView?.cid)
         }
+
         setLoading(false)
     }
 
     const handleLike = async () => {
-        if (loading) return
+        if (loading) {
+            return
+        }
+
+        if (!postView?.viewer?.like) {
+            return
+        }
+
         setLoading(true)
+
         if (isLiked) {
             setIsLiked(!isLiked)
-            await agent?.deleteLike(post.post.viewer?.like)
+            await agent?.deleteLike(postView.viewer.like)
         } else {
             setIsLiked(!isLiked)
-            await agent?.like(post.post.uri, post.post.cid)
+            await agent?.like(postView?.uri, postView?.cid)
         }
+
         setLoading(false)
     }
     const handleBookmark = async () => {
+        if (postView === null) {
+            return
+        }
+
         const createdAt = new Date().getTime()
         const json: Bookmark = {
-            uri: post.post.uri,
+            uri: postView.uri,
             category: null,
             createdAt: createdAt,
             updatedAt: createdAt,
@@ -610,18 +430,26 @@ export default function Root() {
         }
     }
     const handleMute = async () => {
-        if (loading) return
+        if (loading) {
+            return
+        }
+
+        if (postView === null) {
+            return
+        }
+
         setLoading(true)
+
         if (isMuted) {
             setIsMuted(!isMuted)
-            await agent?.unmute(post.post.author.did)
+            await agent?.unmute(postView.author.did)
         } else {
             setIsMuted(!isMuted)
-            await agent?.mute(post.post.author.did)
+            await agent?.mute(postView.author.did)
         }
+
         setLoading(false)
     }
-    console.log(post)
 
     const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
         const embed = postView?.embed || null
@@ -635,7 +463,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
         const embed = postView?.embed || null
@@ -649,7 +477,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
         const embed = postView?.embed || null
@@ -663,7 +491,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
         if (!postView?.embed?.$type) {
@@ -677,7 +505,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedRecordBlocked = useMemo((): AppBskyEmbedRecord.View | null => {
         if (!postView?.embed?.$type) {
@@ -695,7 +523,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedRecordViewRecord = useMemo((): ViewRecord | null => {
         const embed = postView?.embed || null
@@ -709,7 +537,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedFeed = useMemo((): GeneratorView | null => {
         if (
@@ -730,7 +558,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const embedMuteList = useMemo((): ListView | null => {
         if (
@@ -751,7 +579,7 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const notfoundEmbedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
         if (
@@ -772,15 +600,22 @@ export default function Root() {
         } else {
             return null
         }
-    }, [post])
+    }, [thread])
 
     const translateContentText = async () => {
+        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
+            return
+        }
+
         setIsTranslated(true)
         setViewTranslatedText(true)
         const res = await fetch(
             `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
                 translateTo[0] ? translateTo[0] : `auto`
-            }&dt=t&q=` + encodeURIComponent(post.post.record.text)
+            }&dt=t&q=` +
+                encodeURIComponent(
+                    (postView?.record as AppBskyFeedPost.Record)?.text
+                )
         )
         if (res.status === 200) {
             const json = await res.json()
@@ -802,12 +637,16 @@ export default function Root() {
     }
 
     useEffect(() => {
-        if (!post?.post?.uri) return
+        if (!postView?.uri) {
+            return
+        }
+
         const isBookmarked = bookmarks.some(
-            (bookmark) => bookmark.uri === post.post.uri
+            (bookmark) => bookmark.uri === postView.uri
         )
+
         setIsBookmarked(isBookmarked)
-    }, [post])
+    }, [thread])
 
     useEffect(() => {
         if (!userPreference) return
@@ -820,35 +659,8 @@ export default function Root() {
             }
         }
 
-        const labelActions: LabelActionsType = {
-            porn: {
-                label: "Adult Content",
-                key: "nsfw",
-            },
-            nudity: {
-                label: "Nudity Content",
-                key: "nudity",
-            },
-            sexual: {
-                label: "Sexual Content",
-                key: "suggestive",
-            },
-            spam: {
-                label: "Spam",
-                key: "spam",
-            },
-            impersonation: {
-                label: "Impersonation",
-                key: "impersonation",
-            },
-            gore: {
-                label: "Violence or Bloody",
-                key: "gore",
-            },
-        }
-
         post.labels.forEach((label) => {
-            const labelType = labelActions[label.val]
+            const labelType = LABEL_ACTIONS[label.val]
             if (labelType) {
                 const { label: warningLabel, key } = labelType
                 switch (key) {
@@ -874,8 +686,19 @@ export default function Root() {
             }
         })
     }, [userPreference, postView])
+
+    const postBodyText = useMemo((): string => {
+        if (postView?.record === undefined) {
+            return ""
+        } else if ((postView.record as AppBskyFeedPost.Record)?.text) {
+            return (postView.record as AppBskyFeedPost.Record)?.text
+        } else {
+            return ""
+        }
+    }, [postView])
+
     return (
-        post && (
+        thread && (
             <>
                 <Modal
                     isOpen={isOpen}
@@ -887,7 +710,7 @@ export default function Root() {
                         {(onClose) => (
                             <PostModal
                                 type={modalType ? modalType : "Reply"}
-                                postData={post.post}
+                                postData={postView}
                                 onClose={onClose}
                             />
                         )}
@@ -899,7 +722,7 @@ export default function Root() {
                     placement={isMobile ? "top" : "center"}
                     className={"z-[100] max-w-[600px] bg-transparent"}
                     target={"post"}
-                    post={post.post}
+                    post={postView}
                     nextQueryParams={nextQueryParams}
                 />
                 <Modal
@@ -925,6 +748,8 @@ export default function Root() {
                                                     alert(
                                                         "ご利用のブラウザでは共有できません。"
                                                     )
+                                                    // TODO: do not use alert.
+                                                    // TODO: i18n
                                                     return
                                                 }
                                                 try {
@@ -1003,21 +828,20 @@ export default function Root() {
                     </ModalContent>
                 </Modal>
                 <main className={`${Container()} md:mt-[100px] mt-[85px]`}>
-                    {post?.parent && (
-                        <>{renderNestedViewPostCards(post, isMobile)}</>
+                    {thread?.parent && (
+                        <>{renderNestedViewPostCards(thread, isMobile)}</>
                     )}
                     <div className={AuthorPost()}>
                         <div className={Author()}>
                             <div className={"flex items-center"}>
                                 <Link
                                     className={AuthorIcon()}
-                                    href={`/profile/${
-                                        post.post.author.did
-                                    }?${nextQueryParams.toString()}`}
+                                    href={`/profile/${postView?.author
+                                        .did}?${nextQueryParams.toString()}`}
                                 >
                                     <img
                                         src={
-                                            post.post?.author?.avatar ||
+                                            postView?.author?.avatar ||
                                             defaultIcon.src
                                         }
                                         alt={"avatar"}
@@ -1027,21 +851,19 @@ export default function Root() {
                                     <div>
                                         <Link
                                             className={AuthorDisplayName()}
-                                            href={`/profile/${
-                                                post.post.author.did
-                                            }?${nextQueryParams.toString()}`}
+                                            href={`/profile/${postView?.author
+                                                .did}?${nextQueryParams.toString()}`}
                                         >
-                                            {post.post.author?.displayName}
+                                            {postView?.author?.displayName}
                                         </Link>
                                     </div>
                                     <div>
                                         <Link
                                             className={AuthorHandle()}
-                                            href={`/profile/${
-                                                post.post.author.did
-                                            }?${nextQueryParams.toString()}`}
+                                            href={`/profile/${postView?.author
+                                                .did}?${nextQueryParams.toString()}`}
                                         >
-                                            {post.post.author?.handle}
+                                            {postView?.author?.handle}
                                         </Link>
                                     </div>
                                 </div>
@@ -1080,23 +902,21 @@ export default function Root() {
                                             >
                                                 {t("pages.postOnlyPage.share")}
                                             </DropdownItem>
-                                            {post.post.record?.text && (
-                                                <DropdownItem
-                                                    key="translate"
-                                                    startContent={
-                                                        <FontAwesomeIcon
-                                                            icon={faLanguage}
-                                                        />
-                                                    }
-                                                    onClick={async () => {
-                                                        translateContentText()
-                                                    }}
-                                                >
-                                                    {t(
-                                                        "pages.postOnlyPage.translate"
-                                                    )}
-                                                </DropdownItem>
-                                            )}
+                                            <DropdownItem
+                                                key="translate"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faLanguage}
+                                                    />
+                                                }
+                                                onClick={async () => {
+                                                    translateContentText()
+                                                }}
+                                            >
+                                                {t(
+                                                    "pages.postOnlyPage.translate"
+                                                )}
+                                            </DropdownItem>
                                         </DropdownSection>
                                         <DropdownSection
                                             title="Copy"
@@ -1112,7 +932,7 @@ export default function Root() {
                                                 onClick={() => {
                                                     void navigator.clipboard.writeText(
                                                         JSON.stringify(
-                                                            post.post
+                                                            postView?.post || ""
                                                         )
                                                     )
                                                 }}
@@ -1147,7 +967,8 @@ export default function Root() {
                                                 }
                                                 onClick={() => {
                                                     void navigator.clipboard.writeText(
-                                                        post.post.author.did
+                                                        postView?.author.did ||
+                                                            ""
                                                     )
                                                 }}
                                             >
@@ -1158,7 +979,7 @@ export default function Root() {
                                         </DropdownSection>
                                         <DropdownSection title="Danger zone">
                                             {agent?.session?.did !==
-                                            post.post.author.did ? (
+                                            postView?.author.did ? (
                                                 <DropdownItem
                                                     key="delete"
                                                     className="text-danger"
@@ -1210,7 +1031,7 @@ export default function Root() {
                             </div>
                         </div>
                         <div className={PostContent()}>
-                            {renderTextWithLinks()}
+                            {processPostBodyText(nextQueryParams, postView)}
                             {translateError && (
                                 <div className={"text-red-500"}>
                                     {t("pages.postOnlyPage.translateError")}
@@ -1306,7 +1127,7 @@ export default function Root() {
                             )}
                         </div>
                         <div className={PostCreatedAt()}>
-                            {formatDate(post.post.indexedAt)}
+                            {formatDate(postView!.indexedAt)}
                         </div>
                         <div className={ReactionButtonContainer()}>
                             <div className={ReactionButton()}>
@@ -1334,7 +1155,7 @@ export default function Root() {
                             <div
                                 className={`${ReactionButton()} ${
                                     agent?.session?.did !==
-                                        post.post.author.did && `hidden`
+                                        postView?.author.did && `hidden`
                                 }`}
                             >
                                 <FontAwesomeIcon
@@ -1375,24 +1196,27 @@ export default function Root() {
                             </div>
                         </div>
                     </div>
-                    {post.replies && (
-                        <>
-                            {post.replies.map((item: any, index: number) => (
-                                <ViewPostCard
-                                    isTop={false}
-                                    key={index}
-                                    bodyText={processPostBodyText(
-                                        nextQueryParams,
-                                        item.post
-                                    )}
-                                    postJson={item.post}
-                                    isMobile={isMobile}
-                                    nextQueryParams={nextQueryParams}
-                                    t={t}
-                                />
-                            ))}
-                        </>
-                    )}
+
+                    {/* TODO: anyways, this implementation is bad...
+                     {thread?.replies &&
+                        (thread.replies as Array<ThreadViewPost>).map((item: any, index: number) => {
+                            if (isThreadViewPost(item)) {
+                                return (
+                                    <ViewPostCard
+                                        isTop={false}
+                                        key={index}
+                                        bodyText={processPostBodyText(
+                                            nextQueryParams,
+                                            item.post as PostView
+                                        )}
+                                        postJson={item.post as PostView}
+                                        //isMobile={isMobile}
+                                        nextQueryParams={nextQueryParams}
+                                        t={t}
+                                    />
+                                )
+                            }
+                        })} */}
                 </main>
             </>
         )
