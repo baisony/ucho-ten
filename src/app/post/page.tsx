@@ -2,7 +2,6 @@
 
 import React, { useCallback, useRef, useState } from "react"
 import { createPostPage } from "./styles"
-// import { isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
@@ -33,14 +32,9 @@ import {
     PopoverContent,
     PopoverTrigger,
     Spinner,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
     Textarea as NextUITextarea,
     useDisclosure,
+    Selection,
 } from "@nextui-org/react"
 
 import Textarea from "react-textarea-autosize" // 追加
@@ -65,6 +59,7 @@ import { Linkcard } from "@/app/_components/Linkcard"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { LANGUAGES } from "../_constants/lanuages"
+import LanguagesSelectionModal from "../_components/LanguageSelectionModal"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -94,7 +89,7 @@ export default function Root() {
         defaultLanguage = ["en"]
     }
 
-    const [PostContentLanguage, setPostContentLanguage] = useState(
+    const [postContentLanguages, setPostContentLanguages] = useState(
         new Set<string>(defaultLanguage)
     )
 
@@ -226,7 +221,7 @@ export default function Root() {
                 Omit<AppBskyFeedPost.Record, "createdAt"> = {
                 text: rt.text.trimStart().trimEnd(),
                 facets: rt.facets,
-                langs: Array.from(PostContentLanguage),
+                langs: Array.from(postContentLanguages),
             }
 
             if (blobRefs.length > 0) {
@@ -539,67 +534,21 @@ export default function Root() {
         setAltOfImageList(updatedAltOfImageList)
     }, [altOfImageList, editALTIndex, altText])
 
+    const handleLanguagesSelectionChange = (keys: Selection) => {
+        if (Array.from(keys).length < 4) {
+            setPostContentLanguages(keys as Set<string>)
+        }
+    }
+
     return (
         <>
-            <Modal
+            <LanguagesSelectionModal
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
-                placement={"bottom"}
-                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
-                hideCloseButton
-            >
-                <ModalContent>
-                    {(onCloseLangs) => (
-                        <>
-                            <ModalHeader>Select Languages</ModalHeader>
-                            <ModalBody>
-                                <div className="flex flex-col gap-3">
-                                    <Table
-                                        hideHeader
-                                        //color={selectedColor}
-                                        disallowEmptySelection
-                                        selectionMode="multiple"
-                                        selectedKeys={PostContentLanguage}
-                                        defaultSelectedKeys={
-                                            PostContentLanguage
-                                        }
-                                        onSelectionChange={(e) => {
-                                            if (Array.from(e).length < 4) {
-                                                setPostContentLanguage(
-                                                    e as Set<string>
-                                                )
-                                            }
-                                        }}
-                                        aria-label="Language table"
-                                    >
-                                        <TableHeader>
-                                            <TableColumn>Languages</TableColumn>
-                                            <TableColumn> </TableColumn>
-                                            <TableColumn> </TableColumn>
-                                            <TableColumn> </TableColumn>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {LANGUAGES.map((item) => {
-                                                return (
-                                                    <TableRow key={item.code}>
-                                                        <TableCell>
-                                                            {item.name}
-                                                        </TableCell>
-                                                        <TableCell> </TableCell>
-                                                        <TableCell> </TableCell>
-                                                        <TableCell> </TableCell>
-                                                    </TableRow>
-                                                )
-                                            })}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            </ModalBody>
-                            <ModalFooter></ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+                onSelectionChange={handleLanguagesSelectionChange}
+                postContentLanguages={postContentLanguages}
+            />
+
             <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
                 <ModalContent>
                     {(onCloseALT) => (
@@ -931,7 +880,7 @@ export default function Root() {
                                     onOpenLangs()
                                 }}
                             >{`${t("modal.post.lang")}:${Array.from(
-                                PostContentLanguage
+                                postContentLanguages
                             ).join(",")}`}</div>
                             <div
                                 className={`${footerTooltipStyle()} hidden md:flex`}
@@ -943,55 +892,32 @@ export default function Root() {
                                 >
                                     <DropdownTrigger>
                                         {`${t("modal.post.lang")}:${Array.from(
-                                            PostContentLanguage
+                                            postContentLanguages
                                         ).join(",")}`}
                                     </DropdownTrigger>
                                     <DropdownMenu
                                         disallowEmptySelection
                                         aria-label="Multiple selection actions"
                                         selectionMode="multiple"
-                                        selectedKeys={PostContentLanguage}
+                                        selectedKeys={postContentLanguages}
                                         defaultSelectedKeys={
-                                            PostContentLanguage
+                                            postContentLanguages
                                         }
                                         onSelectionChange={(e) => {
                                             if (Array.from(e).length < 4) {
-                                                setPostContentLanguage(
+                                                setPostContentLanguages(
                                                     e as Set<string>
                                                 )
                                             }
                                         }}
                                     >
-                                        <DropdownItem key="es">
-                                            Espalier
-                                        </DropdownItem>
-                                        <DropdownItem key="fr">
-                                            Francais
-                                        </DropdownItem>
-                                        <DropdownItem key="de">
-                                            Deutsch
-                                        </DropdownItem>
-                                        <DropdownItem key="it">
-                                            Italiano
-                                        </DropdownItem>
-                                        <DropdownItem key="pt">
-                                            Portuguese
-                                        </DropdownItem>
-                                        <DropdownItem key="ru">
-                                            Русский
-                                        </DropdownItem>
-                                        <DropdownItem key="zh">
-                                            中文
-                                        </DropdownItem>
-                                        <DropdownItem key="ko">
-                                            한국어
-                                        </DropdownItem>
-                                        <DropdownItem key="en">
-                                            English
-                                        </DropdownItem>
-                                        <DropdownItem key="ja">
-                                            日本語
-                                        </DropdownItem>
+                                        {LANGUAGES.map((item) => {
+                                            return (
+                                                <DropdownItem key={item.code}>
+                                                    {item.name}
+                                                </DropdownItem>
+                                            )
+                                        })}
                                     </DropdownMenu>
                                 </Dropdown>
                             </div>
@@ -1010,7 +936,7 @@ export default function Root() {
                                         disallowEmptySelection
                                         aria-label="Multiple selection actions"
                                         selectionMode="multiple"
-                                        selectedKeys={PostContentLanguage}
+                                        selectedKeys={postContentLanguages}
                                         onSelectionChange={(e) => {
                                             if (Array.from(e).length < 4) {
                                                 //setPostContentLanguage(e as Set<string>);
