@@ -43,7 +43,6 @@ const FeedPage = ({
     now,
     isActive, // disableSlideVerticalScroll, isNextActive
 }: FeedPageProps) => {
-    // const pathname = usePathname()
     const { t } = useTranslation()
 
     const [agent] = useAgent()
@@ -269,7 +268,7 @@ const FeedPage = ({
         }
     }
 
-    const { data, isLoading, isError } = useQuery({
+    const { data, /*isLoading, isError*/ } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
         enabled:
