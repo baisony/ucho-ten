@@ -268,7 +268,7 @@ const FeedPage = ({
         }
     }
 
-    const { data, /*isLoading, isError*/ } = useQuery({
+    const { data /*isLoading, isError*/ } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
         enabled:

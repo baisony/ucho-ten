@@ -584,17 +584,15 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const handleLanguagesSelectionChange = (keys: Selection) => {
         if (Array.from(keys).length < 4) {
-            setPostContentLanguages(
-                keys as Set<string>
-            )
+            setPostContentLanguages(keys as Set<string>)
         }
     }
 
     return (
         <>
             {isOpen && window.prompt("Please enter link", "Harry Potter")}
-            
-            <LanguagesSelectionModal 
+
+            <LanguagesSelectionModal
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
                 onSelectionChange={handleLanguagesSelectionChange}

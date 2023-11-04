@@ -39,7 +39,7 @@ export default function Root() {
         if (!agent) {
             return
         }
-        
+
         try {
             setIsFetching(true)
             const { feeds } = await agent.getPreferences()
@@ -136,8 +136,9 @@ export default function Root() {
                     ) : (
                         !isFetching ?? (
                             <div className={`text-white dark:text-black`}>
+                                {/* FIXME: WTF is this? */}
                                 ないよー
-                            </div>{/* TODO: i18n */}
+                            </div>
                         )
                     )}
                 </div>
