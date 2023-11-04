@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
 import { useAgent } from "@/app/_atoms/agent"
@@ -178,7 +178,7 @@ export default function Root() {
         }
     }
 
-    const loadMore = async (page: number) => {
+    const loadMore = async (_: number) => {
         if (hasMore && !isEndOfFeed) {
             await fetchNotification()
         }

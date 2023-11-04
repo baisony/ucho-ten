@@ -1,9 +1,9 @@
-const DisplayLanguages = {
+const DISPLAY_LANGUAGES = {
     English: "en-US",
     Japanese: "ja-JP",
 }
 
-const ToTranslateLanguages = {
+const TO_TRANSLATE_LANGUAGES = {
     English: "en-US",
     Japanese: "ja-JP",
     Chinese: "zh-CN",
@@ -16,4 +16,35 @@ const ToTranslateLanguages = {
     Thai: "th-TH",
 }
 
-export { DisplayLanguages, ToTranslateLanguages }
+const LANGUAGES = [
+    {
+        name: "日本語",
+        code: "ja",
+    },
+    {
+        name: "English",
+        code: "en",
+    },
+    {
+        name: "한국어",
+        code: "ko",
+    },
+    {
+        name: "中文",
+        code: "zh",
+    },
+    {
+        name: "Español",
+        code: "es",
+    },
+    {
+        name: "Français",
+        code: "fr",
+    },
+    {
+        name: "Português",
+        code: "pt",
+    },
+]
+
+export { DISPLAY_LANGUAGES, TO_TRANSLATE_LANGUAGES, LANGUAGES }

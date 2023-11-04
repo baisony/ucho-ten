@@ -1,8 +1,6 @@
 "use client"
 
 import {
-    // Accordion,
-    // AccordionItem,
     Button,
     ButtonGroup,
     Select,
@@ -25,11 +23,14 @@ import {
     useCurrentMenuType,
     useMenuIndexChangedByMenu,
 } from "../_atoms/headerMenu"
-import { DisplayLanguages, ToTranslateLanguages } from "../_constants/lanuages"
+import {
+    DISPLAY_LANGUAGES,
+    TO_TRANSLATE_LANGUAGES,
+} from "../_constants/lanuages"
 import { useAtom } from "jotai"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination, Virtual } from "swiper/modules"
+import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
@@ -200,7 +201,7 @@ const SettingsGeneralPage = ({
                             //lngChangeはappContainerにて実装
                         }}
                     >
-                        {Object.entries(DisplayLanguages || {}).map(
+                        {Object.entries(DISPLAY_LANGUAGES || {}).map(
                             ([key, value]) => {
                                 return (
                                     <SelectItem
@@ -242,7 +243,7 @@ const SettingsGeneralPage = ({
                             handleTranslateToSelectionChange(event)
                         }}
                     >
-                        {Object.entries(ToTranslateLanguages || {}).map(
+                        {Object.entries(TO_TRANSLATE_LANGUAGES || {}).map(
                             ([key, value]) => {
                                 return (
                                     <SelectItem key={value}>{key}</SelectItem>

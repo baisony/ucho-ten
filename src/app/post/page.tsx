@@ -1,12 +1,6 @@
 "use client"
 
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react"
+import React, { useCallback, useRef, useState } from "react"
 import { createPostPage } from "./styles"
 // import { isMobile } from "react-device-detect"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -68,9 +62,9 @@ import {
 } from "@atproto/api"
 
 import { Linkcard } from "@/app/_components/Linkcard"
-// import { HistoryContext } from "@/app/_lib/hooks/historyContext"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { LANGUAGES } from "../_constants/lanuages"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -89,9 +83,8 @@ export default function Root() {
     const [agent] = useAgent()
     const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    // const reg =
-    //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063\ufeff]*$/
     let defaultLanguage
+
     if (window) {
         defaultLanguage = [
             (window.navigator.languages && window.navigator.languages[0]) ||
@@ -100,9 +93,11 @@ export default function Root() {
     } else {
         defaultLanguage = ["en"]
     }
+
     const [PostContentLanguage, setPostContentLanguage] = useState(
         new Set<string>(defaultLanguage)
     )
+
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
     const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
@@ -111,22 +106,17 @@ export default function Root() {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [isSetURLCard, setIsSetURLCard] = useState(false)
+    const [, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [isGetOGPFetchError, setIsGetOGPFetchError] = useState(false)
+    const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    const [compressingLength, setCompressingLength] = useState(0)
+    // const [compressingLength, setCompressingLength] = useState(0)
     const [OGPImage, setOGPImage] = useState<any>([])
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     //const hiddenInput = useRef<HTMLDivElement>(null)
     const currentCursorPostion = useRef<number>(0)
     const isEmojiAdding = useRef<boolean>(false)
-
-    // const isImageMaxLimited =
-    //    contentImages.length >= 5 || contentImages.length === 4 // 4枚まで
-    // const isImageMinLimited = contentImage.length === 0 // 4枚まで
-    // const [imageProcessing, setImageProcessing] = useState<boolean>(false)
 
     const {
         background,
@@ -143,31 +133,21 @@ export default function Root() {
         contentRight,
         contentRightTextArea,
         contentRightImagesContainer,
-        contentRightUrlsContainer,
         contentRightUrlCard,
         contentRightUrlCardDeleteButton,
-        URLCard,
-        URLCardThumbnail,
-        URLCardDetail,
-        URLCardDetailContent,
-        URLCardTitle,
-        URLCardDescription,
-        URLCardLink,
         footer,
         footerTooltip,
         footerCharacterCount,
         footerCharacterCountText,
-        footerCharacterCountCircle,
         footerTooltipStyle,
         ImageDeleteButton,
         ImageAddALTButton,
-        ImageEditButton,
         appearanceTextColor,
     } = createPostPage()
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const { isOpen } = useDisclosure()
 
-    const [darkMode, setDarkMode] = useState(false)
-    // const history = useContext(HistoryContext)
+    // const [darkMode, setDarkMode] = useState(false)
+
     const {
         isOpen: isOpenALT,
         onOpen: onOpenALT,
@@ -182,45 +162,6 @@ export default function Root() {
 
     const [editALTIndex, setEditALTIndex] = useState(0)
     const [altText, setAltText] = useState("")
-
-    const languages = [
-        {
-            name: "日本語",
-            code: "ja",
-        },
-        {
-            name: "English",
-            code: "en",
-        },
-        {
-            name: "한국어",
-            code: "ko",
-        },
-        {
-            name: "中文",
-            code: "zh",
-        },
-        {
-            name: "Español",
-            code: "es",
-        },
-        {
-            name: "Français",
-            code: "fr",
-        },
-        {
-            name: "Português",
-            code: "pt",
-        },
-    ]
-
-    // useEffect(() => {
-    //     // 遷移元URLのパスが「/unchi/」の場合
-    //     /*if (history[0] === "/login") {
-    //         console.log("うんち爆弾！！！")
-    //     }*/
-    //     console.log(history[0])
-    // }, [])
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -638,7 +579,7 @@ export default function Root() {
                                             <TableColumn> </TableColumn>
                                         </TableHeader>
                                         <TableBody>
-                                            {languages.map((item, index) => {
+                                            {LANGUAGES.map((item) => {
                                                 return (
                                                     <TableRow key={item.code}>
                                                         <TableCell>

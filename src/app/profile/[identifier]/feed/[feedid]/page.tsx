@@ -32,15 +32,6 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
-// interface Props {
-//     className?: string
-//     color: "light" | "dark"
-//     isMobile?: boolean
-//     isProfileMine?: true | false
-//     isSubscribe?: true | false
-//     isPinned?: true | false
-// }
-
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("feed")
@@ -50,7 +41,6 @@ export default function Root() {
 
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
-    //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
 
@@ -63,7 +53,6 @@ export default function Root() {
     // const [post, setPost] = useState<any>(null)
     // const [newCursor, setNewCursor] = useState<string | null>(null)
     // const [hasCursor, setHasCursor] = useState<string | null>(null)
-    const [darkMode, setDarkMode] = useState(false)
     // const [isLiked, setIsLiked] = useState<boolean>(false)
     // const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     // const [isPostMine, setIsPostMine] = useState<boolean>(false)
@@ -72,10 +61,10 @@ export default function Root() {
     //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
-    const [userPreference, setUserPreference] = useState<any>(null)
+    const [, setUserPreference] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
-    const shouldScrollToTop = useRef<boolean>(false)
+    // const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -281,10 +270,10 @@ export default function Root() {
         if (!feedInfo) return
         try {
             if (isSubscribed) {
-                const res = await agent.removeSavedFeed(feedInfo.view.uri)
+                await agent.removeSavedFeed(feedInfo.view.uri)
                 setIsSubscribed(false)
             } else if (!isSubscribed) {
-                const res = await agent.addSavedFeed(feedInfo.view.uri)
+                await agent.addSavedFeed(feedInfo.view.uri)
                 setIsSubscribed(true)
             }
         } catch (e) {

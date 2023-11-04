@@ -12,7 +12,7 @@ import {
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate, faL } from "@fortawesome/free-solid-svg-icons"
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
@@ -41,8 +41,7 @@ interface FeedResponseObject {
 const FeedPage = ({
     feedKey,
     now,
-    isActive, // disableSlideVerticalScroll,
-    isNextActive,
+    isActive, // disableSlideVerticalScroll, isNextActive
 }: FeedPageProps) => {
     // const pathname = usePathname()
     const { t } = useTranslation()

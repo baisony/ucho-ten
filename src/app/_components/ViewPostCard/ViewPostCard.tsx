@@ -10,7 +10,6 @@ import {
     AppBskyEmbedImages,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
-    AppBskyFeedPost,
 } from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
@@ -121,12 +120,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         PostAuthorHandle,
         postCreatedAt,
         moreButton,
-        skeletonIcon,
-        skeletonName,
-        skeletonHandle,
-        skeletonText1line,
-        skeletonText2line,
-        chip,
         bookmarkButton,
         replyButton,
         repostButton,

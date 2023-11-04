@@ -14,14 +14,14 @@ import {
 import { Button, Spinner } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
-import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
+//import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
-import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
+import { UserAccount, UserAccountByDid } from "../_atoms/accounts"
 
 export default function CreateLoginPage() {
-    const [userProfileDetailed, setUserProfileDetailed] =
-        useUserProfileDetailedAtom()
-    const [accounts, setAccounts] = useAccounts()
+    //const [userProfileDetailed, setUserProfileDetailed] =
+    //        useUserProfileDetailedAtom()
+    //const [accounts, setAccounts] = useAccounts()
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
@@ -33,15 +33,13 @@ export default function CreateLoginPage() {
         useState<boolean>(false)
     const [passwordIsByAutocomplete, setPasswordByAutocomplete] =
         useState<boolean>(false)
-    const [isUserInfoIncorrect, setIsUserInfoIncorrect] =
-        useState<boolean>(false)
-    const [isServerError, setIsServerError] = useState<boolean>(false)
+    const [, setIsUserInfoIncorrect] = useState<boolean>(false)
+    const [, setIsServerError] = useState<boolean>(false)
     const {
         background,
         LoginForm,
         LoginFormConnectServer,
         LoginFormHandle,
-        LoginFormPassword,
         LoginFormLoginButton,
     } = createLoginPage()
 

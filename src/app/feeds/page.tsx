@@ -36,7 +36,10 @@ export default function Root() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
     const fetchFeeds = async () => {
-        if (!agent) return
+        if (!agent) {
+            return
+        }
+        
         try {
             setIsFetching(true)
             const { feeds } = await agent.getPreferences()
@@ -51,12 +54,18 @@ export default function Root() {
             setPinnedFeeds((pinned.data as any).feeds || [])
             setIsFetching(false)
         } catch (e) {
-            console.log(e)
+            setIsFetching(false)
+            console.error(e)
         }
     }
     const handleFeedDelete = async () => {
-        if (!agent) return
-        if (!selectedFeed) return
+        if (!agent) {
+            return
+        }
+        if (!selectedFeed) {
+            return
+        }
+
         try {
             setIsLoading(true)
             const res = await agent.removeSavedFeed(selectedFeed.uri)
@@ -64,6 +73,7 @@ export default function Root() {
             setIsLoading(false)
             console.log(res)
         } catch (e) {
+            setIsLoading(false)
             console.log(e)
         }
     }
@@ -82,6 +92,7 @@ export default function Root() {
     return (
         <>
             <div className={"md:h-[100px] h-[85px]"} />
+
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
@@ -91,6 +102,7 @@ export default function Root() {
                                 {selectedFeed?.displayName}
                                 {" ?"}
                             </ModalHeader>
+                            {/* TODO: i18n */}
                             <ModalFooter>
                                 <Button
                                     color="danger"
@@ -125,7 +137,7 @@ export default function Root() {
                         !isFetching ?? (
                             <div className={`text-white dark:text-black`}>
                                 ないよー
-                            </div>
+                            </div>{/* TODO: i18n */}
                         )
                     )}
                 </div>

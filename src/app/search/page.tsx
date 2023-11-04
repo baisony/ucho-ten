@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -209,16 +209,6 @@ export default function Root() {
 
             newSearchInfo.searchWord = searchText
             newSearchInfo.target = searchTarget
-            // newSearchInfo.posts = searchPostsResult
-            // newSearchInfo.users = searchUsersResult
-
-            // if (searchTarget === "posts") {
-            //     newSearchInfo.postCursor = cursor.current
-            // } else if (searchTarget === "users") {
-            //     newSearchInfo.userCursor = cursor.current
-            // }
-
-            console.log("newSearchInfo", newSearchInfo)
 
             return newSearchInfo
         })
@@ -459,19 +449,6 @@ export default function Root() {
         })
     }
 
-    // useEffect(() => {
-    //     setSearchTarget("")
-
-    //     numOfResult.current = 0
-    //     cursor.current = ""
-
-    //     setSearchPostsResult(null)
-    //     setSearchUsersResult(null)
-
-    //     setHasMorePostsResult(false)
-    //     setHasMoreUsersResult(false)
-    // }, [sea])
-
     const startSearch = () => {
         console.log(searchTarget, searchText)
         switch (searchTarget) {
@@ -542,16 +519,6 @@ export default function Root() {
         })
     }, [menuIndex])
 
-    const searchPostsResultWithDummy = useMemo((): PostView[] => {
-        const dummyData: PostView = {} as PostView
-
-        if (!searchPostsResult) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...searchPostsResult]
-        }
-    }, [searchPostsResult])
-
     const findFeeds = () => {
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", "フィード bsky.app")
@@ -621,47 +588,52 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "posts" && searchText && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            //scrollRef.current = ref
-                        }
-                    }}
-                    context={{ hasMore: hasMorePostsResult }}
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={searchPostsResultWithDummy}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <ViewPostCard
-                            {...{
-                                isTop: index === 0,
-                                isMobile,
-                                isSkeleton: false,
-                                bodyText: processPostBodyText(
+            {!loading &&
+                searchTarget === "posts" &&
+                searchText &&
+                searchPostsResult && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                            }
+                        }}
+                        context={{ hasMore: hasMorePostsResult }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={searchPostsResult}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <ViewPostCard
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        data || null
+                                    ),
+                                    postJson: data || null,
+                                    now,
                                     nextQueryParams,
-                                    data || null
-                                ),
-                                postJson: data || null,
-                                isDummyHeader: index === 0,
-                                now,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    components={{
-                        // @ts-ignore
-                        Footer: !isEndOfContent
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadPostsMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
-                />
-            )}
+                                    t,
+                                }}
+                            />
+                        )}
+                        components={{
+                            // @ts-ignore
+                            Footer: !isEndOfContent
+                                ? ListFooterSpinner
+                                : ListFooterNoContent,
+                        }}
+                        endReached={loadPostsMore}
+                        style={{
+                            overflowY: "auto",
+                            height: "calc(100% - 50px)",
+                        }}
+                    />
+                )}
 
             {loading && searchTarget === "users" && (
                 <Virtuoso
@@ -674,7 +646,7 @@ export default function Root() {
                     itemContent={(index, item) => (
                         <UserCell
                             {...{
-                                isDummyHeader: index === 0,
+                                isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
                             }}
@@ -703,7 +675,7 @@ export default function Root() {
                         itemContent={(index, data) => (
                             <UserCell
                                 {...{
-                                    isDummyHeader: index === 0,
+                                    isTop: index === 0,
                                     actor: data,
                                     onClick: () => {
                                         router.push(
@@ -739,7 +711,7 @@ export default function Root() {
                     itemContent={(index, item) => (
                         <UserCell
                             {...{
-                                isDummyHeader: index === 0,
+                                isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
                             }}
@@ -796,7 +768,7 @@ export default function Root() {
 }
 
 interface UserCellProps {
-    isDummyHeader: boolean
+    isTop: boolean
     actor: ProfileView | null
     onClick?: () => void
     skeleton?: boolean
@@ -804,7 +776,7 @@ interface UserCellProps {
 }
 
 const UserCell = ({
-    isDummyHeader,
+    isTop,
     actor,
     onClick,
     skeleton, //index,
@@ -812,65 +784,68 @@ const UserCell = ({
     const { userCard } = layout()
 
     return (
-        <div
-            onClick={onClick}
-            //@ts-ignore
-            className={`${userCard()}`}
-            style={{ cursor: skeleton ? "default" : "pointer" }}
-        >
-            <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
-                {skeleton && (
-                    <Skeleton
-                        className={`h-full w-full`}
-                        style={{ borderRadius: "10px" }}
-                    />
-                )}
-                {!skeleton && (
-                    <Image
-                        className={`h-[35px] w-[35px] z-[0]`}
-                        src={actor?.avatar || defaultIcon.src}
-                        alt={"avatar image"}
-                    />
-                )}
-            </div>
-            <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
-                <div className={"w-full"}>
-                    <div className={"text-[15px]"}>
-                        {skeleton && (
-                            <Skeleton
-                                className={`h-[15px] w-[100px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!skeleton && actor?.displayName}
-                    </div>
-                    <div className={" text-[13px] text-gray-500"}>
-                        {skeleton && (
-                            <Skeleton
-                                className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!skeleton && `@${actor?.handle}`}
-                    </div>
-                </div>
-                <div
-                    className={"w-full text-[13px]"}
-                    style={{
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                    }}
-                >
+        <>
+            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            <div
+                onClick={onClick}
+                //@ts-ignore
+                className={`${userCard()}`}
+                style={{ cursor: skeleton ? "default" : "pointer" }}
+            >
+                <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
                     {skeleton && (
                         <Skeleton
-                            className={`h-[13px] w-full mt-[10px] mb-[10px]`}
+                            className={`h-full w-full`}
                             style={{ borderRadius: "10px" }}
                         />
                     )}
-                    {!skeleton && actor?.description}
+                    {!skeleton && (
+                        <Image
+                            className={`h-[35px] w-[35px] z-[0]`}
+                            src={actor?.avatar || defaultIcon.src}
+                            alt={"avatar image"}
+                        />
+                    )}
+                </div>
+                <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
+                    <div className={"w-full"}>
+                        <div className={"text-[15px]"}>
+                            {skeleton && (
+                                <Skeleton
+                                    className={`h-[15px] w-[100px]`}
+                                    style={{ borderRadius: "10px" }}
+                                />
+                            )}
+                            {!skeleton && actor?.displayName}
+                        </div>
+                        <div className={" text-[13px] text-gray-500"}>
+                            {skeleton && (
+                                <Skeleton
+                                    className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
+                                    style={{ borderRadius: "10px" }}
+                                />
+                            )}
+                            {!skeleton && `@${actor?.handle}`}
+                        </div>
+                    </div>
+                    <div
+                        className={"w-full text-[13px]"}
+                        style={{
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                            overflow: "hidden",
+                        }}
+                    >
+                        {skeleton && (
+                            <Skeleton
+                                className={`h-[13px] w-full mt-[10px] mb-[10px]`}
+                                style={{ borderRadius: "10px" }}
+                            />
+                        )}
+                        {!skeleton && actor?.description}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
