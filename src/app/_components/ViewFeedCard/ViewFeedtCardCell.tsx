@@ -7,82 +7,84 @@ import Link from "next/link"
 import { AtUri } from "@atproto/api"
 
 export interface ViewFeedCardCellProps {
+    isTop: boolean
     className?: string
     isSkeleton?: boolean
     now?: Date
     feed: GeneratorView
-    isDummyHeader?: boolean
     nextQueryParams: URLSearchParams
     t: any
 }
 
 export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
     const { userCard } = layout()
-    const { isDummyHeader, isSkeleton, feed, nextQueryParams } = props
+    const { isTop, isSkeleton, feed, nextQueryParams } = props
     const feedURI = new AtUri(feed.uri)
-    return isDummyHeader ? (
-        <div className={"md:h-[100px] h-[85px]"} />
-    ) : (
-        <Link
-            className={`${userCard()}`}
-            style={{ cursor: isSkeleton ? "default" : "pointer" }}
-            href={`/profile/${feedURI.hostname}/feed/${
-                feedURI.rkey
-            }?${nextQueryParams.toString()}`}
-        >
-            <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
-                {isSkeleton && (
-                    <Skeleton
-                        className={`h-full w-full`}
-                        style={{ borderRadius: "10px" }}
-                    />
-                )}
-                {!isSkeleton && (
-                    <Image
-                        className={`h-[35px] w-[35px] z-[0]`}
-                        src={feed?.avatar || defaultIcon.src}
-                        alt={"avatar image"}
-                    />
-                )}
-            </div>
-            <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
-                <div className={"w-full"}>
-                    <div className={"text-[15px]"}>
-                        {isSkeleton && (
-                            <Skeleton
-                                className={`h-[15px] w-[100px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!isSkeleton && feed?.displayName}
-                    </div>
-                    <div className={" text-[13px] text-gray-500"}>
-                        {isSkeleton && (
-                            <Skeleton
-                                className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!isSkeleton && `by @${feed.creator?.handle}`}
-                    </div>
-                </div>
-                <div
-                    className={"w-full text-[13px]"}
-                    style={{
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                    }}
-                >
+    return (
+        <>
+            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+
+            <Link
+                className={`${userCard()}`}
+                style={{ cursor: isSkeleton ? "default" : "pointer" }}
+                href={`/profile/${feedURI.hostname}/feed/${
+                    feedURI.rkey
+                }?${nextQueryParams.toString()}`}
+            >
+                <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
                     {isSkeleton && (
                         <Skeleton
-                            className={`h-[13px] w-full mt-[10px] mb-[10px]`}
+                            className={`h-full w-full`}
                             style={{ borderRadius: "10px" }}
                         />
                     )}
-                    {!isSkeleton && feed?.description}
+                    {!isSkeleton && (
+                        <Image
+                            className={`h-[35px] w-[35px] z-[0]`}
+                            src={feed?.avatar || defaultIcon.src}
+                            alt={"avatar image"}
+                        />
+                    )}
                 </div>
-            </div>
-        </Link>
+                <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
+                    <div className={"w-full"}>
+                        <div className={"text-[15px]"}>
+                            {isSkeleton && (
+                                <Skeleton
+                                    className={`h-[15px] w-[100px]`}
+                                    style={{ borderRadius: "10px" }}
+                                />
+                            )}
+                            {!isSkeleton && feed?.displayName}
+                        </div>
+                        <div className={" text-[13px] text-gray-500"}>
+                            {isSkeleton && (
+                                <Skeleton
+                                    className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
+                                    style={{ borderRadius: "10px" }}
+                                />
+                            )}
+                            {!isSkeleton && `by @${feed.creator?.handle}`}
+                        </div>
+                    </div>
+                    <div
+                        className={"w-full text-[13px]"}
+                        style={{
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                            overflow: "hidden",
+                        }}
+                    >
+                        {isSkeleton && (
+                            <Skeleton
+                                className={`h-[13px] w-full mt-[10px] mb-[10px]`}
+                                style={{ borderRadius: "10px" }}
+                            />
+                        )}
+                        {!isSkeleton && feed?.description}
+                    </div>
+                </div>
+            </Link>
+        </>
     )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -20,7 +20,6 @@ import {
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
-import { ViewPostCardCell } from "../_components/ViewPostCard/ViewPostCardCell"
 import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useAtom } from "jotai"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
@@ -29,14 +28,17 @@ import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
+import { ViewPostCard } from "../_components/ViewPostCard"
+import { processPostBodyText } from "../_lib/post/processPostBodyText"
 
 export default function Root() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
-    const [menuIndex] = useAtom(menuIndexAtom)
     const [currentMenuType] = useCurrentMenuType()
     //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
@@ -85,6 +87,23 @@ export default function Root() {
     }, [])
 
     useEffect(() => {
+        switch (searchParams.get("target")) {
+            case "posts":
+                setMenuIndex(0)
+                break
+            case "users":
+                setMenuIndex(1)
+                break
+            case "feeds":
+                setMenuIndex(2)
+                break
+            default:
+                setMenuIndex(0)
+                break
+        }
+    }, [searchParams])
+
+    useEffect(() => {
         console.log(searchTarget, searchText)
         console.log(searchInfo.target, searchInfo.searchWord)
 
@@ -92,10 +111,11 @@ export default function Root() {
             searchInfo.target !== searchParams.get("target") ||
             searchInfo.searchWord !== searchParams.get("word")
         ) {
+            setCurrentMenuType("searchTop")
             return
         }
 
-        console.log("here", searchTarget, searchText)
+        setCurrentMenuType("search")
 
         const target = searchParams.get("target") || "posts"
         const word = searchParams.get("word") || ""
@@ -189,16 +209,6 @@ export default function Root() {
 
             newSearchInfo.searchWord = searchText
             newSearchInfo.target = searchTarget
-            // newSearchInfo.posts = searchPostsResult
-            // newSearchInfo.users = searchUsersResult
-
-            // if (searchTarget === "posts") {
-            //     newSearchInfo.postCursor = cursor.current
-            // } else if (searchTarget === "users") {
-            //     newSearchInfo.userCursor = cursor.current
-            // }
-
-            console.log("newSearchInfo", newSearchInfo)
 
             return newSearchInfo
         })
@@ -439,19 +449,6 @@ export default function Root() {
         })
     }
 
-    // useEffect(() => {
-    //     setSearchTarget("")
-
-    //     numOfResult.current = 0
-    //     cursor.current = ""
-
-    //     setSearchPostsResult(null)
-    //     setSearchUsersResult(null)
-
-    //     setHasMorePostsResult(false)
-    //     setHasMoreUsersResult(false)
-    // }, [sea])
-
     const startSearch = () => {
         console.log(searchTarget, searchText)
         switch (searchTarget) {
@@ -511,17 +508,6 @@ export default function Root() {
 
         const target = menus.search[menuIndex].info
 
-        // const queryParams = new URLSearchParams(nextQueryParams)
-
-        // queryParams.set("word", searchText)
-        // queryParams.set("target", target)
-
-        // if (searchText === "") {
-        //     return
-        // }
-
-        // router.replace(`/search?${queryParams.toString()}`)
-
         setSearchTarget(target)
 
         setSearchInfo((prevSearchInfo) => {
@@ -532,36 +518,6 @@ export default function Root() {
             return newSearchInfo
         })
     }, [menuIndex])
-
-    const searchPostsResultWithDummy = useMemo((): PostView[] => {
-        const dummyData: PostView = {} as PostView
-
-        if (!searchPostsResult) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...searchPostsResult]
-        }
-    }, [searchPostsResult])
-
-    const searchUsersResultWithDummy = useMemo((): ProfileView[] => {
-        const dummyData: ProfileView = {} as ProfileView
-
-        if (!searchUsersResult) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...searchUsersResult]
-        }
-    }, [searchUsersResult])
-
-    const searchFeedsResultWithDummy = useMemo((): GeneratorView[] => {
-        const dummyData: GeneratorView = {} as GeneratorView
-
-        if (!searchFeedsResult) {
-            return [dummyData]
-        } else {
-            return [dummyData, ...searchFeedsResult]
-        }
-    }, [searchFeedsResult])
 
     const findFeeds = () => {
         const queryParams = new URLSearchParams(nextQueryParams)
@@ -593,6 +549,7 @@ export default function Root() {
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
                                 <div>日本語フィードを探す</div>
+                                {/* TODO: i18n */}
                                 <div>by @Ucho-ten</div>
                             </div>
                         </Link>
@@ -616,11 +573,12 @@ export default function Root() {
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
-                        <ViewPostCardCell
+                        <ViewPostCard
                             {...{
+                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
-                                isDummyHeader: index === 0,
+                                bodyText: undefined,
                                 nextQueryParams,
                                 t,
                             }}
@@ -630,42 +588,52 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "posts" && searchText && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            //scrollRef.current = ref
-                        }
-                    }}
-                    context={{ hasMore: hasMorePostsResult }}
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={searchPostsResultWithDummy}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <ViewPostCardCell
-                            {...{
-                                isMobile,
-                                isSkeleton: false,
-                                postJson: data || null,
-                                isDummyHeader: index === 0,
-                                now,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    components={{
-                        // @ts-ignore
-                        Footer: !isEndOfContent
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadPostsMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
-                />
-            )}
+            {!loading &&
+                searchTarget === "posts" &&
+                searchText &&
+                searchPostsResult && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                            }
+                        }}
+                        context={{ hasMore: hasMorePostsResult }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={searchPostsResult}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <ViewPostCard
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        data || null
+                                    ),
+                                    postJson: data || null,
+                                    now,
+                                    nextQueryParams,
+                                    t,
+                                }}
+                            />
+                        )}
+                        components={{
+                            // @ts-ignore
+                            Footer: !isEndOfContent
+                                ? ListFooterSpinner
+                                : ListFooterNoContent,
+                        }}
+                        endReached={loadPostsMore}
+                        style={{
+                            overflowY: "auto",
+                            height: "calc(100% - 50px)",
+                        }}
+                    />
+                )}
 
             {loading && searchTarget === "users" && (
                 <Virtuoso
@@ -678,7 +646,7 @@ export default function Root() {
                     itemContent={(index, item) => (
                         <UserCell
                             {...{
-                                isDummyHeader: index === 0,
+                                isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
                             }}
@@ -688,44 +656,50 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "users" && searchText && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            scrollRef.current = ref
-                        }
-                    }}
-                    context={{ hasMore: hasMoreFeedsResult }}
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={searchUsersResultWithDummy}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <UserCell
-                            {...{
-                                isDummyHeader: index === 0,
-                                actor: data,
-                                onClick: () => {
-                                    router.push(
-                                        `/profile/${
-                                            data.did
-                                        }?${nextQueryParams.toString()}`
-                                    )
-                                },
-                            }}
-                        />
-                    )}
-                    components={{
-                        // @ts-ignore
-                        Footer: !isEndOfContent
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadUsersMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
-                />
-            )}
+            {!loading &&
+                searchTarget === "users" &&
+                searchText &&
+                searchUsersResult !== null && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                            }
+                        }}
+                        context={{ hasMore: hasMoreFeedsResult }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={searchUsersResult}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <UserCell
+                                {...{
+                                    isTop: index === 0,
+                                    actor: data,
+                                    onClick: () => {
+                                        router.push(
+                                            `/profile/${
+                                                data.did
+                                            }?${nextQueryParams.toString()}`
+                                        )
+                                    },
+                                }}
+                            />
+                        )}
+                        components={{
+                            // @ts-ignore
+                            Footer: !isEndOfContent
+                                ? ListFooterSpinner
+                                : ListFooterNoContent,
+                        }}
+                        endReached={loadUsersMore}
+                        style={{
+                            overflowY: "auto",
+                            height: "calc(100% - 50px)",
+                        }}
+                    />
+                )}
             {loading && searchTarget === "feeds" && (
                 <Virtuoso
                     overscan={100}
@@ -737,7 +711,7 @@ export default function Root() {
                     itemContent={(index, item) => (
                         <UserCell
                             {...{
-                                isDummyHeader: index === 0,
+                                isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
                             }}
@@ -747,48 +721,54 @@ export default function Root() {
                 />
             )}
 
-            {!loading && searchTarget === "feeds" && searchText && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            scrollRef.current = ref
-                        }
-                    }}
-                    context={{ hasMore: hasMoreUsersResult }}
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={searchFeedsResultWithDummy}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <ViewFeedCardCell
-                            {...{
-                                isMobile,
-                                isSkeleton: false,
-                                feed: data || null,
-                                isDummyHeader: index === 0,
-                                now,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    components={{
-                        // @ts-ignore
-                        Footer: !isEndOfContent
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadFeedsMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
-                />
-            )}
+            {!loading &&
+                searchTarget === "feeds" &&
+                searchText &&
+                searchFeedsResult !== null && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                            }
+                        }}
+                        context={{ hasMore: hasMoreUsersResult }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={searchFeedsResult}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <ViewFeedCardCell
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    feed: data || null,
+                                    now,
+                                    nextQueryParams,
+                                    t,
+                                }}
+                            />
+                        )}
+                        components={{
+                            // @ts-ignore
+                            Footer: !isEndOfContent
+                                ? ListFooterSpinner
+                                : ListFooterNoContent,
+                        }}
+                        endReached={loadFeedsMore}
+                        style={{
+                            overflowY: "auto",
+                            height: "calc(100% - 50px)",
+                        }}
+                    />
+                )}
         </>
     )
 }
 
 interface UserCellProps {
-    isDummyHeader: boolean
+    isTop: boolean
     actor: ProfileView | null
     onClick?: () => void
     skeleton?: boolean
@@ -796,78 +776,76 @@ interface UserCellProps {
 }
 
 const UserCell = ({
-    isDummyHeader,
+    isTop,
     actor,
     onClick,
     skeleton, //index,
 }: UserCellProps) => {
     const { userCard } = layout()
 
-    if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
-    }
-
     return (
-        <div
-            //key={`search-actor-${!skeleton ? actor.did : index}`}
-            onClick={onClick}
-            //@ts-ignore
-            className={`${userCard()}`}
-            style={{ cursor: skeleton ? "default" : "pointer" }}
-        >
-            <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
-                {skeleton && (
-                    <Skeleton
-                        className={`h-full w-full`}
-                        style={{ borderRadius: "10px" }}
-                    />
-                )}
-                {!skeleton && (
-                    <Image
-                        className={`h-[35px] w-[35px] z-[0]`}
-                        src={actor?.avatar || defaultIcon.src}
-                        alt={"avatar image"}
-                    />
-                )}
-            </div>
-            <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
-                <div className={"w-full"}>
-                    <div className={"text-[15px]"}>
-                        {skeleton && (
-                            <Skeleton
-                                className={`h-[15px] w-[100px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!skeleton && actor?.displayName}
-                    </div>
-                    <div className={" text-[13px] text-gray-500"}>
-                        {skeleton && (
-                            <Skeleton
-                                className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!skeleton && `@${actor?.handle}`}
-                    </div>
-                </div>
-                <div
-                    className={"w-full text-[13px]"}
-                    style={{
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                    }}
-                >
+        <>
+            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            <div
+                onClick={onClick}
+                //@ts-ignore
+                className={`${userCard()}`}
+                style={{ cursor: skeleton ? "default" : "pointer" }}
+            >
+                <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
                     {skeleton && (
                         <Skeleton
-                            className={`h-[13px] w-full mt-[10px] mb-[10px]`}
+                            className={`h-full w-full`}
                             style={{ borderRadius: "10px" }}
                         />
                     )}
-                    {!skeleton && actor?.description}
+                    {!skeleton && (
+                        <Image
+                            className={`h-[35px] w-[35px] z-[0]`}
+                            src={actor?.avatar || defaultIcon.src}
+                            alt={"avatar image"}
+                        />
+                    )}
+                </div>
+                <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
+                    <div className={"w-full"}>
+                        <div className={"text-[15px]"}>
+                            {skeleton && (
+                                <Skeleton
+                                    className={`h-[15px] w-[100px]`}
+                                    style={{ borderRadius: "10px" }}
+                                />
+                            )}
+                            {!skeleton && actor?.displayName}
+                        </div>
+                        <div className={" text-[13px] text-gray-500"}>
+                            {skeleton && (
+                                <Skeleton
+                                    className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
+                                    style={{ borderRadius: "10px" }}
+                                />
+                            )}
+                            {!skeleton && `@${actor?.handle}`}
+                        </div>
+                    </div>
+                    <div
+                        className={"w-full text-[13px]"}
+                        style={{
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                            overflow: "hidden",
+                        }}
+                    >
+                        {skeleton && (
+                            <Skeleton
+                                className={`h-[13px] w-full mt-[10px] mb-[10px]`}
+                                style={{ borderRadius: "10px" }}
+                            />
+                        )}
+                        {!skeleton && actor?.description}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }

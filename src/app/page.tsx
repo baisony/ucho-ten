@@ -1,9 +1,9 @@
 "use client"
 
-import { isMobile } from "react-device-detect"
+// import { isMobile } from "react-device-detect"
 import React, { useEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
-import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+// import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
@@ -11,26 +11,27 @@ import FeedPage from "./_components/FeedPage/FeedPage"
 // import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
 // import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
-    HeaderMenuType,
     menuIndexAtom,
-    setMenuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "./_atoms/headerMenu"
+import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
+import { HeaderMenuType } from "./_constants/headerMenus"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
 
 SwiperCore.use([Virtual])
 
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 const Root = () => {
-    const [appearanceColor] = useAppearanceColor()
-    const [menuIndex] = useAtom(menuIndexAtom)
-    const [, setMenuIndex] = useAtom(setMenuIndexAtom)
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("home")
+
+    //const [appearanceColor] = useAppearanceColor()
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     // const [headerMenus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
@@ -39,36 +40,36 @@ const Root = () => {
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
 
-    const [darkMode, setDarkMode] = useState(false)
+    // const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
     const [disableSlideVerticalScroll, setDisableSlideVerticalScroll] =
         useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
-    const prevMenyType = useRef<HeaderMenuType>("home")
+    // const prevMenyType = useRef<HeaderMenuType>("home")
 
     // const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
 
-    const color: "dark" | "light" = darkMode ? "dark" : "light"
+    // const color: "dark" | "light" = darkMode ? "dark" : "light"
 
-    const modeMe = (e: any) => {
-        setDarkMode(!!e.matches)
-    }
+    // const modeMe = (e: any) => {
+    //     setDarkMode(!!e.matches)
+    // }
 
-    useEffect(() => {
-        if (appearanceColor === "system") {
-            const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
+    // useEffect(() => {
+    //     if (appearanceColor === "system") {
+    //         const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
 
-            setDarkMode(matchMedia.matches)
-            matchMedia.addEventListener("change", modeMe)
+    //         setDarkMode(matchMedia.matches)
+    //         matchMedia.addEventListener("change", modeMe)
 
-            return () => matchMedia.removeEventListener("change", modeMe)
-        } else if (appearanceColor === "dark") {
-            setDarkMode(true)
-        } else if (appearanceColor === "light") {
-            setDarkMode(false)
-        }
-    }, [appearanceColor])
+    //         return () => matchMedia.removeEventListener("change", modeMe)
+    //     } else if (appearanceColor === "dark") {
+    //         setDarkMode(true)
+    //     } else if (appearanceColor === "light") {
+    //         setDarkMode(false)
+    //     }
+    // }, [appearanceColor])
 
     useEffect(() => {
         if (tappedTabbarButton == "home") {
@@ -88,20 +89,20 @@ const Root = () => {
     }, [])
 
     useEffect(() => {
-        console.log("home", currentMenuType, swiperRef.current, menuIndex)
+        // console.log("home", currentMenuType, swiperRef.current, menuIndex)
         if (
             currentMenuType === "home" &&
             swiperRef.current &&
             menuIndex !== swiperRef.current.activeIndex
         ) {
-            if (currentMenuType !== prevMenyType.current) {
-                swiperRef.current.slideTo(menuIndex, 0)
-            } else {
-                swiperRef.current.slideTo(menuIndex)
-            }
+            // if (currentMenuType !== prevMenyType.current) {
+            //     swiperRef.current.slideTo(menuIndex, 0)
+            // } else {
+            swiperRef.current.slideTo(menuIndex)
+            // }
         }
 
-        prevMenyType.current = currentMenuType
+        //prevMenyType.current = currentMenuType
     }, [currentMenuType, menuIndex, swiperRef.current])
 
     // useEffect(() => {
@@ -155,7 +156,7 @@ const Root = () => {
             onSwiper={(swiper) => {
                 swiperRef.current = swiper
             }}
-            cssMode={isMobile}
+            cssMode={false}
             // virtual={true}
             pagination={{ type: "custom", clickable: false }}
             hidden={true} // ??

@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
@@ -38,16 +39,18 @@ import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import {
-    ViewPostCardCell,
-    ViewPostCardCellProps,
-} from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("profile")
+
     const router = useRouter()
     const pathname = usePathname()
     const { t } = useTranslation()
@@ -255,9 +258,14 @@ export default function Root() {
 
         if (timeline) {
             const timelineData: UserProfilePageCellProps[] = timeline.map(
-                (post) => {
-                    const postProps: ViewPostCardCellProps = {
+                (post, index) => {
+                    const postProps: ViewPostCardProps = {
+                        isTop: false,
                         isMobile,
+                        bodyText: processPostBodyText(
+                            nextQueryParams,
+                            post.post
+                        ),
                         postJson: post.post,
                         now,
                         nextQueryParams,
@@ -274,10 +282,12 @@ export default function Root() {
         } else {
             const timelineData: UserProfilePageCellProps[] = Array.from({
                 length: 20,
-            }).map((_) => {
-                const postProps: ViewPostCardCellProps = {
+            }).map((_, index) => {
+                const postProps: ViewPostCardProps = {
+                    isTop: false,
                     isSkeleton: true,
                     isMobile,
+                    bodyText: undefined,
                     now,
                     nextQueryParams,
                     t,
@@ -328,7 +338,7 @@ export default function Root() {
 interface UserProfilePageCellProps {
     isDummyHeader?: boolean
     userProfileProps?: UserProfileProps
-    postProps?: ViewPostCardCellProps
+    postProps?: ViewPostCardProps
 }
 
 const UserProfilePageCell = (props: UserProfilePageCellProps) => {
@@ -343,7 +353,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     }
 
     if (postProps) {
-        return <ViewPostCardCell {...postProps} />
+        return <ViewPostCard {...postProps} />
     }
 }
 

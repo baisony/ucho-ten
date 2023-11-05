@@ -25,30 +25,22 @@ import "react-swipeable-list/dist/styles.css"
 import { isMobile } from "react-device-detect"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import {
-    ViewPostCardCell,
-    ViewPostCardCellProps,
-} from "@/app/_components/ViewPostCard/ViewPostCardCell"
 import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-
-// interface Props {
-//     className?: string
-//     color: "light" | "dark"
-//     isMobile?: boolean
-//     isProfileMine?: true | false
-//     isSubscribe?: true | false
-//     isPinned?: true | false
-// }
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 export default function Root() {
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("feed")
+
     const pathname = usePathname()
     const { t } = useTranslation()
 
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
-    //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     const atUri = atUri1.replace("/feed/", "/app.bsky.feed.generator/")
 
@@ -61,7 +53,6 @@ export default function Root() {
     // const [post, setPost] = useState<any>(null)
     // const [newCursor, setNewCursor] = useState<string | null>(null)
     // const [hasCursor, setHasCursor] = useState<string | null>(null)
-    const [darkMode, setDarkMode] = useState(false)
     // const [isLiked, setIsLiked] = useState<boolean>(false)
     // const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     // const [isPostMine, setIsPostMine] = useState<boolean>(false)
@@ -70,10 +61,10 @@ export default function Root() {
     //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
-    const [userPreference, setUserPreference] = useState<any>(null)
+    const [, setUserPreference] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
-    const shouldScrollToTop = useRef<boolean>(false)
+    // const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -279,10 +270,10 @@ export default function Root() {
         if (!feedInfo) return
         try {
             if (isSubscribed) {
-                const res = await agent.removeSavedFeed(feedInfo.view.uri)
+                await agent.removeSavedFeed(feedInfo.view.uri)
                 setIsSubscribed(false)
             } else if (!isSubscribed) {
-                const res = await agent.addSavedFeed(feedInfo.view.uri)
+                await agent.addSavedFeed(feedInfo.view.uri)
                 setIsSubscribed(true)
             }
         } catch (e) {
@@ -321,8 +312,10 @@ export default function Root() {
 
         if (timeline) {
             const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
-                const postProps: ViewPostCardCellProps = {
+                const postProps: ViewPostCardProps = {
+                    isTop: false,
                     isMobile,
+                    bodyText: processPostBodyText(nextQueryParams, post.post),
                     postJson: post.post,
                     now,
                     nextQueryParams,
@@ -339,9 +332,11 @@ export default function Root() {
             const timelineData: CustomFeedCellProps[] = Array.from({
                 length: 20,
             }).map((_) => {
-                const postProps: ViewPostCardCellProps = {
+                const postProps: ViewPostCardProps = {
+                    isTop: false,
                     isSkeleton: true,
                     isMobile,
+                    bodyText: undefined,
                     now,
                     nextQueryParams,
                     t,
@@ -355,10 +350,6 @@ export default function Root() {
             console.log("timelineData", timelineData)
 
             data = [...data, ...timelineData]
-        }
-
-        if (data.length > 0) {
-            data = [{ isDummyHeader: true }, ...data]
         }
 
         return data
@@ -392,22 +383,18 @@ export default function Root() {
 interface CustomFeedCellProps {
     isDummyHeader?: boolean
     feedProps?: FeedProps
-    postProps?: ViewPostCardCellProps
+    postProps?: ViewPostCardProps
 }
 
 const CustomFeedCell = (props: CustomFeedCellProps) => {
-    const { isDummyHeader, feedProps, postProps } = props
-
-    if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
-    }
+    const { feedProps, postProps } = props
 
     if (feedProps) {
         return <FeedHeaderComponent {...feedProps} />
     }
 
     if (postProps) {
-        return <ViewPostCardCell {...postProps} />
+        return <ViewPostCard {...postProps} />
     }
 }
 
@@ -430,11 +417,8 @@ const FeedHeaderComponent = ({
     const [onHoverButton, setOnHoverButton] = useState(false)
 
     const {
-        background,
         ProfileContainer,
         ProfileInfoContainer,
-        HeaderImageContainer,
-        ProfileHeaderImage,
         ProfileImage,
         ProfileDisplayName,
         ProfileHandle,
@@ -444,123 +428,126 @@ const FeedHeaderComponent = ({
         ProfileBio,
         Buttons,
         ShareButton,
-        PostContainer,
         PinButton,
-        dropdown,
     } = viewFeedPage()
 
     return (
-        <div className={ProfileContainer()}>
-            <div className={ProfileInfoContainer()}>
-                {!isSkeleton ? (
-                    <img
-                        className={ProfileImage()}
-                        src={feedInfo.view?.avatar || defaultFeedIcon.src}
-                    />
-                ) : (
-                    <div className={ProfileImage()}>
-                        <Skeleton className={`h-full w-full rounded-[10px] `} />
-                    </div>
-                )}
-                <div className={Buttons()}>
-                    <div className={ProfileActionButton()}>
-                        {!isSkeleton && (
+        <>
+            <div className={"md:h-[100px] h-[85px]"} />
+            <div className={ProfileContainer()}>
+                <div className={ProfileInfoContainer()}>
+                    {!isSkeleton ? (
+                        <img
+                            className={ProfileImage()}
+                            src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                        />
+                    ) : (
+                        <div className={ProfileImage()}>
+                            <Skeleton
+                                className={`h-full w-full rounded-[10px] `}
+                            />
+                        </div>
+                    )}
+                    <div className={Buttons()}>
+                        <div className={ProfileActionButton()}>
+                            {!isSkeleton && (
+                                <FontAwesomeIcon
+                                    icon={
+                                        feedInfo.view?.viewer?.like
+                                            ? faSolidHeart
+                                            : faRegularHeart
+                                    }
+                                    style={{
+                                        color: feedInfo.view?.viewer?.like
+                                            ? "#ff0000"
+                                            : "#000000",
+                                    }}
+                                />
+                            )}
+                        </div>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <div className={ProfileCopyButton()}>
+                                    <FontAwesomeIcon
+                                        icon={faArrowUpFromBracket}
+                                        className={ShareButton()}
+                                    />
+                                </div>
+                            </DropdownTrigger>
+                            <DropdownMenu>
+                                <DropdownItem key="new">
+                                    {t("pages.feedOnlyPage.copyFeedURL")}
+                                </DropdownItem>
+                                <DropdownItem key="copy">
+                                    {t("pages.feedOnlyPage.postThisFeed")}{" "}
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                        <div className={ProfileActionButton()}>
                             <FontAwesomeIcon
-                                icon={
-                                    feedInfo.view?.viewer?.like
-                                        ? faSolidHeart
-                                        : faRegularHeart
-                                }
-                                style={{
-                                    color: feedInfo.view?.viewer?.like
-                                        ? "#ff0000"
-                                        : "#000000",
-                                }}
+                                icon={faThumbTack}
+                                className={PinButton({
+                                    isPinned: isPinned,
+                                })}
+                            />
+                        </div>
+                        <Button
+                            className={FollowButton()}
+                            onMouseLeave={() => {
+                                setOnHoverButton(false)
+                            }}
+                            onMouseEnter={() => {
+                                setOnHoverButton(true)
+                            }}
+                            onClick={onClick}
+                            isDisabled={isSkeleton}
+                        >
+                            {isSubscribed
+                                ? !onHoverButton
+                                    ? t("button.subscribed")
+                                    : t("button.unsubscribe")
+                                : t("button.subscribe")}
+                        </Button>
+                    </div>
+                    <div className={ProfileDisplayName()}>
+                        {!isSkeleton ? (
+                            feedInfo.view?.displayName
+                        ) : (
+                            <Skeleton
+                                className={`h-[24px] w-[300px] rounded-[10px] `}
                             />
                         )}
                     </div>
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <div className={ProfileCopyButton()}>
-                                <FontAwesomeIcon
-                                    icon={faArrowUpFromBracket}
-                                    className={ShareButton()}
-                                />
-                            </div>
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                            <DropdownItem key="new">
-                                {t("pages.feedOnlyPage.copyFeedURL")}
-                            </DropdownItem>
-                            <DropdownItem key="copy">
-                                {t("pages.feedOnlyPage.postThisFeed")}{" "}
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                    <div className={ProfileActionButton()}>
-                        <FontAwesomeIcon
-                            icon={faThumbTack}
-                            className={PinButton({
-                                isPinned: isPinned,
-                            })}
-                        />
+                    <div className={ProfileHandle()}>
+                        {!isSkeleton ? (
+                            `${t(`pages.feedOnlyPage.createdBy`)} @${
+                                feedInfo.view.creator.handle
+                            }`
+                        ) : (
+                            <Skeleton
+                                className={`h-3 w-[80px] rounded-[10px] mt-[5px] `}
+                            />
+                        )}
                     </div>
-                    <Button
-                        className={FollowButton()}
-                        onMouseLeave={() => {
-                            setOnHoverButton(false)
-                        }}
-                        onMouseEnter={() => {
-                            setOnHoverButton(true)
-                        }}
-                        onClick={onClick}
-                        isDisabled={isSkeleton}
-                    >
-                        {isSubscribed
-                            ? !onHoverButton
-                                ? t("button.subscribed")
-                                : t("button.unsubscribe")
-                            : t("button.subscribe")}
-                    </Button>
-                </div>
-                <div className={ProfileDisplayName()}>
-                    {!isSkeleton ? (
-                        feedInfo.view?.displayName
-                    ) : (
-                        <Skeleton
-                            className={`h-[24px] w-[300px] rounded-[10px] `}
-                        />
-                    )}
-                </div>
-                <div className={ProfileHandle()}>
-                    {!isSkeleton ? (
-                        `${t(`pages.feedOnlyPage.createdBy`)} @${
-                            feedInfo.view.creator.handle
-                        }`
-                    ) : (
-                        <Skeleton
-                            className={`h-3 w-[80px] rounded-[10px] mt-[5px] `}
-                        />
-                    )}
-                </div>
-                <div className={ProfileBio()}>
-                    {!isSkeleton ? (
-                        feedInfo.view?.description
-                    ) : (
-                        <>
-                            <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
-                            />
-                            <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
-                            />
-                            <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
-                            />
-                        </>
-                    )}
+                    <div className={ProfileBio()}>
+                        {!isSkeleton ? (
+                            feedInfo.view?.description
+                        ) : (
+                            <>
+                                <Skeleton
+                                    className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                />
+                                <Skeleton
+                                    className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                />
+                                <Skeleton
+                                    className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                />
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
