@@ -274,8 +274,15 @@ export default function Root() {
             for (const batch of batches) {
                 const { data } = await agent?.getPosts({ uris: batch })
                 const { posts } = data
+                const filteredPosts = posts.filter((post) => {
+                    return (
+                        !post?.author?.viewer?.muted &&
+                        !post?.author?.viewer?.blocking &&
+                        !post?.author?.viewer?.blockedBy
+                    )
+                })
 
-                results.push(...posts)
+                results.push(...filteredPosts)
             }
 
             setSearchPostsResult((currentSearchResults) => {
