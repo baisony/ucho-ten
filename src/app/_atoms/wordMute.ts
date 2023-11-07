@@ -7,8 +7,6 @@ export interface MuteWord {
     end: number | null
     selectPeriod: number | null
     isActive: boolean
-    targets: string[]
-    muteAccountIncludesFollowing: boolean
     updatedAt: number
     createdAt: number
     deletedAt: Date | null
