@@ -139,10 +139,10 @@ const Page = () => {
                 }}
             >
                 <SwiperSlide>
-                    <AuthorsPostPage />
+                    <PostPage tab={"authors"} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <div className="w-full h-full"></div>
+                    <PostPage tab={"others"} />
                 </SwiperSlide>
             </Swiper>
         </>
@@ -151,7 +151,12 @@ const Page = () => {
 
 export default Page
 
-const AuthorsPostPage = () => {
+interface PostPageProps {
+    tab: "authors" | "others"
+}
+
+const PostPage = (props: PostPageProps) => {
+    const { tab } = props
     const [agent] = useAgent()
     const [userPreference] = useUserPreferencesAtom()
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
@@ -372,7 +377,10 @@ const AuthorsPostPage = () => {
                     {nestedViewPostCards}
                     <ViewPostCard
                         isTop={false}
-                        bodyText={processPostBodyText(nextQueryParams, post)}
+                        bodyText={processPostBodyText(
+                            nextQueryParams,
+                            post.parent.post
+                        )}
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
