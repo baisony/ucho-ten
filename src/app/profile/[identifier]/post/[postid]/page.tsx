@@ -1272,26 +1272,38 @@ const PostPage = (props: PostPageProps) => {
                         </div>
                     </div>
 
-                    {/* TODO: anyways, this implementation is bad...
-                     {thread?.replies &&
-                        (thread.replies as Array<ThreadViewPost>).map((item: any, index: number) => {
-                            if (isThreadViewPost(item)) {
-                                return (
-                                    <ViewPostCard
-                                        isTop={false}
-                                        key={index}
-                                        bodyText={processPostBodyText(
-                                            nextQueryParams,
-                                            item.post as PostView
-                                        )}
-                                        postJson={item.post as PostView}
-                                        //isMobile={isMobile}
-                                        nextQueryParams={nextQueryParams}
-                                        t={t}
-                                    />
-                                )
+                    {thread?.replies &&
+                        (
+                            thread.replies as Array<AppBskyFeedDefs.ThreadViewPost>
+                        ).map((item: any, index: number) => {
+                            console.log(thread)
+                            console.log(item)
+                            if (tab === "authors") {
+                                if (
+                                    thread.post.author.did !==
+                                        item.post.author.did &&
+                                    item.post.author.did !==
+                                        //@ts-ignore
+                                        thread?.parent?.post?.author?.did
+                                ) {
+                                    return null
+                                }
                             }
-                        })} */}
+                            return (
+                                <ViewPostCard
+                                    isTop={false}
+                                    key={index}
+                                    bodyText={processPostBodyText(
+                                        nextQueryParams,
+                                        item.post as PostView
+                                    )}
+                                    postJson={item.post as PostView}
+                                    //isMobile={isMobile}
+                                    nextQueryParams={nextQueryParams}
+                                    t={t}
+                                />
+                            )
+                        })}
                 </main>
             </>
         )
