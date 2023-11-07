@@ -600,13 +600,13 @@ const UserProfileComponent = ({
         console.log(profile)
         console.log(isMuted)
         if (isMuted) {
-            setIsMuted(!isMuted)
             const res = await agent?.unmute(profile.did)
             console.log(res)
-        } else {
             setIsMuted(!isMuted)
+        } else {
             const res = await agent?.mute(profile.did)
             console.log(res)
+            setIsMuted(!isMuted)
         }
         setIsLoading(false)
     }
@@ -848,9 +848,13 @@ const UserProfileComponent = ({
                                             className={"w-[40px]"}
                                         />
                                         {!isMuted ? (
-                                            <span>Mute</span>
+                                            <span>
+                                                {t("pages.profile.mute")}
+                                            </span>
                                         ) : (
-                                            <span>Un mute</span>
+                                            <span>
+                                                {t("pages.profile.unmute")}
+                                            </span>
                                         )}
                                     </div>
                                     <div
@@ -865,7 +869,7 @@ const UserProfileComponent = ({
                                             icon={faFlag}
                                             className={"w-[40px]"}
                                         />
-                                        Report
+                                        {t("pages.profile.report")}
                                     </div>
                                 </span>
                             </ModalBody>
@@ -999,13 +1003,20 @@ const UserProfileComponent = ({
                                     >
                                         <DropdownItem
                                             key="mute"
+                                            className="text-danger"
+                                            color="danger"
                                             startContent={
                                                 <FontAwesomeIcon
                                                     icon={faVolumeXmark}
                                                 />
                                             }
+                                            onClick={() => {
+                                                handleMute()
+                                            }}
                                         >
-                                            {t("pages.profile.mute")}
+                                            {!isMuted
+                                                ? t("pages.profile.mute")
+                                                : t("pages.profile.unmute")}
                                         </DropdownItem>
                                         <DropdownItem
                                             key="report"
