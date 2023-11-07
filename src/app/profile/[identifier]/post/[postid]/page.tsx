@@ -439,7 +439,7 @@ const PostPage = (props: PostPageProps) => {
             return
         }
 
-        if (!postView?.viewer?.repost) {
+        if (!postView?.viewer) {
             return
         }
 
@@ -447,7 +447,7 @@ const PostPage = (props: PostPageProps) => {
 
         if (isReposted) {
             setIsReposted(!isReposted)
-            agent?.deleteRepost(postView?.viewer?.repost)
+            agent?.deleteRepost(postView?.viewer?.repost as string)
         } else {
             setIsReposted(!isReposted)
             agent?.repost(postView?.uri, postView?.cid)
@@ -461,7 +461,7 @@ const PostPage = (props: PostPageProps) => {
             return
         }
 
-        if (!postView?.viewer?.like) {
+        if (!postView?.viewer) {
             return
         }
 
@@ -469,7 +469,7 @@ const PostPage = (props: PostPageProps) => {
 
         if (isLiked) {
             setIsLiked(!isLiked)
-            await agent?.deleteLike(postView.viewer.like)
+            await agent?.deleteLike(postView?.viewer?.like as string)
         } else {
             setIsLiked(!isLiked)
             await agent?.like(postView?.uri, postView?.cid)
