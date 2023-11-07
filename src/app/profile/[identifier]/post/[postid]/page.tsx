@@ -139,10 +139,10 @@ const Page = () => {
                 }}
             >
                 <SwiperSlide>
-                    <AuthorsPostPage />
+                    <PostPage tab={"authors"} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <div className="w-full h-full"></div>
+                    <PostPage tab={"others"} />
                 </SwiperSlide>
             </Swiper>
         </>
@@ -151,7 +151,12 @@ const Page = () => {
 
 export default Page
 
-const AuthorsPostPage = () => {
+interface PostPageProps {
+    tab: "authors" | "others"
+}
+
+const PostPage = (props: PostPageProps) => {
+    const { tab } = props
     const [agent] = useAgent()
     const [userPreference] = useUserPreferencesAtom()
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
@@ -372,7 +377,10 @@ const AuthorsPostPage = () => {
                     {nestedViewPostCards}
                     <ViewPostCard
                         isTop={false}
-                        bodyText={processPostBodyText(nextQueryParams, post)}
+                        bodyText={processPostBodyText(
+                            nextQueryParams,
+                            post.parent.post
+                        )}
                         postJson={post.parent.post}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
@@ -431,7 +439,7 @@ const AuthorsPostPage = () => {
             return
         }
 
-        if (!postView?.viewer?.repost) {
+        if (!postView?.viewer) {
             return
         }
 
@@ -439,7 +447,7 @@ const AuthorsPostPage = () => {
 
         if (isReposted) {
             setIsReposted(!isReposted)
-            agent?.deleteRepost(postView?.viewer?.repost)
+            agent?.deleteRepost(postView?.viewer?.repost as string)
         } else {
             setIsReposted(!isReposted)
             agent?.repost(postView?.uri, postView?.cid)
@@ -453,7 +461,7 @@ const AuthorsPostPage = () => {
             return
         }
 
-        if (!postView?.viewer?.like) {
+        if (!postView?.viewer) {
             return
         }
 
@@ -461,7 +469,7 @@ const AuthorsPostPage = () => {
 
         if (isLiked) {
             setIsLiked(!isLiked)
-            await agent?.deleteLike(postView.viewer.like)
+            await agent?.deleteLike(postView?.viewer?.like as string)
         } else {
             setIsLiked(!isLiked)
             await agent?.like(postView?.uri, postView?.cid)
@@ -1264,26 +1272,38 @@ const AuthorsPostPage = () => {
                         </div>
                     </div>
 
-                    {/* TODO: anyways, this implementation is bad...
-                     {thread?.replies &&
-                        (thread.replies as Array<ThreadViewPost>).map((item: any, index: number) => {
-                            if (isThreadViewPost(item)) {
-                                return (
-                                    <ViewPostCard
-                                        isTop={false}
-                                        key={index}
-                                        bodyText={processPostBodyText(
-                                            nextQueryParams,
-                                            item.post as PostView
-                                        )}
-                                        postJson={item.post as PostView}
-                                        //isMobile={isMobile}
-                                        nextQueryParams={nextQueryParams}
-                                        t={t}
-                                    />
-                                )
+                    {thread?.replies &&
+                        (
+                            thread.replies as Array<AppBskyFeedDefs.ThreadViewPost>
+                        ).map((item: any, index: number) => {
+                            console.log(thread)
+                            console.log(item)
+                            if (tab === "authors") {
+                                if (
+                                    thread.post.author.did !==
+                                        item.post.author.did &&
+                                    item.post.author.did !==
+                                        //@ts-ignore
+                                        thread?.parent?.post?.author?.did
+                                ) {
+                                    return null
+                                }
                             }
-                        })} */}
+                            return (
+                                <ViewPostCard
+                                    isTop={false}
+                                    key={index}
+                                    bodyText={processPostBodyText(
+                                        nextQueryParams,
+                                        item.post as PostView
+                                    )}
+                                    postJson={item.post as PostView}
+                                    //isMobile={isMobile}
+                                    nextQueryParams={nextQueryParams}
+                                    t={t}
+                                />
+                            )
+                        })}
                 </main>
             </>
         )
