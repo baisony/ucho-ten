@@ -588,7 +588,10 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     </Link>
                     <a
                         className={NavBarItem()}
-                        href={"https://google.com/"}
+                        href={
+                            process.env.NEXT_PUBLIC_BUG_REPORT_PAGE ||
+                            "https://google.com"
+                        }
                         target={"_blank"}
                         rel="noopener noreferrer"
                         onClick={() => {
