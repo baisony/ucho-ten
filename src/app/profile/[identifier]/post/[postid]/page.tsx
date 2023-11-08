@@ -119,7 +119,7 @@ const Page = () => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
-                cssMode={false}
+                cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 modules={[Pagination]}
                 className="swiper-only-post"

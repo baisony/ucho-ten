@@ -322,7 +322,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
-                cssMode={false}
+                cssMode={isMobile}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
                 className={bottom()}
