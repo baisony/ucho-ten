@@ -267,6 +267,7 @@ export default function Root() {
                             post.post
                         ),
                         postJson: post.post,
+                        json: post,
                         now,
                         nextQueryParams,
                         t,
