@@ -373,7 +373,6 @@ const SettingsContentFilteringPage = ({
                                 ? t("pages.contentfiltering.sexuallySuggestive")
                                 : key}
                         </div>
-                        {console.log(key)}
                         <div className={""}>
                             <ButtonGroup
                                 isDisabled={
