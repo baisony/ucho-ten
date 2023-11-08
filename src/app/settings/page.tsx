@@ -35,6 +35,7 @@ import { Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
+import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -117,6 +118,7 @@ const SettingsGeneralPage = ({
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
+    const [contentFontSize, setContentFontSize] = useContentFontSize()
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -254,6 +256,29 @@ const SettingsGeneralPage = ({
                                 )
                             }
                         )}
+                    </Select>
+                </div>
+                <div
+                    className={
+                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
+                    }
+                >
+                    <div>font size</div>
+                    <Select
+                        size={"sm"}
+                        label="font size"
+                        selectedKeys={String(contentFontSize)}
+                        className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
+                        onChange={(event) => {
+                            //@ts-ignore
+                            setContentFontSize(Number(event.target.value))
+                        }}
+                    >
+                        <SelectItem key={"1"}>1</SelectItem>
+                        <SelectItem key={"2"}>2</SelectItem>
+                        <SelectItem key={"3"}>3</SelectItem>
+                        <SelectItem key={"4"}>4</SelectItem>
+                        <SelectItem key={"5"}>5</SelectItem>
                     </Select>
                 </div>
             </div>
