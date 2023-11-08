@@ -320,7 +320,10 @@ export default function Root() {
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+            style={{
+                overflowY: "auto",
+                height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+            }}
         />
     )
 }

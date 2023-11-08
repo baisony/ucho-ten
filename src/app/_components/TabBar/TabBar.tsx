@@ -1,18 +1,17 @@
-import React, { useState, useRef, useCallback, useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage, faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import {
     faHome,
-    faSearch,
     faInbox,
     faPenToSquare,
+    faSearch,
 } from "@fortawesome/free-solid-svg-icons"
 import { Badge } from "@nextui-org/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { TabQueryParamValue, isTabQueryParamValue } from "@/app/_types/types"
+import { isTabQueryParamValue, TabQueryParamValue } from "@/app/_types/types"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 
 interface Props {
@@ -108,7 +107,12 @@ export const TabBar: React.FC<Props> = (props: Props) => {
     }, [agent])
 
     return (
-        <main className={TabBar()}>
+        <main
+            className={TabBar()}
+            style={{
+                paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+        >
             <div
                 className={Container({ selected: hilightedTab === "h" })}
                 onClick={() => {

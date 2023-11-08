@@ -235,7 +235,10 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    style={{
+                        overflowY: "auto",
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
             {notification && (
@@ -275,7 +278,10 @@ export default function Root() {
                             : ListFooterNoContent,
                     }}
                     endReached={loadMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    style={{
+                        overflowY: "auto",
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
         </>
