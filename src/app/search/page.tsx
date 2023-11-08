@@ -104,6 +104,12 @@ export default function Root() {
     }, [searchParams])
 
     useEffect(() => {
+        if (!searchParams) return
+        setSearchTarget(searchParams.get("target") || "posts")
+        setSearchText(searchParams.get("word") || "")
+    }, [searchParams])
+
+    useEffect(() => {
         console.log(searchTarget, searchText)
         console.log(searchInfo.target, searchInfo.searchWord)
 
