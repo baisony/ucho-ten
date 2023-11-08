@@ -587,8 +587,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 onClick={(e) => {
                                     e.stopPropagation()
                                 }}
-                                href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
+                                href={`/profile/${(
+                                    json?.reason?.by as ProfileViewBasic
+                                )?.did}?${nextQueryParams.toString()}`}
                             >
                                 <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                                 {(json.reason.by as ProfileViewBasic)
