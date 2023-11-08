@@ -309,12 +309,6 @@ const SettingsContentFilteringPage = ({
         setIsLoading(false)
     }
 
-    useEffect(() => {
-        setIsAdultContentEnabled(!!userPreferences?.adultContentEnabled)
-    })
-
-    console.log(userPreferences)
-
     return (
         <>
             <div className={"md:h-[100px] h-[85px]"} />
