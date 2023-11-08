@@ -8,6 +8,7 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/app/_constants/styles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -47,7 +48,9 @@ export default function Root() {
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <div
+                className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+            />
             <div className={"md:h-full w-full"}>
                 {timeline.map((post, index) => {
                     return (

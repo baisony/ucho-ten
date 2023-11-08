@@ -31,6 +31,7 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/app/_constants/styles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -433,7 +434,9 @@ const FeedHeaderComponent = ({
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <div
+                className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+            />
             <div className={ProfileContainer()}>
                 <div className={ProfileInfoContainer()}>
                     {!isSkeleton ? (

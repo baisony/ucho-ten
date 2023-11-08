@@ -30,6 +30,7 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/app/_constants/styles"
 
 export default function Root() {
     const router = useRouter()
@@ -792,7 +793,11 @@ const UserCell = ({
 
     return (
         <>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && (
+                <div
+                    className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+                />
+            )}
             <div
                 onClick={onClick}
                 //@ts-ignore

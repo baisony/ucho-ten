@@ -29,6 +29,7 @@ import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/app/_constants/styles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -335,7 +336,11 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     const { isDummyHeader, feedProps, profileProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return (
+            <div
+                className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+            />
+        )
     }
 
     if (feedProps) {

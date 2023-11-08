@@ -35,6 +35,7 @@ import { Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/app/_constants/styles"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -131,7 +132,9 @@ const SettingsGeneralPage = ({
 
     return (
         <>
-            <div className={`md:h-[100px] h-[85px]`} />
+            <div
+                className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+            />
             <div className={"font-[600] text-black dark:text-white"}>
                 {t("pages.settings.general")}
             </div>
@@ -312,7 +315,9 @@ const SettingsContentFilteringPage = ({
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <div
+                className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+            />
             <div className={"font-bold text-black dark:text-white"}>
                 {t("pages.contentfiltering.title")}
             </div>
@@ -434,7 +439,9 @@ const SettingsMutePage = ({
 }: SettingsMutePageProps) => {
     return (
         <div className="w-full m-4 text-black dark:text-white">
-            <div className={"md:h-[100px] h-[85px]"} />
+            <div
+                className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+            />
             <div className={"font-bold"}>{t("pages.mute.title")}</div>
             <Link
                 className={

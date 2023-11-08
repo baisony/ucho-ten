@@ -57,6 +57,7 @@ import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../../_constants/styles"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -531,7 +532,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             <div
                 className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}
             >
-                {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+                {isTop && (
+                    <div
+                        className={`md:h-[${HEADER_HEIGHT}px] h-[${MOBILE_HEADER_HEIGHT}px]`}
+                    />
+                )}
 
                 <Modal
                     isOpen={isOpenReply}
