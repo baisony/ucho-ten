@@ -227,7 +227,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     const res = await agent.getPreferences()
 
                     if (res) {
-                        console.log(res)
+                        if (!res?.adultContentEnabled) {
+                            res.contentLabels.nsfw = "hide"
+                            res.contentLabels.nudity = "hide"
+                            res.contentLabels.suggestive = "hide"
+                        }
 
                         setUserPreferences(res)
 

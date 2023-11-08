@@ -36,6 +36,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 
 const Page = () => {
+    const [userPreferences] = useUserPreferencesAtom()
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("settings")
 
@@ -90,7 +91,7 @@ const Page = () => {
                 </SwiperSlide>
                 <SwiperSlide>
                     <SettingsContentFilteringPage
-                        {...{ t, nextQueryParams, agent }}
+                        {...{ t, nextQueryParams, agent, userPreferences }}
                     />
                 </SwiperSlide>
                 <SwiperSlide>
@@ -130,8 +131,10 @@ const SettingsGeneralPage = ({
     return (
         <>
             <div className={`md:h-[100px] h-[85px]`} />
-            <div className={"font-[600]"}>{t("pages.settings.general")}</div>
-            <div className={"pt-[5px] pb-[7px]"}>
+            <div className={"font-[600] text-black dark:text-white"}>
+                {t("pages.settings.general")}
+            </div>
+            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
                 <div className={"font-[900]"}>
                     {t("pages.settings.appearance")}
                 </div>
@@ -216,7 +219,7 @@ const SettingsGeneralPage = ({
                     </Select>
                 </div>
             </div>
-            <div className={"pt-[5px] pb-[7px]"}>
+            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
                 <div className={"font-[600]"}>Notification</div>
                 <div className={"flex justify-between items-center h-[40px]"}>
                     <div>FF外からの引用リポスト通知を受け取らない</div>
@@ -224,7 +227,7 @@ const SettingsGeneralPage = ({
                     <Switch></Switch>
                 </div>
             </div>
-            <div className={"pt-[5px] pb-[7px]"}>
+            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
                 <div className={"font-[600]"}>
                     {t("pages.settings.translate")}
                 </div>
@@ -261,17 +264,20 @@ interface SettingsContentFilteringPageProps {
     t: any
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
+    userPreferences: any
 }
 
 const SettingsContentFilteringPage = ({
     t,
     nextQueryParams,
     agent,
+    userPreferences,
 }: SettingsContentFilteringPageProps) => {
-    const [userPreferences] = useUserPreferencesAtom()
+    const [, setUserPreferences] = useUserPreferencesAtom()
     const { contentLabels } = userPreferences || {}
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isAdultContentEnabled, setIsAdultContentEnabled] = useState(false)
 
     const handleButtonClick = async (key: any, value: BskyLabelPreference) => {
         if (isLoading) return
@@ -290,18 +296,58 @@ const SettingsContentFilteringPage = ({
         setIsLoading(false)
     }
 
+    const handleAdultContentEnabledChange = async (e: any) => {
+        if (isLoading) return
+        setIsLoading(true)
+        const newAdultContentEnabled = e.target.checked
+        //@ts-ignore
+        setUserPreferences((prevUserPreferences) => ({
+            ...prevUserPreferences,
+            adultContentEnabled: newAdultContentEnabled,
+        }))
+        await agent?.setAdultContentEnabled(newAdultContentEnabled)
+        setIsLoading(false)
+    }
+
     return (
         <>
             <div className={"md:h-[100px] h-[85px]"} />
-            <div className={"font-bold"}>
+            <div className={"font-bold text-black dark:text-white"}>
                 {t("pages.contentfiltering.title")}
             </div>
+            <div
+                className={
+                    "w-full flex justify-between text-black dark:text-white"
+                }
+            >
+                <div>birthday</div>
+                <div></div>
+            </div>
+            {userPreferences?.birthDate && (
+                <div
+                    className={
+                        "w-full flex justify-between text-black dark:text-white"
+                    }
+                >
+                    <div>Enable Adult Content</div>
+                    <div>
+                        <Switch
+                            onChange={async (e) => {
+                                handleAdultContentEnabledChange(e)
+                            }}
+                            defaultSelected={
+                                userPreferences?.adultContentEnabled
+                            }
+                        />
+                    </div>
+                </div>
+            )}
             {Object.entries(userPreferences?.contentLabels || {}).map(
                 ([key, value]) => (
                     <div
                         key={key}
                         className={
-                            "flex justify-between items-center pt-[5px] pb-[5px]"
+                            "flex justify-between items-center pt-[5px] pb-[5px] text-black dark:text-white"
                         }
                     >
                         <div>
@@ -322,7 +368,14 @@ const SettingsContentFilteringPage = ({
                                 : key}
                         </div>
                         <div className={""}>
-                            <ButtonGroup>
+                            <ButtonGroup
+                                isDisabled={
+                                    !isAdultContentEnabled &&
+                                    (key === "nsfw" ||
+                                        key === "nudity" ||
+                                        key === "suggestive")
+                                }
+                            >
                                 <Button
                                     size="sm"
                                     isDisabled={
@@ -379,7 +432,7 @@ const SettingsMutePage = ({
     nextQueryParams, // agent,
 }: SettingsMutePageProps) => {
     return (
-        <div className="w-full m-4">
+        <div className="w-full m-4 text-black dark:text-white">
             <div className={"md:h-[100px] h-[85px]"} />
             <div className={"font-bold"}>{t("pages.mute.title")}</div>
             <Link
