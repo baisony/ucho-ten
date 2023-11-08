@@ -345,6 +345,7 @@ const FeedPage = ({
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
                         <ViewPostCard
+                            key={`feed-${item.post.uri}`}
                             {...{
                                 isTop: index === 0,
                                 isMobile,

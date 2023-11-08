@@ -256,6 +256,7 @@ export default function Root() {
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
                         <ViewPostCard
+                            key={`notif-${data.uri}`}
                             {...{
                                 isTop: index === 0,
                                 isMobile,

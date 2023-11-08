@@ -323,7 +323,15 @@ export default function Root() {
             data={dataWithDummy}
             atTopThreshold={100}
             atBottomThreshold={100}
-            itemContent={(_, item) => <UserProfilePageCell {...item} />}
+            itemContent={(_, item) => (
+                <UserProfilePageCell
+                    key={
+                        `feed-${item.postProps?.postJson?.uri}` ||
+                        `profile-${item.userProfileProps?.profile?.did}`
+                    }
+                    {...item}
+                />
+            )}
             components={{
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
