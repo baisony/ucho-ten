@@ -399,7 +399,6 @@ const UserProfileComponent = ({
         "did" | "handle" | "displayName" | ""
     >("")
     const { t } = useTranslation()
-
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
@@ -508,8 +507,11 @@ const UserProfileComponent = ({
                 return profile
             })
             setIsUploading(false)
+            return true
         } catch (e) {
             console.log(e)
+            setIsUploading(false)
+            return false
         }
     }
 
@@ -622,6 +624,14 @@ const UserProfileComponent = ({
         setIsLoading(false)
     }
 
+    useEffect(() => {
+        if (!profile) return
+        setBanner(profile?.banner)
+        setAvatar(profile?.avatar)
+        setDisplayName(profile?.displayName)
+        setDescription(profile?.description)
+    }, [profile])
+
     return (
         <>
             <Modal
@@ -693,7 +703,8 @@ const UserProfileComponent = ({
                                 </div>
 
                                 <h3 className="text-default-500 text-small select-none">
-                                    {t("pages.profile.displayName")}
+                                    {t("pages.profile.displayName")} (
+                                    {displayName.length} / 64)
                                 </h3>
                                 <div className={"w-full"}>
                                     <Input
@@ -703,7 +714,8 @@ const UserProfileComponent = ({
                                     />
                                 </div>
                                 <h3 className="text-default-500 text-small select-none">
-                                    {t("pages.profile.bio")}
+                                    {t("pages.profile.bio")} (
+                                    {description.length} / 256)
                                 </h3>
                                 <div className={"w-full"}>
                                     <Textarea
@@ -735,9 +747,8 @@ const UserProfileComponent = ({
                                 </Button>
                                 <Button
                                     onClick={async () => {
-                                        console.log("hoge")
-                                        await handleSaveClick()
-                                        onClose()
+                                        const result = await handleSaveClick()
+                                        if (result) onClose()
                                     }}
                                     isDisabled={
                                         (banner === profile?.banner &&
