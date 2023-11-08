@@ -31,6 +31,7 @@ import { Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 import { useAtom } from "jotai"
+import { isMobile } from "react-device-detect"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -58,7 +59,7 @@ const Page = () => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
-                cssMode={false}
+                cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 modules={[Pagination]}
                 className="swiper-my-feeds"

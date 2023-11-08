@@ -565,7 +565,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             : PostCard({ isEmbedToModal })
                     } ${
                         isEmbedToModal ? `border-none` : `cursor-pointer group`
-                    }`}
+                    } overflow-hidden`}
                     style={{
                         backgroundColor: isEmbedToModal ? "transparent" : "",
                     }}

@@ -17,10 +17,10 @@ import {
     useMenuIndexChangedByMenu,
 } from "./_atoms/headerMenu"
 import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
-import { HeaderMenuType } from "./_constants/headerMenus"
 
 import "swiper/css"
 import "swiper/css/pagination"
+import { isMobile } from "react-device-detect"
 
 SwiperCore.use([Virtual])
 
@@ -156,7 +156,7 @@ const Root = () => {
             onSwiper={(swiper) => {
                 swiperRef.current = swiper
             }}
-            cssMode={false}
+            cssMode={isMobile}
             // virtual={true}
             pagination={{ type: "custom", clickable: false }}
             hidden={true} // ??

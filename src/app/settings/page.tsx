@@ -34,6 +34,7 @@ import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
+import { isMobile } from "react-device-detect"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -67,7 +68,7 @@ const Page = () => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
-                cssMode={false}
+                cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 modules={[Pagination]}
                 className="swiper-settings"
