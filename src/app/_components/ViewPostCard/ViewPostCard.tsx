@@ -57,6 +57,7 @@ import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
+import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -138,6 +139,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     const [, setHandleButtonClick] = useState(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
+    const [contentFontSize, setContentFontSize] = useContentFontSize()
 
     const {
         isOpen: isOpenReply,
@@ -708,9 +710,31 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             {bodyText !== undefined && (
                                 <div
                                     style={{ wordBreak: "break-word" }}
-                                    className={`${PostContentText()} ${
-                                        isEmbedToPost && `text-[13px]`
-                                    }`}
+                                    className={`text-[${
+                                        contentFontSize == 1
+                                            ? 12
+                                            : contentFontSize == 2
+                                            ? 13
+                                            : contentFontSize == 3
+                                            ? 14
+                                            : contentFontSize == 4
+                                            ? 15
+                                            : contentFontSize == 5
+                                            ? 16
+                                            : 14
+                                    }px] md:text-[${
+                                        contentFontSize == 1
+                                            ? 14
+                                            : contentFontSize == 2
+                                            ? 15
+                                            : contentFontSize == 3
+                                            ? 16
+                                            : contentFontSize == 4
+                                            ? 17
+                                            : contentFontSize == 5
+                                            ? 18
+                                            : 15
+                                    }] ${isEmbedToPost && `text-[13px]`}`}
                                 >
                                     {bodyText}
                                 </div>
