@@ -537,7 +537,11 @@ export default function Root() {
         <>
             {searchText === "" && (
                 <div className={"w-full h-full text-white"}>
-                    <div className={"absolute bottom-[50px] w-full"}>
+                    <div
+                        className={
+                            "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
+                        }
+                    >
                         {t("pages.search.FindPerson")}
                         <Link
                             className={searchSupportCard()}
@@ -591,7 +595,10 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    style={{
+                        overflowY: "auto",
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
 
@@ -659,7 +666,10 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    style={{
+                        overflowY: "auto",
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
 
@@ -724,7 +734,10 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    style={{
+                        overflowY: "auto",
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
 

@@ -323,7 +323,10 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    style={{
+                        overflowY: "auto",
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
             {timeline !== null && (
@@ -367,7 +370,9 @@ const FeedPage = ({
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
                     //className="overflow-y-auto"
-                    style={{ height: "calc(100% - 50px)" }}
+                    style={{
+                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
+                    }}
                 />
             )}
         </>
