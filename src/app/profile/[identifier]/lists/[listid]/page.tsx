@@ -313,7 +313,15 @@ export default function Root() {
             data={dataWithDummy}
             atTopThreshold={100}
             atBottomThreshold={100}
-            itemContent={(_, item) => <CustomFeedCell {...item} />}
+            itemContent={(_, item) => (
+                <CustomFeedCell
+                    key={
+                        `feedInfo-${item?.feedProps?.feedInfo?.uri}` ||
+                        `actor-${item?.profileProps?.json?.did}`
+                    }
+                    {...item}
+                />
+            )}
             components={{
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,

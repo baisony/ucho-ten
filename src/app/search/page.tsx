@@ -620,6 +620,7 @@ export default function Root() {
                         atBottomThreshold={100}
                         itemContent={(index, data) => (
                             <ViewPostCard
+                                key={data.uri}
                                 {...{
                                     isTop: index === 0,
                                     isMobile,
@@ -691,6 +692,7 @@ export default function Root() {
                         atBottomThreshold={100}
                         itemContent={(index, data) => (
                             <UserCell
+                                key={data.did}
                                 {...{
                                     isTop: index === 0,
                                     actor: data,
@@ -759,6 +761,7 @@ export default function Root() {
                         atBottomThreshold={100}
                         itemContent={(index, data) => (
                             <ViewFeedCardCell
+                                key={data.uri}
                                 {...{
                                     isTop: index === 0,
                                     isMobile,
