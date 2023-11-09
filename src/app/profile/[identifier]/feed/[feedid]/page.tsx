@@ -571,7 +571,9 @@ const FeedHeaderComponent = ({
                                     />
                                 </div>
                             </DropdownTrigger>
-                            <DropdownMenu>
+                            <DropdownMenu
+                                className={"text-black dark:text-white"}
+                            >
                                 <DropdownItem key="new">
                                     {t("pages.feedOnlyPage.copyFeedURL")}
                                 </DropdownItem>

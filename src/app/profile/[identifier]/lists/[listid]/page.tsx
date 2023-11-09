@@ -586,7 +586,7 @@ const FeedHeaderComponent = ({
                                 />
                             </div>
                         </DropdownTrigger>
-                        <DropdownMenu>
+                        <DropdownMenu className={"text-black dark:text-white"}>
                             <DropdownItem key="new">
                                 {t("pages.feedOnlyPage.copyFeedURL")}
                             </DropdownItem>
@@ -604,7 +604,11 @@ const FeedHeaderComponent = ({
                             setOnHoverButton(true)
                         }}
                         onClick={onClick}
-                        isDisabled={isSkeleton}
+                        isDisabled={
+                            isSkeleton ||
+                            feedInfo?.purpose ===
+                                "app.bsky.graph.defs#curatelist"
+                        }
                     >
                         {isSubscribed
                             ? !onHoverButton
