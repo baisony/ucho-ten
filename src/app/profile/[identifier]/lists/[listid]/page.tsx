@@ -487,7 +487,8 @@ export default function Root() {
                 <CustomFeedCell
                     key={
                         `feedInfo-${item?.feedProps?.feedInfo?.uri}` ||
-                        `actor-${item?.profileProps?.json?.did}`
+                        `actor-${item?.profileProps?.json?.did}` ||
+                        `actor-${item?.postProps?.postJson?.uri}`
                     }
                     {...item}
                 />
