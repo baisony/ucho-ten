@@ -328,7 +328,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 cssMode={isMobile}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
-                className={bottom()}
+                className={bottom({ isMatchingPath })}
                 navigation={true}
             >
                 {currentMenu &&
