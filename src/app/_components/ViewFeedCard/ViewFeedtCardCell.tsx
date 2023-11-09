@@ -5,6 +5,7 @@ import React from "react"
 import { layout } from "@/app/search/styles"
 import Link from "next/link"
 import { AtUri } from "@atproto/api"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewFeedCardCellProps {
     isTop: boolean
@@ -22,7 +23,7 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
     const feedURI = new AtUri(feed.uri)
     return (
         <>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader />}
 
             <Link
                 className={`${userCard()}`}

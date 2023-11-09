@@ -32,6 +32,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { useAtom } from "jotai"
 import { isMobile } from "react-device-detect"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -159,7 +160,7 @@ const MyFeedsPage = () => {
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
 
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>

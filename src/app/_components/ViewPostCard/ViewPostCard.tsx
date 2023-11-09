@@ -58,6 +58,7 @@ import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -560,7 +561,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader />}
 
             <Modal
                 isOpen={isOpenReply}

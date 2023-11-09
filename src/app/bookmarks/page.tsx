@@ -8,6 +8,7 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -126,8 +127,8 @@ export default function Root() {
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
-            <div className={"md:h-full w-full"}>
+            <DummyHeader />
+            <div className={"md:h-full w-full z-[100]"}>
                 {timeline.map((post, index) => {
                     return (
                         <ViewPostCard

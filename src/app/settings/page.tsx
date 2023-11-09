@@ -36,6 +36,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -133,7 +134,7 @@ const SettingsGeneralPage = ({
 
     return (
         <>
-            <div className={`md:h-[100px] h-[85px]`} />
+            <DummyHeader />
             <div className={"font-[600] text-black dark:text-white"}>
                 {t("pages.settings.general")}
             </div>
@@ -337,7 +338,7 @@ const SettingsContentFilteringPage = ({
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
             <div className={"font-bold text-black dark:text-white"}>
                 {t("pages.contentfiltering.title")}
             </div>
@@ -459,7 +460,7 @@ const SettingsMutePage = ({
 }: SettingsMutePageProps) => {
     return (
         <div className="w-full m-4 text-black dark:text-white">
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
             <div className={"font-bold"}>{t("pages.mute.title")}</div>
             <Link
                 className={

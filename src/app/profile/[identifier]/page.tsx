@@ -47,6 +47,7 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -441,7 +442,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     const { isDummyHeader, userProfileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return <DummyHeader />
     }
 
     if (userProfileProps) {

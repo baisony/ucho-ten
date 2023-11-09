@@ -31,6 +31,7 @@ import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCe
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const router = useRouter()
@@ -625,7 +626,7 @@ export default function Root() {
                 <div className={"w-full h-full text-white"}>
                     <div
                         className={
-                            "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
+                            "absolute xl:bottom-0 bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
                         }
                     >
                         {t("pages.search.FindPerson")}
@@ -883,7 +884,7 @@ const UserCell = ({
 
     return (
         <>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader />}
             <div
                 onClick={onClick}
                 //@ts-ignore

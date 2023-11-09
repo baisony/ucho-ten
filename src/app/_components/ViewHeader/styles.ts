@@ -2,7 +2,7 @@ import { tv } from "@nextui-org/react"
 
 export const viewHeader = tv({
     slots: {
-        Header: "md:h-[100px] h-[85px] w-full min-w-[350px] max-w-[600px] text-white backdrop-blur-[5px] bg-black/40 fixed top-0 z-10 select-none",
+        Header: "h-[85px] w-full min-w-[350px] max-w-[600px] text-white backdrop-blur-[5px] bg-black/40 fixed top-0 z-10 select-none",
         HeaderContentTitleContainer: "",
         HeaderContentTitle: "",
         HeaderContent:
@@ -10,7 +10,7 @@ export const viewHeader = tv({
         HeaderInputArea:
             "h-full w-full outline-none pl-[20px] pr-[40px] text-black dark:text-white dark:bg-[#1C1C1C]",
         top: "md:h-[73px] h-[55px] w-full flex justify-center items-center",
-        bottom: "md:h-[27px] h-[30px] relative bottom-0 font-bold align-start overflow-x-scroll overflow-y-hidden",
+        bottom: "xl:h-full md:h-[27px] h-[30px] font-bold align-center overflow-x-scroll overflow-y-hidden",
     },
     variants: {
         page: {
@@ -41,6 +41,15 @@ export const viewHeader = tv({
         isNextPage: {
             true: {},
             false: {},
+        },
+        isMatchingPath: {
+            false: {
+                Header: "xl:h-[50px]",
+                top: "xl:hidden",
+            },
+            true: {
+                Header: "xl:h-[100px] md:h-[100px]",
+            },
         },
     },
 })

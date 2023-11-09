@@ -32,6 +32,7 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -528,7 +529,7 @@ const FeedHeaderComponent = ({
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
             <div className={ProfileContainer()}>
                 <div className={ProfileInfoContainer()}>
                     {!isSkeleton ? (
