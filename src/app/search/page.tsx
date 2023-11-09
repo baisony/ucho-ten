@@ -30,12 +30,13 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 export default function Root() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
@@ -680,10 +681,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -753,10 +751,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -822,10 +817,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -866,10 +858,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadFeedsMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
         </>

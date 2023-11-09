@@ -29,6 +29,7 @@ import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -36,7 +37,7 @@ export default function Root() {
 
     const pathname = usePathname()
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
     //const username = pathname.replace("/profile/", "")
@@ -328,10 +329,7 @@ export default function Root() {
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{
-                overflowY: "auto",
-                height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-            }}
+            className={nullTimeline()}
         />
     )
 }
