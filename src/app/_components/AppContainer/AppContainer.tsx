@@ -647,7 +647,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                                 }}
                                             >
                                                 <DropdownItem key="new">
-                                                    About
+                                                    <a
+                                                        href={
+                                                            "https://github.com/baisony/ucho-ten"
+                                                        }
+                                                        target={"_blank"}
+                                                        rel={"noreferrer"}
+                                                    >
+                                                        About Ucho-ten
+                                                    </a>
                                                 </DropdownItem>
                                                 <DropdownItem key="copy">
                                                     <a
