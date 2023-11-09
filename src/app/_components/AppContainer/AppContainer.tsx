@@ -475,8 +475,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         handleSideBarOpen(false)
                     }}
                 >
-                    <div className={"w-full h-full flex"}>
-                        <div className={"w-[calc(100%/2)] h-full"} />
+                    <div
+                        className={
+                            "w-full h-full flex justify-center items-center"
+                        }
+                    >
+                        <div className={"xl:w-[calc(100%/2)] xl:h-full"}></div>
                         <div
                             className={
                                 "min-w-[350px] max-w-[600px] h-full w-full "
@@ -564,7 +568,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 </div>
                             )}
                         </div>
-                        <div className={"w-[calc(100%/2)] h-full"} />
+                        <div className={"xl:w-[calc(100%/2)] xl:h-full"} />
                     </div>
                 </main>
             </div>
