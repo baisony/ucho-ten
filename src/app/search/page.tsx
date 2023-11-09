@@ -538,7 +538,7 @@ export default function Root() {
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", "フィード bsky.app")
         queryParams.set("target", "posts")
-        return `/search?${nextQueryParams.toString()}` as string
+        return `/search?${queryParams.toString()}` as string
     }
 
     const handleValueChange = (newValue: any) => {
@@ -728,10 +728,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadPostsMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
 
@@ -795,10 +792,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadUsersMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
             {loading && searchTarget === "feeds" && (

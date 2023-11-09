@@ -10,7 +10,7 @@ export const viewHeader = tv({
         HeaderInputArea:
             "h-full w-full outline-none pl-[20px] pr-[40px] text-black dark:text-white dark:bg-[#1C1C1C]",
         top: "md:h-[73px] h-[55px] w-full flex justify-center items-center",
-        bottom: "xl:h-full md:h-[27px] h-[30px] font-bold align-center overflow-x-scroll overflow-y-hidden",
+        bottom: "md:h-[27px] h-[30px] font-bold align-center overflow-x-scroll overflow-y-hidden",
     },
     variants: {
         page: {
