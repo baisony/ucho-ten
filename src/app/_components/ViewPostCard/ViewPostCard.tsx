@@ -73,6 +73,7 @@ export interface ViewPostCardProps {
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
     t: any
+    handleValueChange?: (value: any) => void
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
@@ -89,6 +90,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         isEmbedToPost,
         nextQueryParams,
         t,
+        handleValueChange,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -186,10 +188,16 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             setIsReposted(!isReposted)
             const res = await agent?.deleteRepost(postView.viewer.repost)
             console.log(res)
+            handleInputChange(
+                "unrepost",
+                postView.uri,
+                postView.viewer.repost || ""
+            )
         } else if (postJsonData?.uri && postJsonData?.cid) {
             setIsReposted(!isReposted)
             const res = await agent?.repost(postJsonData.uri, postJsonData.cid)
             console.log(res)
+            handleInputChange("repost", postJsonData?.uri || "", res?.uri || "")
         }
         setLoading(false)
     }
@@ -205,10 +213,16 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             setIsLiked(!isLiked)
             const res = await agent?.deleteLike(postView.viewer.like)
             console.log(res)
+            handleInputChange(
+                "unlike",
+                postView.uri,
+                postView.viewer.like || ""
+            )
         } else if (postJsonData?.uri && postJsonData?.cid) {
             setIsLiked(!isLiked)
             const res = await agent?.like(postJsonData.uri, postJsonData.cid)
             console.log(res)
+            handleInputChange("like", postJsonData.uri || "", res?.uri || "")
         }
 
         setLoading(false)
@@ -389,6 +403,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             setLoading(true)
             await agent.deletePost(postJson?.uri)
             setIsDeleted(true)
+            handleInputChange("delete", postJson.uri, "")
         } catch (e) {
             console.log(e)
         } finally {
@@ -526,6 +541,23 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     if (isSkeleton === true) {
         return <ViewPostCardSkelton {...{ isTop }} />
+    }
+
+    const handleInputChange = (
+        reaction: string,
+        postUri: string,
+        reactionUri: string
+    ) => {
+        if (!props.handleValueChange) return
+
+        //const value = event.target.value
+        const json = {
+            reaction: reaction,
+            postUri: postUri,
+            reactionUri: reactionUri,
+        }
+        console.log(json)
+        props?.handleValueChange(json)
     }
 
     return (
