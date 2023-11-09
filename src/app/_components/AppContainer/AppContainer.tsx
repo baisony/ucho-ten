@@ -475,24 +475,21 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         handleSideBarOpen(false)
                     }}
                 >
-                    <div
-                        className={
-                            "w-full h-full flex justify-center items-center"
-                        }
-                    >
-                        <div className={"xl:w-[calc(100%/2)] xl:h-full"}></div>
+                    <div className={"w-full h-full flex justify-center"}>
+                        <div
+                            className={
+                                "xl:w-[calc(100%/4)] h-full hidden xl:block"
+                            }
+                        >
+                            <div className={"flex justify-end"}>
+                                <div>aaaaaa</div>
+                            </div>
+                        </div>
                         <div
                             className={
                                 "min-w-[350px] max-w-[600px] h-full w-full "
                             }
                         >
-                            {shouldFillPageBackground && (
-                                <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                                    <div
-                                        className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                                    />
-                                </div>
-                            )}
                             <div
                                 className={
                                     "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
@@ -505,7 +502,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                         setSearchText={setSearchText}
                                     />
                                 )}
-                                <div className={`pt-[0px] h-[100%]`}>
+                                <div className={`pt-[0px] h-[100%] relative`}>
+                                    {shouldFillPageBackground && (
+                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                            <div
+                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                            />
+                                        </div>
+                                    )}
                                     {children}
                                 </div>
                                 {showTabBar && <TabBar />}
@@ -568,7 +572,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 </div>
                             )}
                         </div>
-                        <div className={"xl:w-[calc(100%/2)] xl:h-full"} />
+                        <div
+                            className={
+                                "xl:w-[calc(100%/4)] h-full hidden xl:flex"
+                            }
+                        ></div>
                     </div>
                 </main>
             </div>
