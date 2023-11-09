@@ -128,7 +128,7 @@ export default function Root() {
                 atUri = atUri.replace(toAtUri.hostname, did.data.did)
             }
             let data
-            let items: any[] = []
+            let items: FeedViewPost[] | ListItemView[] | null = []
             if (listPurporse === "app.bsky.graph.defs#modlist") {
                 data = await agent.app.bsky.graph.getList({ list: atUri })
                 items = data?.data.items
