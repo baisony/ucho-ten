@@ -29,6 +29,7 @@ import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -97,12 +98,15 @@ export default function Root() {
             const { data } = await agent.app.bsky.graph.getList({ list: atUri })
             setIsSubscribed(!!data.list.viewer?.muted)
             setFeedInfo(data.list)
+            console.log(data.list)
+            console.log(data.list.purpose)
+            await fetchFeed(data.list.purpose)
         } catch (e) {
             console.error(e)
         }
     }
 
-    const fetchFeed = async () => {
+    const fetchFeed = async (listPurporse?: string) => {
         if (!agent) {
             return
         }
@@ -115,19 +119,26 @@ export default function Root() {
                 })
                 atUri = atUri.replace(toAtUri.hostname, did.data.did)
             }
-            const { data } = await agent.app.bsky.graph.getList({ list: atUri })
-            const { items } = data
+            let data
+            let items: any[] = []
+            if (listPurporse === "app.bsky.graph.defs#modlist") {
+                data = await agent.app.bsky.graph.getList({ list: atUri })
+                items = data?.data.items
+            } else if (listPurporse === "app.bsky.graph.defs#curatelist") {
+                data = await agent.app.bsky.feed.getListFeed({ list: atUri })
+                items = data?.data.feed
+            }
             setTimeline(items)
 
             if (
                 items.length === 0 &&
-                (cursor.current === data.cursor || !data.cursor)
+                (cursor.current === data?.data.cursor || !data?.data.cursor)
             ) {
                 setIsEndOfFeed(true)
             }
 
-            if (data.cursor) {
-                cursor.current = data.cursor
+            if (data?.data.cursor) {
+                cursor.current = data?.data.cursor
                 setHasMore(true)
             } else {
                 setHasMore(false)
@@ -202,7 +213,7 @@ export default function Root() {
 
         const doFetch = async () => {
             await fetchUserPreference()
-            await fetchFeed()
+            //await fetchFeed()
         }
 
         doFetch()
@@ -340,10 +351,11 @@ interface CustomFeedCellProps {
     isDummyHeader?: boolean
     feedProps?: FeedProps
     profileProps?: ViewUserProfileCardCellProps
+    postProps?: ViewPostCardProps
 }
 
 const CustomFeedCell = (props: CustomFeedCellProps) => {
-    const { isDummyHeader, feedProps, profileProps } = props
+    const { isDummyHeader, feedProps, profileProps, postProps } = props
 
     if (isDummyHeader) {
         return <div className={"md:h-[100px] h-[85px]"} />
@@ -355,6 +367,11 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
 
     if (profileProps) {
         return <ViewUserProfileCardCell {...profileProps} />
+    }
+
+    if (postProps) {
+        console.log(profileProps)
+        return <ViewPostCard {...postProps} />
     }
 }
 
