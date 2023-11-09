@@ -51,26 +51,39 @@ interface Props {
     setSideBarOpen: (isOpen: boolean) => void
 }
 
-export const ViewSideBar: React.FC<Props> = (props: Props) => {
-    const { isMobile, setSideBarOpen } = props
+const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
     const router = useRouter()
-    const [accounts] = useAccounts()
-    const userList = Object.entries(accounts).map(([key, value]) => ({
-        key,
-        value,
-    }))
+
+    const { t } = useTranslation()
+
+    const [agent, setAgent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
+
     const [openModalReason, setOpenModalReason] = useState<
         "switching" | "logout" | "relogin" | ""
     >("")
-    const [categorization, setCategorization] = useState<{
-        [key: string]: UserAccount[]
-    }>({})
-    const [isSwitching, setIsSwitching] = useState(false)
+
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
     const [authenticationRequired, setAuthenticationRequired] = useState<
         boolean | null
     >(null)
     const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
+    // const [agent, setAgent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const [server, setServer] = useState<string>("")
+    const [identity, setIdentity] = useState<string>("")
+    const [password, setPassword] = useState<string>("")
+    const [isLogging, setIsLogging] = useState<boolean>(false)
+    const [loginError, setLoginError] = useState<boolean>(false)
+    const [isSwitching, setIsSwitching] = useState<boolean>(false)
+
+    const handleDeleteSession = () => {
+        console.log("delete session")
+        localStorage.removeItem("session")
+        router.push("/login")
+    }
+
     const {
         background,
         AuthorIconContainer,
@@ -82,47 +95,12 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         NavBarItem,
         appearanceTextColor,
     } = viewSideBar()
-    const { t } = useTranslation()
-    const [agent, setAgent] = useAgent()
-    const [nextQueryParams] = useNextQueryParamsAtom()
-    const [server, setServer] = useState<string>("")
-    const [identity, setIdentity] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
-    const [isLogging, setIsLogging] = useState<boolean>(false)
-    const [loginError, setLoginError] = useState<boolean>(false)
-
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
-
-    const handleDeleteSession = () => {
-        console.log("delete session")
-        localStorage.removeItem("session")
-        router.push("/login")
-    }
-    useEffect(() => {
-        console.log(userList)
-        const serviceData: { [key: string]: any[] } = {}
-
-        userList.forEach((item) => {
-            const service: string = item.value.service as any
-
-            if (service !== undefined) {
-                if (!serviceData[service]) {
-                    serviceData[service] = []
-                }
-
-                serviceData[service].push(item.value)
-            }
-        })
-
-        console.log(serviceData)
-        setCategorization(serviceData)
-        Object.entries(serviceData).forEach(([key, value]) => {
-            console.log(key, value)
-        })
-    }, [accounts])
 
     const handleRelogin = async () => {
-        if (server === "" || identity === "" || password === "") return
+        if (server === "" || identity === "" || password === "") {
+            return
+        }
+
         try {
             setIsSwitching(true)
             setLoginError(false)
@@ -180,295 +158,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
         }
     }
 
-    const AccountComponent = () => {
-        return (
-            <>
-                {Object.entries(categorization).map(([key, value]) => (
-                    <div key={key} className={"select-none"}>
-                        {key}
-                        {value.map((item: UserAccount) => (
-                            <div
-                                key={item.profile.did}
-                                className={
-                                    "justify-between flex items-center w-full cursor-pointer"
-                                }
-                                onClick={async () => {
-                                    if (
-                                        item.session.did === agent?.session?.did
-                                    )
-                                        return
-                                    try {
-                                        setIsSwitching(true)
-                                        setAuthenticationRequired(false)
-                                        setSelectedAccountInfo(item)
-                                        const { session } = item
-                                        const agent = new BskyAgent({
-                                            service: `https://${key}`,
-                                        })
-                                        await agent.resumeSession(session)
-                                        setAgent(agent)
-                                        const json = {
-                                            server: key,
-                                            session: session,
-                                        }
-                                        localStorage.setItem(
-                                            "session",
-                                            JSON.stringify(json)
-                                        )
-                                        setIsSwitching(false)
-                                        window.location.reload()
-                                    } catch (e: unknown) {
-                                        if (e instanceof Error) {
-                                            if (
-                                                e.message.includes(
-                                                    "Authentication"
-                                                )
-                                            ) {
-                                                setIsSwitching(false)
-                                                setAuthenticationRequired(true)
-                                            }
-                                        }
-                                    }
-                                }}
-                            >
-                                <div className={"flex items-center mb-[10px]"}>
-                                    <div
-                                        className={
-                                            "w-[50px] h-[50px] rounded-full overflow-hidden"
-                                        }
-                                    >
-                                        <img
-                                            src={
-                                                item?.profile?.avatar ||
-                                                defaultIcon.src
-                                            }
-                                            className={"h-full w-full"}
-                                            alt={"avatar"}
-                                        />
-                                    </div>
-                                    <div className={"ml-[15px]"}>
-                                        <div>{item.profile.displayName}</div>
-                                        <div
-                                            className={
-                                                "text-default-400 text-sm"
-                                            }
-                                        >
-                                            @{item.profile.handle}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    {agent?.session?.did ===
-                                    item.profile.did ? (
-                                        <div>
-                                            <FontAwesomeIcon
-                                                icon={faCircleCheck}
-                                                className={"text-[#00D315]"}
-                                            />
-                                        </div>
-                                    ) : isSwitching &&
-                                      item.profile.did ===
-                                          selectedAccountInfo.profile.did ? (
-                                        <Spinner />
-                                    ) : (
-                                        authenticationRequired &&
-                                        item.profile.did ===
-                                            selectedAccountInfo.profile.did && (
-                                            <span className={"text-[#FF0000]"}>
-                                                <Button
-                                                    onClick={() => {
-                                                        setServer(key)
-                                                        setIdentity(
-                                                            item.profile.handle
-                                                        )
-                                                        setOpenModalReason(
-                                                            "relogin"
-                                                        )
-                                                    }}
-                                                >
-                                                    {t(
-                                                        "components.ViewSideBar.needLogin"
-                                                    )}
-                                                </Button>
-                                            </span>
-                                        )
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ))}
-                <div
-                    className={
-                        "h-[50px] w-full select-none flex justify-center items-center cursor-pointer"
-                    }
-                    onClick={() => {
-                        setSelectedAccountInfo(null)
-                        setOpenModalReason("relogin")
-                    }}
-                >
-                    {t("components.ViewSideBar.addAccount")}
-                </div>
-            </>
-        )
-    }
     return (
         <div>
-            <Modal
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-                className={appearanceTextColor()}
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            {openModalReason === "switching" ? (
-                                <>
-                                    <ModalHeader>
-                                        {t(
-                                            "components.ViewSideBar.switchAccount"
-                                        )}
-                                    </ModalHeader>
-                                    <ModalBody>{AccountComponent()}</ModalBody>
-                                    <ModalFooter>
-                                        <Button
-                                            color="primary"
-                                            onClick={() => {
-                                                onClose()
-                                                setSideBarOpen(false)
-                                            }}
-                                        >
-                                            {t("button.close")}
-                                        </Button>
-                                    </ModalFooter>
-                                </>
-                            ) : openModalReason === "logout" ? (
-                                <>
-                                    <ModalHeader>
-                                        {t(
-                                            "components.ViewSideBar.logoutModal.description"
-                                        )}
-                                    </ModalHeader>
-                                    <ModalFooter>
-                                        <Button
-                                            color="danger"
-                                            variant="light"
-                                            onClick={onClose}
-                                        >
-                                            {t("button.no")}
-                                        </Button>
-                                        <Button
-                                            color="primary"
-                                            onClick={() => {
-                                                handleDeleteSession()
-                                                onClose()
-                                                setSideBarOpen(false)
-                                            }}
-                                        >
-                                            {t("button.yes")}
-                                        </Button>
-                                    </ModalFooter>
-                                </>
-                            ) : (
-                                openModalReason === "relogin" && (
-                                    <>
-                                        <ModalHeader className="flex flex-col gap-1">
-                                            {t(
-                                                "components.ViewSideBar.addAccountModal.title"
-                                            )}
-                                        </ModalHeader>
-                                        <ModalBody>
-                                            <Input
-                                                defaultValue={
-                                                    selectedAccountInfo?.service
-                                                }
-                                                onValueChange={(e) => {
-                                                    setServer(e)
-                                                }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.service"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.servicePlaceholder"
-                                                )}
-                                                variant="bordered"
-                                                isInvalid={loginError}
-                                            />
-                                            <Input
-                                                autoFocus
-                                                endContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faAt}
-                                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
-                                                    />
-                                                }
-                                                defaultValue={
-                                                    selectedAccountInfo?.session
-                                                        ?.handle
-                                                }
-                                                onValueChange={(e) => {
-                                                    setIdentity(e)
-                                                }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.identifier"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.identifierPlaceholder"
-                                                )}
-                                                variant="bordered"
-                                                isInvalid={loginError}
-                                            />
-                                            <Input
-                                                endContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faLock}
-                                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
-                                                    />
-                                                }
-                                                onValueChange={(e) => {
-                                                    setPassword(e)
-                                                }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.password"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.passwordPlaceholder"
-                                                )}
-                                                type="password"
-                                                variant="bordered"
-                                                isInvalid={loginError}
-                                            />
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <Button
-                                                color="danger"
-                                                variant="flat"
-                                                onPress={onClose}
-                                            >
-                                                {t("button.close")}
-                                            </Button>
-                                            <Button
-                                                color="primary"
-                                                onClick={async () => {
-                                                    await handleRelogin()
-                                                    //onClose()
-                                                }}
-                                            >
-                                                {!isLogging ? (
-                                                    t("button.signin")
-                                                ) : (
-                                                    <Spinner size={"sm"} />
-                                                )}
-                                            </Button>
-                                        </ModalFooter>
-                                    </>
-                                )
-                            )}
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
-            {/* <main className={""}> */}
             <main
                 className={background()}
                 onClick={(e) => {
@@ -661,7 +352,8 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                     </div>
                 </div>
             </main>
-            {/* </main> */}
         </div>
     )
 }
+
+export default ViewSideBar

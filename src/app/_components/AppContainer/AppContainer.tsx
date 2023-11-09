@@ -13,7 +13,7 @@ import { layout } from "@/app/styles"
 import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ViewSideBar } from "@/app/_components/ViewSideBar"
+import { ViewSidebar } from "@/app/_components/ViewSideBar/"
 import { useAgent } from "../../_atoms/agent"
 import { useUserProfileDetailedAtom } from "../../_atoms/userProfileDetail"
 import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
@@ -534,6 +534,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         </div>
                     )}
                 </main>
+                
             </div>
         </div>
     )
