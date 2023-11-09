@@ -539,6 +539,85 @@ export default function Root() {
         return `/search?${nextQueryParams.toString()}` as string
     }
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(searchPostsResult)
+        if (!searchPostsResult) return
+        const foundObject = searchPostsResult.findIndex(
+            (item) => item.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(searchPostsResult[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setSearchPostsResult((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //searchPostsResult.splice(foundObject, 1)
+            }
+            console.log(searchPostsResult)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     return (
         <>
             {searchText === "" && (
@@ -639,6 +718,7 @@ export default function Root() {
                                     now,
                                     nextQueryParams,
                                     t,
+                                    handleValueChange: handleValueChange,
                                 }}
                             />
                         )}
