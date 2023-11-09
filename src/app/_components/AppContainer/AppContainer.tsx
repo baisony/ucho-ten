@@ -43,11 +43,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
     faGear,
+    faHome,
     faInbox,
     faMagnifyingGlass,
     faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons"
 import Link from "next/link"
+import {
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
+} from "@nextui-org/react"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -497,10 +504,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             }
                         >
                             {showTabBar && (
-                                <div className={"flex justify-end"}>
+                                <div className={"flex justify-end items-end"}>
                                     <div
                                         className={
-                                            "mr-[30px] mt-[20px] text-[20px]"
+                                            "mr-[30px] mt-[25px] text-[16px]"
                                         }
                                     >
                                         <div
@@ -516,6 +523,19 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                                 />
                                             </Link>
                                         </div>
+                                        <Link
+                                            className={
+                                                "mb-[15px] cursor-pointer flex"
+                                            }
+                                            href={"/"}
+                                        >
+                                            <div className={"mr-[10px]"}>
+                                                <FontAwesomeIcon
+                                                    icon={faHome}
+                                                />
+                                            </div>
+                                            Home
+                                        </Link>
                                         <Link
                                             className={
                                                 "mb-[15px] cursor-pointer flex"
@@ -581,6 +601,79 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                             </div>
                                             Settings
                                         </Link>
+                                        <Dropdown>
+                                            <DropdownTrigger>
+                                                <div
+                                                    className={
+                                                        "w-full flex cursor-pointer"
+                                                    }
+                                                >
+                                                    <img
+                                                        src={
+                                                            userProfileDetailed?.avatar
+                                                        }
+                                                        className={
+                                                            "h-[20px] w-[20px] rounded-full overflow-hidden mr-[10px]"
+                                                        }
+                                                    />
+                                                    <div
+                                                        className={
+                                                            "text-[14px]"
+                                                        }
+                                                    >
+                                                        {
+                                                            userProfileDetailed?.displayName
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </DropdownTrigger>
+                                            <DropdownMenu
+                                                className={
+                                                    "text-black dark:text-white"
+                                                }
+                                                aria-label={"dropdown-menu"}
+                                                onAction={(key) => {
+                                                    switch (key) {
+                                                        case "about":
+                                                            console.log("hoge")
+                                                            break
+                                                        case "bugreport":
+                                                            console.log("hoge")
+                                                            break
+                                                        case "switchaccount":
+                                                            console.log("hoge")
+                                                            break
+                                                    }
+                                                }}
+                                            >
+                                                <DropdownItem key="new">
+                                                    About
+                                                </DropdownItem>
+                                                <DropdownItem key="copy">
+                                                    <a
+                                                        href={
+                                                            process.env
+                                                                .NEXT_PUBLIC_BUG_REPORT_PAGE ||
+                                                            "https://google.com"
+                                                        }
+                                                        target={"_blank"}
+                                                        rel={"noreferrer"}
+                                                    >
+                                                        Bug Report
+                                                    </a>
+                                                </DropdownItem>
+                                                <DropdownItem key="edit">
+                                                    Switch Account
+                                                </DropdownItem>
+                                                <DropdownItem
+                                                    key="delete"
+                                                    className="text-danger"
+                                                    color="danger"
+                                                >
+                                                    Logout
+                                                </DropdownItem>
+                                            </DropdownMenu>
+                                        </Dropdown>
                                     </div>
                                 </div>
                             )}
