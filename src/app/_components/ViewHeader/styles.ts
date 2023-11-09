@@ -2,7 +2,7 @@ import { tv } from "@nextui-org/react"
 
 export const viewHeader = tv({
     slots: {
-        Header: "h-[85px] w-full min-w-[350px] max-w-[600px] text-white backdrop-blur-[5px] bg-black/40 fixed top-0 z-10 select-none",
+        Header: "md:h-[100px] h-[85px] w-full min-w-[350px] max-w-[600px] text-white backdrop-blur-[5px] bg-black/40 fixed top-0 z-10 select-none",
         HeaderContentTitleContainer: "",
         HeaderContentTitle: "",
         HeaderContent:
@@ -49,7 +49,7 @@ export const viewHeader = tv({
                 bottom: "xl:h-full",
             },
             true: {
-                Header: "xl:h-[100px] md:h-[100px]",
+                Header: "xl:h-[100px]",
                 bottom: "xl:h-[27px]",
             },
         },
