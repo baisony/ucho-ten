@@ -42,10 +42,10 @@ import logoImage from "../../../../public/images/logo/ucho-ten.svg"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
+    faGear,
     faInbox,
     faMagnifyingGlass,
     faPenToSquare,
-    faGear,
 } from "@fortawesome/free-solid-svg-icons"
 import Link from "next/link"
 
@@ -495,84 +495,94 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 "xl:w-[calc(100%/4)] h-full hidden xl:block"
                             }
                         >
-                            <div className={"flex justify-end"}>
-                                <div
-                                    className={
-                                        "mr-[30px] mt-[20px] text-[20px]"
-                                    }
-                                >
-                                    <div className={"mb-[50px] cursor-pointer"}>
-                                        <Link href={"/"}>
-                                            <img
-                                                className={"h-[24px]"}
-                                                src={logoImage.src}
-                                                alt={"logo"}
-                                            />
+                            {showTabBar && (
+                                <div className={"flex justify-end"}>
+                                    <div
+                                        className={
+                                            "mr-[30px] mt-[20px] text-[20px]"
+                                        }
+                                    >
+                                        <div
+                                            className={
+                                                "mb-[50px] cursor-pointer"
+                                            }
+                                        >
+                                            <Link href={"/"}>
+                                                <img
+                                                    className={"h-[24px]"}
+                                                    src={logoImage.src}
+                                                    alt={"logo"}
+                                                />
+                                            </Link>
+                                        </div>
+                                        <Link
+                                            className={
+                                                "mb-[15px] cursor-pointer flex"
+                                            }
+                                            href={"/bookmarks"}
+                                        >
+                                            <div className={"mr-[10px]"}>
+                                                <FontAwesomeIcon
+                                                    icon={faBookmark}
+                                                />
+                                            </div>
+                                            Bookmark
+                                        </Link>
+                                        <Link
+                                            className={
+                                                "mb-[15px] cursor-pointer flex"
+                                            }
+                                            href={"/inbox"}
+                                        >
+                                            <div className={"mr-[10px]"}>
+                                                <FontAwesomeIcon
+                                                    icon={faInbox}
+                                                />
+                                            </div>
+                                            Inbox
+                                        </Link>
+                                        <Link
+                                            className={
+                                                "mb-[15px] cursor-pointer flex"
+                                            }
+                                            href={"/search"}
+                                        >
+                                            <div className={"mr-[10px]"}>
+                                                <FontAwesomeIcon
+                                                    icon={faMagnifyingGlass}
+                                                />
+                                            </div>
+                                            Search
+                                        </Link>
+                                        <Link
+                                            className={
+                                                "mb-[15px] cursor-pointer flex"
+                                            }
+                                            href={"/post"}
+                                        >
+                                            <div className={"mr-[10px]"}>
+                                                <FontAwesomeIcon
+                                                    icon={faPenToSquare}
+                                                />
+                                            </div>
+                                            Post
+                                        </Link>
+                                        <Link
+                                            href={"/settings"}
+                                            className={
+                                                "mb-[15px] cursor-pointer flex"
+                                            }
+                                        >
+                                            <div className={"mr-[10px]"}>
+                                                <FontAwesomeIcon
+                                                    icon={faGear}
+                                                />
+                                            </div>
+                                            Settings
                                         </Link>
                                     </div>
-                                    <Link
-                                        className={
-                                            "mb-[15px] cursor-pointer flex"
-                                        }
-                                        href={"/bookmarks"}
-                                    >
-                                        <div className={"mr-[10px]"}>
-                                            <FontAwesomeIcon
-                                                icon={faBookmark}
-                                            />
-                                        </div>
-                                        Bookmark
-                                    </Link>
-                                    <Link
-                                        className={
-                                            "mb-[15px] cursor-pointer flex"
-                                        }
-                                        href={"/inbox"}
-                                    >
-                                        <div className={"mr-[10px]"}>
-                                            <FontAwesomeIcon icon={faInbox} />
-                                        </div>
-                                        Inbox
-                                    </Link>
-                                    <Link
-                                        className={
-                                            "mb-[15px] cursor-pointer flex"
-                                        }
-                                        href={"/search"}
-                                    >
-                                        <div className={"mr-[10px]"}>
-                                            <FontAwesomeIcon
-                                                icon={faMagnifyingGlass}
-                                            />
-                                        </div>
-                                        Search
-                                    </Link>
-                                    <Link
-                                        className={
-                                            "mb-[15px] cursor-pointer flex"
-                                        }
-                                        href={"/post"}
-                                    >
-                                        <div className={"mr-[10px]"}>
-                                            <FontAwesomeIcon
-                                                icon={faPenToSquare}
-                                            />
-                                        </div>
-                                        Post
-                                    </Link>
-                                    <Link
-                                        href={"/settings"}
-                                        className={
-                                            "mb-[15px] cursor-pointer flex"
-                                        }
-                                    >
-                                        <div className={"mr-[10px]"}>
-                                            <FontAwesomeIcon icon={faGear} />
-                                        </div>
-                                        Settings
-                                    </Link>
                                 </div>
-                            </div>
+                            )}
                         </div>
                         <div
                             className={
