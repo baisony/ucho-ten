@@ -290,7 +290,11 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
     }
     return (
         <div className={"flex justify-end items-end"}>
-            <div className={"mr-[30px] mt-[25px] text-[16px]"}>
+            <div
+                className={
+                    "mr-[30px] mt-[25px] text-[16px] text-[#BABABA] dark:text-[#787878]"
+                }
+            >
                 <div className={"mb-[50px] cursor-pointer"}>
                     <Link href={"/"}>
                         <img
@@ -300,14 +304,21 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                         />
                     </Link>
                 </div>
-                <Link className={"mb-[15px] cursor-pointer flex"} href={"/"}>
+                <Link
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
+                    href={"/"}
+                >
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faHome} />
                     </div>
                     Home
                 </Link>
                 <Link
-                    className={"mb-[15px] cursor-pointer flex"}
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
                     href={"/bookmarks"}
                 >
                     <div className={"mr-[10px]"}>
@@ -316,7 +327,9 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     Bookmark
                 </Link>
                 <Link
-                    className={"mb-[15px] cursor-pointer flex"}
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
                     href={"/inbox"}
                 >
                     <div className={"mr-[10px]"}>
@@ -325,7 +338,9 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     Inbox
                 </Link>
                 <Link
-                    className={"mb-[15px] cursor-pointer flex"}
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
                     href={"/search"}
                 >
                     <div className={"mr-[10px]"}>
@@ -334,7 +349,9 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     Search
                 </Link>
                 <Link
-                    className={"mb-[15px] cursor-pointer flex"}
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
                     href={"/post"}
                 >
                     <div className={"mr-[10px]"}>
@@ -344,7 +361,9 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                 </Link>
                 <Link
                     href={"/settings"}
-                    className={"mb-[15px] cursor-pointer flex"}
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
                 >
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faGear} />
@@ -353,7 +372,11 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                 </Link>
                 <Dropdown>
                     <DropdownTrigger>
-                        <div className={"w-full flex cursor-pointer"}>
+                        <div
+                            className={
+                                "w-full flex cursor-pointer hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                            }
+                        >
                             <img
                                 src={userProfileDetailed?.avatar}
                                 className={
