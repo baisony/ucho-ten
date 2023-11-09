@@ -11,7 +11,7 @@ export const viewFeedPage = tv({
             "w-full h-full relative pl-[13px] pr-[8px] pb-[16px] pt-[21px]",
         ProfileImage: "h-[50px] w-[50px] rounded-[10px] absolute",
         ProfileDisplayName:
-            "font-black text-[24px] mt-[12px] ml-[3px] text-dark dark:text-white",
+            "font-black text-[24px] mt-[12px] ml-[3px] text-black dark:text-white",
         ProfileHandle: "text-[#B8B8B8] font-medium ml-[3px] text-[12px]",
         ProfileBio:
             "mt-[8px] mr-[20px] text-[#B8B8B8] font-medium ml-[3px] text-[12px]",
@@ -19,7 +19,7 @@ export const viewFeedPage = tv({
             "h-[32px] w-[32px] ml-[10px] mr-[10px] flex justify-center items-center cursor-pointer",
         ProfileActionButton:
             "h-[32px] w-[32px] ml-[10px] mr-[10px] flex justify-center items-center cursor-pointer",
-        FollowButton: "mr-[8px] ml-[10px] text-dark dark:text-white",
+        FollowButton: "mr-[8px] ml-[10px] text-black dark:text-white",
         Buttons: "flex justify-end h-[50px] w-full flex items-center",
         PinButton: "",
         ShareButton: "text-black dark:text-white",

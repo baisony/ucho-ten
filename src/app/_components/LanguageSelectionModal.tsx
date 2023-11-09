@@ -32,7 +32,7 @@ const LanguagesSelectionModal = ({
             isOpen={isOpen}
             onOpenChange={onOpenChange}
             placement={"bottom"}
-            className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+            className={"z-[100] max-w-[600px] text-black dark:text-white"}
             hideCloseButton
         >
             <ModalContent>
