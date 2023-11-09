@@ -475,85 +475,97 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         handleSideBarOpen(false)
                     }}
                 >
-                    {shouldFillPageBackground && (
-                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                            <div
-                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                            />
-                        </div>
-                    )}
-                    <div
-                        className={
-                            "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
-                        }
-                    >
-                        {showTabBar && (
-                            <ViewHeader
-                                isMobile={isMobile}
-                                setSideBarOpen={handleSideBarOpen}
-                                setSearchText={setSearchText}
-                            />
-                        )}
-                        <div className={`pt-[0px] h-[100%]`}>{children}</div>
-                        {showTabBar && <TabBar />}
-                    </div>
-                    {imageSlides && imageSlideIndex !== null && (
+                    <div className={"w-full h-full flex"}>
+                        <div className={"w-[calc(100%/2)] h-full"} />
                         <div
-                            onClick={(e) => {
-                                const clickedElement =
-                                    e.target as HTMLDivElement
-
-                                console.log(e.target)
-                                if (
-                                    clickedElement.classList.contains(
-                                        "yarl__fullsize"
-                                    ) ||
-                                    clickedElement.classList.contains(
-                                        "yarl__flex_center"
-                                    )
-                                ) {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }
-                            }}
+                            className={
+                                "min-w-[350px] max-w-[600px] h-full w-full "
+                            }
                         >
-                            <Lightbox
-                                open={true}
-                                index={imageSlideIndex}
-                                plugins={[Zoom, Captions, Counter]}
-                                zoom={{
-                                    ref: zoomRef,
-                                    scrollToZoom: true,
-                                }}
-                                captions={{
-                                    ref: captionsRef,
-                                    showToggle: true,
-                                    descriptionMaxLines: 2,
-                                    descriptionTextAlign: "start",
-                                }}
-                                close={() => {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }}
-                                slides={imageSlides}
-                                carousel={{
-                                    finite: imageSlides.length <= 5,
-                                }}
-                                render={{
-                                    buttonPrev:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                    buttonNext:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                }}
-                            />
+                            {shouldFillPageBackground && (
+                                <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                    <div
+                                        className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                    />
+                                </div>
+                            )}
+                            <div
+                                className={
+                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                                }
+                            >
+                                {showTabBar && (
+                                    <ViewHeader
+                                        isMobile={isMobile}
+                                        setSideBarOpen={handleSideBarOpen}
+                                        setSearchText={setSearchText}
+                                    />
+                                )}
+                                <div className={`pt-[0px] h-[100%]`}>
+                                    {children}
+                                </div>
+                                {showTabBar && <TabBar />}
+                            </div>
+                            {imageSlides && imageSlideIndex !== null && (
+                                <div
+                                    onClick={(e) => {
+                                        const clickedElement =
+                                            e.target as HTMLDivElement
+
+                                        console.log(e.target)
+                                        if (
+                                            clickedElement.classList.contains(
+                                                "yarl__fullsize"
+                                            ) ||
+                                            clickedElement.classList.contains(
+                                                "yarl__flex_center"
+                                            )
+                                        ) {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }
+                                    }}
+                                >
+                                    <Lightbox
+                                        open={true}
+                                        index={imageSlideIndex}
+                                        plugins={[Zoom, Captions, Counter]}
+                                        zoom={{
+                                            ref: zoomRef,
+                                            scrollToZoom: true,
+                                        }}
+                                        captions={{
+                                            ref: captionsRef,
+                                            showToggle: true,
+                                            descriptionMaxLines: 2,
+                                            descriptionTextAlign: "start",
+                                        }}
+                                        close={() => {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }}
+                                        slides={imageSlides}
+                                        carousel={{
+                                            finite: imageSlides.length <= 5,
+                                        }}
+                                        render={{
+                                            buttonPrev:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                            buttonNext:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
-                    )}
+                        <div className={"w-[calc(100%/2)] h-full"} />
+                    </div>
                 </main>
             </div>
         </div>
