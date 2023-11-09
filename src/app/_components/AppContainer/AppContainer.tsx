@@ -80,6 +80,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/settings")
         router.prefetch("/bookmarks")
         router.prefetch("/feeds")
+        router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
     useEffect(() => {

@@ -12,6 +12,7 @@ import {
 } from "@/app/_atoms/imageGallery"
 import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface Props {
     className?: string
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
+    const router = useRouter()
     const [, setImageGallery] = useImageGalleryAtom()
     const {
         className,
@@ -118,9 +120,14 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                 }`}
                 //style={{backgroundColor: isEmbedToModal ? 'transparent'}}
                 onClick={(e) => {
-                    if (!isEmbedReportModal) return
+                    if (isEmbedReportModal) return
                     e.preventDefault()
                     e.stopPropagation()
+                    router.push(
+                        `/profile/${postJson?.author.did}/post/${
+                            postJson?.uri.match(/\/(\w+)$/)?.[1] || ""
+                        }?${nextQueryParams.toString()}`
+                    )
                 }}
             >
                 <>
