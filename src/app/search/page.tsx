@@ -718,6 +718,7 @@ export default function Root() {
                                     nextQueryParams,
                                     t,
                                     handleValueChange: handleValueChange,
+                                    isSearchScreen: true,
                                 }}
                             />
                         )}

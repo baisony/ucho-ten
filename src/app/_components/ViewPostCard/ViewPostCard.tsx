@@ -75,6 +75,7 @@ export interface ViewPostCardProps {
     nextQueryParams: URLSearchParams
     t: any
     handleValueChange?: (value: any) => void
+    isSearchScreen?: boolean
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
@@ -92,6 +93,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         nextQueryParams,
         t,
         handleValueChange,
+        isSearchScreen,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -561,7 +563,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <DummyHeader />}
+            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
 
             <Modal
                 isOpen={isOpenReply}

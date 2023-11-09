@@ -54,7 +54,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const pathName = usePathname()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
-
+    const searchPath = ["/search"]
+    const isSearchScreen = searchPath.includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
@@ -605,7 +606,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     {shouldFillPageBackground && (
                                         <div className="absolute top-0 left-0 flex justify-center w-full h-full">
                                             <div
-                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] xl:mt-[50px] md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
+                                                    isSearchScreen
+                                                        ? `xl:mt-[100px]`
+                                                        : `xl:mt-[50px]`
+                                                } md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
                                             />
                                         </div>
                                     )}
