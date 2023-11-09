@@ -73,11 +73,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         router.prefetch("/")
+        router.prefetch("/login")
         router.prefetch("/search")
         router.prefetch("/inbox")
         router.prefetch("/post")
         router.prefetch("/settings")
         router.prefetch("/bookmarks")
+        router.prefetch("/feeds")
     }, [])
 
     useEffect(() => {
@@ -212,45 +214,59 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 }
             }
 
-            if (!userProfileDetailed && agent.hasSession === true) {
-                const res = await agent.getProfile({
-                    actor: agent.session?.did || "",
-                })
-                const { data } = res
+            if (agent.hasSession) {
+                const promises: Promise<any>[] = []
 
-                setUserProfileDetailed(data)
-            }
-
-            if (!userPreferences && agent.hasSession === true) {
-                try {
-                    console.log("fetch preferences")
-                    const res = await agent.getPreferences()
-
-                    if (res) {
-                        if (!res?.adultContentEnabled) {
-                            res.contentLabels.nsfw = "hide"
-                            res.contentLabels.nudity = "hide"
-                            res.contentLabels.suggestive = "hide"
-                        }
-
-                        setUserPreferences(res)
-
-                        const { data } =
-                            await agent.app.bsky.feed.getFeedGenerators({
-                                feeds: res.feeds.pinned as string[],
-                            })
-
-                        console.log(data)
-
-                        setFeedGenerators(data.feeds)
-                        updateMenuWithFeedGenerators(data.feeds)
-                    } else {
-                        // もしresがundefinedだった場合の処理
-                        console.log("Responseがundefinedです。")
-                    }
-                } catch (e) {
-                    console.log(e)
+                if (!userProfileDetailed) {
+                    const userProfilePromise = agent
+                        .getProfile({ actor: agent.session?.did || "" })
+                        .then((res) => {
+                            const { data } = res
+                            setUserProfileDetailed(data)
+                        })
+                    promises.push(userProfilePromise)
                 }
+
+                if (!userPreferences) {
+                    const userPreferencesPromise = agent
+                        .getPreferences()
+                        .then((res) => {
+                            if (res) {
+                                if (!res?.adultContentEnabled) {
+                                    res.contentLabels.nsfw = "hide"
+                                    res.contentLabels.nudity = "hide"
+                                    res.contentLabels.suggestive = "hide"
+                                }
+
+                                setUserPreferences(res)
+
+                                return agent.app.bsky.feed.getFeedGenerators({
+                                    feeds: res.feeds.pinned as string[],
+                                })
+                            } else {
+                                console.log("Responseがundefinedです。")
+                                return null
+                            }
+                        })
+                        .then((data) => {
+                            if (data) {
+                                const { data: feedData } = data
+                                console.log(feedData)
+                                setFeedGenerators(feedData.feeds)
+                                updateMenuWithFeedGenerators(feedData.feeds)
+                            }
+                        })
+                        .catch((e) => {
+                            console.log(e)
+                        })
+
+                    promises.push(userPreferencesPromise)
+                }
+
+                // 並列で実行する
+                Promise.all(promises).then(() => {
+                    console.log("done")
+                })
             }
         }
 
