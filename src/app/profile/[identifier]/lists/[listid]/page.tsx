@@ -30,6 +30,12 @@ import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import * as AppBskyActorDefs from "@atproto/api/src/client/types/app/bsky/actor/defs"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -46,13 +52,15 @@ export default function Root() {
 
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
-    const [timeline, setTimeline] = useState<ListItemView[] | null>(null)
+    const [timeline, setTimeline] = useState<
+        ListItemView[] | FeedViewPost[] | null
+    >(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
     //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
     // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
-    const [, setNow] = useState<Date>(new Date())
+    const [now, setNow] = useState<Date>(new Date())
 
     const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
@@ -179,12 +187,26 @@ export default function Root() {
                 if (!timeline) {
                     return true
                 }
-
-                return !timeline.some(
-                    (oldItem) => oldItem.subject.did === newItem.subject.did
-                )
+                if (!feedInfo) {
+                    return true
+                }
+                if (feedInfo.purpose === "app.bsky.graph.defs#modlist") {
+                    return !timeline.some(
+                        (oldItem) =>
+                            (oldItem.subject as AppBskyActorDefs.ProfileView)
+                                .did === newItem.subject.did
+                    )
+                } else if (
+                    feedInfo.purpose === "app.bsky.graph.defs#curatelist"
+                ) {
+                    return !timeline.some(
+                        (oldItem) =>
+                            (oldItem.post as PostView).uri ===
+                            (newItem.post as PostView).uri
+                    )
+                }
             })
-
+            //@ts-ignore
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
                     return [...currentTimeline, ...diffTimeline]
@@ -239,6 +261,91 @@ export default function Root() {
         }
     }
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(timeline)
+        if (!timeline) return
+        const foundObject = timeline.findIndex(
+            (item) => (item?.post as PostView).uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(timeline[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setTimeline((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //timeline.splice(foundObject, 1)
+            }
+            console.log(timeline)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
         let data: CustomFeedCellProps[] = []
 
@@ -248,6 +355,7 @@ export default function Root() {
                 isSubscribed,
                 onClick: handleSubscribeClick,
             }
+            console.log(feedInfo?.purpose)
 
             const feedData: CustomFeedCellProps = {
                 isDummyHeader: false,
@@ -268,40 +376,91 @@ export default function Root() {
         }
 
         if (timeline) {
-            const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
-                const profileProps: ViewUserProfileCardCellProps = {
-                    isMobile,
-                    json: post.subject,
-                    nextQueryParams,
-                    t,
-                }
+            if (feedInfo?.purpose === "app.bsky.graph.defs#modlist") {
+                const timelineData: CustomFeedCellProps[] = timeline.map(
+                    (post) => {
+                        const profileProps: ViewUserProfileCardCellProps = {
+                            isMobile,
+                            json: post.subject,
+                            nextQueryParams,
+                            t,
+                        }
+                        return {
+                            profileProps,
+                        }
+                    }
+                )
 
-                return {
-                    profileProps,
-                }
-            })
+                data = [...data, ...timelineData]
+            } else if (feedInfo?.purpose === "app.bsky.graph.defs#curatelist") {
+                const timelineData: CustomFeedCellProps[] = timeline.map(
+                    (post) => {
+                        const postProps: ViewPostCardProps = {
+                            isTop: false,
+                            isMobile,
+                            bodyText: processPostBodyText(
+                                nextQueryParams,
+                                post.post as PostView
+                            ),
+                            postJson: post.post as PostView,
+                            json: post as FeedViewPost,
+                            now,
+                            nextQueryParams,
+                            t,
+                            handleValueChange: handleValueChange,
+                        }
+                        return {
+                            postProps,
+                        }
+                    }
+                )
 
-            data = [...data, ...timelineData]
+                data = [...data, ...timelineData]
+            }
         } else {
-            const timelineData: CustomFeedCellProps[] = Array.from({
-                length: 20,
-            }).map(() => {
-                const profileProps: ViewUserProfileCardCellProps = {
-                    isSkeleton: true,
-                    isMobile,
-                    json: null,
-                    nextQueryParams,
-                    t,
-                }
+            if (feedInfo?.purpose === "app.bsky.graph.defs#modlist") {
+                const timelineData: CustomFeedCellProps[] = Array.from({
+                    length: 20,
+                }).map(() => {
+                    const profileProps: ViewUserProfileCardCellProps = {
+                        isSkeleton: true,
+                        isMobile,
+                        json: null,
+                        nextQueryParams,
+                        t,
+                    }
 
-                return {
-                    profileProps,
-                }
-            })
+                    return {
+                        profileProps,
+                    }
+                })
 
-            console.log("timelineData", timelineData)
+                console.log("timelineData", timelineData)
 
-            data = [...data, ...timelineData]
+                data = [...data, ...timelineData]
+            } else if (feedInfo?.purpose === "app.bsky.graph.defs#curatelist") {
+                const timelineData: CustomFeedCellProps[] = Array.from({
+                    length: 20,
+                }).map(() => {
+                    const postProps: ViewPostCardProps = {
+                        isTop: false,
+                        isSkeleton: true,
+                        isMobile,
+                        bodyText: undefined,
+                        now,
+                        nextQueryParams,
+                        t,
+                    }
+
+                    return {
+                        postProps,
+                    }
+                })
+
+                console.log("timelineData", timelineData)
+
+                data = [...data, ...timelineData]
+            }
         }
 
         if (data.length > 0) {
@@ -370,7 +529,6 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     }
 
     if (postProps) {
-        console.log(profileProps)
         return <ViewPostCard {...postProps} />
     }
 }
