@@ -648,6 +648,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                     router.push("/login")
                                 }
                             } else {
+                                setSideBarOpen(false)
                                 setOpenModalReason("logout")
                                 onOpen()
                             }
