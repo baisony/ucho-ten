@@ -178,6 +178,85 @@ export default function Root() {
         }
     }
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(notification)
+        if (!notification) return
+        const foundObject = notification.findIndex(
+            (item) => item.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(notification[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setNotification((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //notification.splice(foundObject, 1)
+            }
+            console.log(notification)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     const loadMore = async (_: number) => {
         if (hasMore && !isEndOfFeed) {
             await fetchNotification()
@@ -269,6 +348,7 @@ export default function Root() {
                                 now,
                                 nextQueryParams,
                                 t,
+                                handleValueChange: handleValueChange,
                             }}
                         />
                     )}
