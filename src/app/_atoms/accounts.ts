@@ -17,6 +17,6 @@ export interface UserAccountByDid {
     [key: string]: UserAccount
 }
 
-const accounts = atomWithStorage<UserAccountByDid[]>("Accounts", [])
+const accounts = atomWithStorage<UserAccountByDid>("Accounts", {})
 
 export const useAccounts = () => useAtom(accounts)

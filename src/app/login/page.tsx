@@ -16,12 +16,12 @@ import { useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
-import { UserAccount, UserAccountByDid } from "../_atoms/accounts"
+import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
     //        useUserProfileDetailedAtom()
-    //const [accounts, setAccounts] = useAccounts()
+    const [accounts, setAccounts] = useAccounts()
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
@@ -75,20 +75,20 @@ export default function CreateLoginPage() {
             setLoading(false)
             console.log(agent)
 
-            if (agent.session) {
+            if (agent.session !== undefined) {
                 const json = {
                     server: server,
                     session: agent.session,
                 }
+
                 localStorage.setItem("session", JSON.stringify(json))
-                const storedData = localStorage.getItem("Accounts")
-                const existingAccountsData: UserAccountByDid = storedData
-                    ? JSON.parse(storedData)
-                    : {}
+
+                const existingAccountsData: UserAccountByDid = accounts
 
                 const { data } = await agent.getProfile({
                     actor: agent.session.did,
                 })
+
                 const accountData: UserAccount = {
                     service: server,
                     session: agent.session,
@@ -99,12 +99,10 @@ export default function CreateLoginPage() {
                         avatar: data?.avatar || "",
                     },
                 }
+
                 existingAccountsData[agent.session.did] = accountData
 
-                localStorage.setItem(
-                    "Accounts",
-                    JSON.stringify(existingAccountsData)
-                )
+                setAccounts(existingAccountsData)
             }
 
             if (toRedirect) {
