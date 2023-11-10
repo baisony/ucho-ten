@@ -111,6 +111,12 @@ const Page = () => {
                 <SwiperSlide>
                     <PostPage tab={"replies"} />
                 </SwiperSlide>
+                <SwiperSlide>
+                    <PostPage tab={"media"} />
+                </SwiperSlide>
+                <SwiperSlide>
+                    <PostPage tab={"feeds"} />
+                </SwiperSlide>
             </Swiper>
         </>
     )
@@ -234,6 +240,31 @@ const PostPage = (props: PostPageProps) => {
         return filteredData as FeedViewPost[]
     }
 
+    const formattingOnlyMediaTimeline = (timeline: FeedViewPost[]) => {
+        const seenUris = new Set<string>()
+
+        const filteredData = timeline.filter((item) => {
+            if (item.reason) return false
+            if (
+                item?.post?.embed?.$type !== "app.bsky.embed.images#view" &&
+                item?.post?.embed?.$type !==
+                    "app.bsky.embed.recordWithMedia#view"
+            )
+                return false
+            const uri = item.post.uri
+
+            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+            if (!seenUris.has(uri)) {
+                seenUris.add(uri)
+                return true
+            }
+
+            return false
+        })
+
+        return filteredData as FeedViewPost[]
+    }
+
     const fetchTimeline = async () => {
         if (!agent) {
             return
@@ -264,7 +295,7 @@ const PostPage = (props: PostPageProps) => {
                 } else if (props.tab === "replies") {
                     filteredData = formattingOnlyRepliesTimeline(feed)
                 } else if (props.tab === "media") {
-                    filteredData = formattingTimeline(feed)
+                    filteredData = formattingOnlyMediaTimeline(feed)
                 }
 
                 setTimeline((currentTimeline) => {
