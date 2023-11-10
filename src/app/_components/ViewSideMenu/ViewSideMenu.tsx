@@ -4,10 +4,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
     faGear,
+    faRss,
     faHome,
     faInbox,
     faMagnifyingGlass,
     faPenToSquare,
+    faCircleInfo,
+    faFlag,
+    faUsers,
+    faUser,
+    faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import "react-circular-progressbar/dist/styles.css"
@@ -15,6 +21,7 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
+    DropdownSection,
     DropdownTrigger,
     useDisclosure,
 } from "@nextui-org/react"
@@ -28,17 +35,15 @@ import logoImage from "../../../../public/images/logo/ucho-ten.svg"
 import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
+import { useTranslation } from "react-i18next"
 
 interface Props {
     className?: string
 }
 
 export const ViewSideMenu: React.FC<Props> = (props: Props) => {
-    // const { t } = useTranslation()
-    // const router = useRouter()
-
     const [userProfileDetailed] = useUserProfileDetailedAtom()
-
+    const { t } = useTranslation()
     const signInModalDisclosure = useDisclosure({ id: "sign_in" })
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
     const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
@@ -72,7 +77,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faHome} />
                     </div>
-                    Home
+                    {t("components.ViewSideMenu.home")}
                 </Link>
                 <Link
                     className={
@@ -83,7 +88,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faBookmark} />
                     </div>
-                    Bookmark
+                    {t("components.ViewSideMenu.bookmark")}
                 </Link>
                 <Link
                     className={
@@ -94,7 +99,18 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faInbox} />
                     </div>
-                    Inbox
+                    {t("components.ViewSideMenu.inbox")}
+                </Link>
+                <Link
+                    className={
+                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
+                    }
+                    href={"/feeds"}
+                >
+                    <div className={"mr-[10px]"}>
+                        <FontAwesomeIcon icon={faRss} />
+                    </div>
+                    {t("components.ViewSideMenu.feed")}
                 </Link>
                 <Link
                     className={
@@ -105,7 +121,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faMagnifyingGlass} />
                     </div>
-                    Search
+                    {t("components.ViewSideMenu.search")}
                 </Link>
                 <Link
                     className={
@@ -116,7 +132,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faPenToSquare} />
                     </div>
-                    Post
+                    {t("components.ViewSideMenu.post")}
                 </Link>
                 <Link
                     href={"/settings"}
@@ -127,7 +143,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faGear} />
                     </div>
-                    Settings
+                    {t("components.ViewSideMenu.settings")}
                 </Link>
                 <Dropdown>
                     <DropdownTrigger>
@@ -153,10 +169,8 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                         onAction={(key) => {
                             switch (key) {
                                 case "about":
-                                    console.log("hoge")
                                     break
                                 case "bug_report":
-                                    console.log("hoge")
                                     break
                                 case "switch_account":
                                     accountSwitchModalDisclosure.onOpen()
@@ -167,36 +181,67 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                             }
                         }}
                     >
-                        <DropdownItem key="about">
-                            <a
-                                href={"https://github.com/baisony/ucho-ten"}
-                                target={"_blank"}
-                                rel={"noreferrer"}
-                            >
-                                About Ucho-ten
-                            </a>
-                        </DropdownItem>
-                        <DropdownItem key="bug_report">
-                            <a
-                                href={
-                                    process.env.NEXT_PUBLIC_BUG_REPORT_PAGE ||
-                                    "https://google.com"
+                        <DropdownSection showDivider>
+                            <DropdownItem
+                                key="about"
+                                startContent={
+                                    <FontAwesomeIcon icon={faCircleInfo} />
                                 }
-                                target={"_blank"}
-                                rel={"noreferrer"}
                             >
-                                Bug Report
-                            </a>
-                        </DropdownItem>
-                        <DropdownItem key="switch_account">
-                            Switch Account
-                        </DropdownItem>
+                                <a
+                                    href={"https://github.com/baisony/ucho-ten"}
+                                    target={"_blank"}
+                                    rel={"noreferrer"}
+                                >
+                                    {t("components.ViewSideMenu.about")}
+                                </a>
+                            </DropdownItem>
+                            <DropdownItem
+                                key="bug_report"
+                                startContent={<FontAwesomeIcon icon={faFlag} />}
+                            >
+                                <a
+                                    href={
+                                        process.env
+                                            .NEXT_PUBLIC_BUG_REPORT_PAGE ||
+                                        "https://google.com"
+                                    }
+                                    target={"_blank"}
+                                    rel={"noreferrer"}
+                                >
+                                    {t("components.ViewSideMenu.bugreport")}
+                                </a>
+                            </DropdownItem>
+                        </DropdownSection>
+                        <DropdownSection showDivider>
+                            <DropdownItem
+                                key="profile"
+                                startContent={<FontAwesomeIcon icon={faUser} />}
+                            >
+                                <Link
+                                    href={`/profile/${userProfileDetailed?.did}`}
+                                >
+                                    {t("components.ViewSideMenu.profile")}
+                                </Link>
+                            </DropdownItem>
+                            <DropdownItem
+                                key="switch_account"
+                                startContent={
+                                    <FontAwesomeIcon icon={faUsers} />
+                                }
+                            >
+                                {t("components.ViewSideMenu.switchAccount")}
+                            </DropdownItem>
+                        </DropdownSection>
                         <DropdownItem
                             key="log_out"
                             className="text-danger"
                             color="danger"
+                            startContent={
+                                <FontAwesomeIcon icon={faRightFromBracket} />
+                            }
                         >
-                            Logout
+                            {t("components.ViewSideMenu.logout")}
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
