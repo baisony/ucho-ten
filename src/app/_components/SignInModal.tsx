@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     Button,
     Input,
@@ -11,13 +11,15 @@ import {
     Spinner,
     useDisclosure,
 } from "@nextui-org/react"
-
-// TODO: Move these to style.ts --
+import { BskyAgent } from "@atproto/api"
 import { tv } from "@nextui-org/react"
-import AccountComponent from "./AccountComponent"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faAt } from "@fortawesome/free-solid-svg-icons"
+import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
+import { UserAccount, useAccounts } from "../_atoms/accounts"
+import { useAgent } from "../_atoms/agent"
+import { useRouter } from "next/navigation"
 
+// TODO: Move this to style.ts --
 export const signInModal = tv({
     slots: {
         appearanceTextColor: "text-black dark:text-white",
@@ -25,184 +27,213 @@ export const signInModal = tv({
 })
 // ---
 
+const DEFAULT_SERVER_NAME = "bsky.social"
+
 interface SignInModalProps {
-    openModalReason: string
-    handleSideBarOpen: (isOpen: boolean) => void
-    onClickSignIn: () => void
-    handleDeleteSession: () => void
+    isOpen: boolean
+    onOpenChange: () => void
+    selectedAccount?: UserAccount
+    // handleSideBarOpen: (isOpen: boolean) => void
+    // handleDeleteSession: () => void
 }
 
-const SignInModal = ({
-    openModalReason,
-    handleSideBarOpen,
-    handleDeleteSession,
-    onClickSignIn,
-}: SignInModalProps) => {
+const SignInModal = (props: SignInModalProps) => {
+    const {
+        isOpen,
+        onOpenChange,
+        selectedAccount,
+        //onClickSignIn,
+    } = props
+
     const { t } = useTranslation()
+    const router = useRouter()
 
-    const { isOpen, onOpenChange } = useDisclosure()
+    const [agent] = useAgent()
+    const [accounts, setAccounts] = useAccounts()
 
-    const [serverName, setServerName] = useState<string>("")
+    // const { isOpen, onOpenChange } = useDisclosure()
+
+    const [serverName, setServerName] = useState<string>(
+        selectedAccount?.service || DEFAULT_SERVER_NAME
+    )
+    const [accountsByServices, setAccountsByServices] = useState<{
+        [key: string]: UserAccount[]
+    }>({})
+    const [identity, setIdentity] = useState<string>(
+        selectedAccount?.profile.handle || ""
+    )
+    const [password, setPassword] = useState<string>("")
+    const [isLogging, setIsLogging] = useState<boolean>(false)
+    const [loginError, setLoginError] = useState<boolean>(false)
+    const [isAccountSwitching, setIsAccountSwitching] = useState(false)
+    const [authenticationRequired, setAuthenticationRequired] = useState<
+        boolean | null
+    >(null)
+    // const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
 
     const { appearanceTextColor } = signInModal()
 
+    const handleClickSignIn = async () => {
+        if (serverName === "" || identity === "" || password === "") {
+            return
+        }
+
+        try {
+            setIsAccountSwitching(true)
+            setLoginError(false)
+            setAuthenticationRequired(false)
+            setIsLogging(true)
+            let result = serverName.replace(/(http:\/\/|https:\/\/)/g, "")
+            result = result.replace(/\/$/, "")
+            const agent = new BskyAgent({
+                service: `https://${result}`,
+            })
+
+            await agent.login({
+                identifier: identity,
+                password: password,
+            })
+
+            if (agent.session) {
+                const json = {
+                    server: serverName,
+                    session: agent.session,
+                }
+
+                localStorage.setItem("session", JSON.stringify(json))
+
+                const existingAccountsData = accounts
+
+                const { data } = await agent.getProfile({
+                    actor: agent.session.did,
+                })
+
+                existingAccountsData[agent.session.did] = {
+                    service: serverName,
+                    session: agent.session,
+                    profile: {
+                        did: agent.session.did,
+                        displayName: data?.displayName || agent.session.handle,
+                        handle: agent.session.handle,
+                        avatar: data?.avatar || "",
+                    },
+                }
+
+                setAccounts(existingAccountsData)
+            }
+
+            setIsLogging(false)
+            setIsAccountSwitching(false)
+
+            window.location.reload()
+            // router.push("/")
+        } catch (e: unknown) {
+            if (e instanceof Error) {
+                console.log(e.message)
+            }
+
+            setIsLogging(false)
+            setIsAccountSwitching(false)
+            setLoginError(true)
+        }
+    }
+
     return (
-        <>
-            <Modal
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-                className={appearanceTextColor()}
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            {openModalReason === "switching" ? (
-                                <>
-                                    <ModalHeader>
-                                        {t(
-                                            "components.ViewSideBar.switchAccount"
-                                        )}
-                                    </ModalHeader>
-                                    <ModalBody>
-                                        <AccountComponent />
-                                    </ModalBody>
-                                    <ModalFooter>
-                                        <Button
-                                            color="primary"
-                                            onClick={() => {
-                                                onClose()
-                                                handleSideBarOpen(false)
-                                            }}
-                                        >
-                                            {t("button.close")}
-                                        </Button>
-                                    </ModalFooter>
-                                </>
-                            ) : openModalReason === "logout" ? (
-                                <>
-                                    <ModalHeader>
-                                        {t(
-                                            "components.ViewSideBar.logoutModal.description"
-                                        )}
-                                    </ModalHeader>
-                                    <ModalFooter>
-                                        <Button
-                                            color="danger"
-                                            variant="light"
-                                            onClick={onClose}
-                                        >
-                                            {t("button.no")}
-                                        </Button>
-                                        <Button
-                                            color="primary"
-                                            onClick={() => {
-                                                handleDeleteSession()
-                                                onClose()
-                                                handleSideBarOpen(false)
-                                            }}
-                                        >
-                                            {t("button.yes")}
-                                        </Button>
-                                    </ModalFooter>
-                                </>
-                            ) : (
-                                openModalReason === "relogin" && (
-                                    <>
-                                        <ModalHeader className="flex flex-col gap-1">
-                                            {t(
-                                                "components.ViewSideBar.addAccountModal.title"
-                                            )}
-                                        </ModalHeader>
-                                        <ModalBody>
-                                            <Input
-                                                defaultValue={
-                                                    selectedAccountInfo?.service
-                                                }
-                                                value={serverName}
-                                                onValueChange={(e) => {
-                                                    setServerName(e)
-                                                }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.service"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.servicePlaceholder"
-                                                )}
-                                                variant="bordered"
-                                                isInvalid={loginError}
-                                            />
-                                            <Input
-                                                autoFocus
-                                                endContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faAt}
-                                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
-                                                    />
-                                                }
-                                                defaultValue={
-                                                    selectedAccountInfo?.session
-                                                        ?.handle
-                                                }
-                                                onValueChange={(e) => {
-                                                    setIdentity(e)
-                                                }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.identifier"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.identifierPlaceholder"
-                                                )}
-                                                variant="bordered"
-                                                isInvalid={loginError}
-                                            />
-                                            <Input
-                                                endContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faLock}
-                                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
-                                                    />
-                                                }
-                                                onValueChange={(e) => {
-                                                    setPassword(e)
-                                                }}
-                                                label={t(
-                                                    "components.ViewSideBar.addAccountModal.password"
-                                                )}
-                                                placeholder={t(
-                                                    "components.ViewSideBar.addAccountModal.passwordPlaceholder"
-                                                )}
-                                                type="password"
-                                                variant="bordered"
-                                                isInvalid={loginError}
-                                            />
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <Button
-                                                color="danger"
-                                                variant="flat"
-                                                onPress={onClose}
-                                            >
-                                                {t("button.close")}
-                                            </Button>
-                                            <Button
-                                                color="primary"
-                                                onClick={onClickSignIn}
-                                            >
-                                                {!isLogging ? (
-                                                    t("button.signin")
-                                                ) : (
-                                                    <Spinner size={"sm"} />
-                                                )}
-                                            </Button>
-                                        </ModalFooter>
-                                    </>
-                                )
-                            )}
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
-        </>
+        <Modal
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            className={appearanceTextColor()}
+        >
+            <ModalContent>
+                {(onClose) => (
+                    <>
+                        <ModalHeader className="flex flex-col gap-1">
+                            {t("components.ViewSideBar.addAccountModal.title")}
+                        </ModalHeader>
+                        <ModalBody>
+                            <Input
+                                defaultValue={
+                                    selectedAccount?.service ||
+                                    DEFAULT_SERVER_NAME
+                                }
+                                value={serverName}
+                                onValueChange={(e) => {
+                                    setServerName(e)
+                                }}
+                                label={t(
+                                    "components.ViewSideBar.addAccountModal.service"
+                                )}
+                                placeholder={t(
+                                    "components.ViewSideBar.addAccountModal.servicePlaceholder"
+                                )}
+                                variant="bordered"
+                                isInvalid={loginError}
+                            />
+                            <Input
+                                autoFocus
+                                endContent={
+                                    <FontAwesomeIcon
+                                        icon={faAt}
+                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                                    />
+                                }
+                                defaultValue={
+                                    selectedAccount?.profile.handle || ""
+                                }
+                                value={identity}
+                                onValueChange={(e) => {
+                                    setIdentity(e)
+                                }}
+                                label={t(
+                                    "components.ViewSideBar.addAccountModal.identifier"
+                                )}
+                                placeholder={t(
+                                    "components.ViewSideBar.addAccountModal.identifierPlaceholder"
+                                )}
+                                variant="bordered"
+                                isInvalid={loginError}
+                            />
+                            <Input
+                                endContent={
+                                    <FontAwesomeIcon
+                                        icon={faLock}
+                                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                                    />
+                                }
+                                onValueChange={(e) => {
+                                    setPassword(e)
+                                }}
+                                label={t(
+                                    "components.ViewSideBar.addAccountModal.password"
+                                )}
+                                placeholder={t(
+                                    "components.ViewSideBar.addAccountModal.passwordPlaceholder"
+                                )}
+                                type="password"
+                                variant="bordered"
+                                isInvalid={loginError}
+                            />
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button
+                                color="danger"
+                                variant="flat"
+                                onPress={onClose}
+                            >
+                                {t("button.close")}
+                            </Button>
+                            <Button color="primary" onClick={handleClickSignIn}>
+                                {!isLogging ? (
+                                    t("button.signin")
+                                ) : (
+                                    <Spinner size={"sm"} />
+                                )}
+                            </Button>
+                        </ModalFooter>
+                    </>
+                )}
+            </ModalContent>
+        </Modal>
     )
 }
 

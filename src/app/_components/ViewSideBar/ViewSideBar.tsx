@@ -2,14 +2,11 @@ import React, { useEffect, useState } from "react"
 import { viewSideBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-    faAt,
     faBookmark,
-    faCircleCheck,
     faCircleQuestion,
     faFlag,
     faGear,
     faHand,
-    faLock,
     faRightFromBracket,
     faRss,
     faUser,
@@ -18,29 +15,18 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import "react-circular-progressbar/dist/styles.css"
-import {
-    Button,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    Spinner,
-    useDisclosure,
-} from "@nextui-org/react"
+import { useDisclosure } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import {
-    useAccounts,
-    UserAccount,
-    UserAccountByDid,
-} from "@/app/_atoms/accounts"
+import { UserAccountByDid, useAccounts } from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import Link from "next/link"
+import SignInModal from "../SignInModal"
+import SignOutModal from "../SignOutModal"
+import AccountSwitchModal from "../AccountSwitchModal"
 
 interface Props {
     className?: string
@@ -48,35 +34,31 @@ interface Props {
     isDragActive?: boolean
     open?: boolean
     isSideBarOpen: boolean
-    setSideBarOpen: (isOpen: boolean) => void
+    openSideBar: (isOpen: boolean) => void
 }
 
-const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
+const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const router = useRouter()
 
     const { t } = useTranslation()
 
-    const [agent, setAgent] = useAgent()
+    const [agent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
 
-    const [openModalReason, setOpenModalReason] = useState<
-        "switching" | "logout" | "relogin" | ""
-    >("")
+    // const [openModalReason, setOpenModalReason] = useState<
+    //     "switching" | "logout" | "relogin" | ""
+    // >("")
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const signInModalDisclosure = useDisclosure({ id: "sign_in" })
+    const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
+    const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
 
-    const [authenticationRequired, setAuthenticationRequired] = useState<
-        boolean | null
-    >(null)
-    const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
+    // const [authenticationRequired, setAuthenticationRequired] = useState<
+    //     boolean | null
+    // >(null)
+    // const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
     // const [agent, setAgent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [server, setServer] = useState<string>("")
-    const [identity, setIdentity] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
-    const [isLogging, setIsLogging] = useState<boolean>(false)
-    const [loginError, setLoginError] = useState<boolean>(false)
-    const [isSwitching, setIsSwitching] = useState<boolean>(false)
 
     const handleDeleteSession = () => {
         console.log("delete session")
@@ -96,70 +78,22 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
         appearanceTextColor,
     } = viewSideBar()
 
-    const handleRelogin = async () => {
-        if (server === "" || identity === "" || password === "") {
-            return
-        }
-
-        try {
-            setIsSwitching(true)
-            setLoginError(false)
-            setAuthenticationRequired(false)
-            setIsLogging(true)
-            let result = server.replace(/(http:\/\/|https:\/\/)/g, "")
-            result = result.replace(/\/$/, "")
-            const agent = new BskyAgent({
-                service: `https://${result}`,
-            })
-            await agent.login({
-                identifier: identity,
-                password: password,
-            })
-            if (agent.session) {
-                const json = {
-                    server: server,
-                    session: agent.session,
-                }
-                localStorage.setItem("session", JSON.stringify(json))
-                const storedData = localStorage.getItem("Accounts")
-                const existingAccountsData: UserAccountByDid = storedData
-                    ? JSON.parse(storedData)
-                    : {}
-
-                const { data } = await agent.getProfile({
-                    actor: agent.session.did,
-                })
-                existingAccountsData[agent.session.did] = {
-                    service: server,
-                    session: agent.session,
-                    profile: {
-                        did: agent.session.did,
-                        displayName: data?.displayName || agent.session.handle,
-                        handle: agent.session.handle,
-                        avatar: data?.avatar || "",
-                    },
-                }
-
-                localStorage.setItem(
-                    "Accounts",
-                    JSON.stringify(existingAccountsData)
-                )
-            }
-            setIsLogging(false)
-            setIsSwitching(false)
-            window.location.reload()
-        } catch (e: unknown) {
-            if (e instanceof Error) {
-                console.log(e.message)
-                setIsLogging(false)
-                setIsSwitching(false)
-                setLoginError(true)
-            }
-        }
-    }
-
     return (
         <div>
+            <SignInModal
+                isOpen={signInModalDisclosure.isOpen}
+                onOpenChange={signInModalDisclosure.onOpenChange}
+                //handleSideBarOpen={openSideBar}
+                //handleDeleteSession={handleDeleteSession}
+            />
+            {/* <SignOutModal /> */}
+            <AccountSwitchModal
+                isOpen={accountSwitchModalDisclosure.isOpen}
+                onOpenChange={accountSwitchModalDisclosure.onOpenChange}
+                handleClickAddAccount={() => {
+                    signInModalDisclosure.onOpen()
+                }}
+            />
             <main
                 className={background()}
                 onClick={(e) => {
@@ -170,7 +104,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     className={AuthorIconContainer()}
                     onClick={() => {
                         if (!agent?.session) return
-                        setSideBarOpen(false)
+                        openSideBar(false)
                     }}
                     href={`/profile/${agent?.session
                         ?.did}?${nextQueryParams.toString()}`}
@@ -200,7 +134,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <Link
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/bookmarks?${nextQueryParams.toString()}`}
                     >
@@ -213,7 +147,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <Link
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/settings#mute?${nextQueryParams.toString()}`}
                     >
@@ -226,7 +160,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <Link
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/feeds?${nextQueryParams.toString()}`}
                     >
@@ -240,7 +174,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                         className={NavBarItem()}
                         onClick={() => {
                             if (!agent?.session) return
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/profile/${agent?.session
                             ?.did}?${nextQueryParams.toString()}`}
@@ -254,7 +188,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <Link
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/settings#filtering?${nextQueryParams.toString()}`}
                     >
@@ -267,7 +201,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <Link
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/settings?${nextQueryParams.toString()}`}
                     >
@@ -286,7 +220,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                         target={"_blank"}
                         rel="noopener noreferrer"
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                     >
                         <FontAwesomeIcon
@@ -300,7 +234,7 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <Link
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
+                            openSideBar(false)
                         }}
                         href={`/about?${nextQueryParams.toString()}`}
                     >
@@ -313,9 +247,10 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                     <div
                         className={NavBarItem()}
                         onClick={() => {
-                            setSideBarOpen(false)
-                            setOpenModalReason("switching")
-                            onOpen()
+                            openSideBar(false)
+                            // setOpenModalReason("switching")
+                            accountSwitchModalDisclosure.onOpen()
+                            // onOpen()
                         }}
                     >
                         <FontAwesomeIcon
@@ -334,13 +269,14 @@ const ViewSideBar = ({ isMobile, setSideBarOpen }: Props) => {
                                     )
                                 )
                                 if (res) {
-                                    setSideBarOpen(false)
+                                    openSideBar(false)
                                     handleDeleteSession()
                                     router.push("/login")
                                 }
                             } else {
-                                setOpenModalReason("logout")
-                                onOpen()
+                                // setOpenModalReason("logout")
+                                // onOpen()
+                                signOutModalDisclosure.onOpen()
                             }
                         }}
                     >
