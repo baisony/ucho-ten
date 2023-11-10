@@ -33,12 +33,13 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
-import { useWordMutes } from "@/app/_atoms/wordMute"
+import { MuteWordByDiD, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
+import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -52,6 +53,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
+    const [bookmarks, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -322,9 +324,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName, searchParams])
 
     useEffect(() => {
+        if (!agent) return
         if (muteWords.length === 0) return
-
-        let newMuteWords = [...muteWords]
+        //ミュートワードはあるけど新システムに移行してない場合
+        if (
+            muteWords.length !== 0 &&
+            !muteWords[0][agent?.session?.did as string] &&
+            agent
+        ) {
+            const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+            existingAccountsData[0][agent?.session?.did as string] = []
+            setMuteWords(existingAccountsData)
+        }
 
         for (const word of muteWords) {
             if (typeof word === "string") {
@@ -335,31 +346,45 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     selectPeriod: null,
                     end: null,
                     isActive: true,
-                    targets: ["timeline"],
-                    muteAccountIncludesFollowing: true,
                     updatedAt: createdAt,
                     createdAt: createdAt,
                     deletedAt: null,
                 }
-
-                const isDuplicate = muteWords.find(
-                    (muteWord) => muteWord.word === word
+                const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+                const myDID = agent?.session?.did as string
+                console.log(existingAccountsData[0][myDID])
+                const isDuplicate = existingAccountsData[0][myDID].find(
+                    (muteWord: any) => muteWord.word === word
                 )
 
                 if (!isDuplicate) {
                     console.log("add")
-                    newMuteWords.push(json)
+
+                    existingAccountsData[0][myDID].push(json)
+                    setMuteWords(existingAccountsData)
                 } else {
                     console.log("この単語は既に存在します") // TODO: i18n
                 }
             }
         }
+    }, [JSON.stringify(muteWords), agent])
 
-        newMuteWords = newMuteWords.filter(
-            (muteWord) => typeof muteWord !== "string"
-        )
-        setMuteWords(newMuteWords)
-    }, [JSON.stringify(muteWords)])
+    useEffect(() => {
+        if (!agent) return
+        if (muteWords.length === 0 && agent) {
+            setBookmarks([{ [agent?.session?.did as string]: [] }])
+        }
+        //ミュートワードはあるけど新システムに移行してない場合
+        if (
+            bookmarks.length !== 0 &&
+            !bookmarks[0][agent?.session?.did as string] &&
+            agent
+        ) {
+            const existingAccountsData: BookmarkByDid[] = bookmarks || {}
+            existingAccountsData[0][agent?.session?.did as string] = []
+            setBookmarks(existingAccountsData)
+        }
+    }, [JSON.stringify(bookmarks), agent])
 
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]

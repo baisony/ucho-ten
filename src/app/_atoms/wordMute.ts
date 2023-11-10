@@ -12,6 +12,10 @@ export interface MuteWord {
     deletedAt: Date | null
 }
 
-const wordMutes = atomWithStorage<MuteWord[]>("muteWords", [])
+export interface MuteWordByDiD {
+    [key: string]: MuteWord[]
+}
+
+const wordMutes = atomWithStorage<MuteWordByDiD[]>("muteWords", [])
 
 export const useWordMutes = () => useAtom(wordMutes)
