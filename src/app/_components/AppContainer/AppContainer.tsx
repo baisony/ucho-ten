@@ -474,6 +474,46 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
+    const shouldShowNavigations = useMemo((): boolean => {
+        if (pathName === "/") {
+            return false
+        } else {
+            return true
+        }
+    }, [pathName])
+
+    if (shouldShowNavigations === false) {
+        return (
+            <div
+                className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
+            >
+                <main
+                    id="main-container"
+                    className={background()}
+                    onClick={() => {
+                        handleSideBarOpen(false)
+                    }}
+                >
+                    <div
+                        className={
+                            "w-full h-full flex justify-center select-none"
+                        }
+                    >
+                        <div
+                            className={
+                                "min-w-[350px] max-w-[600px] h-full w-full"
+                            }
+                        >
+                            <div className={`pt-[0px] h-[100%] relative`}>
+                                {children}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        )
+    }
+
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
