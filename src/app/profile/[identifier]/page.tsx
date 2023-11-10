@@ -4,7 +4,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 // import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -158,23 +161,6 @@ const PostPage = (props: PostPageProps) => {
         }
     }, [])
 
-    // const handleRefresh = () => {
-    //     console.log("refresh")
-
-    //     // newtimelineとtimelineの差分を取得
-    //     console.log(timeline)
-    //     console.log(newTimeline)
-    //     const diffTimeline = newTimeline.filter((newItem) => {
-    //         return !timeline.some(
-    //             (oldItem) => oldItem.post.uri === newItem.post.uri
-    //         )
-    //     })
-    //     console.log(diffTimeline)
-    //     // timelineに差分を追加
-    //     setTimeline([...diffTimeline, ...timeline])
-    //     setAvailableNewTimeline(false)
-    // }
-
     const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
 
@@ -194,6 +180,47 @@ const PostPage = (props: PostPageProps) => {
                     return false
                 }
             }
+
+            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+            if (!seenUris.has(uri)) {
+                seenUris.add(uri)
+                return true
+            }
+
+            return false
+        })
+
+        return filteredData as FeedViewPost[]
+    }
+
+    const formattingOnlyPostsTimeline = (timeline: FeedViewPost[]) => {
+        const seenUris = new Set<string>()
+
+        const filteredData = timeline.filter((item) => {
+            if (item.reason) return true
+            if (item.reply) return false
+            if ((item.post.record as PostView)?.reply) return false
+            const uri = item.post.uri
+
+            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+            if (!seenUris.has(uri)) {
+                seenUris.add(uri)
+                return true
+            }
+
+            return false
+        })
+
+        return filteredData as FeedViewPost[]
+    }
+    const formattingOnlyRepliesTimeline = (timeline: FeedViewPost[]) => {
+        const seenUris = new Set<string>()
+
+        const filteredData = timeline.filter((item) => {
+            if (item.reason) return false
+            if (!item.reply || !(item.post.record as PostView)?.reply)
+                return false
+            const uri = item.post.uri
 
             // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
             if (!seenUris.has(uri)) {
@@ -231,7 +258,14 @@ const PostPage = (props: PostPageProps) => {
 
                 const { feed } = data
 
-                const filteredData = formattingTimeline(feed)
+                let filteredData: FeedViewPost[] = []
+                if (props.tab === "posts") {
+                    filteredData = formattingOnlyPostsTimeline(feed)
+                } else if (props.tab === "replies") {
+                    filteredData = formattingOnlyRepliesTimeline(feed)
+                } else if (props.tab === "media") {
+                    filteredData = formattingTimeline(feed)
+                }
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
