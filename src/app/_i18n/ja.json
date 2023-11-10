@@ -117,6 +117,20 @@
     },
     "ViewHeader": {
       "search": "検索"
+    },
+    "ViewSideMenu": {
+      "home": "ホーム",
+      "bookmark": "ブックマーク",
+      "inbox": "受信箱",
+      "feed": "フィード",
+      "search": "検索",
+      "post": "投稿",
+      "settings": "設定",
+      "about": "Ucho-tenについて",
+      "bugreport": "バグ報告",
+      "profile": "プロフィール",
+      "switchAccount": "アカウント切り替え",
+      "logout": "ログアウト"
     }
   },
   "modal": {

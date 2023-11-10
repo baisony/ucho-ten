@@ -163,20 +163,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             icon={faUser}
                             className={NavBarIcon()}
                         ></FontAwesomeIcon>
-                        <div>profile</div>
-                    </Link>
-                    <Link
-                        className={NavBarItem()}
-                        onClick={() => {
-                            openSideBar(false)
-                        }}
-                        href={`/settings#filtering?${nextQueryParams.toString()}`}
-                    >
-                        <FontAwesomeIcon
-                            icon={faHand}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
-                        <div>Contents Filtering</div>
+                        <div>{t("components.ViewSideMenu.profile")}</div>
                     </Link>
                     <Link
                         className={NavBarItem()}
