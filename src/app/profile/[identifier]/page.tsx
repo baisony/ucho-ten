@@ -43,15 +43,83 @@ import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useMenuIndexChangedByMenu,
+} from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useAtom } from "jotai/index"
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination } from "swiper/modules"
 
-export default function Root() {
-    const [, setCurrentMenuType] = useCurrentMenuType()
+const Page = () => {
+    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("profile")
+
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+
+    const swiperRef = useRef<SwiperCore | null>(null)
+
+    useEffect(() => {
+        if (
+            currentMenuType === "profile" &&
+            swiperRef.current &&
+            menuIndex !== swiperRef.current.activeIndex
+        ) {
+            swiperRef.current.slideTo(menuIndex)
+        }
+    }, [currentMenuType, menuIndex, swiperRef.current])
+
+    return (
+        <>
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                cssMode={isMobile}
+                pagination={{ type: "custom", clickable: false }}
+                modules={[Pagination]}
+                className="swiper-only-post"
+                style={{ height: "100%" }}
+                touchAngle={30}
+                touchRatio={0.8}
+                touchReleaseOnEdges={true}
+                touchMoveStopPropagation={true}
+                preventInteractionOnTransition={true}
+                onActiveIndexChange={(swiper) => {
+                    if (menuIndexChangedByMenu === false) {
+                        setMenuIndex(swiper.activeIndex)
+                    }
+                }}
+                onTouchStart={(swiper, event) => {
+                    setMenuIndexChangedByMenu(false)
+                }}
+            >
+                <SwiperSlide>
+                    <PostPage tab={"posts"} />
+                </SwiperSlide>
+                <SwiperSlide>
+                    <PostPage tab={"replies"} />
+                </SwiperSlide>
+            </Swiper>
+        </>
+    )
+}
+
+export default Page
+
+interface PostPageProps {
+    tab: "posts" | "replies" | "media" | "feeds"
+}
+
+const PostPage = (props: PostPageProps) => {
     const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const router = useRouter()
     const pathname = usePathname()
