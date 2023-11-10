@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { viewSideBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -19,12 +19,7 @@ import { useDisclosure } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import {
-    UserAccount,
-    UserAccountByDid,
-    useAccounts,
-} from "@/app/_atoms/accounts"
-import { BskyAgent } from "@atproto/api"
+import { UserAccount } from "@/app/_atoms/accounts"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import Link from "next/link"
@@ -57,11 +52,6 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
     const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
 
-    // const [authenticationRequired, setAuthenticationRequired] = useState<
-    //     boolean | null
-    // >(null)
-    // const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
-    // const [agent, setAgent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
 
     const handleDeleteSession = () => {
@@ -79,7 +69,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
-        appearanceTextColor,
+        // appearanceTextColor,
     } = viewSideBar()
 
     return (
@@ -238,9 +228,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         className={NavBarItem()}
                         onClick={() => {
                             openSideBar(false)
-                            // setOpenModalReason("switching")
                             accountSwitchModalDisclosure.onOpen()
-                            // onOpen()
                         }}
                     >
                         <FontAwesomeIcon
@@ -264,7 +252,6 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                                     router.push("/login")
                                 }
                             } else {
-                                // setOpenModalReason("logout")
                                 openSideBar(false)
                                 signOutModalDisclosure.onOpen()
                             }

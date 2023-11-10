@@ -28,7 +28,7 @@ export const signInModal = tv({
 interface SignOutModalProps {
     isOpen: boolean
     onOpenChange: () => void
-    handleSideBarOpen: (isOpen: boolean) => void
+    handleSideBarOpen?: (isOpen: boolean) => void
 }
 
 const SignOutModal = (props: SignOutModalProps) => {
@@ -37,13 +37,13 @@ const SignOutModal = (props: SignOutModalProps) => {
     const { t } = useTranslation()
     const router = useRouter()
 
-    const [isloading, setIsLoading] = useState<boolean>(false)
-
     const { appearanceTextColor } = signInModal()
 
     const handleDeleteSession = () => {
-        handleSideBarOpen(false)
-        setIsLoading(true)
+        if (handleSideBarOpen !== undefined) {
+            handleSideBarOpen(false)
+        }
+
         localStorage.removeItem("session")
         router.push("/login")
     }
@@ -68,7 +68,10 @@ const SignOutModal = (props: SignOutModalProps) => {
                                 variant="light"
                                 onPress={() => {
                                     onClose()
-                                    handleSideBarOpen(false)
+
+                                    if (handleSideBarOpen) {
+                                        handleSideBarOpen(false)
+                                    }
                                 }}
                             >
                                 {t("button.no")}

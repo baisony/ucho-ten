@@ -33,7 +33,6 @@ interface SignInModalProps {
     isOpen: boolean
     onOpenChange: () => void
     selectedAccount: UserAccount | null
-    // handleSideBarOpen: (isOpen: boolean) => void
 }
 
 const SignInModal = (props: SignInModalProps) => {
