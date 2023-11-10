@@ -1,22 +1,24 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "./_atoms/nextQueryParams"
-import { Button, Spinner } from "@nextui-org/react"
+import { Button } from "@nextui-org/react"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+//import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 export default function Root() {
+    const router = useRouter()
     const { t } = useTranslation()
 
-    const [agent] = useAgent()
-    const [nextQueryParams] = useNextQueryParamsAtom()
-    const [bookmarks, setBookmarks] = useBookmarks()
-    const [timeline, setTimeline] = useState<PostView[]>([])
+    // const [agent] = useAgent()
+    // const [nextQueryParams] = useNextQueryParamsAtom()
+    // const [bookmarks, setBookmarks] = useBookmarks()
+    // const [timeline, setTimeline] = useState<PostView[]>([])
 
     return (
         <>
@@ -31,7 +33,10 @@ export default function Root() {
                         className={
                             "w-80 h-14 bottom-[0px] bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center mb-4"
                         }
-                        isDisabled={true}
+                        isDisabled={false}
+                        onPress={() => {
+                            router.push("https://bsky.app")
+                        }}
                     >
                         <div className="text-zinc-400 text-xl font-bold">
                             Create a new account
