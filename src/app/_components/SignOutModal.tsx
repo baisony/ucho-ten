@@ -1,21 +1,15 @@
 import { useTranslation } from "react-i18next"
-import { useEffect, useState } from "react"
 import {
     Button,
     Modal,
-    ModalBody,
     ModalContent,
     ModalFooter,
     ModalHeader,
+    tv,
 } from "@nextui-org/react"
-import { BskyAgent } from "@atproto/api"
-import { tv } from "@nextui-org/react"
-import AccountsComponent from "./AccountComponent"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
-import { UserAccount, UserAccountByDid, useAccounts } from "../_atoms/accounts"
-import { useAgent } from "../_atoms/agent"
 import { useRouter } from "next/navigation"
+import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
+import { useAgent } from "../_atoms/agent"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -23,6 +17,7 @@ export const signInModal = tv({
         appearanceTextColor: "text-black dark:text-white",
     },
 })
+
 // ---
 
 interface SignOutModalProps {
@@ -37,6 +32,9 @@ const SignOutModal = (props: SignOutModalProps) => {
     const { t } = useTranslation()
     const router = useRouter()
 
+    const [agent] = useAgent()
+    const [accounts, setAccounts] = useAccounts()
+
     const { appearanceTextColor } = signInModal()
 
     const handleDeleteSession = () => {
@@ -45,6 +43,22 @@ const SignOutModal = (props: SignOutModalProps) => {
         }
 
         localStorage.removeItem("session")
+
+        const existingAccountsData: UserAccountByDid = accounts
+
+        if (!agent?.session?.did) {
+            return
+        }
+
+        const updatedAccountData = {
+            ...(existingAccountsData[agent.session.did] || {}),
+            session: undefined,
+        }
+
+        existingAccountsData[agent.session.did] = updatedAccountData
+
+        setAccounts(existingAccountsData)
+
         router.push("/login")
     }
 

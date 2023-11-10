@@ -67,7 +67,8 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
     const handleClickUserAccount = async (account: UserAccount) => {
         if (
             agent?.session?.did &&
-            account.session.did === agent?.session?.did
+            account.session &&
+            account.session.did === agent.session.did
         ) {
             return
         }
@@ -76,6 +77,10 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
             setIsAccountSwitching(true)
             setAuthenticationRequired(false)
             setSelectedAccount(account)
+
+            if (!account?.session) {
+                throw new Error("Authentication error")
+            }
 
             const { session } = account
 

@@ -19,7 +19,11 @@ import { useDisclosure } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { UserAccount } from "@/app/_atoms/accounts"
+import {
+    useAccounts,
+    UserAccount,
+    UserAccountByDid,
+} from "@/app/_atoms/accounts"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import Link from "next/link"
@@ -43,6 +47,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
 
     const [agent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const [accounts, setAccounts] = useAccounts()
 
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
         null
@@ -57,6 +62,22 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const handleDeleteSession = () => {
         console.log("delete session")
         localStorage.removeItem("session")
+
+        const existingAccountsData: UserAccountByDid = accounts
+
+        if (!agent?.session?.did) {
+            return
+        }
+
+        const updatedAccountData: UserAccount = {
+            ...(existingAccountsData[agent.session.did] || {}),
+            session: undefined,
+        }
+
+        existingAccountsData[agent.session.did] = updatedAccountData
+
+        setAccounts(existingAccountsData)
+
         router.push("/login")
     }
 
