@@ -5,10 +5,10 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
+    tv,
 } from "@nextui-org/react"
-import { tv } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
-import { UserAccountByDid, useAccounts } from "../_atoms/accounts"
+import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 
 // TODO: Move this to style.ts --
@@ -17,6 +17,7 @@ export const signInModal = tv({
         appearanceTextColor: "text-black dark:text-white",
     },
 })
+
 // ---
 
 interface SignOutModalProps {
@@ -33,7 +34,7 @@ const SignOutModal = (props: SignOutModalProps) => {
 
     const [agent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
-    
+
     const { appearanceTextColor } = signInModal()
 
     const handleDeleteSession = () => {
@@ -49,8 +50,10 @@ const SignOutModal = (props: SignOutModalProps) => {
             return
         }
 
-        let updatedAccountData = existingAccountsData[agent.session.did] || {}
-        updatedAccountData.session = undefined
+        const updatedAccountData = {
+            ...(existingAccountsData[agent.session.did] || {}),
+            session: undefined,
+        }
 
         existingAccountsData[agent.session.did] = updatedAccountData
 
