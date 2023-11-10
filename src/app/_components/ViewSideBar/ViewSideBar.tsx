@@ -362,7 +362,7 @@ export const ViewSideBar: React.FC<Props> = (props: Props) => {
                                             onClick={() => {
                                                 handleDeleteSession()
                                                 onClose()
-                                                setSideBarOpen(false)
+                                                //setSideBarOpen(false)
                                             }}
                                         >
                                             {t("button.yes")}

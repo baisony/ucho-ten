@@ -46,11 +46,13 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("profile")
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const router = useRouter()
     const pathname = usePathname()
     const { t } = useTranslation()
@@ -425,10 +427,7 @@ export default function Root() {
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{
-                overflowY: "auto",
-                height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-            }}
+            className={nullTimeline()}
         />
     )
 }
@@ -443,7 +442,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     const { isDummyHeader, userProfileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return <DummyHeader />
     }
 
     if (userProfileProps) {

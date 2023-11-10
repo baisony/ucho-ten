@@ -92,6 +92,7 @@ import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -908,7 +909,8 @@ const PostPage = (props: PostPageProps) => {
                         )}
                     </ModalContent>
                 </Modal>
-                <main className={`${Container()} md:mt-[100px] mt-[85px]`}>
+                <DummyHeader />
+                <main className={`${Container()}`}>
                     {thread?.parent && (
                         <>{renderNestedViewPostCards(thread, isMobile)}</>
                     )}

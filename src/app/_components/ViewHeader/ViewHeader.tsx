@@ -54,7 +54,9 @@ interface Props {
 export const ViewHeader: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const pathname = usePathname()
-
+    const specificPaths = ["/search"]
+    const isMatchingPath = specificPaths.includes(pathname)
+    console.log(isMatchingPath)
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
@@ -192,10 +194,12 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [menus, currentMenuType])
 
     return (
-        <main className={Header()}>
-            <div className={top()}>
+        <main className={Header({ isMatchingPath })}>
+            <div className={top({ isMatchingPath })}>
                 <Button
-                    className={"absolute left-[0px] p-[20px] text-white"}
+                    className={
+                        "absolute left-[0px] p-[20px] text-white xl:hidden"
+                    }
                     variant="light"
                     startContent={
                         <FontAwesomeIcon
@@ -324,7 +328,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 cssMode={isMobile}
                 slidesPerView={"auto"}
                 //modules={[Pagination]}
-                className={bottom()}
+                className={bottom({ isMatchingPath })}
                 navigation={true}
             >
                 {currentMenu &&
@@ -343,7 +347,9 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                     menuIndex === index
                                         ? "text-white"
                                         : "text-[#909090]"
-                                } md:text-[15px] text-[13px] md:block flex items-center h-full`}
+                                } md:text-[15px] text-[13px] xl:flex md:block flex items-center ${
+                                    isMatchingPath ? `xl:h-[27px]` : `xl:h-full`
+                                } cursor-pointer`}
                             >
                                 {menu.displayText}
                             </div>

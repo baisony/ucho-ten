@@ -14,13 +14,14 @@ import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("inbox")
 
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
@@ -314,10 +315,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
             {notification && (
@@ -359,10 +357,7 @@ export default function Root() {
                             : ListFooterNoContent,
                     }}
                     endReached={loadMore}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
         </>

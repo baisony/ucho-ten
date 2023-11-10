@@ -1,4 +1,5 @@
 import { ViewUserProfileCard } from "."
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewUserProfileCardCellProps {
     className?: string
@@ -16,9 +17,5 @@ export const ViewUserProfileCardCell = (
 ) => {
     const { isDummyHeader } = props
 
-    return isDummyHeader ? (
-        <div className={"md:h-[100px] h-[85px]"} />
-    ) : (
-        <ViewUserProfileCard {...props} />
-    )
+    return isDummyHeader ? <DummyHeader /> : <ViewUserProfileCard {...props} />
 }

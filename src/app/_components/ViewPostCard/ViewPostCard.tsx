@@ -58,6 +58,7 @@ import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -74,6 +75,7 @@ export interface ViewPostCardProps {
     nextQueryParams: URLSearchParams
     t: any
     handleValueChange?: (value: any) => void
+    isSearchScreen?: boolean
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
@@ -91,6 +93,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         nextQueryParams,
         t,
         handleValueChange,
+        isSearchScreen,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -584,7 +587,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
 
             <Modal
                 isOpen={isOpenReply}

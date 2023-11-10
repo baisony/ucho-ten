@@ -1,14 +1,7 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import {
-    MutableRefObject,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -22,6 +15,7 @@ import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -48,6 +42,7 @@ const FeedPage = ({
 
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -375,7 +370,7 @@ const FeedPage = ({
             {hasUpdate && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] xl:top-[70px]"
                     }
                 >
                     <div
@@ -409,10 +404,7 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
             {timeline !== null && (
@@ -458,9 +450,7 @@ const FeedPage = ({
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
                     //className="overflow-y-auto"
-                    style={{
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={notNulltimeline()}
                 />
             )}
         </>

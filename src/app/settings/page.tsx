@@ -42,6 +42,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 import {
     type MuteWord,
     MuteWordByDiD,
@@ -146,7 +147,7 @@ const SettingsGeneralPage = ({
 
     return (
         <>
-            <div className={`md:h-[100px] h-[85px]`} />
+            <DummyHeader />
             <div className={"font-[600] text-black dark:text-white"}>
                 {t("pages.settings.general")}
             </div>
@@ -350,7 +351,7 @@ const SettingsContentFilteringPage = ({
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
             <div className={"font-bold text-black dark:text-white"}>
                 {t("pages.contentfiltering.title")}
             </div>

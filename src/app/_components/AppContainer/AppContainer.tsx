@@ -38,6 +38,7 @@ import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
+import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
 import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
@@ -45,7 +46,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const pathName = usePathname()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
-
+    const searchPath = ["/search"]
+    const isSearchScreen = searchPath.includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
@@ -500,85 +502,115 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         handleSideBarOpen(false)
                     }}
                 >
-                    {shouldFillPageBackground && (
-                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                            <div
-                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                            />
-                        </div>
-                    )}
                     <div
                         className={
-                            "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                            "w-full h-full flex justify-center select-none"
                         }
                     >
-                        {showTabBar && (
-                            <ViewHeader
-                                isMobile={isMobile}
-                                setSideBarOpen={handleSideBarOpen}
-                                setSearchText={setSearchText}
-                            />
-                        )}
-                        <div className={`pt-[0px] h-[100%]`}>{children}</div>
-                        {showTabBar && <TabBar />}
-                    </div>
-                    {imageSlides && imageSlideIndex !== null && (
                         <div
-                            onClick={(e) => {
-                                const clickedElement =
-                                    e.target as HTMLDivElement
-
-                                console.log(e.target)
-                                if (
-                                    clickedElement.classList.contains(
-                                        "yarl__fullsize"
-                                    ) ||
-                                    clickedElement.classList.contains(
-                                        "yarl__flex_center"
-                                    )
-                                ) {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }
-                            }}
+                            className={
+                                "xl:w-[calc(100%/4)] h-full hidden xl:block"
+                            }
                         >
-                            <Lightbox
-                                open={true}
-                                index={imageSlideIndex}
-                                plugins={[Zoom, Captions, Counter]}
-                                zoom={{
-                                    ref: zoomRef,
-                                    scrollToZoom: true,
-                                }}
-                                captions={{
-                                    ref: captionsRef,
-                                    showToggle: true,
-                                    descriptionMaxLines: 2,
-                                    descriptionTextAlign: "start",
-                                }}
-                                close={() => {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }}
-                                slides={imageSlides}
-                                carousel={{
-                                    finite: imageSlides.length <= 5,
-                                }}
-                                render={{
-                                    buttonPrev:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                    buttonNext:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                }}
-                            />
+                            {showTabBar && <ViewSideMenu />}
                         </div>
-                    )}
+                        <div
+                            className={
+                                "min-w-[350px] max-w-[600px] h-full w-full "
+                            }
+                        >
+                            <div
+                                className={
+                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                                }
+                            >
+                                {showTabBar && (
+                                    <ViewHeader
+                                        isMobile={isMobile}
+                                        setSideBarOpen={handleSideBarOpen}
+                                        setSearchText={setSearchText}
+                                    />
+                                )}
+                                <div className={`pt-[0px] h-[100%] relative`}>
+                                    {shouldFillPageBackground && (
+                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                            <div
+                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
+                                                    isSearchScreen
+                                                        ? `xl:mt-[100px]`
+                                                        : `xl:mt-[50px]`
+                                                } md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                            />
+                                        </div>
+                                    )}
+                                    {children}
+                                </div>
+                                {showTabBar && <TabBar />}
+                            </div>
+                            {imageSlides && imageSlideIndex !== null && (
+                                <div
+                                    onClick={(e) => {
+                                        const clickedElement =
+                                            e.target as HTMLDivElement
+
+                                        console.log(e.target)
+                                        if (
+                                            clickedElement.classList.contains(
+                                                "yarl__fullsize"
+                                            ) ||
+                                            clickedElement.classList.contains(
+                                                "yarl__flex_center"
+                                            )
+                                        ) {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }
+                                    }}
+                                >
+                                    <Lightbox
+                                        open={true}
+                                        index={imageSlideIndex}
+                                        plugins={[Zoom, Captions, Counter]}
+                                        zoom={{
+                                            ref: zoomRef,
+                                            scrollToZoom: true,
+                                        }}
+                                        captions={{
+                                            ref: captionsRef,
+                                            showToggle: true,
+                                            descriptionMaxLines: 2,
+                                            descriptionTextAlign: "start",
+                                        }}
+                                        close={() => {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }}
+                                        slides={imageSlides}
+                                        carousel={{
+                                            finite: imageSlides.length <= 5,
+                                        }}
+                                        render={{
+                                            buttonPrev:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                            buttonNext:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <div
+                            className={
+                                "xl:w-[calc(100%/4)] h-full hidden xl:flex"
+                            }
+                        ></div>
+                    </div>
                 </main>
             </div>
         </div>

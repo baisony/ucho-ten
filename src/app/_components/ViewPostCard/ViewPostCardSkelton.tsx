@@ -4,6 +4,7 @@ import { viewPostCard } from "./styles"
 import "react-circular-progressbar/dist/styles.css"
 import { Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewPostCardSkeltonProps {
     isTop: boolean
@@ -25,7 +26,7 @@ const ViewPostCardSkelton = ({ isTop }: ViewPostCardSkeltonProps) => {
 
     return (
         <div>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader />}
             <main className={PostCard()}>
                 <div className={PostCardContainer()}>
                     <div className={PostAuthor()}>
