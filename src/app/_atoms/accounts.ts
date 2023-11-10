@@ -4,7 +4,7 @@ import type { AtpSessionData } from "@atproto/api"
 
 export interface UserAccount {
     service: string
-    session: AtpSessionData
+    session?: AtpSessionData
     profile: {
         did: string
         displayName: string
