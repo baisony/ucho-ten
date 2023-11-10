@@ -3,9 +3,16 @@
 import {
     Button,
     ButtonGroup,
+    Input,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
     Select,
     SelectItem,
     Switch,
+    useDisclosure,
 } from "@nextui-org/react"
 import React, { useEffect, useRef, useState } from "react"
 import { viewSettingsPage } from "@/app/settings/styles"
@@ -17,7 +24,6 @@ import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import Link from "next/link"
 import {
     menuIndexAtom,
     useCurrentMenuType,
@@ -36,6 +42,14 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import {
+    type MuteWord,
+    MuteWordByDiD,
+    useWordMutes,
+} from "@/app/_atoms/wordMute"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
+import { UserAccountByDid } from "@/app/_atoms/accounts"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -457,27 +471,349 @@ const SettingsMutePage = ({
     t,
     nextQueryParams, // agent,
 }: SettingsMutePageProps) => {
+    const [agent] = useAgent()
+    const [muteWords, setMuteWords] = useWordMutes()
+    //何もない場合は新規作成
+    if (muteWords.length === 0 && agent) {
+        setMuteWords([{ [agent?.session?.did as string]: [] }])
+    }
+    //自分のDIDがない場合は新規作成
+    if (
+        muteWords.length !== 0 &&
+        !muteWords[0][agent?.session?.did as string] &&
+        agent
+    ) {
+        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+        existingAccountsData[0][agent?.session?.did as string] = []
+        setMuteWords(existingAccountsData)
+    }
+    const [editMode, setEditMode] = useState<boolean>(false)
+    const [inputMuteWord, setInputMuteWord] = useState<string>("")
+    const [inputMuteCategory, setInputMuteCategory] = useState<string>("")
+    const [inputTimePeriod, setInputTimePeriod] = useState<string>("")
+    const [selectMuteWord, setSelectMuteWord] = useState<any>(null)
+    const [switchIsActive, setSwitchIsActive] = useState<boolean>(false)
+    const [modalEditMode, setModalEditMode] = useState<boolean>(false)
+    const {
+        isOpen: isOpenEdit,
+        onOpen: onOpenEdit,
+        onOpenChange: onOpenChangeEdit,
+    } = useDisclosure()
+
+    const handleSave = () => {
+        console.log(inputMuteWord)
+    }
+
+    const handleAddMuteWordClick = () => {
+        if (!agent) return
+        const createdAt = new Date().getTime()
+        const json: MuteWord = {
+            category: null,
+            word: inputMuteWord,
+            selectPeriod: null,
+            end: null,
+            isActive: true,
+            updatedAt: createdAt,
+            createdAt: createdAt,
+            deletedAt: null,
+        }
+        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+        const myDID = agent?.session?.did as string
+        console.log(existingAccountsData[0][myDID])
+        const index = existingAccountsData[0][myDID].find(
+            (muteWord: any) => muteWord.word === inputMuteWord
+        )
+        if (index) return
+        existingAccountsData[0][myDID].push(json)
+        setMuteWords(existingAccountsData)
+        console.log(existingAccountsData)
+    }
+    const handleSaveClick = () => {
+        if (!agent) return
+        const updatedAt = new Date().getTime()
+        const json: MuteWord = selectMuteWord
+        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+        const myDID = agent?.session?.did as string
+        console.log(existingAccountsData[0][myDID])
+        const index = existingAccountsData[0][myDID].findIndex(
+            (muteWord: any) => muteWord.word === inputMuteWord
+        )
+        if (existingAccountsData[0][myDID][index] === json) return
+        json.updatedAt = updatedAt
+        existingAccountsData[0][myDID][index] = json
+        setMuteWords(existingAccountsData)
+        console.log(existingAccountsData)
+    }
+
+    const handleDelete = () => {
+        if (!agent) return
+        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+        const myDID = agent?.session?.did as string
+        const index = existingAccountsData[0][myDID].findIndex(
+            (muteWord: any) => muteWord.word === selectMuteWord.word
+        )
+        existingAccountsData[0][myDID].splice(index, 1)
+        setMuteWords(existingAccountsData)
+    }
+
+    const getNowTime = () => {
+        const now = new Date()
+        console.log(now)
+        return now.getTime()
+    }
+
+    const getEndTime = () => {
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = now.getMonth() + 1
+        const date = now.getDate()
+        return `${year}-${month}-${date}`
+    }
+
+    const mutePeriods = {
+        day: "a day",
+        week: "a week",
+        month: "a month",
+        year: "a year",
+    }
     return (
-        <div className="w-full m-4 text-black dark:text-white">
-            <div className={"md:h-[100px] h-[85px]"} />
-            <div className={"font-bold"}>{t("pages.mute.title")}</div>
-            <Link
-                className={
-                    "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
-                }
-                href={`/settings/mute/words?${nextQueryParams.toString()}`}
-            >
-                {t("pages.mute.muteWord")}
-            </Link>
-            <Link
-                className={
-                    "flex justify-between items-center h-[60px] w-full select-none cursor-pointer"
-                }
-                href={`/settings/mute/accounts?${nextQueryParams.toString()}`}
-            >
-                {t("pages.mute.muteUser")}
-            </Link>
-        </div>
+        agent && (
+            <>
+                <Modal
+                    isOpen={isOpenEdit}
+                    onOpenChange={onOpenChangeEdit}
+                    hideCloseButton
+                >
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader
+                                    className={
+                                        "flex justify-between xl:justify-center"
+                                    }
+                                >
+                                    <Button
+                                        className={"xl:hidden"}
+                                        variant={"light"}
+                                        onClick={() => {
+                                            onClose()
+                                        }}
+                                    >
+                                        cancel
+                                    </Button>
+                                    <div>Edit word</div>
+                                    <Button
+                                        className={"xl:hidden"}
+                                        variant={"light"}
+                                        onClick={() => {
+                                            if (inputMuteWord.length === 0)
+                                                return
+                                            handleSaveClick()
+                                            onClose()
+                                        }}
+                                    >
+                                        save
+                                    </Button>
+                                </ModalHeader>
+                                <ModalBody>
+                                    <div>
+                                        <div>
+                                            <div
+                                                className={
+                                                    "flex justify-between"
+                                                }
+                                            >
+                                                <div>ワード</div>
+                                                <div>
+                                                    {modalEditMode
+                                                        ? selectMuteWord.word
+                                                              .length
+                                                        : inputMuteWord.length}{" "}
+                                                    / 20
+                                                </div>
+                                            </div>
+                                            <Input
+                                                onValueChange={setInputMuteWord}
+                                                isDisabled={modalEditMode}
+                                                defaultValue={
+                                                    modalEditMode
+                                                        ? selectMuteWord.word
+                                                        : inputMuteWord
+                                                }
+                                            ></Input>
+                                        </div>
+                                        <div className={"flex justify-between"}>
+                                            <div>有効</div>
+                                            <Switch
+                                                defaultSelected={
+                                                    modalEditMode
+                                                        ? selectMuteWord.isActive
+                                                        : switchIsActive
+                                                }
+                                                onValueChange={
+                                                    setSwitchIsActive
+                                                }
+                                            />
+                                        </div>
+                                        <div className={"mt-[10px]"}>
+                                            <div>ミュート解除までの期間</div>
+                                            <div
+                                                className={
+                                                    "flex justify-between items-center"
+                                                }
+                                            >
+                                                <div>期間</div>
+                                                <Select
+                                                    size={"sm"}
+                                                    label=""
+                                                    className={`md:max-w-xs max-w-[200px] w-full`}
+                                                    onChange={(e) =>
+                                                        console.log(e)
+                                                    }
+                                                    defaultValue={
+                                                        inputMuteCategory
+                                                    }
+                                                    labelPlacement={
+                                                        "outside-left"
+                                                    }
+                                                    isDisabled={true}
+                                                >
+                                                    {Object.entries(
+                                                        mutePeriods
+                                                    ).map(([key, value]) => (
+                                                        <SelectItem
+                                                            key={key}
+                                                            value={key}
+                                                        >
+                                                            {value}
+                                                        </SelectItem>
+                                                    ))}
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div
+                                            className={
+                                                "flex justify-center items-center mt-[20px]"
+                                            }
+                                        >
+                                            <div
+                                                className={"cursor-pointer"}
+                                                onClick={() => {
+                                                    handleDelete()
+                                                    onClose()
+                                                }}
+                                            >
+                                                delete
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ModalBody>
+                                <ModalFooter className={"md:flex md:items-end"}>
+                                    <Button
+                                        onClick={() => {
+                                            onClose()
+                                        }}
+                                        className={"hidden xl:block"}
+                                    >
+                                        cancel
+                                    </Button>
+                                    <Button
+                                        color={"primary"}
+                                        onClick={() => {
+                                            if (inputMuteWord.length === 0)
+                                                return
+                                            handleSaveClick()
+                                            onClose()
+                                        }}
+                                        className={"hidden xl:block"}
+                                    >
+                                        save
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
+                <div className="text-black dark:text-white">
+                    <div className={"md:h-[100px] h-[85px]"} />
+                    <div className={"font-bold"}>{t("pages.mute.title")}</div>
+                    <div className={"w-full h-fulll"}>
+                        {muteWords[0][agent?.session?.did as string]?.map(
+                            (muteWord: any, index: number) => {
+                                return (
+                                    <div
+                                        key={index}
+                                        className={
+                                            "w-full h-[50px] border-b-[1px] border-t-[1px] border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#2C2C2C] flex justify-between items-center px-[10px] cursor-pointer"
+                                        }
+                                        onClick={() => {
+                                            setSelectMuteWord(muteWord)
+                                            setModalEditMode(true)
+                                            onOpenEdit()
+                                        }}
+                                    >
+                                        <div>{muteWord?.word}</div>
+                                        <div className={"flex"}>
+                                            <div>
+                                                {muteWord.end === null
+                                                    ? "無期限"
+                                                    : muteWord.end <
+                                                      getNowTime()
+                                                    ? getEndTime()
+                                                    : "期限切れ"}
+                                            </div>
+                                            <div
+                                                className={"w-[14px] ml-[10px]"}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faChevronRight}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
+                        )}
+                    </div>
+                    <div
+                        className={
+                            "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] left-0 h-[50px] w-full bg-white dark:bg-black flex items-center justify-between"
+                        }
+                    >
+                        {editMode ? (
+                            <>
+                                <div
+                                    onClick={() => {
+                                        setEditMode(false)
+                                    }}
+                                >
+                                    cancel
+                                </div>
+                                <Button>delete</Button>
+                            </>
+                        ) : (
+                            <>
+                                <div
+                                    onClick={() => {
+                                        setEditMode(true)
+                                    }}
+                                >
+                                    edit
+                                </div>
+                                <Button
+                                    onClick={() => {
+                                        setModalEditMode(false)
+                                        onOpenEdit()
+                                    }}
+                                >
+                                    add
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </>
+        )
     )
 }
 
