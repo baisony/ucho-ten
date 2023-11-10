@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import {
     menuIndexAtom,
     useCurrentMenuType,

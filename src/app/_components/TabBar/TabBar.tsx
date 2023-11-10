@@ -38,7 +38,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
 
     useEffect(() => {
         switch (pathname) {
-            case "/":
+            case "/home":
                 setHilightedTab("h")
                 return
             case "/search":

@@ -156,7 +156,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         }
 
         switch (pathname) {
-            case "/":
+            case "/home":
             case "/search":
             case "/inbox":
             case "/post":

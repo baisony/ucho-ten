@@ -9,7 +9,7 @@ import React, {
     useRef,
     useState,
 } from "react"
-import { layout } from "@/app/styles"
+import { layout } from "@/app/home/styles"
 import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -76,7 +76,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
-        router.prefetch("/")
+        router.prefetch("/home")
         router.prefetch("/login")
         router.prefetch("/search")
         router.prefetch("/inbox")

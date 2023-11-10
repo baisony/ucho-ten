@@ -115,7 +115,7 @@ export default function CreateLoginPage() {
                     "?"
                 )
             } else {
-                location.href = "/"
+                location.href = "/home"
             }
         } catch (e) {
             setIsLoginFailed(true)
@@ -151,7 +151,7 @@ export default function CreateLoginPage() {
                             "?"
                         )
                     } else {
-                        location.href = "/"
+                        location.href = "/home"
                     }
                 }
             } catch (e) {

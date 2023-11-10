@@ -55,7 +55,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                 }
             >
                 <div className={"mb-[50px] cursor-pointer"}>
-                    <Link href={"/"}>
+                    <Link href={"/home"}>
                         <img
                             className={"h-[24px]"}
                             src={logoImage.src}
@@ -67,7 +67,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     className={
                         "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
                     }
-                    href={"/"}
+                    href={"/home"}
                 >
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faHome} />
