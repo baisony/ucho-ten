@@ -33,7 +33,7 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
-import { useWordMutes } from "@/app/_atoms/wordMute"
+import { MuteWordByDiD, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
@@ -320,9 +320,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName, searchParams])
 
     useEffect(() => {
+        if (!agent) return
         if (muteWords.length === 0) return
-
-        let newMuteWords = [...muteWords]
+        //ミュートワードはあるけど新システムに移行してない場合
+        if (
+            muteWords.length !== 0 &&
+            !muteWords[0][agent?.session?.did as string] &&
+            agent
+        ) {
+            const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+            existingAccountsData[0][agent?.session?.did as string] = []
+            setMuteWords(existingAccountsData)
+        }
 
         for (const word of muteWords) {
             if (typeof word === "string") {
@@ -333,31 +342,28 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     selectPeriod: null,
                     end: null,
                     isActive: true,
-                    targets: ["timeline"],
-                    muteAccountIncludesFollowing: true,
                     updatedAt: createdAt,
                     createdAt: createdAt,
                     deletedAt: null,
                 }
-
-                const isDuplicate = muteWords.find(
-                    (muteWord) => muteWord.word === word
+                const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+                const myDID = agent?.session?.did as string
+                console.log(existingAccountsData[0][myDID])
+                const isDuplicate = existingAccountsData[0][myDID].find(
+                    (muteWord: any) => muteWord.word === word
                 )
 
                 if (!isDuplicate) {
                     console.log("add")
-                    newMuteWords.push(json)
+
+                    existingAccountsData[0][myDID].push(json)
+                    setMuteWords(existingAccountsData)
                 } else {
                     console.log("この単語は既に存在します") // TODO: i18n
                 }
             }
         }
-
-        newMuteWords = newMuteWords.filter(
-            (muteWord) => typeof muteWord !== "string"
-        )
-        setMuteWords(newMuteWords)
-    }, [JSON.stringify(muteWords)])
+    }, [JSON.stringify(muteWords), agent])
 
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]

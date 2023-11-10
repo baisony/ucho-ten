@@ -49,7 +49,6 @@ import {
 } from "@/app/_atoms/wordMute"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
-import { UserAccountByDid } from "@/app/_atoms/accounts"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -608,9 +607,17 @@ const SettingsMutePage = ({
                                         onClick={() => {
                                             if (inputMuteWord.length === 0)
                                                 return
-                                            handleSaveClick()
+                                            if (modalEditMode) {
+                                                handleSaveClick()
+                                            } else {
+                                                handleAddMuteWordClick()
+                                            }
                                             onClose()
                                         }}
+                                        isDisabled={
+                                            inputMuteWord.length === 0 ||
+                                            inputMuteWord.length >= 21
+                                        }
                                     >
                                         save
                                     </Button>
@@ -624,7 +631,12 @@ const SettingsMutePage = ({
                                                 }
                                             >
                                                 <div>ワード</div>
-                                                <div>
+                                                <div
+                                                    className={`${
+                                                        inputMuteWord.length >=
+                                                            21 && `text-red-600`
+                                                    }`}
+                                                >
                                                     {modalEditMode
                                                         ? selectMuteWord.word
                                                               .length
@@ -633,7 +645,10 @@ const SettingsMutePage = ({
                                                 </div>
                                             </div>
                                             <Input
-                                                onValueChange={setInputMuteWord}
+                                                onValueChange={(e) => {
+                                                    console.log(e)
+                                                    setInputMuteWord(e)
+                                                }}
                                                 isDisabled={modalEditMode}
                                                 defaultValue={
                                                     modalEditMode
@@ -722,10 +737,18 @@ const SettingsMutePage = ({
                                         onClick={() => {
                                             if (inputMuteWord.length === 0)
                                                 return
-                                            handleSaveClick()
+                                            if (modalEditMode) {
+                                                handleSaveClick()
+                                            } else {
+                                                handleAddMuteWordClick()
+                                            }
                                             onClose()
                                         }}
                                         className={"hidden xl:block"}
+                                        isDisabled={
+                                            inputMuteWord.length === 0 ||
+                                            inputMuteWord.length >= 21
+                                        }
                                     >
                                         save
                                     </Button>
@@ -736,7 +759,13 @@ const SettingsMutePage = ({
                 </Modal>
                 <div className="text-black dark:text-white">
                     <div className={"md:h-[100px] h-[85px]"} />
-                    <div className={"font-bold"}>{t("pages.mute.title")}</div>
+                    <div className={"font-bold flex "}>
+                        <div>{t("pages.mute.title")}</div>
+                        <div className={"ml-[15px]"}>
+                            {muteWords[0][agent?.session?.did as string].length}{" "}
+                            / 30
+                        </div>
+                    </div>
                     <div className={"w-full h-fulll"}>
                         {muteWords[0][agent?.session?.did as string]?.map(
                             (muteWord: any, index: number) => {
@@ -795,16 +824,19 @@ const SettingsMutePage = ({
                             <>
                                 <div
                                     onClick={() => {
-                                        setEditMode(true)
+                                        //setEditMode(true)
                                     }}
-                                >
-                                    edit
-                                </div>
+                                ></div>
                                 <Button
                                     onClick={() => {
                                         setModalEditMode(false)
                                         onOpenEdit()
                                     }}
+                                    isDisabled={
+                                        muteWords[0][
+                                            agent?.session?.did as string
+                                        ].length >= 30
+                                    }
                                 >
                                     add
                                 </Button>
