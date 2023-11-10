@@ -31,6 +31,8 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -38,7 +40,7 @@ export default function Root() {
 
     const pathname = usePathname()
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
     const atUri1 = pathname.replace("/profile/", "at://")
@@ -281,6 +283,91 @@ export default function Root() {
         }
     }
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(timeline)
+        if (!timeline) return
+        const foundObject = timeline.findIndex(
+            (item) => item.post.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(timeline[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setTimeline((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //timeline.splice(foundObject, 1)
+            }
+            console.log(timeline)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
         let data: CustomFeedCellProps[] = []
 
@@ -320,6 +407,7 @@ export default function Root() {
                     now,
                     nextQueryParams,
                     t,
+                    handleValueChange: handleValueChange,
                 }
 
                 return {
@@ -368,14 +456,22 @@ export default function Root() {
             data={dataWithDummy}
             atTopThreshold={100}
             atBottomThreshold={100}
-            itemContent={(_, item) => <CustomFeedCell {...item} />}
+            itemContent={(_, item) => (
+                <CustomFeedCell
+                    key={
+                        `post-${item.postProps?.postJson?.uri}` ||
+                        `feedInfo-${item.feedProps?.feedInfo?.uri}`
+                    }
+                    {...item}
+                />
+            )}
             components={{
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+            className={nullTimeline()}
         />
     )
 }
@@ -433,7 +529,7 @@ const FeedHeaderComponent = ({
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
             <div className={ProfileContainer()}>
                 <div className={ProfileInfoContainer()}>
                     {!isSkeleton ? (

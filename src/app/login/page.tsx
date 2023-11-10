@@ -61,6 +61,17 @@ export default function CreateLoginPage() {
             const { data } = res
             console.log(data)
 
+            if (process.env.NEXT_PUBLIC_PRODUCTION_ENV === "true") {
+                const tester = process.env.NEXT_PUBLIC_TESTER_DID?.split(",")
+                const isMatchingPath = tester?.includes(data?.did)
+                if (!isMatchingPath) {
+                    setIsUserInfoIncorrect(true)
+                    setLoading(false)
+                    setIsLoginFailed(true)
+                    return
+                }
+            }
+
             setLoading(false)
             console.log(agent)
 

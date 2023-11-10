@@ -33,23 +33,27 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
-import { useWordMutes } from "@/app/_atoms/wordMute"
+import { MuteWordByDiD, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
+import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
+import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
-
+    const searchPath = ["/search"]
+    const isSearchScreen = searchPath.includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
+    const [bookmarks, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -73,11 +77,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         router.prefetch("/")
+        router.prefetch("/login")
         router.prefetch("/search")
         router.prefetch("/inbox")
         router.prefetch("/post")
         router.prefetch("/settings")
         router.prefetch("/bookmarks")
+        router.prefetch("/feeds")
+        router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
     useEffect(() => {
@@ -212,41 +219,59 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 }
             }
 
-            if (!userProfileDetailed && agent.hasSession === true) {
-                const res = await agent.getProfile({
-                    actor: agent.session?.did || "",
-                })
-                const { data } = res
+            if (agent.hasSession) {
+                const promises: Promise<any>[] = []
 
-                setUserProfileDetailed(data)
-            }
-
-            if (!userPreferences && agent.hasSession === true) {
-                try {
-                    console.log("fetch preferences")
-                    const res = await agent.getPreferences()
-
-                    if (res) {
-                        console.log(res)
-
-                        setUserPreferences(res)
-
-                        const { data } =
-                            await agent.app.bsky.feed.getFeedGenerators({
-                                feeds: res.feeds.pinned as string[],
-                            })
-
-                        console.log(data)
-
-                        setFeedGenerators(data.feeds)
-                        updateMenuWithFeedGenerators(data.feeds)
-                    } else {
-                        // もしresがundefinedだった場合の処理
-                        console.log("Responseがundefinedです。")
-                    }
-                } catch (e) {
-                    console.log(e)
+                if (!userProfileDetailed) {
+                    const userProfilePromise = agent
+                        .getProfile({ actor: agent.session?.did || "" })
+                        .then((res) => {
+                            const { data } = res
+                            setUserProfileDetailed(data)
+                        })
+                    promises.push(userProfilePromise)
                 }
+
+                if (!userPreferences) {
+                    const userPreferencesPromise = agent
+                        .getPreferences()
+                        .then((res) => {
+                            if (res) {
+                                if (!res?.adultContentEnabled) {
+                                    res.contentLabels.nsfw = "hide"
+                                    res.contentLabels.nudity = "hide"
+                                    res.contentLabels.suggestive = "hide"
+                                }
+
+                                setUserPreferences(res)
+
+                                return agent.app.bsky.feed.getFeedGenerators({
+                                    feeds: res.feeds.pinned as string[],
+                                })
+                            } else {
+                                console.log("Responseがundefinedです。")
+                                return null
+                            }
+                        })
+                        .then((data) => {
+                            if (data) {
+                                const { data: feedData } = data
+                                console.log(feedData)
+                                setFeedGenerators(feedData.feeds)
+                                updateMenuWithFeedGenerators(feedData.feeds)
+                            }
+                        })
+                        .catch((e) => {
+                            console.log(e)
+                        })
+
+                    promises.push(userPreferencesPromise)
+                }
+
+                // 並列で実行する
+                Promise.all(promises).then(() => {
+                    console.log("done")
+                })
             }
         }
 
@@ -299,9 +324,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName, searchParams])
 
     useEffect(() => {
+        if (!agent) return
         if (muteWords.length === 0) return
-
-        let newMuteWords = [...muteWords]
+        //ミュートワードはあるけど新システムに移行してない場合
+        if (
+            muteWords.length !== 0 &&
+            !muteWords[0][agent?.session?.did as string] &&
+            agent
+        ) {
+            const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+            existingAccountsData[0][agent?.session?.did as string] = []
+            setMuteWords(existingAccountsData)
+        }
 
         for (const word of muteWords) {
             if (typeof word === "string") {
@@ -312,31 +346,45 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     selectPeriod: null,
                     end: null,
                     isActive: true,
-                    targets: ["timeline"],
-                    muteAccountIncludesFollowing: true,
                     updatedAt: createdAt,
                     createdAt: createdAt,
                     deletedAt: null,
                 }
-
-                const isDuplicate = muteWords.find(
-                    (muteWord) => muteWord.word === word
+                const existingAccountsData: MuteWordByDiD[] = muteWords || {}
+                const myDID = agent?.session?.did as string
+                console.log(existingAccountsData[0][myDID])
+                const isDuplicate = existingAccountsData[0][myDID].find(
+                    (muteWord: any) => muteWord.word === word
                 )
 
                 if (!isDuplicate) {
                     console.log("add")
-                    newMuteWords.push(json)
+
+                    existingAccountsData[0][myDID].push(json)
+                    setMuteWords(existingAccountsData)
                 } else {
                     console.log("この単語は既に存在します") // TODO: i18n
                 }
             }
         }
+    }, [JSON.stringify(muteWords), agent])
 
-        newMuteWords = newMuteWords.filter(
-            (muteWord) => typeof muteWord !== "string"
-        )
-        setMuteWords(newMuteWords)
-    }, [JSON.stringify(muteWords)])
+    useEffect(() => {
+        if (!agent) return
+        if (muteWords.length === 0 && agent) {
+            setBookmarks([{ [agent?.session?.did as string]: [] }])
+        }
+        //ミュートワードはあるけど新システムに移行してない場合
+        if (
+            bookmarks.length !== 0 &&
+            !bookmarks[0][agent?.session?.did as string] &&
+            agent
+        ) {
+            const existingAccountsData: BookmarkByDid[] = bookmarks || {}
+            existingAccountsData[0][agent?.session?.did as string] = []
+            setBookmarks(existingAccountsData)
+        }
+    }, [JSON.stringify(bookmarks), agent])
 
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]
@@ -454,85 +502,115 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         handleSideBarOpen(false)
                     }}
                 >
-                    {shouldFillPageBackground && (
-                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                            <div
-                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                            />
-                        </div>
-                    )}
                     <div
                         className={
-                            "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                            "w-full h-full flex justify-center select-none"
                         }
                     >
-                        {showTabBar && (
-                            <ViewHeader
-                                isMobile={isMobile}
-                                setSideBarOpen={handleSideBarOpen}
-                                setSearchText={setSearchText}
-                            />
-                        )}
-                        <div className={`pt-[0px] h-[100%]`}>{children}</div>
-                        {showTabBar && <TabBar />}
-                    </div>
-                    {imageSlides && imageSlideIndex !== null && (
                         <div
-                            onClick={(e) => {
-                                const clickedElement =
-                                    e.target as HTMLDivElement
-
-                                console.log(e.target)
-                                if (
-                                    clickedElement.classList.contains(
-                                        "yarl__fullsize"
-                                    ) ||
-                                    clickedElement.classList.contains(
-                                        "yarl__flex_center"
-                                    )
-                                ) {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }
-                            }}
+                            className={
+                                "xl:w-[calc(100%/4)] h-full hidden xl:block"
+                            }
                         >
-                            <Lightbox
-                                open={true}
-                                index={imageSlideIndex}
-                                plugins={[Zoom, Captions, Counter]}
-                                zoom={{
-                                    ref: zoomRef,
-                                    scrollToZoom: true,
-                                }}
-                                captions={{
-                                    ref: captionsRef,
-                                    showToggle: true,
-                                    descriptionMaxLines: 2,
-                                    descriptionTextAlign: "start",
-                                }}
-                                close={() => {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }}
-                                slides={imageSlides}
-                                carousel={{
-                                    finite: imageSlides.length <= 5,
-                                }}
-                                render={{
-                                    buttonPrev:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                    buttonNext:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                }}
-                            />
+                            {showTabBar && <ViewSideMenu />}
                         </div>
-                    )}
+                        <div
+                            className={
+                                "min-w-[350px] max-w-[600px] h-full w-full "
+                            }
+                        >
+                            <div
+                                className={
+                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                                }
+                            >
+                                {showTabBar && (
+                                    <ViewHeader
+                                        isMobile={isMobile}
+                                        setSideBarOpen={handleSideBarOpen}
+                                        setSearchText={setSearchText}
+                                    />
+                                )}
+                                <div className={`pt-[0px] h-[100%] relative`}>
+                                    {shouldFillPageBackground && (
+                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                            <div
+                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
+                                                    isSearchScreen
+                                                        ? `xl:mt-[100px]`
+                                                        : `xl:mt-[50px]`
+                                                } md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                            />
+                                        </div>
+                                    )}
+                                    {children}
+                                </div>
+                                {showTabBar && <TabBar />}
+                            </div>
+                            {imageSlides && imageSlideIndex !== null && (
+                                <div
+                                    onClick={(e) => {
+                                        const clickedElement =
+                                            e.target as HTMLDivElement
+
+                                        console.log(e.target)
+                                        if (
+                                            clickedElement.classList.contains(
+                                                "yarl__fullsize"
+                                            ) ||
+                                            clickedElement.classList.contains(
+                                                "yarl__flex_center"
+                                            )
+                                        ) {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }
+                                    }}
+                                >
+                                    <Lightbox
+                                        open={true}
+                                        index={imageSlideIndex}
+                                        plugins={[Zoom, Captions, Counter]}
+                                        zoom={{
+                                            ref: zoomRef,
+                                            scrollToZoom: true,
+                                        }}
+                                        captions={{
+                                            ref: captionsRef,
+                                            showToggle: true,
+                                            descriptionMaxLines: 2,
+                                            descriptionTextAlign: "start",
+                                        }}
+                                        close={() => {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }}
+                                        slides={imageSlides}
+                                        carousel={{
+                                            finite: imageSlides.length <= 5,
+                                        }}
+                                        render={{
+                                            buttonPrev:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                            buttonNext:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <div
+                            className={
+                                "xl:w-[calc(100%/4)] h-full hidden xl:flex"
+                            }
+                        ></div>
+                    </div>
                 </main>
             </div>
         </div>

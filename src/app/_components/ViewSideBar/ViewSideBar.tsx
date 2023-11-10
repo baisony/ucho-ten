@@ -265,6 +265,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                                 }
                             } else {
                                 // setOpenModalReason("logout")
+                                openSideBar(false)
                                 signOutModalDisclosure.onOpen()
                             }
                         }}

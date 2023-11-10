@@ -1,14 +1,7 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import {
-    MutableRefObject,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -22,9 +15,11 @@ import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
+
 export interface FeedPageProps {
     isActive: boolean
     isNextActive: boolean
@@ -47,6 +42,7 @@ const FeedPage = ({
 
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -278,6 +274,91 @@ const FeedPage = ({
             loadMoreFeed,
     })
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(timeline)
+        if (!timeline) return
+        const foundObject = timeline.findIndex(
+            (item) => item.post.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(timeline[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setTimeline((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //timeline.splice(foundObject, 1)
+            }
+            console.log(timeline)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     if (data !== undefined) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
@@ -289,7 +370,7 @@ const FeedPage = ({
             {hasUpdate && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] xl:top-[70px]"
                     }
                 >
                     <div
@@ -323,7 +404,7 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className={nullTimeline()}
                 />
             )}
             {timeline !== null && (
@@ -342,6 +423,7 @@ const FeedPage = ({
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
                         <ViewPostCard
+                            key={`feed-${item.post.uri}`}
                             {...{
                                 isTop: index === 0,
                                 isMobile,
@@ -355,6 +437,7 @@ const FeedPage = ({
                                 now,
                                 nextQueryParams,
                                 t,
+                                handleValueChange: handleValueChange,
                             }}
                         />
                     )}
@@ -367,7 +450,7 @@ const FeedPage = ({
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
                     //className="overflow-y-auto"
-                    style={{ height: "calc(100% - 50px)" }}
+                    className={notNulltimeline()}
                 />
             )}
         </>

@@ -30,12 +30,14 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
@@ -101,6 +103,12 @@ export default function Root() {
                 setMenuIndex(0)
                 break
         }
+    }, [searchParams])
+
+    useEffect(() => {
+        if (!searchParams) return
+        setSearchTarget(searchParams.get("target") || "posts")
+        setSearchText(searchParams.get("word") || "")
     }, [searchParams])
 
     useEffect(() => {
@@ -530,14 +538,97 @@ export default function Root() {
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", "フィード bsky.app")
         queryParams.set("target", "posts")
-        return `/search?${nextQueryParams.toString()}` as string
+        return `/search?${queryParams.toString()}` as string
+    }
+
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(searchPostsResult)
+        if (!searchPostsResult) return
+        const foundObject = searchPostsResult.findIndex(
+            (item) => item.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(searchPostsResult[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setSearchPostsResult((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setSearchPostsResult((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //searchPostsResult.splice(foundObject, 1)
+            }
+            console.log(searchPostsResult)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
     }
 
     return (
         <>
             {searchText === "" && (
                 <div className={"w-full h-full text-white"}>
-                    <div className={"absolute bottom-[50px] w-full"}>
+                    <div
+                        className={
+                            "absolute xl:bottom-0 bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
+                        }
+                    >
                         {t("pages.search.FindPerson")}
                         <Link
                             className={searchSupportCard()}
@@ -591,7 +682,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -613,6 +704,7 @@ export default function Root() {
                         atBottomThreshold={100}
                         itemContent={(index, data) => (
                             <ViewPostCard
+                                key={data.uri}
                                 {...{
                                     isTop: index === 0,
                                     isMobile,
@@ -625,6 +717,8 @@ export default function Root() {
                                     now,
                                     nextQueryParams,
                                     t,
+                                    handleValueChange: handleValueChange,
+                                    isSearchScreen: true,
                                 }}
                             />
                         )}
@@ -635,10 +729,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadPostsMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
 
@@ -659,7 +750,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -681,6 +772,7 @@ export default function Root() {
                         atBottomThreshold={100}
                         itemContent={(index, data) => (
                             <UserCell
+                                key={data.did}
                                 {...{
                                     isTop: index === 0,
                                     actor: data,
@@ -701,10 +793,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadUsersMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
             {loading && searchTarget === "feeds" && (
@@ -724,7 +813,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -746,6 +835,7 @@ export default function Root() {
                         atBottomThreshold={100}
                         itemContent={(index, data) => (
                             <ViewFeedCardCell
+                                key={data.uri}
                                 {...{
                                     isTop: index === 0,
                                     isMobile,
@@ -764,10 +854,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadFeedsMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
         </>
@@ -792,7 +879,7 @@ const UserCell = ({
 
     return (
         <>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader />}
             <div
                 onClick={onClick}
                 //@ts-ignore

@@ -139,7 +139,7 @@ export const ReportModal = (props: ReportModalProps) => {
             setIsReportSuccess(false)
         }
     }
-    console.log(post)
+    //console.log(post)
     return (
         <Modal
             isOpen={isOpen}

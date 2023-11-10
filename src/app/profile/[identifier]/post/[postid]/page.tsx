@@ -58,7 +58,7 @@ import {
     AppBskyFeedPost,
     AtUri,
 } from "@atproto/api"
-import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
+import { Bookmark, BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { Linkcard } from "@/app/_components/Linkcard"
 import {
@@ -92,6 +92,7 @@ import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -119,7 +120,7 @@ const Page = () => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
-                cssMode={false}
+                cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 modules={[Pagination]}
                 className="swiper-only-post"
@@ -490,18 +491,26 @@ const PostPage = (props: PostPageProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const isDuplicate = bookmarks.some(
-            (bookmark) => bookmark.uri === json.uri
-        )
+        const existingAccountsData: BookmarkByDid[] = bookmarks || {}
+        const myDID = agent?.session?.did as string
+        //console.log(existingAccountsData[0][myDID])
 
-        if (!isDuplicate) {
-            setBookmarks([...bookmarks, json])
-            setIsBookmarked(true)
-        } else {
-            setBookmarks(
-                bookmarks.filter((bookmark) => bookmark.uri !== json.uri)
-            )
+        const index = existingAccountsData[0][myDID].findIndex(
+            (bookmark: any) => bookmark.uri === postView.uri
+        )
+        console.log(index)
+
+        if (index !== -1) {
+            console.log("delete")
+            const hoge = existingAccountsData[0][myDID].splice(index, 1)
+
+            setBookmarks(existingAccountsData)
             setIsBookmarked(false)
+        } else {
+            console.log("add")
+            existingAccountsData[0][myDID].push(json)
+            setBookmarks(existingAccountsData)
+            setIsBookmarked(true)
         }
     }
     const handleMute = async () => {
@@ -715,11 +724,9 @@ const PostPage = (props: PostPageProps) => {
         if (!postView?.uri) {
             return
         }
-
-        const isBookmarked = bookmarks.some(
+        const isBookmarked = bookmarks[0][agent?.session?.did as string].some(
             (bookmark) => bookmark.uri === postView.uri
         )
-
         setIsBookmarked(isBookmarked)
     }, [thread])
 
@@ -902,7 +909,8 @@ const PostPage = (props: PostPageProps) => {
                         )}
                     </ModalContent>
                 </Modal>
-                <main className={`${Container()} md:mt-[100px] mt-[85px]`}>
+                <DummyHeader />
+                <main className={`${Container()}`}>
                     {thread?.parent && (
                         <>{renderNestedViewPostCards(thread, isMobile)}</>
                     )}

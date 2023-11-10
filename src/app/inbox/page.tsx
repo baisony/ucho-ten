@@ -14,13 +14,14 @@ import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("inbox")
 
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
@@ -178,6 +179,85 @@ export default function Root() {
         }
     }
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(notification)
+        if (!notification) return
+        const foundObject = notification.findIndex(
+            (item) => item.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(notification[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setNotification((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.like = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].viewer
+                        ) {
+                            updatedData[foundObject].viewer.repost = undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setNotification((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //notification.splice(foundObject, 1)
+            }
+            console.log(notification)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     const loadMore = async (_: number) => {
         if (hasMore && !isEndOfFeed) {
             await fetchNotification()
@@ -235,7 +315,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className={nullTimeline()}
                 />
             )}
             {notification && (
@@ -253,6 +333,7 @@ export default function Root() {
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
                         <ViewPostCard
+                            key={`notif-${data.uri}`}
                             {...{
                                 isTop: index === 0,
                                 isMobile,
@@ -265,6 +346,7 @@ export default function Root() {
                                 now,
                                 nextQueryParams,
                                 t,
+                                handleValueChange: handleValueChange,
                             }}
                         />
                     )}
@@ -275,7 +357,7 @@ export default function Root() {
                             : ListFooterNoContent,
                     }}
                     endReached={loadMore}
-                    style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+                    className={nullTimeline()}
                 />
             )}
         </>

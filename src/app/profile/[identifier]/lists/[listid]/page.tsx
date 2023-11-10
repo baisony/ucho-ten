@@ -29,6 +29,8 @@ import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -36,7 +38,7 @@ export default function Root() {
 
     const pathname = usePathname()
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
     //const username = pathname.replace("/profile/", "")
@@ -313,14 +315,22 @@ export default function Root() {
             data={dataWithDummy}
             atTopThreshold={100}
             atBottomThreshold={100}
-            itemContent={(_, item) => <CustomFeedCell {...item} />}
+            itemContent={(_, item) => (
+                <CustomFeedCell
+                    key={
+                        `feedInfo-${item?.feedProps?.feedInfo?.uri}` ||
+                        `actor-${item?.profileProps?.json?.did}`
+                    }
+                    {...item}
+                />
+            )}
             components={{
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+            className={nullTimeline()}
         />
     )
 }
@@ -335,7 +345,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     const { isDummyHeader, feedProps, profileProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return <DummyHeader />
     }
 
     if (feedProps) {

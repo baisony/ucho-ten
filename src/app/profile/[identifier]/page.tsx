@@ -46,11 +46,13 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("profile")
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const router = useRouter()
     const pathname = usePathname()
     const { t } = useTranslation()
@@ -227,6 +229,91 @@ export default function Root() {
         router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
     }
 
+    const handleValueChange = (newValue: any) => {
+        //setText(newValue);
+        console.log(newValue)
+        console.log(timeline)
+        if (!timeline) return
+        const foundObject = timeline.findIndex(
+            (item) => item.post.uri === newValue.postUri
+        )
+
+        if (foundObject !== -1) {
+            console.log(timeline[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setTimeline((prevData) => {
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        const removedItem = updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //timeline.splice(foundObject, 1)
+            }
+            console.log(timeline)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
+
     const dataWithDummy = useMemo((): UserProfilePageCellProps[] => {
         let data: UserProfilePageCellProps[] = []
 
@@ -267,9 +354,11 @@ export default function Root() {
                             post.post
                         ),
                         postJson: post.post,
+                        json: post,
                         now,
                         nextQueryParams,
                         t,
+                        handleValueChange: handleValueChange,
                     }
 
                     return {
@@ -323,14 +412,22 @@ export default function Root() {
             data={dataWithDummy}
             atTopThreshold={100}
             atBottomThreshold={100}
-            itemContent={(_, item) => <UserProfilePageCell {...item} />}
+            itemContent={(_, item) => (
+                <UserProfilePageCell
+                    key={
+                        `feed-${item.postProps?.postJson?.uri}` ||
+                        `profile-${item.userProfileProps?.profile?.did}`
+                    }
+                    {...item}
+                />
+            )}
             components={{
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{ overflowY: "auto", height: "calc(100% - 50px)" }}
+            className={nullTimeline()}
         />
     )
 }
@@ -345,7 +442,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     const { isDummyHeader, userProfileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return <DummyHeader />
     }
 
     if (userProfileProps) {
@@ -388,7 +485,6 @@ const UserProfileComponent = ({
         "did" | "handle" | "displayName" | ""
     >("")
     const { t } = useTranslation()
-
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
@@ -497,8 +593,11 @@ const UserProfileComponent = ({
                 return profile
             })
             setIsUploading(false)
+            return true
         } catch (e) {
             console.log(e)
+            setIsUploading(false)
+            return false
         }
     }
 
@@ -611,6 +710,14 @@ const UserProfileComponent = ({
         setIsLoading(false)
     }
 
+    useEffect(() => {
+        if (!profile) return
+        setBanner(profile?.banner)
+        setAvatar(profile?.avatar)
+        setDisplayName(profile?.displayName)
+        setDescription(profile?.description)
+    }, [profile])
+
     return (
         <>
             <Modal
@@ -682,7 +789,8 @@ const UserProfileComponent = ({
                                 </div>
 
                                 <h3 className="text-default-500 text-small select-none">
-                                    {t("pages.profile.displayName")}
+                                    {t("pages.profile.displayName")} (
+                                    {displayName.length} / 64)
                                 </h3>
                                 <div className={"w-full"}>
                                     <Input
@@ -692,7 +800,8 @@ const UserProfileComponent = ({
                                     />
                                 </div>
                                 <h3 className="text-default-500 text-small select-none">
-                                    {t("pages.profile.bio")}
+                                    {t("pages.profile.bio")} (
+                                    {description.length} / 256)
                                 </h3>
                                 <div className={"w-full"}>
                                     <Textarea
@@ -724,9 +833,8 @@ const UserProfileComponent = ({
                                 </Button>
                                 <Button
                                     onClick={async () => {
-                                        console.log("hoge")
-                                        await handleSaveClick()
-                                        onClose()
+                                        const result = await handleSaveClick()
+                                        if (result) onClose()
                                     }}
                                     isDisabled={
                                         (banner === profile?.banner &&
