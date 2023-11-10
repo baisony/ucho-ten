@@ -8,6 +8,10 @@ export interface Bookmark {
     updatedAt: number
     deletedAt: Date | null
 }
-const bookmarks = atomWithStorage<Bookmark[]>("bookmarks", [])
+
+export interface BookmarkByDid {
+    [key: string]: Bookmark
+}
+const bookmarks = atomWithStorage<BookmarkByDid[]>("bookmarks", [])
 
 export const useBookmarks = () => useAtom(bookmarks)
