@@ -114,9 +114,6 @@ const Page = () => {
                 <SwiperSlide>
                     <PostPage tab={"media"} />
                 </SwiperSlide>
-                <SwiperSlide>
-                    <PostPage tab={"feeds"} />
-                </SwiperSlide>
             </Swiper>
         </>
     )
@@ -125,7 +122,7 @@ const Page = () => {
 export default Page
 
 interface PostPageProps {
-    tab: "posts" | "replies" | "media" | "feeds"
+    tab: "posts" | "replies" | "media"
 }
 
 const PostPage = (props: PostPageProps) => {
