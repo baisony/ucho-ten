@@ -10,7 +10,7 @@ export interface Bookmark {
 }
 
 export interface BookmarkByDid {
-    [key: string]: Bookmark
+    [key: string]: Bookmark[]
 }
 const bookmarks = atomWithStorage<BookmarkByDid[]>("bookmarks", [])
 

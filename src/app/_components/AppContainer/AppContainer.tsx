@@ -38,6 +38,7 @@ import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
+import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -50,6 +51,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
+    const [bookmarks, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -364,6 +366,23 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         }
     }, [JSON.stringify(muteWords), agent])
+
+    useEffect(() => {
+        if (!agent) return
+        if (muteWords.length === 0 && agent) {
+            setBookmarks([{ [agent?.session?.did as string]: [] }])
+        }
+        //ミュートワードはあるけど新システムに移行してない場合
+        if (
+            bookmarks.length !== 0 &&
+            !bookmarks[0][agent?.session?.did as string] &&
+            agent
+        ) {
+            const existingAccountsData: BookmarkByDid[] = bookmarks || {}
+            existingAccountsData[0][agent?.session?.did as string] = []
+            setBookmarks(existingAccountsData)
+        }
+    }, [JSON.stringify(bookmarks), agent])
 
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]

@@ -48,7 +48,7 @@ import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
+import { Bookmark, BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import ViewPostCardSkelton from "./ViewPostCardSkelton"
@@ -163,15 +163,38 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const isDuplicate = bookmarks.some((bookmark) => bookmark.uri === uri)
+        const existingAccountsData: BookmarkByDid[] = bookmarks || {}
+        const myDID = agent?.session?.did as string
+        //console.log(existingAccountsData[0][myDID])
 
-        if (!isDuplicate) {
-            setBookmarks([...bookmarks, json])
-            setIsBookmarked(true)
-        } else {
-            setBookmarks(bookmarks.filter((bookmark) => bookmark.uri !== uri))
+        const index = existingAccountsData[0][myDID].findIndex(
+            (bookmark: any) => bookmark.uri === uri
+        )
+        console.log(index)
+
+        if (index !== -1) {
+            console.log("delete")
+            const hoge = existingAccountsData[0][myDID].splice(index, 1)
+
+            /*localStorage.setItem(
+                "bookmarks",
+                JSON.stringify(existingAccountsData)
+            )*/
+            setBookmarks(existingAccountsData)
             setIsBookmarked(false)
+        } else {
+            console.log("add")
+            existingAccountsData[0][myDID].push(json)
+            /*localStorage.setItem(
+                "bookmarks",
+                JSON.stringify(existingAccountsData)
+            )*/
+            setBookmarks(existingAccountsData)
+            setIsBookmarked(true)
         }
+        //existingAccountsData[0][myDID].splice(index, 1)
+
+        //setBookmarks(existingAccountsData)
     }
 
     const handleReply = async () => {
@@ -507,11 +530,12 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     useEffect(() => {
         const postUri = postJson?.uri || quoteJson?.uri || json?.post?.uri
         if (!postUri) return
-        const isBookmarked = bookmarks.some(
+        //console.log(bookmarks[0][agent?.session?.did as string])
+        const isBookmarked = bookmarks[0][agent?.session?.did as string].some(
             (bookmark) => bookmark.uri === postUri
         )
         setIsBookmarked(isBookmarked)
-    }, [postJson, quoteJson, json])
+    }, [postJson, quoteJson, json, bookmarks])
 
     const handleMenuClickCopyURL = () => {
         if (!postJsonData) {
