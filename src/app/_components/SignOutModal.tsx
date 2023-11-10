@@ -45,7 +45,7 @@ const SignOutModal = (props: SignOutModalProps) => {
         }
 
         localStorage.removeItem("session")
-        router.push("/login")
+        router.push("/")
     }
 
     return (

@@ -1,6 +1,6 @@
 import { tv } from "@nextui-org/react"
 
-export const createLoginPage = tv({
+export const logInForm = tv({
     slots: {
         background:
             "w-full h-full text-white bg-black flex justify-center items-center",

@@ -18,6 +18,8 @@ import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
 import { UserAccount, useAccounts } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import { useRouter } from "next/navigation"
+import { SessionData, sessionDataAtom } from "../_atoms/session"
+import { useAtom } from "jotai"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -44,25 +46,26 @@ const SignInModal = (props: SignInModalProps) => {
     } = props
 
     const { t } = useTranslation()
-    const router = useRouter()
+    // const router = useRouter()
 
     const [, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
+    const [sessionData, setSessionData] = useAtom(sessionDataAtom)
 
     // const { isOpen, onOpenChange } = useDisclosure()
 
     const [serverName, setServerName] = useState<string>("")
-    const [accountsByServices, setAccountsByServices] = useState<{
-        [key: string]: UserAccount[]
-    }>({})
+    // const [accountsByServices, setAccountsByServices] = useState<{
+    //     [key: string]: UserAccount[]
+    // }>({})
     const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLogging, setIsLogging] = useState<boolean>(false)
     const [loginError, setLoginError] = useState<boolean>(false)
-    const [isAccountSwitching, setIsAccountSwitching] = useState(false)
-    const [authenticationRequired, setAuthenticationRequired] = useState<
-        boolean | null
-    >(null)
+    // const [isAccountSwitching, setIsAccountSwitching] = useState(false)
+    // const [authenticationRequired, setAuthenticationRequired] = useState<
+    //     boolean | null
+    // >(null)
     // const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
 
     const { appearanceTextColor } = signInModal()
@@ -73,9 +76,9 @@ const SignInModal = (props: SignInModalProps) => {
         }
 
         try {
-            setIsAccountSwitching(true)
+            // setIsAccountSwitching(true)
             setLoginError(false)
-            setAuthenticationRequired(false)
+            // setAuthenticationRequired(false)
             setIsLogging(true)
 
             let result = serverName.replace(/(http:\/\/|https:\/\/)/g, "")
@@ -91,12 +94,14 @@ const SignInModal = (props: SignInModalProps) => {
             })
 
             if (agent.session) {
-                const json = {
+                const newSessionData: SessionData = {
                     server: serverName,
                     session: agent.session,
                 }
 
-                localStorage.setItem("session", JSON.stringify(json))
+                setSessionData(newSessionData)
+
+                // localStorage.setItem("session", JSON.stringify(json))
 
                 const existingAccountsData = accounts
 
@@ -123,7 +128,7 @@ const SignInModal = (props: SignInModalProps) => {
             }
 
             setIsLogging(false)
-            setIsAccountSwitching(false)
+            // setIsAccountSwitching(false)
 
             window.location.reload()
             // router.push("/")
@@ -133,7 +138,7 @@ const SignInModal = (props: SignInModalProps) => {
             }
 
             setIsLogging(false)
-            setIsAccountSwitching(false)
+            // setIsAccountSwitching(false)
             setLoginError(true)
         }
     }

@@ -40,14 +40,19 @@ import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
 import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
+import LogInForm from "@/app/_components/LogInForm/LogInForm"
+import { sessionDataAtom, useSessionData } from "@/app/_atoms/session"
+import { useAtom } from "jotai"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
+
     const searchPath = ["/search"]
     const isSearchScreen = searchPath.includes(pathName)
+    
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
@@ -60,12 +65,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
+    const [sessionData, setSessionData] = useAtom(sessionDataAtom)
 
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
-    const specificPaths = ["/post", "/login"]
+    const specificPaths = ["/post"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
@@ -74,6 +80,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const captionsRef = useRef<CaptionsRef>(null)
 
     const { background } = layout()
+
+    console.log("here", sessionData)
 
     useEffect(() => {
         router.prefetch("/home")
@@ -167,55 +175,38 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [router, pathName])
 
     useEffect(() => {
+        console.log("here", agent?.hasSession, agent) 
         if (agent?.hasSession === true) {
             return
         }
 
         const restoreSession = async () => {
-            const sessionJson = localStorage.getItem("session")
-
-            if (!sessionJson) {
-                if (pathName === "/login") return
-                if (router) {
-                    router.push(
-                        `/login${
-                            pathName
-                                ? `?toRedirect=${pathName.replace("/", "")}${
-                                      searchParams ? `&${searchParams}` : ``
-                                  }`
-                                : ``
-                        }`
-                    )
-                } else {
-                    location.href = "/login"
-                }
+            if (sessionData === null) {
+                // TODO:
                 return
+
+                // if (pathName === "/") {
+                //     return
+                // } else {
+                //     location.href = "/login"
+                // }
+                // return
             }
 
-            const session = JSON.parse(sessionJson).session
+            //const session = JSON.parse(sessionJson).session
             const agent = new BskyAgent({
-                service: `https://${JSON.parse(sessionJson).server}`,
+                service: `https://${sessionData.server}`,
             })
 
             try {
-                await agent.resumeSession(session)
+                await agent.resumeSession(sessionData.session)
 
                 setAgent(agent)
             } catch (error) {
                 console.error(error)
-                if (pathName === "/login") return
-                if (router) {
-                    router.push(
-                        `/login${
-                            pathName
-                                ? `?toRedirect=${pathName.replace("/", "")}${
-                                      searchParams ? `&${searchParams}` : ``
-                                  }`
-                                : ``
-                        }`
-                    )
-                } else {
-                    location.href = "/login"
+                if (pathName === "/") {
+                    // TODO:
+                    return
                 }
             }
 
@@ -269,7 +260,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 }
 
                 // 並列で実行する
-                Promise.all(promises).then(() => {
+                await Promise.all(promises).then(() => {
                     console.log("done")
                 })
             }
@@ -280,7 +271,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         console.log(searchText)
-        if (searchText === "" || !searchText) return
+        if (searchText === "" || !searchText) {
+            return
+        }
+
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", searchText)
         queryParams.set("target", target || "posts")
@@ -482,7 +476,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [pathName])
 
-    if (shouldShowNavigations === false) {
+    const shouldShowSignInForm = useMemo((): boolean => {
+        if (sessionData === null && pathName !== "/") {
+            return true
+        } else if (agent?.hasSession === false) {
+            return true
+        } else {
+            return false
+        }
+    }, [agent && agent.hasSession, sessionData, pathName])
+
+    if (shouldShowNavigations === false || shouldShowSignInForm === true) {
+        console.log("here", shouldShowNavigations, shouldShowSignInForm)
         return (
             <div
                 className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
@@ -505,7 +510,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             }
                         >
                             <div className={`pt-[0px] h-[100%] relative`}>
-                                {children}
+                                {shouldShowSignInForm === true ? (
+                                    <LogInForm />
+                                ) : (
+                                    children
+                                )}
                             </div>
                         </div>
                     </div>

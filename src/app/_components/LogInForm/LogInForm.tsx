@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
-import { createLoginPage } from "./styles"
-import { AtpSessionData, BskyAgent } from "@atproto/api"
+import { logInForm } from "./styles"
+import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faLink,
@@ -9,39 +9,44 @@ import {
     faLock,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
-//import { CircularProgressbar } from 'react-circular-progressbar';
-//import 'react-circular-progressbar/dist/styles.css';
 import { Button, Spinner } from "@nextui-org/react"
-import { useSearchParams } from "next/navigation"
+// import { useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
-//import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
-import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
+import {
+    useAccounts,
+    UserAccount,
+    UserAccountByDid,
+} from "@/app/_atoms/accounts"
+import { SessionData, sessionDataAtom } from "@/app/_atoms/session"
+import { useAtom } from "jotai"
 
-export default function CreateLoginPage() {
-    //const [userProfileDetailed, setUserProfileDetailed] =
-    //        useUserProfileDetailedAtom()
+export default function LogInForm() {
+    // const searchParams = useSearchParams()
+    // const toRedirect = searchParams.get("toRedirect")
+
     const [accounts, setAccounts] = useAccounts()
+    const [, setSessionData] = useAtom(sessionDataAtom)
+
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLoginFailed, setIsLoginFailed] = useState<boolean>(false)
-    const searchParams = useSearchParams()
-    const toRedirect = searchParams.get("toRedirect")
     const [identifierIsByAutocomplete, setIdentifierByAutocomplete] =
         useState<boolean>(false)
     const [passwordIsByAutocomplete, setPasswordByAutocomplete] =
         useState<boolean>(false)
     const [, setIsUserInfoIncorrect] = useState<boolean>(false)
     const [, setIsServerError] = useState<boolean>(false)
+    
     const {
         background,
         LoginForm,
         LoginFormConnectServer,
         LoginFormHandle,
         LoginFormLoginButton,
-    } = createLoginPage()
+    } = logInForm()
 
     const agent = new BskyAgent({ service: `https://${server}` })
 
@@ -76,12 +81,14 @@ export default function CreateLoginPage() {
             console.log(agent)
 
             if (agent.session !== undefined) {
-                const json = {
+                const newSessionData: SessionData = {
                     server: server,
                     session: agent.session,
                 }
 
-                localStorage.setItem("session", JSON.stringify(json))
+                setSessionData(newSessionData)
+
+                // localStorage.setItem("session", JSON.stringify(json))
 
                 const existingAccountsData: UserAccountByDid = accounts
 
@@ -105,18 +112,18 @@ export default function CreateLoginPage() {
                 setAccounts(existingAccountsData)
             }
 
-            if (toRedirect) {
-                const url = `/${toRedirect}${
-                    searchParams ? `&${searchParams}` : ``
-                }`
-                const paramName = "toRedirect"
-                location.href = url.replace(
-                    new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                    "?"
-                )
-            } else {
-                location.href = "/home"
-            }
+            // if (toRedirect) {
+            //     const url = `/${toRedirect}${
+            //         searchParams ? `&${searchParams}` : ``
+            //     }`
+            //     const paramName = "toRedirect"
+            //     location.href = url.replace(
+            //         new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+            //         "?"
+            //     )
+            // } else {
+            //     //location.href = "/home"
+            // }
         } catch (e) {
             setIsLoginFailed(true)
             //@ts-ignore
@@ -133,33 +140,29 @@ export default function CreateLoginPage() {
         }
     }
 
-    useEffect(() => {
-        const resumesession = async () => {
-            try {
-                const storedData = localStorage.getItem("session")
-                if (storedData) {
-                    const { session } = JSON.parse(storedData)
-                    console.log(await agent.resumeSession(session))
-
-                    if (toRedirect) {
-                        const url = `/${toRedirect}${
-                            searchParams ? `&${searchParams}` : ``
-                        }`
-                        const paramName = "toRedirect"
-                        location.href = url.replace(
-                            new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                            "?"
-                        )
-                    } else {
-                        location.href = "/home"
-                    }
-                }
-            } catch (e) {
-                console.log(e)
-            }
-        }
-        resumesession()
-    }, [])
+    // useEffect(() => {
+    //     const resumesession = async () => {
+    //         try {
+    //             if (sessionData) {
+    //                 // if (toRedirect) {
+    //                 //     const url = `/${toRedirect}${
+    //                 //         searchParams ? `&${searchParams}` : ``
+    //                 //     }`
+    //                 //     const paramName = "toRedirect"
+    //                 //     location.href = url.replace(
+    //                 //         new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+    //                 //         "?"
+    //                 //     )
+    //                 // } else {
+    //                 //     location.href = "/home"
+    //                 // }
+    //             }
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     }
+    //     resumesession()
+    // }, [])
 
     useEffect(() => {
         if (!isMobile) return

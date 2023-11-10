@@ -42,11 +42,14 @@ export default function Root() {
                             Create a new account
                         </div>
                     </Button>
-                    <Link href={"/login"}>
+                    <Link href={"/"}>
                         <Button
                             className={
                                 "w-80 h-14 bottom-[0px] bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
                             }
+                            onPress={() => {
+                                router.push("/home")
+                            }}
                         >
                             <div className="text-zinc-400 text-xl font-bold">
                                 Sign In

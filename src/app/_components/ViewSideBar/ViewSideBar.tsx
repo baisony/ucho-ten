@@ -57,7 +57,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const handleDeleteSession = () => {
         console.log("delete session")
         localStorage.removeItem("session")
-        router.push("/login")
+        router.push("/")
     }
 
     const {
@@ -249,7 +249,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                                 if (res) {
                                     openSideBar(false)
                                     handleDeleteSession()
-                                    router.push("/login")
+                                    router.push("/")
                                 }
                             } else {
                                 openSideBar(false)
