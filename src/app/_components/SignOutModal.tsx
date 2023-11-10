@@ -2,14 +2,11 @@ import { useTranslation } from "react-i18next"
 import { useEffect, useState } from "react"
 import {
     Button,
-    Input,
     Modal,
     ModalBody,
     ModalContent,
     ModalFooter,
     ModalHeader,
-    Spinner,
-    useDisclosure,
 } from "@nextui-org/react"
 import { BskyAgent } from "@atproto/api"
 import { tv } from "@nextui-org/react"
@@ -18,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
 import { UserAccount, UserAccountByDid, useAccounts } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
+import { useRouter } from "next/navigation"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -30,21 +28,25 @@ export const signInModal = tv({
 interface SignOutModalProps {
     isOpen: boolean
     onOpenChange: () => void
-    openModalReason: string
     handleSideBarOpen: (isOpen: boolean) => void
-    handleDeleteSession: () => void
 }
 
 const SignOutModal = (props: SignOutModalProps) => {
-    const {
-        isOpen,
-        onOpenChange,
-        handleSideBarOpen,
-        handleDeleteSession,
-    } = props
+    const { isOpen, onOpenChange, handleSideBarOpen } = props
 
     const { t } = useTranslation()
+    const router = useRouter()
+
+    const [isloading, setIsLoading] = useState<boolean>(false)
+
     const { appearanceTextColor } = signInModal()
+
+    const handleDeleteSession = () => {
+        handleSideBarOpen(false)
+        setIsLoading(true)
+        localStorage.removeItem("session")
+        router.push("/login")
+    }
 
     return (
         <Modal
@@ -64,16 +66,18 @@ const SignOutModal = (props: SignOutModalProps) => {
                             <Button
                                 color="danger"
                                 variant="light"
-                                onClick={onClose}
+                                onPress={() => {
+                                    onClose()
+                                    handleSideBarOpen(false)
+                                }}
                             >
                                 {t("button.no")}
                             </Button>
                             <Button
                                 color="primary"
-                                onClick={() => {
+                                onPress={() => {
                                     handleDeleteSession()
                                     onClose()
-                                    handleSideBarOpen(false)
                                 }}
                             >
                                 {t("button.yes")}

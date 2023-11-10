@@ -19,7 +19,11 @@ import { useDisclosure } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { UserAccountByDid, useAccounts } from "@/app/_atoms/accounts"
+import {
+    UserAccount,
+    UserAccountByDid,
+    useAccounts,
+} from "@/app/_atoms/accounts"
 import { BskyAgent } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
@@ -45,9 +49,9 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const [agent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
 
-    // const [openModalReason, setOpenModalReason] = useState<
-    //     "switching" | "logout" | "relogin" | ""
-    // >("")
+    const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
+        null
+    )
 
     const signInModalDisclosure = useDisclosure({ id: "sign_in" })
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
@@ -80,20 +84,6 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
 
     return (
         <div>
-            <SignInModal
-                isOpen={signInModalDisclosure.isOpen}
-                onOpenChange={signInModalDisclosure.onOpenChange}
-                //handleSideBarOpen={openSideBar}
-                //handleDeleteSession={handleDeleteSession}
-            />
-            {/* <SignOutModal /> */}
-            <AccountSwitchModal
-                isOpen={accountSwitchModalDisclosure.isOpen}
-                onOpenChange={accountSwitchModalDisclosure.onOpenChange}
-                handleClickAddAccount={() => {
-                    signInModalDisclosure.onOpen()
-                }}
-            />
             <main
                 className={background()}
                 onClick={(e) => {
@@ -275,7 +265,6 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                                 }
                             } else {
                                 // setOpenModalReason("logout")
-                                // onOpen()
                                 signOutModalDisclosure.onOpen()
                             }
                         }}
@@ -288,6 +277,31 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     </div>
                 </div>
             </main>
+
+            <SignInModal
+                isOpen={signInModalDisclosure.isOpen}
+                onOpenChange={signInModalDisclosure.onOpenChange}
+                selectedAccount={selectedAccount}
+                // handleSideBarOpen={openSideBar}
+                //handleDeleteSession={handleDeleteSession}
+            />
+            <SignOutModal
+                isOpen={signOutModalDisclosure.isOpen}
+                onOpenChange={signOutModalDisclosure.onOpenChange}
+                handleSideBarOpen={openSideBar}
+            />
+            <AccountSwitchModal
+                isOpen={accountSwitchModalDisclosure.isOpen}
+                onOpenChange={accountSwitchModalDisclosure.onOpenChange}
+                handleClickAddAccount={() => {
+                    setSelectedAccount(null)
+                    signInModalDisclosure.onOpen()
+                }}
+                handleClickNeedLogin={(account: UserAccount) => {
+                    setSelectedAccount(account)
+                    signInModalDisclosure.onOpen()
+                }}
+            />
         </div>
     )
 }

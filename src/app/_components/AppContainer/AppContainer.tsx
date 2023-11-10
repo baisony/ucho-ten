@@ -388,7 +388,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bmMenu: {},
         bmMorphShape: {},
         bmItemList: {},
-        bmOverlay: { background: "transparent" },
+        bmOverlay: { background: "transparent", zIndex: "49" }, // Modal's z-index is 50
     }
 
     useLayoutEffect(() => {
@@ -534,7 +534,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         </div>
                     )}
                 </main>
-                
             </div>
         </div>
     )

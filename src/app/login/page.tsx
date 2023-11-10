@@ -69,13 +69,10 @@ export default function CreateLoginPage() {
                     server: server,
                     session: agent.session,
                 }
+
                 localStorage.setItem("session", JSON.stringify(json))
-                
-                // const storedData = accounts //localStorage.getItem("Accounts")
-                
-                const existingAccountsData: UserAccountByDid = accounts //storedData
-                //     ? JSON.parse(storedData)
-                //     : {}
+
+                const existingAccountsData: UserAccountByDid = accounts
 
                 const { data } = await agent.getProfile({
                     actor: agent.session.did,
@@ -95,11 +92,6 @@ export default function CreateLoginPage() {
                 existingAccountsData[agent.session.did] = accountData
 
                 setAccounts(existingAccountsData)
-                
-                // localStorage.setItem(
-                //     "Accounts",
-                //     JSON.stringify(existingAccountsData)
-                // )
             }
 
             if (toRedirect) {

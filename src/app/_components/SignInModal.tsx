@@ -32,9 +32,8 @@ const DEFAULT_SERVER_NAME = "bsky.social"
 interface SignInModalProps {
     isOpen: boolean
     onOpenChange: () => void
-    selectedAccount?: UserAccount
+    selectedAccount: UserAccount | null
     // handleSideBarOpen: (isOpen: boolean) => void
-    // handleDeleteSession: () => void
 }
 
 const SignInModal = (props: SignInModalProps) => {
@@ -48,20 +47,16 @@ const SignInModal = (props: SignInModalProps) => {
     const { t } = useTranslation()
     const router = useRouter()
 
-    const [agent] = useAgent()
+    const [, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
 
     // const { isOpen, onOpenChange } = useDisclosure()
 
-    const [serverName, setServerName] = useState<string>(
-        selectedAccount?.service || DEFAULT_SERVER_NAME
-    )
+    const [serverName, setServerName] = useState<string>("")
     const [accountsByServices, setAccountsByServices] = useState<{
         [key: string]: UserAccount[]
     }>({})
-    const [identity, setIdentity] = useState<string>(
-        selectedAccount?.profile.handle || ""
-    )
+    const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLogging, setIsLogging] = useState<boolean>(false)
     const [loginError, setLoginError] = useState<boolean>(false)
@@ -83,8 +78,10 @@ const SignInModal = (props: SignInModalProps) => {
             setLoginError(false)
             setAuthenticationRequired(false)
             setIsLogging(true)
+
             let result = serverName.replace(/(http:\/\/|https:\/\/)/g, "")
             result = result.replace(/\/$/, "")
+
             const agent = new BskyAgent({
                 service: `https://${result}`,
             })
@@ -119,7 +116,11 @@ const SignInModal = (props: SignInModalProps) => {
                     },
                 }
 
+                setAgent(agent)
+
                 setAccounts(existingAccountsData)
+            } else {
+                throw new Error("Session error")
             }
 
             setIsLogging(false)
@@ -138,10 +139,30 @@ const SignInModal = (props: SignInModalProps) => {
         }
     }
 
+    useEffect(() => {
+        if (selectedAccount === null) {
+            setIdentity("")
+            setServerName(DEFAULT_SERVER_NAME)
+
+            return
+        }
+
+        setIdentity(selectedAccount.profile.handle)
+        setServerName(selectedAccount.service)
+    }, [selectedAccount])
+
     return (
         <Modal
             isOpen={isOpen}
-            onOpenChange={onOpenChange}
+            onOpenChange={(isOpen) => {
+                if (isOpen === false) {
+                    setServerName("")
+                    setIdentity("")
+                    setPassword("")
+                }
+
+                onOpenChange()
+            }}
             className={appearanceTextColor()}
         >
             <ModalContent>
@@ -152,10 +173,10 @@ const SignInModal = (props: SignInModalProps) => {
                         </ModalHeader>
                         <ModalBody>
                             <Input
-                                defaultValue={
-                                    selectedAccount?.service ||
-                                    DEFAULT_SERVER_NAME
-                                }
+                                // defaultValue={
+                                //     selectedAccount?.service ||
+                                //     DEFAULT_SERVER_NAME
+                                // }
                                 value={serverName}
                                 onValueChange={(e) => {
                                     setServerName(e)
@@ -177,9 +198,9 @@ const SignInModal = (props: SignInModalProps) => {
                                         className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
                                     />
                                 }
-                                defaultValue={
-                                    selectedAccount?.profile.handle || ""
-                                }
+                                // defaultValue={
+                                //     selectedAccount?.profile.handle || ""
+                                // }
                                 value={identity}
                                 onValueChange={(e) => {
                                     setIdentity(e)
@@ -222,7 +243,7 @@ const SignInModal = (props: SignInModalProps) => {
                             >
                                 {t("button.close")}
                             </Button>
-                            <Button color="primary" onClick={handleClickSignIn}>
+                            <Button color="primary" onPress={handleClickSignIn}>
                                 {!isLogging ? (
                                     t("button.signin")
                                 ) : (

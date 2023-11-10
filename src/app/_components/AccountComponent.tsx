@@ -8,33 +8,16 @@ import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
 
 import defaultIcon from "../../../public/images/icon/default_icon.svg"
 
-// interface AccountsComponentProps {
-//     currentDID: string | null | undefined
-//     selectedAccountInfo: any // FIXME: Do not use any!
-//     accountsByServices: { [key: string]: UserAccount[] }
-//     isSwitching: boolean
-//     authenticationRequired: boolean
-//     onClickUserAccount: (item: UserAccount, serverName: string) => Promise<void>
-//     onClickNeedLogin: (handle: string, serverName: string) => void
-//     onClickAddAcount: () => void
-// }
-
 interface AccountComponentProps {
     // serverName: string
     account: UserAccount
     status: "current" | "switching" | "loginRequired" | null
-    // onClickUserAccount: (account: UserAccount, serverName: string) => void
-    // onClickNeedLogin: (account: UserAccount, serverName: string) => void
+    onClickUserAccount: (account: UserAccount) => Promise<void>
+    onClickNeedLogin: (account: UserAccount) => void
 }
 
 const AccountComponent = (props: AccountComponentProps) => {
-    const {
-        account,
-        // serverName,
-        status,
-        // onClickUserAccount,
-        // onClickNeedLogin,
-    } = props
+    const { account, status, onClickUserAccount, onClickNeedLogin } = props
 
     const { t } = useTranslation()
 
@@ -46,7 +29,7 @@ const AccountComponent = (props: AccountComponentProps) => {
                     "justify-between flex items-center w-full cursor-pointer"
                 }
                 onClick={() => {
-                    //onClickUserAccount(account, serverName)
+                    onClickUserAccount(account)
                 }}
             >
                 <div className={"flex items-center mb-[10px]"}>
@@ -83,7 +66,7 @@ const AccountComponent = (props: AccountComponentProps) => {
                             <span className={"text-[#FF0000]"}>
                                 <Button
                                     onClick={() => {
-                                        // onClickNeedLogin(account, serverName)
+                                        onClickNeedLogin(account)
                                     }}
                                 >
                                     {t("components.ViewSideBar.needLogin")}
@@ -96,23 +79,5 @@ const AccountComponent = (props: AccountComponentProps) => {
         </>
     )
 }
-
-// const AccountsComponent = (props: AccountsComponentProps) => {
-//     const {
-//         currentDID,
-//         selectedAccountInfo,
-//         isSwitching,
-//         authenticationRequired,
-//         accountsByServices,
-//         onClickUserAccount,
-//         onClickNeedLogin,
-//         onClickAddAcount,
-//     } = props
-
-//     const { t } = useTranslation()
-
-//     return (
-//     )
-// }
 
 export default AccountComponent

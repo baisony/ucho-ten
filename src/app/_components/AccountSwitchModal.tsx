@@ -10,7 +10,7 @@ import {
 } from "@nextui-org/react"
 import { BskyAgent } from "@atproto/api"
 import { tv } from "@nextui-org/react"
-import { UserAccount, useAccounts } from "../_atoms/accounts"
+import { UserAccount, UserAccountByDid, useAccounts } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import AccountComponent from "./AccountComponent"
 
@@ -26,8 +26,8 @@ interface AccountSwitchModalProps {
     isOpen: boolean
     onOpenChange: () => void
     handleClickAddAccount: () => void
+    handleClickNeedLogin: (account: UserAccount) => void
     // handleSideBarOpen: (isOpen: boolean) => void
-    // handleDeleteSession: () => void
 }
 
 const AccountSwitchModal = (props: AccountSwitchModalProps) => {
@@ -35,107 +35,96 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
         isOpen,
         onOpenChange,
         handleClickAddAccount,
+        handleClickNeedLogin,
         // handleSideBarOpen,
     } = props
 
     const { t } = useTranslation()
 
-    const [agent] = useAgent()
+    const [agent, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
 
     // const { isOpen, onOpenChange } = useDisclosure()
 
-    const [serverName, setServerName] = useState<string>("")
+    // const [serverName, setServerName] = useState<string>("")
     const [accountsByServices, setAccountsByServices] = useState<{
         [key: string]: UserAccount[]
     }>({})
-    const [identity, setIdentity] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
-    const [isLogging, setIsLogging] = useState<boolean>(false)
-    const [loginError, setLoginError] = useState<boolean>(false)
+    // const [identity, setIdentity] = useState<string>("")
+    // const [password, setPassword] = useState<string>("")
+    // const [isLogging, setIsLogging] = useState<boolean>(false)
+    // const [loginError, setLoginError] = useState<boolean>(false)
     const [isAccountSwitching, setIsAccountSwitching] = useState(false)
     const [authenticationRequired, setAuthenticationRequired] = useState<
         boolean | null
     >(null)
-    const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
+    const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
+        null
+    )
 
     const { appearanceTextColor } = signInModal()
 
-    const handleClickSignIn = async () => {
-        if (serverName === "" || identity === "" || password === "") {
+    const handleClickUserAccount = async (account: UserAccount) => {
+        if (
+            agent?.session?.did &&
+            account.session.did === agent?.session?.did
+        ) {
             return
         }
 
         try {
             setIsAccountSwitching(true)
-            setLoginError(false)
             setAuthenticationRequired(false)
-            setIsLogging(true)
-            let result = serverName.replace(/(http:\/\/|https:\/\/)/g, "")
-            result = result.replace(/\/$/, "")
+            setSelectedAccount(account)
+
+            const { session } = account
+
             const agent = new BskyAgent({
-                service: `https://${result}`,
+                service: `https://${account.service}`,
             })
 
-            await agent.login({
-                identifier: identity,
-                password: password,
-            })
+            await agent.resumeSession(session)
 
-            if (agent.session) {
-                const json = {
-                    server: serverName,
-                    session: agent.session,
-                }
+            setAgent(agent)
 
-                localStorage.setItem("session", JSON.stringify(json))
-
-                const existingAccountsData = accounts
-
-                const { data } = await agent.getProfile({
-                    actor: agent.session.did,
-                })
-
-                existingAccountsData[agent.session.did] = {
-                    service: serverName,
-                    session: agent.session,
-                    profile: {
-                        did: agent.session.did,
-                        displayName: data?.displayName || agent.session.handle,
-                        handle: agent.session.handle,
-                        avatar: data?.avatar || "",
-                    },
-                }
-
-                setAccounts(existingAccountsData)
+            const json = {
+                server: account.service,
+                session: agent.session,
             }
-            setIsLogging(false)
+
+            localStorage.setItem("session", JSON.stringify(json))
+
+            const existingAccountsData: UserAccountByDid = accounts
+
+            if (!agent.session?.did) {
+                throw new Error("Authentication error")
+            }
+
+            const updatedAccountData: UserAccount = {
+                service: account.service,
+                session: agent.session,
+                profile: account.profile,
+            }
+
+            existingAccountsData[agent.session.did] = updatedAccountData
+
+            setAccounts(existingAccountsData)
+
             setIsAccountSwitching(false)
+
             window.location.reload()
         } catch (e: unknown) {
             if (e instanceof Error) {
-                console.log(e.message)
-                setIsLogging(false)
-                setIsAccountSwitching(false)
-                setLoginError(true)
+                if (e.message.includes("Authentication")) {
+                    setIsAccountSwitching(false)
+                    setAuthenticationRequired(true)
+                }
             }
         }
     }
 
-    const handleClickUserAccount = async (
-        item: UserAccount,
-        serverName: string
-    ) => {}
-
-    const handleClickNeedLogin = (handle: string, serverName: string) => {}
-
-    // const handleClickAddAcount = () => {
-    //     setSelectedAccountInfo(null)
-    //     // setOpenModalReason("relogin")
-    // }
-
     useEffect(() => {
-        let tempAccountsByServices: { [key: string]: UserAccount[] } = {}
+        const tempAccountsByServices: { [key: string]: UserAccount[] } = {}
 
         Object.entries(accounts).forEach(([did, account]) => {
             if (!tempAccountsByServices[account.service]) {
@@ -161,16 +150,6 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
                             {t("components.ViewSideBar.switchAccount")}
                         </ModalHeader>
                         <ModalBody>
-                            {/* <AccountsComponent
-                                currentDID={agent?.session?.did}
-                                selectedAccountInfo={selectedAccountInfo}
-                                accountsByServices={accountsByServices}
-                                isSwitching={isAccountSwitching}
-                                authenticationRequired={false}
-                                onClickUserAccount={handleClickUserAccount}
-                                onClickNeedLogin={handleClickNeedLogin}
-                                onClickAddAcount={handleClickAddAcount}
-                            /> */}
                             {Object.entries(accountsByServices).map(
                                 ([serverNameKey, userAccounts]) => (
                                     <div
@@ -181,9 +160,32 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
                                         {userAccounts.map(
                                             (account: UserAccount) => (
                                                 <AccountComponent
-                                                // serverName={serverNameKey}
-                                                account={account}
-                                                status={"loginRequired"}
+                                                    // serverName={serverNameKey}
+                                                    account={account}
+                                                    status={
+                                                        agent?.session?.did &&
+                                                        agent.session.did ===
+                                                            account.profile.did
+                                                            ? "current"
+                                                            : authenticationRequired &&
+                                                              selectedAccount !==
+                                                                  null &&
+                                                              account.profile
+                                                                  .did ===
+                                                                  selectedAccount
+                                                                      .profile
+                                                                      .did
+                                                            ? "loginRequired"
+                                                            : isAccountSwitching
+                                                            ? "switching"
+                                                            : null
+                                                    }
+                                                    onClickNeedLogin={
+                                                        handleClickNeedLogin
+                                                    }
+                                                    onClickUserAccount={
+                                                        handleClickUserAccount
+                                                    }
                                                 />
                                             )
                                         )}
@@ -207,7 +209,7 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
                         <ModalFooter>
                             <Button
                                 color="primary"
-                                onClick={() => {
+                                onPress={() => {
                                     onClose()
                                     // handleSideBarOpen(false)
                                 }}
