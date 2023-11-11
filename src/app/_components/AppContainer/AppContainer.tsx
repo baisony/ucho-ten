@@ -39,7 +39,7 @@ import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
-import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
+import { useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -457,9 +457,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             method: "GET",
         })
         //res.json()
-        const data = await res.json()
-        console.log(data)
+        if ((await res.status) === 404) {
+            setBookmarks([])
+            setMuteWords([])
+        }
         if ((await res.status) !== 200) return
+        const data = await res.json()
         const bookmarks = data.bookmarks
         const muteWords = data.muteWords
         setBookmarks(bookmarks)
