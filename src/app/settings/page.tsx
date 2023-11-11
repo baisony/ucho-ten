@@ -526,6 +526,7 @@ const SettingsMutePage = ({
         )
         if (index) return
         setMuteWords((prevMutewords) => [...prevMutewords, json])
+        syncMuteWords()
     }
     const handleSaveClick = () => {
         if (!agent) return
@@ -543,6 +544,7 @@ const SettingsMutePage = ({
             newMuteWords[index] = json // 特定のインデックスの要素を編集
             return newMuteWords // 新しい状態を返す
         })
+        syncMuteWords()
     }
 
     const handleDelete = () => {
@@ -554,6 +556,7 @@ const SettingsMutePage = ({
         const newMuteWords = muteWords
         const deleteMutewods = newMuteWords.splice(index, 1)
         setMuteWords(newMuteWords)
+        syncMuteWords()
     }
 
     const getNowTime = () => {
