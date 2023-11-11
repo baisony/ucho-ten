@@ -77,7 +77,7 @@ const FeedPage = ({
     }, [timeline])
 
     const loadMore = () => {
-        console.log("end reached", feedKey, loadMoreFeed, cursorState)
+        console.log("end reached", cursorState, hasMore, feedKey, loadMoreFeed, )
         
         if (hasMore) {
             setLoadMoreFeed(true)
@@ -215,16 +215,15 @@ const FeedPage = ({
                 latestCID.current = ""
             }
 
-            if (!response.cursor && response.cursor !== "") {
+            if (response.cursor !== null) {
                 setCursorState(response.cursor)
-
                 setHasMore(true)
             } else {
                 setCursorState(null)
                 setHasMore(false)
             }
         } else {
-            if (timeline !== null && timeline.length === 0) {
+            if (timeline !== null) {
                 setTimeline([])
                 setHasMore(false)
             }
@@ -378,8 +377,8 @@ const FeedPage = ({
 
     if (
         data !== undefined &&
-        isLoading === false &&
-        isError === false &&
+        // isLoading === false &&
+        // isError === false &&
         cursorState !== null
     ) {
         //&& !isError && !isLoading) {
