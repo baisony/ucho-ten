@@ -14,7 +14,7 @@ import {
     Switch,
     useDisclosure,
 } from "@nextui-org/react"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { viewSettingsPage } from "@/app/settings/styles"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
@@ -43,11 +43,7 @@ import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import {
-    type MuteWord,
-    MuteWordByDiD,
-    useWordMutes,
-} from "@/app/_atoms/wordMute"
+import { type MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
@@ -488,12 +484,13 @@ const SettingsMutePage = ({
         onOpenChange: onOpenChangeEdit,
     } = useDisclosure()
 
-    const syncMuteWords = async () => {
+    const syncMuteWords = async (mutelist: any[]) => {
         if (!agent) return
         const syncData = {
             bookmarks: bookmarks,
-            muteWords: muteWords,
+            muteWords: mutelist,
         }
+        console.log(syncData)
         try {
             const syncData_string = JSON.stringify(syncData)
             const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
@@ -509,8 +506,10 @@ const SettingsMutePage = ({
         }
     }
 
-    const handleAddMuteWordClick = () => {
+    const handleAddMuteWordClick = useCallback(() => {
         if (!agent) return
+        console.log("add")
+        console.log(muteWords)
         const createdAt = new Date().getTime()
         const json: MuteWord = {
             category: null,
@@ -528,10 +527,12 @@ const SettingsMutePage = ({
         )
         if (index) return
         setMuteWords((prevMutewords) => [...prevMutewords, json])
-        syncMuteWords()
-    }
-    const handleSaveClick = () => {
+        syncMuteWords([...muteWords, json])
+    }, [agent, muteWords, setMuteWords, inputMuteWord, syncMuteWords])
+
+    const handleSaveClick = useCallback(() => {
         if (!agent) return
+        console.log("save")
         const updatedAt = new Date().getTime()
         const json: MuteWord = selectMuteWord
         const myDID = agent?.session?.did as string
@@ -541,16 +542,27 @@ const SettingsMutePage = ({
         if (muteWords[index] === json) return
         json.updatedAt = updatedAt
 
+        const newMuteWords = [...muteWords]
+        newMuteWords[index] = json
+
         setMuteWords((prevMuteWords) => {
             const newMuteWords = [...prevMuteWords] // 前の状態のコピーを作成
             newMuteWords[index] = json // 特定のインデックスの要素を編集
             return newMuteWords // 新しい状態を返す
         })
-        syncMuteWords()
-    }
+        syncMuteWords(newMuteWords)
+    }, [
+        selectMuteWord,
+        agent,
+        muteWords,
+        setMuteWords,
+        inputMuteWord,
+        syncMuteWords,
+    ])
 
-    const handleDelete = () => {
+    const handleDelete = useCallback(() => {
         if (!agent) return
+        console.log("delete")
         const myDID = agent?.session?.did as string
         const index = muteWords.findIndex(
             (muteWord: any) => muteWord.word === selectMuteWord.word
@@ -558,8 +570,8 @@ const SettingsMutePage = ({
         const newMuteWords = muteWords
         const deleteMutewods = newMuteWords.splice(index, 1)
         setMuteWords(newMuteWords)
-        syncMuteWords()
-    }
+        syncMuteWords(newMuteWords)
+    }, [agent, muteWords, selectMuteWord, setMuteWords, syncMuteWords])
 
     const getNowTime = () => {
         const now = new Date()
