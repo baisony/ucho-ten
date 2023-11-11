@@ -18,7 +18,7 @@ import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
 import { UserAccount, useAccounts } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import { useRouter } from "next/navigation"
-import { SessionData, sessionDataAtom } from "../_atoms/session"
+import { SessionData, useSessionData } from "../_atoms/session"
 import { useAtom } from "jotai"
 
 // TODO: Move this to style.ts --
@@ -50,7 +50,7 @@ const SignInModal = (props: SignInModalProps) => {
 
     const [, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
-    const [sessionData, setSessionData] = useAtom(sessionDataAtom)
+    const [, setSessionData] = useSessionData()
 
     // const { isOpen, onOpenChange } = useDisclosure()
 

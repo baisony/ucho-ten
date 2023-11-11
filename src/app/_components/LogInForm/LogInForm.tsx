@@ -18,15 +18,18 @@ import {
     UserAccount,
     UserAccountByDid,
 } from "@/app/_atoms/accounts"
-import { SessionData, sessionDataAtom } from "@/app/_atoms/session"
+import { SessionData, useSessionData } from "@/app/_atoms/session"
 import { useAtom } from "jotai"
+import { useRouter } from "next/navigation"
 
 export default function LogInForm() {
     // const searchParams = useSearchParams()
     // const toRedirect = searchParams.get("toRedirect")
 
+    const router = useRouter()
+
     const [accounts, setAccounts] = useAccounts()
-    const [, setSessionData] = useAtom(sessionDataAtom)
+    const [, setSessionData] = useSessionData()
 
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
@@ -39,7 +42,7 @@ export default function LogInForm() {
         useState<boolean>(false)
     const [, setIsUserInfoIncorrect] = useState<boolean>(false)
     const [, setIsServerError] = useState<boolean>(false)
-    
+
     const {
         background,
         LoginForm,
@@ -124,6 +127,9 @@ export default function LogInForm() {
             // } else {
             //     //location.href = "/home"
             // }
+
+            //router.refresh()
+            window.location.reload()
         } catch (e) {
             setIsLoginFailed(true)
             //@ts-ignore

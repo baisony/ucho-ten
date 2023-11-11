@@ -1,9 +1,15 @@
 import { AtpSessionData } from "@atproto/api"
+import { useAtom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 export interface SessionData {
-  server: string
-  session: AtpSessionData
+    server: string
+    session: AtpSessionData
 }
 
-export const sessionDataAtom = atomWithStorage<SessionData | null>("session", null)
+const sessionDataAtom = atomWithStorage<SessionData | undefined>(
+    "session",
+    undefined
+)
+
+export const useSessionData = () => useAtom(sessionDataAtom)

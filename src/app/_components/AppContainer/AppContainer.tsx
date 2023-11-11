@@ -41,8 +41,7 @@ import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
 import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
 import LogInForm from "@/app/_components/LogInForm/LogInForm"
-import { sessionDataAtom, useSessionData } from "@/app/_atoms/session"
-import { useAtom } from "jotai"
+import { SessionData, useSessionData } from "@/app/_atoms/session"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -52,7 +51,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const searchPath = ["/search"]
     const isSearchScreen = searchPath.includes(pathName)
-    
+
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
@@ -65,7 +64,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
-    const [sessionData, setSessionData] = useAtom(sessionDataAtom)
+    const [sessionData, setSessionData] = useSessionData()
 
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
@@ -81,7 +80,37 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const { background } = layout()
 
-    console.log("here", sessionData)
+    const [hasSessionData, setHasSessionData] = useState<boolean>(
+        true
+        // typeof window !== "undefined" && window.localStorage !== undefined ? !!window.localStorage.getItem("session") : false
+    )
+
+    // const hasSessionDataSet = useRef<boolean>(false)
+
+    useEffect(() => {
+        if (
+            typeof window !== "undefined" &&
+            window.localStorage !== undefined
+        ) {
+            const localData = window.localStorage.getItem("session")
+
+            if (localData === undefined || !localData) {
+                setHasSessionData(false)
+            } else {
+                setHasSessionData(true)
+            }
+        }
+    }, [sessionData, pathName])
+
+    // if (
+    //     hasSessionDataSet.current === false &&
+    //     typeof window !== "undefined" &&
+    //     window.localStorage !== undefined
+    // ) {
+    //     setHasSessionData(!!window.localStorage.getItem("session"))
+
+    //     hasSessionDataSet.current = true
+    // }
 
     useEffect(() => {
         router.prefetch("/home")
@@ -175,13 +204,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [router, pathName])
 
     useEffect(() => {
-        console.log("here", agent?.hasSession, agent) 
         if (agent?.hasSession === true) {
             return
         }
 
         const restoreSession = async () => {
-            if (sessionData === null) {
+            if (sessionData === undefined) {
                 // TODO:
                 return
 
@@ -200,6 +228,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
             try {
                 await agent.resumeSession(sessionData.session)
+
+                if (agent.session) {
+                    const newSessionData: SessionData = {
+                        server: sessionData.server,
+                        session: agent.session,
+                    }
+
+                    setSessionData(newSessionData)
+                }
 
                 setAgent(agent)
             } catch (error) {
@@ -468,82 +505,99 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
-    const shouldShowNavigations = useMemo((): boolean => {
-        if (pathName === "/") {
-            return false
-        } else {
-            return true
-        }
-    }, [pathName])
+    // const shouldShowTopPage = useMemo((): boolean => {
+    //     if (agent?.hasSession === false && pathName === "/") {
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }, [agent && agent.hasSession, pathName])
 
-    const shouldShowSignInForm = useMemo((): boolean => {
-        if (sessionData === null && pathName !== "/") {
-            return true
-        } else if (agent?.hasSession === false) {
-            return true
-        } else {
-            return false
-        }
-    }, [agent && agent.hasSession, sessionData, pathName])
+    // const shouldShowSignInForm = useMemo((): boolean => {
+    //     // if (sessionData === null && pathName !== "/") {
+    //     //     return true
+    //     // } else
+    //     if (agent?.hasSession === false && pathName !== "/") {
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }, [agent && agent.hasSession, sessionData, pathName])
 
-    if (shouldShowNavigations === false || shouldShowSignInForm === true) {
-        console.log("here", shouldShowNavigations, shouldShowSignInForm)
-        return (
-            <div
-                className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
-            >
-                <main
-                    id="main-container"
-                    className={background()}
-                    onClick={() => {
-                        handleSideBarOpen(false)
-                    }}
-                >
-                    <div
-                        className={
-                            "w-full h-full flex justify-center select-none"
-                        }
-                    >
-                        <div
-                            className={
-                                "min-w-[350px] max-w-[600px] h-full w-full"
-                            }
-                        >
-                            <div className={`pt-[0px] h-[100%] relative`}>
-                                {shouldShowSignInForm === true ? (
-                                    <LogInForm />
-                                ) : (
-                                    children
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
-        )
-    }
+    // if (hasSessionData === false) {
+    //     return (
+    //         <div
+    //             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
+    //         >
+    //             <main
+    //                 id="main-container"
+    //                 className={background()}
+    //                 onClick={() => {
+    //                     handleSideBarOpen(false)
+    //                 }}
+    //             >
+    //                 <div
+    //                     className={
+    //                         "w-full h-full flex justify-center select-none"
+    //                     }
+    //                 >
+    //                     <div
+    //                         className={
+    //                             "min-w-[350px] max-w-[600px] h-full w-full"
+    //                         }
+    //                     >
+    //                         <div className={`pt-[0px] h-[100%] relative`}>
+    //                             {pathName !== "/" ? (
+    //                                 <LogInForm />
+    //                             ) : (
+    //                                 children
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             </main>
+    //         </div>
+    //     )
+    // } else
+
+    useEffect(() => {
+        if (pathName === "/" && hasSessionData) {
+            router.push("/home")
+            return
+        }
+    }, [hasSessionData])
+
+    // if (
+    //     !!localStorage.getItem("session") === false &&
+    //     hasSessionData === true
+    // ) {
+    //     setHasSessionData(false)
+    // }
 
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
         >
             <div id="burger-outer-container">
-                <BurgerPush
-                    className={"backdrop-blur-[5px]"}
-                    outerContainerId="burger-outer-container"
-                    pageWrapId="main-container"
-                    styles={burgerMenuStyles}
-                    isOpen={drawerOpen}
-                    onClose={() => {
-                        setDrawerOpen(false)
-                    }}
-                >
-                    <ViewSideBar
-                        isSideBarOpen={drawerOpen}
-                        openSideBar={handleSideBarOpen}
-                        isMobile={isMobile}
-                    />
-                </BurgerPush>
+                {hasSessionData && (
+                    <BurgerPush
+                        className={"backdrop-blur-[5px]"}
+                        outerContainerId="burger-outer-container"
+                        pageWrapId="main-container"
+                        styles={burgerMenuStyles}
+                        isOpen={drawerOpen}
+                        onClose={() => {
+                            setDrawerOpen(false)
+                        }}
+                    >
+                        <ViewSideBar
+                            isSideBarOpen={drawerOpen}
+                            openSideBar={handleSideBarOpen}
+                            isMobile={isMobile}
+                        />
+                    </BurgerPush>
+                )}
+
                 <main
                     id="main-container"
                     className={background()}
@@ -561,7 +615,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 "xl:w-[calc(100%/4)] h-full hidden xl:block"
                             }
                         >
-                            {showTabBar && <ViewSideMenu />}
+                            {showTabBar && hasSessionData && <ViewSideMenu />}
                         </div>
                         <div
                             className={
@@ -573,28 +627,37 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
                                 }
                             >
-                                {showTabBar && (
+                                {showTabBar && hasSessionData && (
                                     <ViewHeader
                                         isMobile={isMobile}
                                         setSideBarOpen={handleSideBarOpen}
                                         setSearchText={setSearchText}
                                     />
                                 )}
+
                                 <div className={`pt-[0px] h-[100%] relative`}>
-                                    {shouldFillPageBackground && (
-                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                                            <div
-                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
-                                                    isSearchScreen
-                                                        ? `xl:mt-[100px]`
-                                                        : `xl:mt-[50px]`
-                                                } md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                                            />
-                                        </div>
+                                    {shouldFillPageBackground &&
+                                        hasSessionData && (
+                                            <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                                <div
+                                                    className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
+                                                        isSearchScreen
+                                                            ? `xl:mt-[100px]`
+                                                            : `xl:mt-[50px]`
+                                                    } md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                                />
+                                            </div>
+                                        )}
+                                    {hasSessionData === true ? (
+                                        children
+                                    ) : pathName === "/" ? (
+                                        children
+                                    ) : (
+                                        <LogInForm />
                                     )}
-                                    {children}
                                 </div>
-                                {showTabBar && <TabBar />}
+
+                                {showTabBar && hasSessionData && <TabBar />}
                             </div>
                             {imageSlides && imageSlideIndex !== null && (
                                 <div

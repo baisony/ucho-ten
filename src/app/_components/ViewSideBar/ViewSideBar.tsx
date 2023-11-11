@@ -26,6 +26,7 @@ import Link from "next/link"
 import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
+import { useSessionData } from "@/app/_atoms/session"
 
 interface Props {
     className?: string
@@ -43,6 +44,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
 
     const [agent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const [, setSessionData] = useSessionData()
 
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
         null
@@ -56,7 +58,10 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
 
     const handleDeleteSession = () => {
         console.log("delete session")
+
         localStorage.removeItem("session")
+        // setSessionData(undefined)
+
         router.push("/")
     }
 

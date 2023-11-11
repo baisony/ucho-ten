@@ -16,6 +16,7 @@ import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
 import { UserAccount, UserAccountByDid, useAccounts } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import { useRouter } from "next/navigation"
+import { useSessionData } from "../_atoms/session"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -37,6 +38,8 @@ const SignOutModal = (props: SignOutModalProps) => {
     const { t } = useTranslation()
     const router = useRouter()
 
+    const [, setSessionData] = useSessionData()
+
     const { appearanceTextColor } = signInModal()
 
     const handleDeleteSession = () => {
@@ -44,7 +47,9 @@ const SignOutModal = (props: SignOutModalProps) => {
             handleSideBarOpen(false)
         }
 
+        setSessionData(undefined)
         localStorage.removeItem("session")
+
         router.push("/")
     }
 
