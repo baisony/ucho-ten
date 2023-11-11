@@ -30,7 +30,7 @@ export interface FeedPageProps {
 
 interface FeedResponseObject {
     posts: FeedViewPost[]
-    cursor: string // TODO: should consider adding ? to handle undefined.
+    cursor: string | null // TODO: should consider adding ? to handle undefined.
 }
 
 const FeedPage = ({
@@ -46,17 +46,18 @@ const FeedPage = ({
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    const [hasMore, setHasMore] = useState<boolean>(false)
+    const [hasMore, setHasMore] = useState<boolean>(true)
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
-    //const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
+    const [cursorState, setCursorState] = useState<string | null>("")
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
-    const cursorState = useRef<string>("")
-    const loadMoreFeed = useRef<boolean>(true)
+    // const fetchedCursors = useRef<string[]>([])
+    // const loadMoreFeed = useRef<boolean>(true)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -75,11 +76,13 @@ const FeedPage = ({
         }
     }, [timeline])
 
-    const loadMore = useCallback(() => {
+    const loadMore = () => {
+        console.log("end reached", feedKey, loadMoreFeed, cursorState)
+        
         if (hasMore) {
-            loadMoreFeed.current = true
+            setLoadMoreFeed(true)
         }
-    }, [hasMore])
+    }
 
     const checkNewTimeline = async () => {
         if (!agent) return
@@ -186,7 +189,6 @@ const FeedPage = ({
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts } = response
-            cursorState.current = response.cursor
 
             console.log("posts", posts)
 
@@ -212,21 +214,22 @@ const FeedPage = ({
             } else {
                 latestCID.current = ""
             }
+
+            if (!response.cursor && response.cursor !== "") {
+                setCursorState(response.cursor)
+
+                setHasMore(true)
+            } else {
+                setCursorState(null)
+                setHasMore(false)
+            }
         } else {
             if (timeline !== null && timeline.length === 0) {
                 setTimeline([])
                 setHasMore(false)
             }
-            
+
             return
-        }
-
-        cursorState.current = response.cursor
-
-        if (cursorState.current !== "") {
-            setHasMore(true)
-        } else {
-            setHasMore(false)
         }
     }
 
@@ -244,15 +247,19 @@ const FeedPage = ({
 
         const [_key, feedKey, cursorData] = queryKey
 
+        // if (fetchedCursors.current.includes(cursorState.current) === false) {
+        //     fetchedCursors.current.push(cursorState.current)
+        // }
+
         if (feedKey === "following") {
             const response = await agent.getTimeline({
-                cursor: cursorState.current,
+                cursor: cursorState || "",
                 limit: FEED_FETCH_LIMIT,
             })
 
             return {
                 posts: response.data.feed,
-                cursor: response.data.cursor || "",
+                cursor: response.data.cursor || null,
             }
         } else {
             const response = await agent.app.bsky.feed.getFeed({
@@ -263,19 +270,23 @@ const FeedPage = ({
 
             return {
                 posts: response.data.feed,
-                cursor: response.data.cursor || "",
+                cursor: response.data.cursor || null,
             }
         }
     }
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState.current),
+        queryKey: getFeedKeys.feedkeyWithCursor(
+            feedKey,
+            cursorState || ""
+        ),
         queryFn: getTimelineFetcher,
         enabled:
             agent !== null &&
             feedKey !== "" &&
             isActive /*shouldLoad */ &&
-            loadMoreFeed.current === true,
+            // loadMoreFeed === true &&
+            cursorState !== null,
     })
 
     const handleValueChange = (newValue: any) => {
@@ -363,13 +374,22 @@ const FeedPage = ({
         }
     }
 
-    if (data !== undefined && !isError && !isLoading) {
+    console.log("here", data, isLoading, isError)
+
+    if (
+        data !== undefined &&
+        isLoading === false &&
+        isError === false &&
+        cursorState !== null
+    ) {
+        //&& !isError && !isLoading) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
-        loadMoreFeed.current = true
-    } else {
-        loadMoreFeed.current = false
+
+        setLoadMoreFeed(false)
     }
+
+    console.log("here", data, isLoading, isError)
 
     return (
         <>
