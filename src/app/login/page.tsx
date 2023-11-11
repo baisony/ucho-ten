@@ -71,8 +71,6 @@ export default function CreateLoginPage() {
                     setIsLoginFailed(true)
                     return
                 }
-            } else if (process.env.NEXT_PUBLIC_PRODUCTION_ENV !== "true") {
-                return
             }
 
             setLoading(false)
