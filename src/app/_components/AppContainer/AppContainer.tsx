@@ -39,7 +39,7 @@ import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
-import { BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
+import { useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -445,44 +445,65 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [])
 
     const setLoggedIn = async (did: string) => {
-        const res = await fetch(`/api/setLoggedIn/${did}`, {
-            method: "GET",
-        })
+        try {
+            const res = await fetch(`/api/setLoggedIn/${did}`, {
+                method: "GET",
+            })
+        } catch (e) {
+            console.log(e)
+        }
         //console.log(await res.json())
         //if (res.status !== 200) return
     }
 
     const getSettings = async (did: string) => {
-        const res = await fetch(`/api/getSettings/${did}`, {
-            method: "GET",
-        })
-        //res.json()
-        const data = await res.json()
-        console.log(data)
-        if ((await res.status) !== 200) return
-        const bookmarks = data.bookmarks
-        const muteWords = data.muteWords
-        setBookmarks(bookmarks)
-        setMuteWords(muteWords)
+        try {
+            const res = await fetch(`/api/getSettings/${did}`, {
+                method: "GET",
+            })
+            //res.json()
+            if ((await res.status) == 200) {
+                const data = await res.json()
+                if (data.hasOwnProperty("bookmarks")) {
+                    const bookmarks = data.bookmarks
+                    setBookmarks(bookmarks)
+                } else {
+                    setBookmarks([])
+                }
+                if (data.hasOwnProperty("muteWords")) {
+                    const muteWords = data.muteWords
+                    setMuteWords(muteWords)
+                } else {
+                    setMuteWords([])
+                }
+            } else if ((await res.status) == 404) {
+                setBookmarks([])
+                setMuteWords([])
+            }
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     const setSettings = async (did: string) => {
-        const res = await fetch(`/api/setSettings/${did}`, {
-            method: "POST",
-            body: "{}",
-        })
-        //200が出ればOK
-        console.log(await res.status)
+        try {
+            const res = await fetch(`/api/setSettings/${did}`, {
+                method: "POST",
+                body: "{}",
+            })
+            //200が出ればOK
+            //console.log(await res.status)
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     useEffect(() => {
-        const did = localStorage.getItem("session")
-        if (!did) return
-        const session = JSON.parse(did).session
-        //setLoggedIn(session.did)
-        getSettings(session.did)
-        //setSettings(session.did)
-    }, [])
+        if (!userProfileDetailed) return
+        if (!userProfileDetailed.did) return
+        getSettings(userProfileDetailed.did)
+        console.log("initialized")
+    }, [userProfileDetailed])
 
     return (
         <div
