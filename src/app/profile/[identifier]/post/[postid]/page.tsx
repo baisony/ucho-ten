@@ -491,25 +491,23 @@ const PostPage = (props: PostPageProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const existingAccountsData: BookmarkByDid[] = bookmarks || {}
         const myDID = agent?.session?.did as string
         //console.log(existingAccountsData[0][myDID])
 
-        const index = existingAccountsData[0][myDID].findIndex(
+        const index = bookmarks.findIndex(
             (bookmark: any) => bookmark.uri === postView.uri
         )
         console.log(index)
 
         if (index !== -1) {
             console.log("delete")
-            const hoge = existingAccountsData[0][myDID].splice(index, 1)
-
-            setBookmarks(existingAccountsData)
+            const newBookmarks = bookmarks
+            const deleteBookmark = newBookmarks.splice(index, 1)
+            setBookmarks(newBookmarks)
             setIsBookmarked(false)
         } else {
             console.log("add")
-            existingAccountsData[0][myDID].push(json)
-            setBookmarks(existingAccountsData)
+            setBookmarks((prevBookmarks) => [...prevBookmarks, json])
             setIsBookmarked(true)
         }
     }
@@ -724,7 +722,7 @@ const PostPage = (props: PostPageProps) => {
         if (!postView?.uri) {
             return
         }
-        const isBookmarked = bookmarks[0][agent?.session?.did as string].some(
+        const isBookmarked = bookmarks.some(
             (bookmark) => bookmark.uri === postView.uri
         )
         setIsBookmarked(isBookmarked)

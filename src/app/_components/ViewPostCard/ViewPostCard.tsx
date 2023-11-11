@@ -48,7 +48,7 @@ import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { Bookmark, BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
+import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import ViewPostCardSkelton from "./ViewPostCardSkelton"
@@ -59,6 +59,7 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useWordMutes } from "@/app/_atoms/wordMute"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -110,6 +111,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
     }, [postJson, quoteJson])
     const [agent] = useAgent()
+    const [muteWords] = useWordMutes()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -157,6 +159,25 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
 
+    const syncBookmarks = async () => {
+        if (!agent) return
+        const syncData = {
+            bookmarks: bookmarks,
+            muteWords: muteWords,
+        }
+        const syncData_string = JSON.stringify(syncData)
+        //const jsona = JSON.parse(string)
+        //console.log(jsona)
+        const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
+            method: "POST",
+            body: syncData_string,
+        })
+        console.log(await res)
+        if ((await res.status) !== 200) {
+            console.log("sync error")
+        }
+    }
+
     const handleBookmark = async (uri: string) => {
         const createdAt = new Date().getTime()
         const json: Bookmark = {
@@ -166,38 +187,28 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const existingAccountsData: BookmarkByDid[] = bookmarks || {}
         const myDID = agent?.session?.did as string
-        //console.log(existingAccountsData[0][myDID])
 
-        const index = existingAccountsData[0][myDID].findIndex(
+        const index = bookmarks.findIndex(
             (bookmark: any) => bookmark.uri === uri
         )
         console.log(index)
 
         if (index !== -1) {
             console.log("delete")
-            const hoge = existingAccountsData[0][myDID].splice(index, 1)
+            const newBookmarks = bookmarks
+            const deleteBookmark = bookmarks.splice(index, 1)
+            console.log(newBookmarks)
 
-            /*localStorage.setItem(
-                "bookmarks",
-                JSON.stringify(existingAccountsData)
-            )*/
-            setBookmarks(existingAccountsData)
+            setBookmarks(newBookmarks)
             setIsBookmarked(false)
+            await syncBookmarks()
         } else {
             console.log("add")
-            existingAccountsData[0][myDID].push(json)
-            /*localStorage.setItem(
-                "bookmarks",
-                JSON.stringify(existingAccountsData)
-            )*/
-            setBookmarks(existingAccountsData)
+            setBookmarks((prevBookmarks) => [...prevBookmarks, json])
             setIsBookmarked(true)
+            await syncBookmarks()
         }
-        //existingAccountsData[0][myDID].splice(index, 1)
-
-        //setBookmarks(existingAccountsData)
     }
 
     const handleReply = async () => {
@@ -534,7 +545,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         const postUri = postJson?.uri || quoteJson?.uri || json?.post?.uri
         if (!postUri) return
         //console.log(bookmarks[0][agent?.session?.did as string])
-        const isBookmarked = bookmarks[0][agent?.session?.did as string].some(
+        const isBookmarked = bookmarks.some(
             (bookmark) => bookmark.uri === postUri
         )
         setIsBookmarked(isBookmarked)

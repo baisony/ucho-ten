@@ -50,6 +50,7 @@ import {
 } from "@/app/_atoms/wordMute"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
+import { useBookmarks } from "@/app/_atoms/bookmarks"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -473,20 +474,7 @@ const SettingsMutePage = ({
 }: SettingsMutePageProps) => {
     const [agent] = useAgent()
     const [muteWords, setMuteWords] = useWordMutes()
-    //何もない場合は新規作成
-    if (muteWords.length === 0 && agent) {
-        setMuteWords([{ [agent?.session?.did as string]: [] }])
-    }
-    //自分のDIDがない場合は新規作成
-    if (
-        muteWords.length !== 0 &&
-        !muteWords[0][agent?.session?.did as string] &&
-        agent
-    ) {
-        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
-        existingAccountsData[0][agent?.session?.did as string] = []
-        setMuteWords(existingAccountsData)
-    }
+    const [bookmarks] = useBookmarks()
     const [editMode, setEditMode] = useState<boolean>(false)
     const [inputMuteWord, setInputMuteWord] = useState<string>("")
     const [inputMuteCategory, setInputMuteCategory] = useState<string>("")
@@ -500,8 +488,23 @@ const SettingsMutePage = ({
         onOpenChange: onOpenChangeEdit,
     } = useDisclosure()
 
-    const handleSave = () => {
-        console.log(inputMuteWord)
+    const syncMuteWords = async () => {
+        if (!agent) return
+        const syncData = {
+            bookmarks: bookmarks,
+            muteWords: muteWords,
+        }
+        const syncData_string = JSON.stringify(syncData)
+        //const jsona = JSON.parse(string)
+        //console.log(jsona)
+        const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
+            method: "POST",
+            body: syncData_string,
+        })
+        console.log(await res)
+        if ((await res.status) !== 200) {
+            console.log("sync error")
+        }
     }
 
     const handleAddMuteWordClick = () => {
@@ -517,43 +520,43 @@ const SettingsMutePage = ({
             createdAt: createdAt,
             deletedAt: null,
         }
-        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
         const myDID = agent?.session?.did as string
-        console.log(existingAccountsData[0][myDID])
-        const index = existingAccountsData[0][myDID].find(
+        const index = muteWords.find(
             (muteWord: any) => muteWord.word === inputMuteWord
         )
         if (index) return
-        existingAccountsData[0][myDID].push(json)
-        setMuteWords(existingAccountsData)
-        console.log(existingAccountsData)
+        setMuteWords((prevMutewords) => [...prevMutewords, json])
+        syncMuteWords()
     }
     const handleSaveClick = () => {
         if (!agent) return
         const updatedAt = new Date().getTime()
         const json: MuteWord = selectMuteWord
-        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
         const myDID = agent?.session?.did as string
-        console.log(existingAccountsData[0][myDID])
-        const index = existingAccountsData[0][myDID].findIndex(
+        const index = muteWords.findIndex(
             (muteWord: any) => muteWord.word === inputMuteWord
         )
-        if (existingAccountsData[0][myDID][index] === json) return
+        if (muteWords[index] === json) return
         json.updatedAt = updatedAt
-        existingAccountsData[0][myDID][index] = json
-        setMuteWords(existingAccountsData)
-        console.log(existingAccountsData)
+
+        setMuteWords((prevMuteWords) => {
+            const newMuteWords = [...prevMuteWords] // 前の状態のコピーを作成
+            newMuteWords[index] = json // 特定のインデックスの要素を編集
+            return newMuteWords // 新しい状態を返す
+        })
+        syncMuteWords()
     }
 
     const handleDelete = () => {
         if (!agent) return
-        const existingAccountsData: MuteWordByDiD[] = muteWords || {}
         const myDID = agent?.session?.did as string
-        const index = existingAccountsData[0][myDID].findIndex(
+        const index = muteWords.findIndex(
             (muteWord: any) => muteWord.word === selectMuteWord.word
         )
-        existingAccountsData[0][myDID].splice(index, 1)
-        setMuteWords(existingAccountsData)
+        const newMuteWords = muteWords
+        const deleteMutewods = newMuteWords.splice(index, 1)
+        setMuteWords(newMuteWords)
+        syncMuteWords()
     }
 
     const getNowTime = () => {
@@ -763,47 +766,41 @@ const SettingsMutePage = ({
                     <div className={"font-bold flex "}>
                         <div>{t("pages.mute.title")}</div>
                         <div className={"ml-[15px]"}>
-                            {muteWords[0][agent?.session?.did as string].length}{" "}
-                            / 30
+                            {muteWords.length} / 30
                         </div>
                     </div>
                     <div className={"w-full h-fulll"}>
-                        {muteWords[0][agent?.session?.did as string]?.map(
-                            (muteWord: any, index: number) => {
-                                return (
-                                    <div
-                                        key={index}
-                                        className={
-                                            "w-full h-[50px] border-b-[1px] border-t-[1px] border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#2C2C2C] flex justify-between items-center px-[10px] cursor-pointer"
-                                        }
-                                        onClick={() => {
-                                            setSelectMuteWord(muteWord)
-                                            setModalEditMode(true)
-                                            onOpenEdit()
-                                        }}
-                                    >
-                                        <div>{muteWord?.word}</div>
-                                        <div className={"flex"}>
-                                            <div>
-                                                {muteWord.end === null
-                                                    ? "無期限"
-                                                    : muteWord.end <
-                                                      getNowTime()
-                                                    ? getEndTime()
-                                                    : "期限切れ"}
-                                            </div>
-                                            <div
-                                                className={"w-[14px] ml-[10px]"}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faChevronRight}
-                                                />
-                                            </div>
+                        {muteWords.map((muteWord: any, index: number) => {
+                            return (
+                                <div
+                                    key={index}
+                                    className={
+                                        "w-full h-[50px] border-b-[1px] border-t-[1px] border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#2C2C2C] flex justify-between items-center px-[10px] cursor-pointer"
+                                    }
+                                    onClick={() => {
+                                        setSelectMuteWord(muteWord)
+                                        setModalEditMode(true)
+                                        onOpenEdit()
+                                    }}
+                                >
+                                    <div>{muteWord?.word}</div>
+                                    <div className={"flex"}>
+                                        <div>
+                                            {muteWord.end === null
+                                                ? "無期限"
+                                                : muteWord.end < getNowTime()
+                                                ? getEndTime()
+                                                : "期限切れ"}
+                                        </div>
+                                        <div className={"w-[14px] ml-[10px]"}>
+                                            <FontAwesomeIcon
+                                                icon={faChevronRight}
+                                            />
                                         </div>
                                     </div>
-                                )
-                            }
-                        )}
+                                </div>
+                            )
+                        })}
                     </div>
                     <div
                         className={
@@ -833,11 +830,7 @@ const SettingsMutePage = ({
                                         setModalEditMode(false)
                                         onOpenEdit()
                                     }}
-                                    isDisabled={
-                                        muteWords[0][
-                                            agent?.session?.did as string
-                                        ].length >= 30
-                                    }
+                                    isDisabled={muteWords.length >= 30}
                                 >
                                     add
                                 </Button>
