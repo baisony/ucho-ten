@@ -445,37 +445,49 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [])
 
     const setLoggedIn = async (did: string) => {
-        const res = await fetch(`/api/setLoggedIn/${did}`, {
-            method: "GET",
-        })
+        try {
+            const res = await fetch(`/api/setLoggedIn/${did}`, {
+                method: "GET",
+            })
+        } catch (e) {
+            console.log(e)
+        }
         //console.log(await res.json())
         //if (res.status !== 200) return
     }
 
     const getSettings = async (did: string) => {
-        const res = await fetch(`/api/getSettings/${did}`, {
-            method: "GET",
-        })
-        //res.json()
-        if ((await res.status) === 404) {
-            setBookmarks([])
-            setMuteWords([])
+        try {
+            const res = await fetch(`/api/getSettings/${did}`, {
+                method: "GET",
+            })
+            //res.json()
+            if ((await res.status) == 200) {
+                const data = await res.json()
+                const bookmarks = data.bookmarks
+                const muteWords = data.muteWords
+                setBookmarks(bookmarks)
+                setMuteWords(muteWords)
+            } else {
+                setBookmarks([])
+                setMuteWords([])
+            }
+        } catch (e) {
+            console.log(e)
         }
-        if ((await res.status) !== 200) return
-        const data = await res.json()
-        const bookmarks = data.bookmarks
-        const muteWords = data.muteWords
-        setBookmarks(bookmarks)
-        setMuteWords(muteWords)
     }
 
     const setSettings = async (did: string) => {
-        const res = await fetch(`/api/setSettings/${did}`, {
-            method: "POST",
-            body: "{}",
-        })
-        //200が出ればOK
-        console.log(await res.status)
+        try {
+            const res = await fetch(`/api/setSettings/${did}`, {
+                method: "POST",
+                body: "{}",
+            })
+            //200が出ればOK
+            //console.log(await res.status)
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     useEffect(() => {

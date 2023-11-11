@@ -165,16 +165,18 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             bookmarks: bookmarks,
             muteWords: muteWords,
         }
-        const syncData_string = JSON.stringify(syncData)
-        //const jsona = JSON.parse(string)
-        //console.log(jsona)
-        const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
-            method: "POST",
-            body: syncData_string,
-        })
-        console.log(await res)
-        if ((await res.status) !== 200) {
-            console.log("sync error")
+        try {
+            const syncData_string = JSON.stringify(syncData)
+            const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
+                method: "POST",
+                body: syncData_string,
+            })
+            console.log(await res)
+            if ((await res.status) !== 200) {
+                console.log("sync error")
+            }
+        } catch (e) {
+            console.log(e)
         }
     }
 
