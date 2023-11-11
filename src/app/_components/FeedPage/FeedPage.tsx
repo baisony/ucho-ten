@@ -394,9 +394,7 @@ const FeedPage = ({
 
         // setLoadMoreFeed(false)
     }
-
-    console.log("here", data, isLoading, isError)
-
+    //console.log("here", data, isLoading, isError)
     return (
         <>
             {hasUpdate && (
