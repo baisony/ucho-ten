@@ -594,11 +594,11 @@ const SettingsMutePage = ({
                             <>
                                 <ModalHeader
                                     className={
-                                        "flex justify-between xl:justify-center"
+                                        "flex justify-between lg:justify-center"
                                     }
                                 >
                                     <Button
-                                        className={"xl:hidden"}
+                                        className={"lg:hidden"}
                                         variant={"light"}
                                         onClick={() => {
                                             onClose()
@@ -608,7 +608,7 @@ const SettingsMutePage = ({
                                     </Button>
                                     <div>Edit word</div>
                                     <Button
-                                        className={"xl:hidden"}
+                                        className={"lg:hidden"}
                                         variant={"light"}
                                         onClick={() => {
                                             if (inputMuteWord.length === 0)
@@ -734,7 +734,7 @@ const SettingsMutePage = ({
                                         onClick={() => {
                                             onClose()
                                         }}
-                                        className={"hidden xl:block"}
+                                        className={"hidden lg:block"}
                                     >
                                         cancel
                                     </Button>
@@ -750,7 +750,7 @@ const SettingsMutePage = ({
                                             }
                                             onClose()
                                         }}
-                                        className={"hidden xl:block"}
+                                        className={"hidden lg:block"}
                                         isDisabled={
                                             inputMuteWord.length === 0 ||
                                             inputMuteWord.length >= 21

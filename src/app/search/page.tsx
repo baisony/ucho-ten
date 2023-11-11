@@ -626,7 +626,7 @@ export default function Root() {
                 <div className={"w-full h-full text-white"}>
                     <div
                         className={
-                            "absolute xl:bottom-0 bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
+                            "absolute lg:bottom-0 bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
                         }
                     >
                         {t("pages.search.FindPerson")}

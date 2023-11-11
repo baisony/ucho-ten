@@ -540,7 +540,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     >
                         <div
                             className={
-                                "xl:w-[calc(100%/4)] h-full hidden xl:block"
+                                "lg:w-[calc(100%/4)] h-full hidden lg:block"
                             }
                         >
                             {showTabBar && <ViewSideMenu />}
@@ -568,9 +568,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                             <div
                                                 className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
                                                     isSearchScreen
-                                                        ? `xl:mt-[100px]`
-                                                        : `xl:mt-[50px]`
-                                                } md:mt-[100px] mt-[85px] xl:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                                        ? `lg:mt-[100px]`
+                                                        : `lg:mt-[50px]`
+                                                } md:mt-[100px] mt-[85px] lg:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
                                             />
                                         </div>
                                     )}
@@ -638,7 +638,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         </div>
                         <div
                             className={
-                                "xl:w-[calc(100%/4)] h-full hidden xl:flex"
+                                "lg:w-[calc(100%/4)] h-full hidden lg:flex"
                             }
                         ></div>
                     </div>
