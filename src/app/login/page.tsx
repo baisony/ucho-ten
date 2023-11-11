@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { createLoginPage } from "./styles"
-import { AtpSessionData, BskyAgent } from "@atproto/api"
+import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faLink,
@@ -60,10 +60,11 @@ export default function CreateLoginPage() {
             })
             const { data } = res
             console.log(data)
-
+            console.log(process.env.NEXT_PUBLIC_PRODUCTION_ENV)
             if (process.env.NEXT_PUBLIC_PRODUCTION_ENV === "true") {
                 const tester = process.env.NEXT_PUBLIC_TESTER_DID?.split(",")
                 const isMatchingPath = tester?.includes(data?.did)
+                console.log(isMatchingPath)
                 if (!isMatchingPath) {
                     setIsUserInfoIncorrect(true)
                     setLoading(false)
