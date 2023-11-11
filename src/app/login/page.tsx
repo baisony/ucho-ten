@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { createLoginPage } from "./styles"
-import { AtpSessionData, BskyAgent } from "@atproto/api"
+import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faLink,
@@ -71,7 +71,7 @@ export default function CreateLoginPage() {
                     setIsLoginFailed(true)
                     return
                 }
-            } else {
+            } else if (process.env.NEXT_PUBLIC_PRODUCTION_ENV !== "true") {
                 return
             }
 
