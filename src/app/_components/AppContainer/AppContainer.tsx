@@ -499,13 +499,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }
 
     useEffect(() => {
-        const did = localStorage.getItem("session")
-        if (!did) return
-        const session = JSON.parse(did).session
-        //setLoggedIn(session.did)
-        getSettings(session.did)
-        //setSettings(session.did)
-    }, [])
+        if (!userProfileDetailed) return
+        if (!userProfileDetailed.did) return
+        getSettings(userProfileDetailed.did)
+        console.log("initialized")
+    }, [userProfileDetailed])
 
     return (
         <div
