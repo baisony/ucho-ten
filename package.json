@@ -23,6 +23,7 @@
     "@react-spring/web": "^9.7.3",
     "@tanstack/react-query": "^5.4.3",
     "@tanstack/react-query-next-experimental": "^5.5.0",
+    "@tidbcloud/serverless": "^0.0.7",
     "@types/node": "20.6.3",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
