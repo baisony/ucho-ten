@@ -28,12 +28,9 @@ export default function Root() {
         const maxBatchSize = 25 // 1つのリクエストに許容される最大数
         const batches = []
         //console.log(bookmarks[0][agent?.session?.did])
-        for (
-            let i = 0;
-            i < bookmarks[0][agent?.session?.did as string].length;
-            i += maxBatchSize
-        ) {
-            const batch = bookmarks[0][agent?.session?.did as string]
+        console.log(bookmarks)
+        for (let i = 0; i < bookmarks.length; i += maxBatchSize) {
+            const batch = bookmarks
                 .slice(i, i + maxBatchSize)
                 .map((bookmark) => bookmark.uri)
             batches.push(batch)
@@ -41,6 +38,7 @@ export default function Root() {
         //console.log(batches)
         const results = []
         for (const batch of batches) {
+            //@ts-ignore
             const { data } = await agent?.getPosts({ uris: batch })
             const { posts } = data
             results.push(...posts)

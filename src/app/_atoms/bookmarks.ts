@@ -12,6 +12,6 @@ export interface Bookmark {
 export interface BookmarkByDid {
     [key: string]: Bookmark[]
 }
-const bookmarks = atomWithStorage<BookmarkByDid[]>("bookmarks", [])
+const bookmarks = atomWithStorage<Bookmark[]>("bookmarks", [])
 
 export const useBookmarks = () => useAtom(bookmarks)

@@ -33,7 +33,7 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
-import { MuteWordByDiD, useWordMutes } from "@/app/_atoms/wordMute"
+import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
@@ -327,15 +327,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         if (!agent) return
         if (muteWords.length === 0) return
         //ミュートワードはあるけど新システムに移行してない場合
-        if (
-            muteWords.length !== 0 &&
-            !muteWords[0][agent?.session?.did as string] &&
-            agent
-        ) {
-            const existingAccountsData: MuteWordByDiD[] = muteWords || {}
-            existingAccountsData[0][agent?.session?.did as string] = []
-            setMuteWords(existingAccountsData)
-        }
 
         for (const word of muteWords) {
             if (typeof word === "string") {
@@ -350,41 +341,20 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     createdAt: createdAt,
                     deletedAt: null,
                 }
-                const existingAccountsData: MuteWordByDiD[] = muteWords || {}
-                const myDID = agent?.session?.did as string
-                console.log(existingAccountsData[0][myDID])
-                const isDuplicate = existingAccountsData[0][myDID].find(
+                const isDuplicate = muteWords.find(
                     (muteWord: any) => muteWord.word === word
                 )
 
                 if (!isDuplicate) {
                     console.log("add")
 
-                    existingAccountsData[0][myDID].push(json)
-                    setMuteWords(existingAccountsData)
+                    setMuteWords((prevMuteWords) => [...prevMuteWords, json])
                 } else {
                     console.log("この単語は既に存在します") // TODO: i18n
                 }
             }
         }
     }, [JSON.stringify(muteWords), agent])
-
-    useEffect(() => {
-        if (!agent) return
-        if (muteWords.length === 0 && agent) {
-            setBookmarks([{ [agent?.session?.did as string]: [] }])
-        }
-        //ミュートワードはあるけど新システムに移行してない場合
-        if (
-            bookmarks.length !== 0 &&
-            !bookmarks[0][agent?.session?.did as string] &&
-            agent
-        ) {
-            const existingAccountsData: BookmarkByDid[] = bookmarks || {}
-            existingAccountsData[0][agent?.session?.did as string] = []
-            setBookmarks(existingAccountsData)
-        }
-    }, [JSON.stringify(bookmarks), agent])
 
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]
@@ -472,6 +442,46 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         return () => {
             mql.removeEventListener("change", mediaQueryLlistener)
         }
+    }, [])
+
+    const setLoggedIn = async (did: string) => {
+        const res = await fetch(`/api/setLoggedIn/${did}`, {
+            method: "GET",
+        })
+        //console.log(await res.json())
+        //if (res.status !== 200) return
+    }
+
+    const getSettings = async (did: string) => {
+        const res = await fetch(`/api/getSettings/${did}`, {
+            method: "GET",
+        })
+        //res.json()
+        const data = await res.json()
+        console.log(data)
+        if ((await res.status) !== 200) return
+        const bookmarks = data.bookmarks
+        const muteWords = data.muteWords
+        setBookmarks(bookmarks)
+        setMuteWords(muteWords)
+    }
+
+    const setSettings = async (did: string) => {
+        const res = await fetch(`/api/setSettings/${did}`, {
+            method: "POST",
+            body: "{}",
+        })
+        //200が出ればOK
+        console.log(await res.status)
+    }
+
+    useEffect(() => {
+        const did = localStorage.getItem("session")
+        if (!did) return
+        const session = JSON.parse(did).session
+        //setLoggedIn(session.did)
+        getSettings(session.did)
+        //setSettings(session.did)
     }, [])
 
     return (
