@@ -464,10 +464,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             //res.json()
             if ((await res.status) == 200) {
                 const data = await res.json()
-                const bookmarks = data.bookmarks
-                const muteWords = data.muteWords
-                setBookmarks(bookmarks)
-                setMuteWords(muteWords)
+                if (data.hasOwnProperty("bookmarks")) {
+                    const bookmarks = data.bookmarks
+                    setBookmarks(bookmarks)
+                } else {
+                    setBookmarks([])
+                }
+                if (data.hasOwnProperty("muteWords")) {
+                    const muteWords = data.muteWords
+                    setMuteWords(muteWords)
+                } else {
+                    setMuteWords([])
+                }
             } else if ((await res.status) == 404) {
                 setBookmarks([])
                 setMuteWords([])
