@@ -468,7 +468,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 const muteWords = data.muteWords
                 setBookmarks(bookmarks)
                 setMuteWords(muteWords)
-            } else {
+            } else if ((await res.status) == 404) {
                 setBookmarks([])
                 setMuteWords([])
             }
