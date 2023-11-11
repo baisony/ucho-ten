@@ -6,9 +6,9 @@ interface Props {
 
 export const DummyHeader: React.FC<Props> = (props: Props) => {
     if (props.isSearchScreen) {
-        return <div className={"xl:h-[100px] md:h-[100px] h-[85px]"} />
+        return <div className={"lg:h-[100px] md:h-[100px] h-[85px]"} />
     } else {
-        return <div className={"xl:h-[50px] md:h-[100px] h-[85px]"} />
+        return <div className={"lg:h-[50px] md:h-[100px] h-[85px]"} />
     }
 }
 

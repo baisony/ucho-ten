@@ -198,7 +198,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
             <div className={top({ isMatchingPath })}>
                 <Button
                     className={
-                        "absolute left-[0px] p-[20px] text-white xl:hidden"
+                        "absolute left-[0px] p-[20px] text-white lg:hidden"
                     }
                     variant="light"
                     startContent={
@@ -347,8 +347,8 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                     menuIndex === index
                                         ? "text-white"
                                         : "text-[#909090]"
-                                } md:text-[15px] text-[13px] xl:flex md:block flex items-center ${
-                                    isMatchingPath ? `xl:h-[27px]` : `xl:h-full`
+                                } md:text-[15px] text-[13px] lg:flex md:block flex items-center ${
+                                    isMatchingPath ? `lg:h-[27px]` : `lg:h-full`
                                 } cursor-pointer`}
                             >
                                 {menu.displayText}

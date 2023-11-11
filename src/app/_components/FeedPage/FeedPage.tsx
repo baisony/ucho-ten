@@ -370,7 +370,7 @@ const FeedPage = ({
             {hasUpdate && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] xl:top-[70px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
                     }
                 >
                     <div
