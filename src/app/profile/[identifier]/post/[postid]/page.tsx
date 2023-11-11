@@ -501,8 +501,9 @@ const PostPage = (props: PostPageProps) => {
 
         if (index !== -1) {
             console.log("delete")
-            const deleteBookmark = bookmarks.splice(index, 1)
-            setBookmarks(deleteBookmark)
+            const newBookmarks = bookmarks
+            const deleteBookmark = newBookmarks.splice(index, 1)
+            setBookmarks(newBookmarks)
             setIsBookmarked(false)
         } else {
             console.log("add")

@@ -475,10 +475,6 @@ const SettingsMutePage = ({
     const [agent] = useAgent()
     const [muteWords, setMuteWords] = useWordMutes()
     const [bookmarks] = useBookmarks()
-    //何もない場合は新規作成
-    if (muteWords.length === 0 && agent) {
-        setMuteWords([])
-    }
     const [editMode, setEditMode] = useState<boolean>(false)
     const [inputMuteWord, setInputMuteWord] = useState<string>("")
     const [inputMuteCategory, setInputMuteCategory] = useState<string>("")
@@ -555,8 +551,9 @@ const SettingsMutePage = ({
         const index = muteWords.findIndex(
             (muteWord: any) => muteWord.word === selectMuteWord.word
         )
-        const deleteMutewods = muteWords.splice(index, 1)
-        setMuteWords(deleteMutewods)
+        const newMuteWords = muteWords
+        const deleteMutewods = newMuteWords.splice(index, 1)
+        setMuteWords(newMuteWords)
     }
 
     const getNowTime = () => {

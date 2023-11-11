@@ -196,9 +196,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
         if (index !== -1) {
             console.log("delete")
+            const newBookmarks = bookmarks
             const deleteBookmark = bookmarks.splice(index, 1)
+            console.log(newBookmarks)
 
-            setBookmarks(deleteBookmark)
+            setBookmarks(newBookmarks)
             setIsBookmarked(false)
             await syncBookmarks()
         } else {
