@@ -185,7 +185,7 @@ const FeedPage = ({
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts, cursor } = response
-            if (posts.length === 0 && cursor === "") setIsEndOfFeed(true)
+            if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
             setCursorState(response.cursor)
 
             console.log("posts", posts)
