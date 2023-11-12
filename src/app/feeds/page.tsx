@@ -33,6 +33,9 @@ import "swiper/css/pagination"
 import { useAtom } from "jotai"
 import { isMobile } from "react-device-detect"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { Virtuoso } from "react-virtuoso"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -98,8 +101,8 @@ const MyFeedsPage = () => {
     const { background, FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
-    const [savedFeeds, setSavedFeeds] = useState<string[]>([])
-    const [, setPinnedFeeds] = useState<string[]>([])
+    const [savedFeeds, setSavedFeeds] = useState<GeneratorView[]>([])
+    const [, setPinnedFeeds] = useState<GeneratorView[]>([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -159,9 +162,7 @@ const MyFeedsPage = () => {
     }
 
     return (
-        <>
-            <DummyHeader />
-
+        <div className={"h-full w-full z-[100]"}>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
@@ -213,14 +214,27 @@ const MyFeedsPage = () => {
                 </div>
             )}
             {savedFeeds.length !== 0 && (
-                <div className={`${background()} w-full h-full`}>
-                    {/*@ts-ignore*/}
-                    {savedFeeds.map((feed: GeneratorView, index) => {
-                        return (
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            //scrollRef.current = ref
+                        }
+                    }}
+                    //context={{ hasMore }}
+                    overscan={200}
+                    increaseViewportBy={200}
+                    data={savedFeeds}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, data) => (
+                        <>
+                            {index === 0 && (
+                                <DummyHeader isSearchScreen={false} />
+                            )}
                             <Link
                                 className={FeedCard()}
                                 key={index}
-                                href={uriToURL(feed.uri)}
+                                href={uriToURL(data?.uri)}
                             >
                                 <div className={"flex items-center ml-[12px]"}>
                                     <div className={"hidden"}>
@@ -236,16 +250,16 @@ const MyFeedsPage = () => {
                                     >
                                         <img
                                             src={
-                                                feed?.avatar ||
+                                                data?.avatar ||
                                                 defaultFeedIcon.src
                                             }
                                             alt={"avatar"}
                                         />
                                     </div>
                                     <div className={"ml-[12px]"}>
-                                        <div>{feed?.displayName}</div>
+                                        <div>{data?.displayName}</div>
                                         <div className={"text-[12px]"}>
-                                            by @{feed?.creator?.handle}
+                                            by @{data?.creator?.handle}
                                         </div>
                                     </div>
                                 </div>
@@ -256,7 +270,7 @@ const MyFeedsPage = () => {
                                             size={"lg"}
                                             className={` ${
                                                 userPreferences.pinned.includes(
-                                                    feed.uri
+                                                    data.uri
                                                 )
                                                     ? `text-[#016EFF]`
                                                     : `text-[#929292]`
@@ -265,14 +279,14 @@ const MyFeedsPage = () => {
                                                 e.stopPropagation()
                                                 if (
                                                     userPreferences.pinned.includes(
-                                                        feed.uri
+                                                        data.uri
                                                     )
                                                 ) {
                                                     if (isLoading) return
                                                     setIsLoading(true)
                                                     const res =
                                                         await agent?.removePinnedFeed(
-                                                            feed.uri
+                                                            data.uri
                                                         )
                                                     await fetchFeeds()
                                                     setIsLoading(false)
@@ -282,7 +296,7 @@ const MyFeedsPage = () => {
                                                     setIsLoading(true)
                                                     const res =
                                                         await agent?.addPinnedFeed(
-                                                            feed.uri
+                                                            data.uri
                                                         )
                                                     await fetchFeeds()
                                                     setIsLoading(false)
@@ -295,7 +309,7 @@ const MyFeedsPage = () => {
                                         className={"cursor-pointer"}
                                         onClick={async (e) => {
                                             e.stopPropagation()
-                                            setSelectedFeed(feed)
+                                            setSelectedFeed(data)
                                             onOpen()
                                         }}
                                     >
@@ -307,10 +321,12 @@ const MyFeedsPage = () => {
                                     </div>
                                 </div>
                             </Link>
-                        )
-                    })}
-                </div>
+                        </>
+                    )}
+                    //endReached={loadMore}
+                    //className={nullTimeline()}
+                />
             )}
-        </>
+        </div>
     )
 }

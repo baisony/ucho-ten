@@ -9,13 +9,18 @@ import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { isMobile } from "react-device-detect"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { Virtuoso } from "react-virtuoso"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("bookmarks")
 
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
@@ -131,24 +136,42 @@ export default function Root() {
 
     return (
         <>
-            <DummyHeader />
-            <div className={"md:h-full w-full z-[100]"}>
-                {timeline.map((post, index) => {
-                    return (
-                        <ViewPostCard
-                            isTop={false}
-                            key={index}
-                            postJson={post}
-                            bodyText={processPostBodyText(
-                                nextQueryParams,
-                                post
-                            )}
-                            nextQueryParams={nextQueryParams}
-                            t={t}
-                            handleValueChange={handleValueChange}
-                        />
-                    )
-                })}
+            <div className={"h-full w-full z-[100]"}>
+                {timeline.length !== 0 && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                //scrollRef.current = ref
+                            }
+                        }}
+                        //context={{ hasMore }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={timeline}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <ViewPostCard
+                                key={`bookmark-${data.uri}`}
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        data || null
+                                    ),
+                                    postJson: data || null,
+                                    nextQueryParams,
+                                    t,
+                                    handleValueChange: handleValueChange,
+                                }}
+                            />
+                        )}
+                        //endReached={loadMore}
+                        className={nullTimeline()}
+                    />
+                )}
                 {timeline.length === 0 && (
                     <div
                         className={
