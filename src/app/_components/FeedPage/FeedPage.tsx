@@ -194,7 +194,7 @@ const FeedPage = ({
 
         if (response) {
             const { posts, cursor } = response
-            if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
+            if (posts.length === 0 && cursor === "") setIsEndOfFeed(true)
             setCursorState(response.cursor)
 
             console.log("posts", posts)
@@ -288,6 +288,7 @@ const FeedPage = ({
         ),
         queryFn: getTimelineFetcher,
         select: (fishes) => {
+            console.log(fishes)
             return fishes
         },
         notifyOnChangeProps: ["data"],
