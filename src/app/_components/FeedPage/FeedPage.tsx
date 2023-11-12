@@ -188,43 +188,23 @@ const FeedPage = ({
             setCursorState(response.cursor)
 
             console.log("posts", posts)
-            console.log(timeline)
-            if (posts.length === 0) return
-            if (timeline !== null && timeline.length > 0) {
-                if (posts![0].post.uri === timeline![0].post.uri) return
-            }
+
             const filteredData =
                 feedKey === "following"
                     ? filterDisplayPosts(posts, agent?.session?.did)
                     : posts
 
             console.log("filteredData", filteredData)
-            if (
-                timeline === null ||
-                timeline![0].post.uri !== filteredData[0].post.uri
-            ) {
-                setTimeline((currentTimeline) => {
-                    if (currentTimeline !== null) {
-                        console.log(currentTimeline)
-                        console.log(filteredData)
-                        if (
-                            currentTimeline[0].post.uri ===
-                            filteredData[0].post.uri
-                        ) {
-                            return currentTimeline
-                        }
-                        const newTimeline = [
-                            ...currentTimeline,
-                            ...filteredData,
-                        ]
-                        console.log(newTimeline)
 
-                        return newTimeline
-                    } else {
-                        return [...filteredData]
-                    }
-                })
-            }
+            setTimeline((currentTimeline) => {
+                if (currentTimeline !== null) {
+                    const newTimeline = [...currentTimeline, ...filteredData]
+
+                    return newTimeline
+                } else {
+                    return [...filteredData]
+                }
+            })
 
             if (filteredData.length > 0) {
                 latestCID.current = filteredData[0].post.cid
@@ -379,12 +359,7 @@ const FeedPage = ({
         }
     }
 
-    if (data?.cursor === "") {
-        setIsEndOfFeed(true)
-        console.log(timeline)
-    }
-
-    if (data !== undefined && data.cursor !== undefined) {
+    if (data !== undefined) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
