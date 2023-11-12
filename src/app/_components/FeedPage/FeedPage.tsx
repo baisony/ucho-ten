@@ -186,7 +186,7 @@ const FeedPage = ({
         if (response) {
             const { posts, cursor } = response
             if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
-            //setCursorState(response.cursor)
+            setCursorState(response.cursor)
 
             console.log("posts", posts)
 
