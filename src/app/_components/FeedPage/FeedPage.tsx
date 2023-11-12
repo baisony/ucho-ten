@@ -184,8 +184,9 @@ const FeedPage = ({
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
-            const { posts } = response
-            setCursorState(response.cursor)
+            const { posts, cursor } = response
+            if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
+            //setCursorState(response.cursor)
 
             console.log("posts", posts)
 
@@ -267,6 +268,10 @@ const FeedPage = ({
     const { data /*isLoading, isError*/ } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
+        select: (fishes) => {
+            return fishes
+        },
+        notifyOnChangeProps: ["data"],
         enabled:
             agent !== null &&
             feedKey !== "" &&
@@ -359,7 +364,7 @@ const FeedPage = ({
         }
     }
 
-    if (data !== undefined) {
+    if (data !== undefined && !isEndOfFeed) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
