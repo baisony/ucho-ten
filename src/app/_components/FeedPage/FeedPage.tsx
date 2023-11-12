@@ -30,7 +30,7 @@ export interface FeedPageProps {
 
 interface FeedResponseObject {
     posts: FeedViewPost[]
-    cursor: string | null // TODO: should consider adding ? to handle undefined.
+    cursor: string // TODO: should consider adding ? to handle undefined.
 }
 
 const FeedPage = ({
@@ -46,19 +46,16 @@ const FeedPage = ({
 
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    const [hasMore, setHasMore] = useState<boolean>(true)
+    const [hasMore, setHasMore] = useState<boolean>(false)
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
-    // const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
-    const [cursorState, setCursorState] = useState<string | null>("")
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
-    const cursorRef = useRef<string | null>("")
-    const fetchedCursors = useRef<(string | null)[]>([])
-    const loadMoreFeed = useRef<boolean>(true)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -77,15 +74,11 @@ const FeedPage = ({
         }
     }, [timeline])
 
-    const loadMore = () => {
-        console.log("end reached", cursorState, hasMore, feedKey) //, loadMoreFeed, )
-
-        if (hasMore && cursorRef.current !== null) {
-            loadMoreFeed.current = true
-            // setHasMore(false)
-            setCursorState(cursorRef.current)
+    const loadMore = useCallback(() => {
+        if (hasMore) {
+            setLoadMoreFeed(true)
         }
-    }
+    }, [hasMore])
 
     const checkNewTimeline = async () => {
         if (!agent) return
@@ -190,8 +183,6 @@ const FeedPage = ({
     }
 
     const handleFetchResponse = (response: FeedResponseObject) => {
-        loadMoreFeed.current = false
-
         if (response) {
             const { posts, cursor } = response
             if (posts.length === 0 && cursor === "") setIsEndOfFeed(true)
@@ -221,21 +212,18 @@ const FeedPage = ({
             } else {
                 latestCID.current = ""
             }
-
-            if (response.cursor !== null) {
-                cursorRef.current = response.cursor
-                setHasMore(true)
-            } else {
-                cursorRef.current = null
-                setHasMore(false)
-            }
         } else {
-            if (timeline !== null) {
-                setTimeline([])
-                setHasMore(false)
-            }
-
+            setTimeline([])
+            setHasMore(false)
             return
+        }
+
+        setCursorState(response.cursor)
+
+        if (cursorState !== "") {
+            setHasMore(true)
+        } else {
+            setHasMore(false)
         }
     }
 
@@ -244,7 +232,7 @@ const FeedPage = ({
     }: QueryFunctionContext<
         ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
     >): Promise<FeedResponseObject> => {
-        console.log("getTimelineFetcher: >>", cursorRef.current)
+        console.log("getTimelineFetcher: >>")
 
         if (agent === null) {
             console.log("error")
@@ -253,42 +241,34 @@ const FeedPage = ({
 
         const [_key, feedKey, cursorData] = queryKey
 
-        if (fetchedCursors.current.includes(cursorRef.current) === false) {
-            fetchedCursors.current.push(cursorRef.current)
-        }
-
         if (feedKey === "following") {
             const response = await agent.getTimeline({
-                cursor: cursorRef.current || "",
+                cursor: cursorState || "",
                 limit: FEED_FETCH_LIMIT,
             })
 
             return {
                 posts: response.data.feed,
-                cursor: response.data.cursor || null,
+                cursor: response.data.cursor || "",
             }
         } else {
             const response = await agent.app.bsky.feed.getFeed({
                 feed: feedKey,
-                cursor: cursorRef.current || "",
+                cursor: cursorState || "",
                 limit: FEED_FETCH_LIMIT,
             })
 
             return {
                 posts: response.data.feed,
-                cursor: response.data.cursor || null,
+                cursor: response.data.cursor || "",
             }
         }
     }
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey: getFeedKeys.feedkeyWithCursor(
-            feedKey,
-            cursorRef.current || ""
-        ),
+    const { data /*isLoading, isError*/ } = useQuery({
+        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
         select: (fishes) => {
-            console.log(fishes)
             return fishes
         },
         notifyOnChangeProps: ["data"],
@@ -296,10 +276,7 @@ const FeedPage = ({
             agent !== null &&
             feedKey !== "" &&
             isActive /*shouldLoad */ &&
-            hasMore === true &&
-            loadMoreFeed.current === true &&
-            cursorRef.current !== null &&
-            fetchedCursors.current.includes(cursorRef.current) == false,
+            loadMoreFeed,
     })
 
     const handleValueChange = (newValue: any) => {
@@ -388,14 +365,11 @@ const FeedPage = ({
     }
 
     if (data !== undefined && !isEndOfFeed) {
-        //&& !isError && !isLoading) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
-
         handleFetchResponse(data)
-
-        // setLoadMoreFeed(false)
+        setLoadMoreFeed(false)
     }
-    //console.log("here", data, isLoading, isError)
+
     return (
         <>
             {hasUpdate && (
