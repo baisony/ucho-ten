@@ -48,6 +48,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { i18n } = useTranslation()
     const searchPath = ["/search"]
     const isSearchScreen = searchPath.includes(pathName)
+    const isLoginPath = ["/login"].includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
@@ -563,7 +564,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     />
                                 )}
                                 <div
-                                    className={`pt-[0px] h-[calc(100%-50px-env(safe-area-inset-bottom))] lg:h-full relative`}
+                                    className={`pt-[0px] h-[calc(100%-50px-env(safe-area-inset-bottom))] ${
+                                        isLoginPath && `h-full`
+                                    } lg:h-full relative`}
                                 >
                                     {shouldFillPageBackground && (
                                         <div className="absolute top-0 left-0 flex justify-center w-full h-full">
