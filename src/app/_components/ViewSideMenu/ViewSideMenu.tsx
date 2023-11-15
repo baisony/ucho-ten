@@ -183,6 +183,26 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     >
                         <DropdownSection showDivider>
                             <DropdownItem
+                                key="profile"
+                                startContent={<FontAwesomeIcon icon={faUser} />}
+                            >
+                                <Link
+                                    href={`/profile/${userProfileDetailed?.did}`}
+                                >
+                                    {t("components.ViewSideMenu.profile")}
+                                </Link>
+                            </DropdownItem>
+                            <DropdownItem
+                                key="switch_account"
+                                startContent={
+                                    <FontAwesomeIcon icon={faUsers} />
+                                }
+                            >
+                                {t("components.ViewSideMenu.switchAccount")}
+                            </DropdownItem>
+                        </DropdownSection>
+                        <DropdownSection showDivider>
+                            <DropdownItem
                                 key="about"
                                 startContent={
                                     <FontAwesomeIcon icon={faCircleInfo} />
@@ -211,26 +231,6 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                                 >
                                     {t("components.ViewSideMenu.bugreport")}
                                 </a>
-                            </DropdownItem>
-                        </DropdownSection>
-                        <DropdownSection showDivider>
-                            <DropdownItem
-                                key="profile"
-                                startContent={<FontAwesomeIcon icon={faUser} />}
-                            >
-                                <Link
-                                    href={`/profile/${userProfileDetailed?.did}`}
-                                >
-                                    {t("components.ViewSideMenu.profile")}
-                                </Link>
-                            </DropdownItem>
-                            <DropdownItem
-                                key="switch_account"
-                                startContent={
-                                    <FontAwesomeIcon icon={faUsers} />
-                                }
-                            >
-                                {t("components.ViewSideMenu.switchAccount")}
                             </DropdownItem>
                         </DropdownSection>
                         <DropdownItem

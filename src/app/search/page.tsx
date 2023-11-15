@@ -624,12 +624,18 @@ export default function Root() {
         <>
             {searchText === "" && (
                 <div className={"w-full h-full text-white"}>
-                    <div
-                        className={
-                            "absolute lg:bottom-0 bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
-                        }
-                    >
+                    <div className={"absolute bottom-0  w-full"}>
                         {t("pages.search.FindPerson")}
+                        <Link
+                            className={searchSupportCard()}
+                            href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed${nextQueryParams.toString()}`}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>穏やかなSNSを見つめる</div>
+                                <div>by @Ucho-ten</div>
+                            </div>
+                        </Link>
                         <Link
                             className={searchSupportCard()}
                             href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
@@ -651,13 +657,6 @@ export default function Root() {
                                 <div>by @Ucho-ten</div>
                             </div>
                         </Link>
-                        <div className={searchSupportCard()}>
-                            <div className={"h-[50px] w-[50px]"}></div>
-                            <div>
-                                <div>test</div>
-                                <div>by @Ucho-ten</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             )}
