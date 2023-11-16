@@ -3,7 +3,7 @@ import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { AppBskyFeedGetTimeline, AppBskyFeedPost } from "@atproto/api"
+import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -17,7 +17,6 @@ import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useWordMutes } from "@/app/_atoms/wordMute"
-import { ViewRecord } from "@atproto/api/src/client/types/app/bsky/embed/record"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -86,9 +85,7 @@ const FeedPage = ({
         return posts.filter((post) => {
             const shouldInclude = muteWords.some((muteWord) => {
                 if (post.post?.embed?.record) {
-                    const embedRecord = post.post.embed.record as ViewRecord
-                    const embedRecordValue =
-                        embedRecord?.value as ViewRecord["value"]
+                    const embedRecord = post.post.embed.record
                     if (muteWord.isActive) {
                         // @ts-ignore
                         return embedRecord?.value?.text.includes(muteWord.word)
@@ -96,9 +93,8 @@ const FeedPage = ({
                         return false
                     }
                 } else {
-                    return (
-                        post.post.record as AppBskyFeedPost.Record
-                    )?.text.includes(muteWord.word)
+                    // @ts-ignore
+                    return post.post.record?.text.includes(muteWord.word)
                 }
             })
 
