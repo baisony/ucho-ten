@@ -700,25 +700,30 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     className={`${PostAuthorDisplayName()} md:hover:underline`}
                                     style={{ fontSize: "13px" }}
                                 >
-                                    {postJsonData?.author?.displayName}
+                                    {postJsonData?.author?.displayName ||
+                                        postJsonData?.author?.handle}
                                 </span>
                             </Link>
-                            <div className={"text-[#BABABA]"}>
-                                &nbsp;-&nbsp;
-                            </div>
-                            <Link
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                }}
-                                href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
-                            >
-                                <span
-                                    className={`${PostAuthorHandle()} md:hover:underline`}
-                                >
-                                    {postJsonData?.author?.handle}
-                                </span>
-                            </Link>
+                            {postJsonData?.author?.displayName && (
+                                <>
+                                    <div className={"text-[#BABABA]"}>
+                                        &nbsp;-&nbsp;
+                                    </div>
+                                    <Link
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                        }}
+                                        href={`/profile/${postJsonData?.author
+                                            .did}?${nextQueryParams.toString()}`}
+                                    >
+                                        <span
+                                            className={`${PostAuthorHandle()} md:hover:underline`}
+                                        >
+                                            {postJsonData?.author?.handle}
+                                        </span>
+                                    </Link>
+                                </>
+                            )}
                         </span>
 
                         <div
