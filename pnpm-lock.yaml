@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@atproto/api':
-    specifier: ^0.6.23
-    version: 0.6.23
+    specifier: ^0.6.16
+    version: 0.6.16
   '@emoji-mart/data':
     specifier: ^1.1.2
     version: 1.1.2
@@ -213,21 +213,20 @@ packages:
       leven: 3.1.0
     dev: false
 
-  /@atproto/api@0.6.23:
-    resolution: {integrity: sha512-DUaoMv3Uu/WUNIoLk1OGYmsXNXnu8fKJmma7wbftiWmCiXqE5wiO3GHg3V8Zq6TXSiaQ9C+xcwx5/eMBnz1BsA==}
+  /@atproto/api@0.6.16:
+    resolution: {integrity: sha512-DpG994bdwk7NWJSb36Af+0+FRWMFZgzTcrK0rN2tvlsMh6wBF/RdErjHKuoL8wcogGzbI2yp8eOqsA00lyoisw==}
     dependencies:
-      '@atproto/common-web': 0.2.3
-      '@atproto/lexicon': 0.3.0
-      '@atproto/syntax': 0.1.4
-      '@atproto/xrpc': 0.4.0
+      '@atproto/common-web': 0.2.0
+      '@atproto/lexicon': 0.2.1
+      '@atproto/syntax': 0.1.1
+      '@atproto/xrpc': 0.3.1
       multiformats: 9.9.0
-      tlds: 1.245.0
+      tlds: 1.242.0
       typed-emitter: 2.1.0
-      zod: 3.22.4
     dev: false
 
-  /@atproto/common-web@0.2.3:
-    resolution: {integrity: sha512-k9VKGYUqjsRlI3wS31XyCbeb2U7ddS4X/eFgzos2CE5rIbk/uQGyKH+0Jcn1JIwRkvI1BemyNuUVrS8Ok3wiuw==}
+  /@atproto/common-web@0.2.0:
+    resolution: {integrity: sha512-ugKrT8CWf6PDsZ29VOhOCs5K4z9BAFIV7SxPXA+MHC7pINqQ+wyjIq+DtUI8kmUSce1dTqc/lMN1akf/W5whVQ==}
     dependencies:
       graphemer: 1.4.0
       multiformats: 9.9.0
@@ -235,26 +234,26 @@ packages:
       zod: 3.22.4
     dev: false
 
-  /@atproto/lexicon@0.3.0:
-    resolution: {integrity: sha512-0yxHcgfdIrs1Dlg0uFe53NL65kiz+AlkQhAvcEOiU7CKZxUI0Iwae9FCmP0+3ptcGMYD8X6OrZTHsfw/s4BglA==}
+  /@atproto/lexicon@0.2.1:
+    resolution: {integrity: sha512-r03gJ9g/hhfI4zHqQgS8HrWceXMhpkVSPNJw1DufpwGpISdaqO6WltdxUkdUQXl6htJmZq3QidnyWPXR5dOtWg==}
     dependencies:
-      '@atproto/common-web': 0.2.3
-      '@atproto/syntax': 0.1.4
+      '@atproto/common-web': 0.2.0
+      '@atproto/syntax': 0.1.1
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
       zod: 3.22.4
     dev: false
 
-  /@atproto/syntax@0.1.4:
-    resolution: {integrity: sha512-+18HKNJsMQfjlcn62Z9daK8wC/inuqEYXY2FHEd5cNnCt808x2lWLSHB32I6iYEib0d7XDdnaHimBFzWge/C1Q==}
+  /@atproto/syntax@0.1.1:
+    resolution: {integrity: sha512-R3ZbDcA1Ax9yu81uReRcrsmCknqBjqTI+3zuNYS8gNEh0m0OUqJyR4+xSDwrSjE4NDOs1nT93HP+WrimENkihg==}
     dependencies:
-      '@atproto/common-web': 0.2.3
+      '@atproto/common-web': 0.2.0
     dev: false
 
-  /@atproto/xrpc@0.4.0:
-    resolution: {integrity: sha512-R73eC1bQyigsKDx7h8Wk8ah7812d24fZV8RAnjkdzfecWMyDBFbJEG5MCC1AEtkGz4YbfwAHMOQe2J1Av9z0RA==}
+  /@atproto/xrpc@0.3.1:
+    resolution: {integrity: sha512-VVoRC/omtXFMIDUyrkFjYkwJ3vevvsGH0L1UW6mTsL40DK3iJpi0GcdJlcqdMkIFJ+QLeAluEKgEcL7bAR5LiQ==}
     dependencies:
-      '@atproto/lexicon': 0.3.0
+      '@atproto/lexicon': 0.2.1
       zod: 3.22.4
     dev: false
 
@@ -7648,8 +7647,8 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /tlds@1.245.0:
-    resolution: {integrity: sha512-fbSQFQr8f41/e9q9IoKKVv7CUFvvE3TVJo7m0JQJZcf7jOOXRRf9DIP4Uf04aovYGKG686OvtV4ZrNY1bOz3aA==}
+  /tlds@1.242.0:
+    resolution: {integrity: sha512-aP3dXawgmbfU94mA32CJGHmJUE1E58HCB1KmlKRhBNtqBL27mSQcAEmcaMaQ1Za9kIVvOdbxJD3U5ycDy7nJ3w==}
     hasBin: true
     dev: false
 
@@ -7963,7 +7962,7 @@ packages:
       '@webassemblyjs/wasm-parser': 1.11.6
       acorn: 8.10.0
       acorn-import-assertions: 1.9.0(acorn@8.10.0)
-      browserslist: 4.22.1
+      browserslist: 4.21.11
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.15.0
       es-module-lexer: 1.3.1
