@@ -87,8 +87,14 @@ const FeedPage = ({
             const shouldInclude = muteWords.some((muteWord) => {
                 if (post.post?.embed?.record) {
                     const embedRecord = post.post.embed.record as ViewRecord
-                    // @ts-ignore
-                    return embedRecord?.value?.text.includes(muteWord.word)
+                    const embedRecordValue =
+                        embedRecord?.value as ViewRecord["value"]
+                    if (muteWord.isActive) {
+                        // @ts-ignore
+                        return embedRecord?.value?.text.includes(muteWord.word)
+                    } else {
+                        return false
+                    }
                 } else {
                     return (
                         post.post.record as AppBskyFeedPost.Record
