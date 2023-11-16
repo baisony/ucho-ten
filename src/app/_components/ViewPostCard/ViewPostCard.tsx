@@ -539,7 +539,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             embedRecordViewRecord.author.viewer?.muted ||
             embedRecordViewRecord.author.viewer?.blocking
         ) {
-            handleInputChange("delete", embedRecordViewRecord?.uri || "", "")
+            handleInputChange("delete", postJsonData?.uri || "", "")
         }
     }, [])
 
