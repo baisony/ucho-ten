@@ -3,7 +3,7 @@ import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { AppBskyFeedGetTimeline } from "@atproto/api"
+import { AppBskyFeedGetTimeline, AppBskyFeedPost } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -16,6 +16,8 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { useWordMutes } from "@/app/_atoms/wordMute"
+import { ViewRecord } from "@atproto/api/src/client/types/app/bsky/embed/record"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -43,7 +45,7 @@ const FeedPage = ({
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
-
+    const [muteWords] = useWordMutes()
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
@@ -80,6 +82,24 @@ const FeedPage = ({
         }
     }, [hasMore])
 
+    const filterPosts = (posts: FeedViewPost[]) => {
+        return posts.filter((post) => {
+            const shouldInclude = muteWords.some((muteWord) => {
+                if (post.post?.embed?.record) {
+                    const embedRecord = post.post.embed.record as ViewRecord
+                    // @ts-ignore
+                    return embedRecord?.value?.text.includes(muteWord.word)
+                } else {
+                    return (
+                        post.post.record as AppBskyFeedPost.Record
+                    )?.text.includes(muteWord.word)
+                }
+            })
+
+            return !shouldInclude
+        })
+    }
+
     const checkNewTimeline = async () => {
         if (!agent) return
 
@@ -110,21 +130,23 @@ const FeedPage = ({
                         ? filterDisplayPosts(feed, agent.session?.did)
                         : feed
 
+                const muteWordFilter = filterPosts(filteredData)
+
                 console.log(`check new ${feedKey}`, filteredData)
                 console.log(`timeline ${feedKey}`, timeline)
 
-                setNewTimeline(filteredData)
+                setNewTimeline(muteWordFilter)
 
-                if (filteredData.length > 0) {
+                if (muteWordFilter.length > 0) {
                     console.log(
                         "new and old cid",
                         feedKey,
-                        filteredData[0].post.cid,
+                        muteWordFilter[0].post.cid,
                         latestCID.current
                     )
 
                     if (
-                        filteredData[0].post.cid !== latestCID.current &&
+                        muteWordFilter[0].post.cid !== latestCID.current &&
                         latestCID.current !== ""
                     ) {
                         setHasUpdate(true)
@@ -195,20 +217,23 @@ const FeedPage = ({
                     ? filterDisplayPosts(posts, agent?.session?.did)
                     : posts
 
+            const muteWordFilter = filterPosts(filteredData)
+
             console.log("filteredData", filteredData)
+            console.log("muteWordFilter", muteWordFilter)
 
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
-                    const newTimeline = [...currentTimeline, ...filteredData]
+                    const newTimeline = [...currentTimeline, ...muteWordFilter]
 
                     return newTimeline
                 } else {
-                    return [...filteredData]
+                    return [...muteWordFilter]
                 }
             })
 
-            if (filteredData.length > 0) {
-                latestCID.current = filteredData[0].post.cid
+            if (muteWordFilter.length > 0) {
+                latestCID.current = muteWordFilter[0].post.cid
             } else {
                 latestCID.current = ""
             }
