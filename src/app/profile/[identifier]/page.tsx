@@ -604,6 +604,7 @@ const UserProfileComponent = ({
     const [onHoverButton, setOnHoverButton] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isMuted, setIsMuted] = useState(!!profile?.viewer?.muted)
+    console.log(profile)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
     const [description, setDescription] = useState(profile?.description)
@@ -827,7 +828,7 @@ const UserProfileComponent = ({
         if (isLoading) return
         setIsLoading(true)
         console.log(profile)
-        console.log(isMuted)
+        console.log(!isMuted)
         if (isMuted) {
             const res = await agent?.unmute(profile.did)
             console.log(res)
@@ -846,6 +847,8 @@ const UserProfileComponent = ({
         setAvatar(profile?.avatar)
         setDisplayName(profile?.displayName)
         setDescription(profile?.description)
+        setIsMuted(!!profile?.viewer?.muted)
+        setIsFollowing(!!profile?.viewer?.following)
     }, [profile])
 
     return (
@@ -1279,7 +1282,7 @@ const UserProfileComponent = ({
                             isDisabled={isSkeleton}
                             className={`${FollowButton()} `}
                             color={
-                                !!profile?.viewer?.following
+                                isFollowing
                                     ? onHoverButton && !isProfileMine
                                         ? "danger"
                                         : "default"
@@ -1297,7 +1300,7 @@ const UserProfileComponent = ({
                             onClick={async () => {
                                 if (isProfileMine) {
                                     onOpen()
-                                } else if (!!profile?.viewer?.following) {
+                                } else if (isFollowing) {
                                     if (!agent) return
                                     try {
                                         const res = await agent.deleteFollow(
@@ -1305,6 +1308,7 @@ const UserProfileComponent = ({
                                         )
                                         console.log(res)
                                         setIsFollowing(false)
+                                        profile.viewer.following = undefined
                                     } catch (e) {}
                                     // unfollow
                                 } else if (!isFollowing) {
@@ -1316,6 +1320,7 @@ const UserProfileComponent = ({
                                         )
                                         console.log(res)
                                         setIsFollowing(true)
+                                        profile.viewer.following = res.cid
                                     } catch (e) {
                                         console.log(e)
                                     }
@@ -1324,7 +1329,7 @@ const UserProfileComponent = ({
                         >
                             {isProfileMine
                                 ? t("pages.profile.editProfile")
-                                : !!profile?.viewer?.following
+                                : isFollowing
                                 ? !onHoverButton
                                     ? t("button.following")
                                     : t("button.unfollow")
