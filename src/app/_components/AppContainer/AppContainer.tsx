@@ -311,7 +311,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [imageGallery])
 
     const shouldFillPageBackground = useMemo((): boolean => {
-        if (pathName.startsWith("/login") || pathName.startsWith("/")) {
+        if (pathName.startsWith("/login") || pathName === "/") {
             return false
         } else if (
             pathName.startsWith("/search") &&
