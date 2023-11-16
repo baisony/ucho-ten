@@ -4,7 +4,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 // import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -43,14 +46,87 @@ import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useMenuIndexChangedByMenu,
+} from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useAtom } from "jotai/index"
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination } from "swiper/modules"
 
-export default function Root() {
-    const [, setCurrentMenuType] = useCurrentMenuType()
+const Page = () => {
+    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("profile")
 
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+
+    const swiperRef = useRef<SwiperCore | null>(null)
+
+    useEffect(() => {
+        if (
+            currentMenuType === "profile" &&
+            swiperRef.current &&
+            menuIndex !== swiperRef.current.activeIndex
+        ) {
+            swiperRef.current.slideTo(menuIndex)
+        }
+    }, [currentMenuType, menuIndex, swiperRef.current])
+
+    return (
+        <>
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                cssMode={isMobile}
+                pagination={{ type: "custom", clickable: false }}
+                modules={[Pagination]}
+                className="swiper-only-post"
+                style={{ height: "100%" }}
+                touchAngle={30}
+                touchRatio={0.8}
+                touchReleaseOnEdges={true}
+                touchMoveStopPropagation={true}
+                preventInteractionOnTransition={true}
+                onActiveIndexChange={(swiper) => {
+                    if (menuIndexChangedByMenu === false) {
+                        setMenuIndex(swiper.activeIndex)
+                    }
+                }}
+                onTouchStart={(swiper, event) => {
+                    setMenuIndexChangedByMenu(false)
+                }}
+            >
+                <SwiperSlide>
+                    <PostPage tab={"posts"} />
+                </SwiperSlide>
+                <SwiperSlide>
+                    <PostPage tab={"replies"} />
+                </SwiperSlide>
+                <SwiperSlide>
+                    <PostPage tab={"media"} />
+                </SwiperSlide>
+            </Swiper>
+        </>
+    )
+}
+
+export default Page
+
+interface PostPageProps {
+    tab: "posts" | "replies" | "media"
+}
+
+const PostPage = (props: PostPageProps) => {
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const router = useRouter()
     const pathname = usePathname()
     const { t } = useTranslation()
@@ -88,23 +164,6 @@ export default function Root() {
         }
     }, [])
 
-    // const handleRefresh = () => {
-    //     console.log("refresh")
-
-    //     // newtimelineとtimelineの差分を取得
-    //     console.log(timeline)
-    //     console.log(newTimeline)
-    //     const diffTimeline = newTimeline.filter((newItem) => {
-    //         return !timeline.some(
-    //             (oldItem) => oldItem.post.uri === newItem.post.uri
-    //         )
-    //     })
-    //     console.log(diffTimeline)
-    //     // timelineに差分を追加
-    //     setTimeline([...diffTimeline, ...timeline])
-    //     setAvailableNewTimeline(false)
-    // }
-
     const formattingTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
 
@@ -124,6 +183,72 @@ export default function Root() {
                     return false
                 }
             }
+
+            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+            if (!seenUris.has(uri)) {
+                seenUris.add(uri)
+                return true
+            }
+
+            return false
+        })
+
+        return filteredData as FeedViewPost[]
+    }
+
+    const formattingOnlyPostsTimeline = (timeline: FeedViewPost[]) => {
+        const seenUris = new Set<string>()
+
+        const filteredData = timeline.filter((item) => {
+            if (item.reason) return true
+            if (item.reply) return false
+            if ((item.post.record as PostView)?.reply) return false
+            const uri = item.post.uri
+
+            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+            if (!seenUris.has(uri)) {
+                seenUris.add(uri)
+                return true
+            }
+
+            return false
+        })
+
+        return filteredData as FeedViewPost[]
+    }
+    const formattingOnlyRepliesTimeline = (timeline: FeedViewPost[]) => {
+        const seenUris = new Set<string>()
+
+        const filteredData = timeline.filter((item) => {
+            if (item.reason) return false
+            if (!item.reply || !(item.post.record as PostView)?.reply)
+                return false
+            const uri = item.post.uri
+
+            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
+            if (!seenUris.has(uri)) {
+                seenUris.add(uri)
+                return true
+            }
+
+            return false
+        })
+
+        return filteredData as FeedViewPost[]
+    }
+
+    const formattingOnlyMediaTimeline = (timeline: FeedViewPost[]) => {
+        const seenUris = new Set<string>()
+
+        const filteredData = timeline.filter((item) => {
+            if (item.reason) return false
+            if (
+                item?.post?.embed?.$type !== "app.bsky.embed.images#view" &&
+                item?.post?.embed?.$type !==
+                    "app.bsky.embed.recordWithMedia#view"
+            )
+                return false
+            const uri = item.post.uri
 
             // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
             if (!seenUris.has(uri)) {
@@ -161,7 +286,14 @@ export default function Root() {
 
                 const { feed } = data
 
-                const filteredData = formattingTimeline(feed)
+                let filteredData: FeedViewPost[] = []
+                if (props.tab === "posts") {
+                    filteredData = formattingOnlyPostsTimeline(feed)
+                } else if (props.tab === "replies") {
+                    filteredData = formattingOnlyRepliesTimeline(feed)
+                } else if (props.tab === "media") {
+                    filteredData = formattingOnlyMediaTimeline(feed)
+                }
 
                 setTimeline((currentTimeline) => {
                     if (currentTimeline !== null) {
@@ -425,10 +557,7 @@ export default function Root() {
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{
-                overflowY: "auto",
-                height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-            }}
+            className={nullTimeline()}
         />
     )
 }
@@ -443,7 +572,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     const { isDummyHeader, userProfileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return <DummyHeader />
     }
 
     if (userProfileProps) {

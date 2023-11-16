@@ -38,7 +38,7 @@ const defaultInboxMenus: HeaderMenu[] = [
 
 const defaultProfileMenus: HeaderMenu[] = [
     {
-        displayText: "Profile / Posts",
+        displayText: "Posts",
         info: "profile",
     },
     {
@@ -48,10 +48,6 @@ const defaultProfileMenus: HeaderMenu[] = [
     {
         displayText: "Media",
         info: "media",
-    },
-    {
-        displayText: "Feeds",
-        info: "feeds",
     },
 ]
 

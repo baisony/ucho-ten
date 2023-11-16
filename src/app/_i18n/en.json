@@ -117,6 +117,20 @@
     },
     "ViewHeader": {
       "search": "Search"
+    },
+    "ViewSideMenu": {
+      "home": "Home",
+      "bookmark": "Bookmark",
+      "inbox": "Inbox",
+      "feed": "Feed",
+      "search": "Search",
+      "post": "Post",
+      "settings": "Settings",
+      "about": "About Ucho-ten",
+      "bugreport": "Bug Report",
+      "profile": "Profile",
+      "switchAccount": "Switch Account",
+      "logout": "Logout"
     }
   },
   "modal": {

@@ -30,12 +30,14 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
@@ -536,7 +538,7 @@ export default function Root() {
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", "フィード bsky.app")
         queryParams.set("target", "posts")
-        return `/search?${nextQueryParams.toString()}` as string
+        return `/search?${queryParams.toString()}` as string
     }
 
     const handleValueChange = (newValue: any) => {
@@ -622,12 +624,18 @@ export default function Root() {
         <>
             {searchText === "" && (
                 <div className={"w-full h-full text-white"}>
-                    <div
-                        className={
-                            "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] w-full"
-                        }
-                    >
+                    <div className={"absolute bottom-0  w-full"}>
                         {t("pages.search.FindPerson")}
+                        <Link
+                            className={searchSupportCard()}
+                            href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed${nextQueryParams.toString()}`}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>穏やかなSNSを見つめる</div>
+                                <div>by @Ucho-ten</div>
+                            </div>
+                        </Link>
                         <Link
                             className={searchSupportCard()}
                             href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
@@ -649,13 +657,6 @@ export default function Root() {
                                 <div>by @Ucho-ten</div>
                             </div>
                         </Link>
-                        <div className={searchSupportCard()}>
-                            <div className={"h-[50px] w-[50px]"}></div>
-                            <div>
-                                <div>test</div>
-                                <div>by @Ucho-ten</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             )}
@@ -680,10 +681,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -719,6 +717,7 @@ export default function Root() {
                                     nextQueryParams,
                                     t,
                                     handleValueChange: handleValueChange,
+                                    isSearchScreen: true,
                                 }}
                             />
                         )}
@@ -729,10 +728,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadPostsMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
 
@@ -753,10 +749,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -799,10 +792,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadUsersMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
             {loading && searchTarget === "feeds" && (
@@ -822,10 +812,7 @@ export default function Root() {
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
 
@@ -866,10 +853,7 @@ export default function Root() {
                                 : ListFooterNoContent,
                         }}
                         endReached={loadFeedsMore}
-                        style={{
-                            overflowY: "auto",
-                            height: "calc(100% - 50px)",
-                        }}
+                        className={notNulltimeline()}
                     />
                 )}
         </>
@@ -894,7 +878,7 @@ const UserCell = ({
 
     return (
         <>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader />}
             <div
                 onClick={onClick}
                 //@ts-ignore

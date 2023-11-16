@@ -1,14 +1,7 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import {
-    MutableRefObject,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -22,6 +15,8 @@ import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { useWordMutes } from "@/app/_atoms/wordMute"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -48,7 +43,8 @@ const FeedPage = ({
 
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const [muteWords] = useWordMutes()
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
@@ -85,6 +81,27 @@ const FeedPage = ({
         }
     }, [hasMore])
 
+    const filterPosts = (posts: FeedViewPost[]) => {
+        return posts.filter((post) => {
+            const shouldInclude = muteWords.some((muteWord) => {
+                if (post.post?.embed?.record) {
+                    const embedRecord = post.post.embed.record
+                    if (muteWord.isActive) {
+                        // @ts-ignore
+                        return embedRecord?.value?.text.includes(muteWord.word)
+                    } else {
+                        return false
+                    }
+                } else {
+                    // @ts-ignore
+                    return post.post.record?.text.includes(muteWord.word)
+                }
+            })
+
+            return !shouldInclude
+        })
+    }
+
     const checkNewTimeline = async () => {
         if (!agent) return
 
@@ -115,21 +132,23 @@ const FeedPage = ({
                         ? filterDisplayPosts(feed, agent.session?.did)
                         : feed
 
+                const muteWordFilter = filterPosts(filteredData)
+
                 console.log(`check new ${feedKey}`, filteredData)
                 console.log(`timeline ${feedKey}`, timeline)
 
-                setNewTimeline(filteredData)
+                setNewTimeline(muteWordFilter)
 
-                if (filteredData.length > 0) {
+                if (muteWordFilter.length > 0) {
                     console.log(
                         "new and old cid",
                         feedKey,
-                        filteredData[0].post.cid,
+                        muteWordFilter[0].post.cid,
                         latestCID.current
                     )
 
                     if (
-                        filteredData[0].post.cid !== latestCID.current &&
+                        muteWordFilter[0].post.cid !== latestCID.current &&
                         latestCID.current !== ""
                     ) {
                         setHasUpdate(true)
@@ -189,7 +208,8 @@ const FeedPage = ({
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
-            const { posts } = response
+            const { posts, cursor } = response
+            if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
             setCursorState(response.cursor)
 
             console.log("posts", posts)
@@ -199,20 +219,23 @@ const FeedPage = ({
                     ? filterDisplayPosts(posts, agent?.session?.did)
                     : posts
 
+            const muteWordFilter = filterPosts(filteredData)
+
             console.log("filteredData", filteredData)
+            console.log("muteWordFilter", muteWordFilter)
 
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
-                    const newTimeline = [...currentTimeline, ...filteredData]
+                    const newTimeline = [...currentTimeline, ...muteWordFilter]
 
                     return newTimeline
                 } else {
-                    return [...filteredData]
+                    return [...muteWordFilter]
                 }
             })
 
-            if (filteredData.length > 0) {
-                latestCID.current = filteredData[0].post.cid
+            if (muteWordFilter.length > 0) {
+                latestCID.current = muteWordFilter[0].post.cid
             } else {
                 latestCID.current = ""
             }
@@ -272,6 +295,10 @@ const FeedPage = ({
     const { data /*isLoading, isError*/ } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
+        select: (fishes) => {
+            return fishes
+        },
+        notifyOnChangeProps: ["data"],
         enabled:
             agent !== null &&
             feedKey !== "" &&
@@ -364,7 +391,7 @@ const FeedPage = ({
         }
     }
 
-    if (data !== undefined) {
+    if (data !== undefined && !isEndOfFeed) {
         console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
@@ -375,7 +402,7 @@ const FeedPage = ({
             {hasUpdate && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
                     }
                 >
                     <div
@@ -409,10 +436,7 @@ const FeedPage = ({
                             }}
                         />
                     )}
-                    style={{
-                        overflowY: "auto",
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={nullTimeline()}
                 />
             )}
             {timeline !== null && (
@@ -458,9 +482,7 @@ const FeedPage = ({
                     endReached={loadMore}
                     // onScroll={(e) => disableScrollIfNeeded(e)}
                     //className="overflow-y-auto"
-                    style={{
-                        height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-                    }}
+                    className={notNulltimeline()}
                 />
             )}
         </>

@@ -13,7 +13,7 @@ import { layout } from "@/app/styles"
 import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ViewSideBar } from "@/app/_components/ViewSideBar"
+import ViewSideBar from "../ViewSideBar/ViewSideBar"
 import { useAgent } from "../../_atoms/agent"
 import { useUserProfileDetailedAtom } from "../../_atoms/userProfileDetail"
 import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
@@ -38,18 +38,23 @@ import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
+import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
+import { useBookmarks } from "@/app/_atoms/bookmarks"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
-
+    const searchPath = ["/search"]
+    const isSearchScreen = searchPath.includes(pathName)
+    const isLoginPath = ["/login"].includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [muteWords, setMuteWords] = useWordMutes()
+    const [bookmarks, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -320,9 +325,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName, searchParams])
 
     useEffect(() => {
+        if (!agent) return
         if (muteWords.length === 0) return
-
-        let newMuteWords = [...muteWords]
+        //ミュートワードはあるけど新システムに移行してない場合
 
         for (const word of muteWords) {
             if (typeof word === "string") {
@@ -333,31 +338,24 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     selectPeriod: null,
                     end: null,
                     isActive: true,
-                    targets: ["timeline"],
-                    muteAccountIncludesFollowing: true,
                     updatedAt: createdAt,
                     createdAt: createdAt,
                     deletedAt: null,
                 }
-
                 const isDuplicate = muteWords.find(
-                    (muteWord) => muteWord.word === word
+                    (muteWord: any) => muteWord.word === word
                 )
 
                 if (!isDuplicate) {
                     console.log("add")
-                    newMuteWords.push(json)
+
+                    setMuteWords((prevMuteWords) => [...prevMuteWords, json])
                 } else {
                     console.log("この単語は既に存在します") // TODO: i18n
                 }
             }
         }
-
-        newMuteWords = newMuteWords.filter(
-            (muteWord) => typeof muteWord !== "string"
-        )
-        setMuteWords(newMuteWords)
-    }, [JSON.stringify(muteWords)])
+    }, [JSON.stringify(muteWords), agent])
 
     const updateMenuWithFeedGenerators = (
         feeds: AppBskyFeedDefs.GeneratorView[]
@@ -409,7 +407,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         bmMenu: {},
         bmMorphShape: {},
         bmItemList: {},
-        bmOverlay: { background: "transparent" },
+        bmOverlay: { background: "transparent", zIndex: "49" }, // Modal's z-index is 50
     }
 
     useLayoutEffect(() => {
@@ -447,6 +445,67 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
+    const setLoggedIn = async (did: string) => {
+        try {
+            const res = await fetch(`/api/setLoggedIn/${did}`, {
+                method: "GET",
+            })
+        } catch (e) {
+            console.log(e)
+        }
+        //console.log(await res.json())
+        //if (res.status !== 200) return
+    }
+
+    const getSettings = async (did: string) => {
+        try {
+            const res = await fetch(`/api/getSettings/${did}`, {
+                method: "GET",
+            })
+            //res.json()
+            if ((await res.status) == 200) {
+                const data = await res.json()
+                if (data.hasOwnProperty("bookmarks")) {
+                    const bookmarks = data.bookmarks
+                    setBookmarks(bookmarks)
+                } else {
+                    setBookmarks([])
+                }
+                if (data.hasOwnProperty("muteWords")) {
+                    const muteWords = data.muteWords
+                    setMuteWords(muteWords)
+                } else {
+                    setMuteWords([])
+                }
+            } else if ((await res.status) == 404) {
+                setBookmarks([])
+                setMuteWords([])
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    const setSettings = async (did: string) => {
+        try {
+            const res = await fetch(`/api/setSettings/${did}`, {
+                method: "POST",
+                body: "{}",
+            })
+            //200が出ればOK
+            //console.log(await res.status)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        if (!userProfileDetailed) return
+        if (!userProfileDetailed.did) return
+        getSettings(userProfileDetailed.did)
+        console.log("initialized")
+    }, [userProfileDetailed])
+
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
@@ -464,7 +523,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 >
                     <ViewSideBar
                         isSideBarOpen={drawerOpen}
-                        setSideBarOpen={handleSideBarOpen}
+                        openSideBar={handleSideBarOpen}
                         isMobile={isMobile}
                     />
                 </BurgerPush>
@@ -475,85 +534,119 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         handleSideBarOpen(false)
                     }}
                 >
-                    {shouldFillPageBackground && (
-                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                            <div
-                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] md:mt-[100px] mt-[85px] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                            />
-                        </div>
-                    )}
                     <div
                         className={
-                            "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                            "w-full h-full flex justify-center select-none"
                         }
                     >
-                        {showTabBar && (
-                            <ViewHeader
-                                isMobile={isMobile}
-                                setSideBarOpen={handleSideBarOpen}
-                                setSearchText={setSearchText}
-                            />
-                        )}
-                        <div className={`pt-[0px] h-[100%]`}>{children}</div>
-                        {showTabBar && <TabBar />}
-                    </div>
-                    {imageSlides && imageSlideIndex !== null && (
                         <div
-                            onClick={(e) => {
-                                const clickedElement =
-                                    e.target as HTMLDivElement
-
-                                console.log(e.target)
-                                if (
-                                    clickedElement.classList.contains(
-                                        "yarl__fullsize"
-                                    ) ||
-                                    clickedElement.classList.contains(
-                                        "yarl__flex_center"
-                                    )
-                                ) {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }
-                            }}
+                            className={
+                                "lg:w-[calc(100%/4)] h-full hidden lg:block"
+                            }
                         >
-                            <Lightbox
-                                open={true}
-                                index={imageSlideIndex}
-                                plugins={[Zoom, Captions, Counter]}
-                                zoom={{
-                                    ref: zoomRef,
-                                    scrollToZoom: true,
-                                }}
-                                captions={{
-                                    ref: captionsRef,
-                                    showToggle: true,
-                                    descriptionMaxLines: 2,
-                                    descriptionTextAlign: "start",
-                                }}
-                                close={() => {
-                                    setImageGallery(null)
-                                    setImageSlides(null)
-                                    setImageSlideIndex(null)
-                                }}
-                                slides={imageSlides}
-                                carousel={{
-                                    finite: imageSlides.length <= 5,
-                                }}
-                                render={{
-                                    buttonPrev:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                    buttonNext:
-                                        imageSlides.length <= 1
-                                            ? () => null
-                                            : undefined,
-                                }}
-                            />
+                            {showTabBar && <ViewSideMenu />}
                         </div>
-                    )}
+                        <div
+                            className={
+                                "min-w-[350px] max-w-[600px] h-full w-full "
+                            }
+                        >
+                            <div
+                                className={
+                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                                }
+                            >
+                                {showTabBar && (
+                                    <ViewHeader
+                                        isMobile={isMobile}
+                                        setSideBarOpen={handleSideBarOpen}
+                                        setSearchText={setSearchText}
+                                    />
+                                )}
+                                <div
+                                    className={`pt-[0px] h-[calc(100%-50px-env(safe-area-inset-bottom))] ${
+                                        isLoginPath && `h-full`
+                                    } lg:h-full relative`}
+                                >
+                                    {shouldFillPageBackground && (
+                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                            <div
+                                                className={`bg-white dark:bg-[#2C2C2C] w-full max-w-[600px] ${
+                                                    isSearchScreen
+                                                        ? `lg:mt-[100px]`
+                                                        : `lg:mt-[50px]`
+                                                } md:mt-[100px] mt-[85px] lg:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                            />
+                                        </div>
+                                    )}
+                                    {children}
+                                </div>
+                                {showTabBar && <TabBar />}
+                            </div>
+                            {imageSlides && imageSlideIndex !== null && (
+                                <div
+                                    onClick={(e) => {
+                                        const clickedElement =
+                                            e.target as HTMLDivElement
+
+                                        console.log(e.target)
+                                        if (
+                                            clickedElement.classList.contains(
+                                                "yarl__fullsize"
+                                            ) ||
+                                            clickedElement.classList.contains(
+                                                "yarl__flex_center"
+                                            )
+                                        ) {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }
+                                    }}
+                                >
+                                    <Lightbox
+                                        open={true}
+                                        index={imageSlideIndex}
+                                        plugins={[Zoom, Captions, Counter]}
+                                        zoom={{
+                                            ref: zoomRef,
+                                            scrollToZoom: true,
+                                        }}
+                                        captions={{
+                                            ref: captionsRef,
+                                            showToggle: true,
+                                            descriptionMaxLines: 2,
+                                            descriptionTextAlign: "start",
+                                        }}
+                                        close={() => {
+                                            setImageGallery(null)
+                                            setImageSlides(null)
+                                            setImageSlideIndex(null)
+                                        }}
+                                        slides={imageSlides}
+                                        carousel={{
+                                            finite: imageSlides.length <= 5,
+                                        }}
+                                        render={{
+                                            buttonPrev:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                            buttonNext:
+                                                imageSlides.length <= 1
+                                                    ? () => null
+                                                    : undefined,
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <div
+                            className={
+                                "lg:w-[calc(100%/4)] h-full hidden lg:flex"
+                            }
+                        ></div>
+                    </div>
                 </main>
             </div>
         </div>

@@ -58,6 +58,8 @@ import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useWordMutes } from "@/app/_atoms/wordMute"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -74,6 +76,7 @@ export interface ViewPostCardProps {
     nextQueryParams: URLSearchParams
     t: any
     handleValueChange?: (value: any) => void
+    isSearchScreen?: boolean
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
@@ -91,6 +94,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         nextQueryParams,
         t,
         handleValueChange,
+        isSearchScreen,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -107,6 +111,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
     }, [postJson, quoteJson])
     const [agent] = useAgent()
+    const [muteWords] = useWordMutes()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -154,6 +159,27 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
 
+    const syncBookmarks = async () => {
+        if (!agent) return
+        const syncData = {
+            bookmarks: bookmarks,
+            muteWords: muteWords,
+        }
+        try {
+            const syncData_string = JSON.stringify(syncData)
+            const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
+                method: "POST",
+                body: syncData_string,
+            })
+            console.log(await res)
+            if ((await res.status) !== 200) {
+                console.log("sync error")
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     const handleBookmark = async (uri: string) => {
         const createdAt = new Date().getTime()
         const json: Bookmark = {
@@ -163,14 +189,27 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const isDuplicate = bookmarks.some((bookmark) => bookmark.uri === uri)
+        const myDID = agent?.session?.did as string
 
-        if (!isDuplicate) {
-            setBookmarks([...bookmarks, json])
-            setIsBookmarked(true)
-        } else {
-            setBookmarks(bookmarks.filter((bookmark) => bookmark.uri !== uri))
+        const index = bookmarks.findIndex(
+            (bookmark: any) => bookmark.uri === uri
+        )
+        console.log(index)
+
+        if (index !== -1) {
+            console.log("delete")
+            const newBookmarks = bookmarks
+            const deleteBookmark = bookmarks.splice(index, 1)
+            console.log(newBookmarks)
+
+            setBookmarks(newBookmarks)
             setIsBookmarked(false)
+            await syncBookmarks()
+        } else {
+            console.log("add")
+            setBookmarks((prevBookmarks) => [...prevBookmarks, json])
+            setIsBookmarked(true)
+            await syncBookmarks()
         }
     }
 
@@ -500,18 +539,19 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             embedRecordViewRecord.author.viewer?.muted ||
             embedRecordViewRecord.author.viewer?.blocking
         ) {
-            handleInputChange("delete", embedRecordViewRecord?.uri || "", "")
+            handleInputChange("delete", postJsonData?.uri || "", "")
         }
     }, [])
 
     useEffect(() => {
         const postUri = postJson?.uri || quoteJson?.uri || json?.post?.uri
         if (!postUri) return
+        //console.log(bookmarks[0][agent?.session?.did as string])
         const isBookmarked = bookmarks.some(
             (bookmark) => bookmark.uri === postUri
         )
         setIsBookmarked(isBookmarked)
-    }, [postJson, quoteJson, json])
+    }, [postJson, quoteJson, json, bookmarks])
 
     const handleMenuClickCopyURL = () => {
         if (!postJsonData) {
@@ -560,7 +600,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <div className={"md:h-[100px] h-[85px]"} />}
+            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
 
             <Modal
                 isOpen={isOpenReply}

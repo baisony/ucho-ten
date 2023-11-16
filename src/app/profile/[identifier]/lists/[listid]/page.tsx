@@ -36,6 +36,8 @@ import {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -43,7 +45,7 @@ export default function Root() {
 
     const pathname = usePathname()
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
     //const username = pathname.replace("/profile/", "")
@@ -499,10 +501,7 @@ export default function Root() {
             }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
-            style={{
-                overflowY: "auto",
-                height: "calc(100% - 50px - env(safe-area-inset-bottom))",
-            }}
+            className={nullTimeline()}
         />
     )
 }
@@ -518,7 +517,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     const { isDummyHeader, feedProps, profileProps, postProps } = props
 
     if (isDummyHeader) {
-        return <div className={"md:h-[100px] h-[85px]"} />
+        return <DummyHeader />
     }
 
     if (feedProps) {

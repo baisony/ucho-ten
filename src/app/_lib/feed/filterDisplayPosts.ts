@@ -12,8 +12,6 @@ export const filterDisplayPosts = (
 ): FeedViewPost[] => {
     const seenUris = new Set<string>()
 
-    console.log("filter posts", posts)
-
     const filteredData = posts.filter((item) => {
         const uri = item.post.uri
         const authorDID = item.post.author.did
@@ -38,7 +36,6 @@ export const filterDisplayPosts = (
                 // my reply
                 displayPost = true
             } else {
-                console.log("reply post (not display)", item)
                 displayPost = false
             }
         }

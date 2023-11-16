@@ -10,7 +10,7 @@ export const viewHeader = tv({
         HeaderInputArea:
             "h-full w-full outline-none pl-[20px] pr-[40px] text-black dark:text-white dark:bg-[#1C1C1C]",
         top: "md:h-[73px] h-[55px] w-full flex justify-center items-center",
-        bottom: "md:h-[27px] h-[30px] relative bottom-0 font-bold align-start overflow-x-scroll overflow-y-hidden",
+        bottom: "lg:h-[27px] md:h-[27px] h-[30px] font-bold align-center overflow-x-scroll overflow-y-hidden",
     },
     variants: {
         page: {
@@ -41,6 +41,17 @@ export const viewHeader = tv({
         isNextPage: {
             true: {},
             false: {},
+        },
+        isMatchingPath: {
+            false: {
+                Header: "lg:h-[50px]",
+                top: "lg:hidden",
+                bottom: "lg:h-full",
+            },
+            true: {
+                Header: "lg:h-[100px]",
+                bottom: "lg:h-[27px]",
+            },
         },
     },
 })

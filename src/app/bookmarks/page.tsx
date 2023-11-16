@@ -8,13 +8,19 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+import { isMobile } from "react-device-detect"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { Virtuoso } from "react-virtuoso"
+import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("bookmarks")
 
     const { t } = useTranslation()
-
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
@@ -26,14 +32,18 @@ export default function Root() {
         }
         const maxBatchSize = 25 // 1つのリクエストに許容される最大数
         const batches = []
+        //console.log(bookmarks[0][agent?.session?.did])
+        console.log(bookmarks)
         for (let i = 0; i < bookmarks.length; i += maxBatchSize) {
             const batch = bookmarks
                 .slice(i, i + maxBatchSize)
                 .map((bookmark) => bookmark.uri)
             batches.push(batch)
         }
+        //console.log(batches)
         const results = []
         for (const batch of batches) {
+            //@ts-ignore
             const { data } = await agent?.getPosts({ uris: batch })
             const { posts } = data
             results.push(...posts)
@@ -126,24 +136,42 @@ export default function Root() {
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
-            <div className={"md:h-full w-full"}>
-                {timeline.map((post, index) => {
-                    return (
-                        <ViewPostCard
-                            isTop={false}
-                            key={index}
-                            postJson={post}
-                            bodyText={processPostBodyText(
-                                nextQueryParams,
-                                post
-                            )}
-                            nextQueryParams={nextQueryParams}
-                            t={t}
-                            handleValueChange={handleValueChange}
-                        />
-                    )
-                })}
+            <div className={"h-full w-full z-[100]"}>
+                {timeline.length !== 0 && (
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                //scrollRef.current = ref
+                            }
+                        }}
+                        //context={{ hasMore }}
+                        overscan={200}
+                        increaseViewportBy={200}
+                        data={timeline}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, data) => (
+                            <ViewPostCard
+                                key={`bookmark-${data.uri}`}
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        data || null
+                                    ),
+                                    postJson: data || null,
+                                    nextQueryParams,
+                                    t,
+                                    handleValueChange: handleValueChange,
+                                }}
+                            />
+                        )}
+                        //endReached={loadMore}
+                        className={nullTimeline()}
+                    />
+                )}
                 {timeline.length === 0 && (
                     <div
                         className={
