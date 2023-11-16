@@ -17,6 +17,7 @@ import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useWordMutes } from "@/app/_atoms/wordMute"
+import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -42,6 +43,7 @@ const FeedPage = ({
     const { t } = useTranslation()
 
     const [agent] = useAgent()
+    const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [muteWords] = useWordMutes()
@@ -129,7 +131,7 @@ const FeedPage = ({
                 const { feed } = data
                 const filteredData =
                     feedKey === "following"
-                        ? filterDisplayPosts(feed, agent.session?.did)
+                        ? filterDisplayPosts(feed, userProfileDetailed, agent)
                         : feed
 
                 const muteWordFilter = filterPosts(filteredData)
@@ -216,7 +218,7 @@ const FeedPage = ({
 
             const filteredData =
                 feedKey === "following"
-                    ? filterDisplayPosts(posts, agent?.session?.did)
+                    ? filterDisplayPosts(posts, userProfileDetailed, agent)
                     : posts
 
             const muteWordFilter = filterPosts(filteredData)
