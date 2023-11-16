@@ -36,6 +36,7 @@ import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
 import { useTranslation } from "react-i18next"
+import { useRouter } from "next/navigation"
 
 interface Props {
     className?: string
@@ -43,6 +44,7 @@ interface Props {
 
 export const ViewSideMenu: React.FC<Props> = (props: Props) => {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const router = useRouter()
     const { t } = useTranslation()
     const signInModalDisclosure = useDisclosure({ id: "sign_in" })
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
@@ -178,6 +180,10 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                                 case "log_out":
                                     signOutModalDisclosure.onOpen()
                                     break
+                                case "profile":
+                                    router.push(
+                                        `/profile/${userProfileDetailed?.did}`
+                                    )
                             }
                         }}
                     >
@@ -186,11 +192,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                                 key="profile"
                                 startContent={<FontAwesomeIcon icon={faUser} />}
                             >
-                                <Link
-                                    href={`/profile/${userProfileDetailed?.did}`}
-                                >
-                                    {t("components.ViewSideMenu.profile")}
-                                </Link>
+                                {t("components.ViewSideMenu.profile")}
                             </DropdownItem>
                             <DropdownItem
                                 key="switch_account"
