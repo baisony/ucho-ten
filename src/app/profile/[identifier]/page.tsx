@@ -1011,7 +1011,7 @@ const UserProfileComponent = ({
                 isOpen={isOpenCopy}
                 onOpenChange={onOpenChangeCopy}
                 placement={"bottom"}
-                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+                className={"z-[100] max-w-[600px] text-black dark:text-white"}
                 hideCloseButton
             >
                 <ModalContent>
@@ -1064,7 +1064,7 @@ const UserProfileComponent = ({
                 isOpen={isOpenProperty}
                 onOpenChange={onOpenChangeProperty}
                 placement={"bottom"}
-                className={"z-[100] max-w-[600px] text-dark dark:text-white"}
+                className={"z-[100] max-w-[600px] text-black dark:text-white"}
                 hideCloseButton
             >
                 <ModalContent>
