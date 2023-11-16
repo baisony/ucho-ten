@@ -35,7 +35,7 @@ import {
     FeedViewPost,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import * as AppBskyActorDefs from "@atproto/api/src/client/types/app/bsky/actor/defs"
+import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -193,8 +193,8 @@ export default function Root() {
                 if (feedInfo.purpose === "app.bsky.graph.defs#modlist") {
                     return !timeline.some(
                         (oldItem) =>
-                            (oldItem.subject as AppBskyActorDefs.ProfileView)
-                                .did === newItem.subject.did
+                            (oldItem.subject as ProfileView).did ===
+                            newItem.subject.did
                     )
                 } else if (
                     feedInfo.purpose === "app.bsky.graph.defs#curatelist"
