@@ -145,9 +145,6 @@ const SettingsGeneralPage = ({
     return (
         <>
             <DummyHeader />
-            <div className={"font-[600] text-black dark:text-white"}>
-                {t("pages.settings.general")}
-            </div>
             <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
                 <div className={"font-[900]"}>
                     {t("pages.settings.appearance")}
@@ -263,7 +260,12 @@ const SettingsGeneralPage = ({
                         {Object.entries(TO_TRANSLATE_LANGUAGES || {}).map(
                             ([key, value]) => {
                                 return (
-                                    <SelectItem key={value}>{key}</SelectItem>
+                                    <SelectItem
+                                        key={value}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        {key}
+                                    </SelectItem>
                                 )
                             }
                         )}
@@ -285,11 +287,36 @@ const SettingsGeneralPage = ({
                             setContentFontSize(Number(event.target.value))
                         }}
                     >
-                        <SelectItem key={"1"}>1</SelectItem>
-                        <SelectItem key={"2"}>2</SelectItem>
-                        <SelectItem key={"3"}>3</SelectItem>
-                        <SelectItem key={"4"}>4</SelectItem>
-                        <SelectItem key={"5"}>5</SelectItem>
+                        <SelectItem
+                            key={"1"}
+                            className={`${appearanceTextColor()}`}
+                        >
+                            1
+                        </SelectItem>
+                        <SelectItem
+                            key={"2"}
+                            className={`${appearanceTextColor()}`}
+                        >
+                            2
+                        </SelectItem>
+                        <SelectItem
+                            key={"3"}
+                            className={`${appearanceTextColor()}`}
+                        >
+                            3
+                        </SelectItem>
+                        <SelectItem
+                            key={"4"}
+                            className={`${appearanceTextColor()}`}
+                        >
+                            4
+                        </SelectItem>
+                        <SelectItem
+                            key={"5"}
+                            className={`${appearanceTextColor()}`}
+                        >
+                            5
+                        </SelectItem>
                     </Select>
                 </div>
             </div>
@@ -349,9 +376,6 @@ const SettingsContentFilteringPage = ({
     return (
         <>
             <DummyHeader />
-            <div className={"font-bold text-black dark:text-white"}>
-                {t("pages.contentfiltering.title")}
-            </div>
             <div
                 className={
                     "w-full flex justify-between text-black dark:text-white"
@@ -600,6 +624,7 @@ const SettingsMutePage = ({
                     isOpen={isOpenEdit}
                     onOpenChange={onOpenChangeEdit}
                     hideCloseButton
+                    className={"text-black dark:text-white"}
                 >
                     <ModalContent>
                         {(onClose) => (
@@ -681,7 +706,7 @@ const SettingsMutePage = ({
                                                 defaultSelected={
                                                     modalEditMode
                                                         ? selectMuteWord.isActive
-                                                        : switchIsActive
+                                                        : true
                                                 }
                                                 onValueChange={
                                                     setSwitchIsActive
@@ -776,7 +801,7 @@ const SettingsMutePage = ({
                     </ModalContent>
                 </Modal>
                 <div className="text-black dark:text-white">
-                    <div className={"md:h-[100px] h-[85px]"} />
+                    <div className={"md:h-[100px] lg:h-[50px] h-[85px]"} />
                     <div className={"font-bold flex "}>
                         <div>{t("pages.mute.title")}</div>
                         <div className={"ml-[15px]"}>
@@ -818,7 +843,7 @@ const SettingsMutePage = ({
                     </div>
                     <div
                         className={
-                            "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] left-0 h-[50px] w-full bg-white dark:bg-black flex items-center justify-between"
+                            "absolute bottom-0 left-0 h-[50px] w-full bg-white dark:bg-black flex items-center justify-between"
                         }
                     >
                         {editMode ? (
