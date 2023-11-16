@@ -12,7 +12,7 @@ export const filterDisplayPosts = (
 ): FeedViewPost[] => {
     const seenUris = new Set<string>()
 
-    const filteredData = posts.filter(async (item) => {
+    const filteredData = posts.filter((item) => {
         const uri = item.post.uri
         const authorDID = item.post.author.did
 
@@ -38,11 +38,13 @@ export const filterDisplayPosts = (
                     } as any
                 } else {
                     if (!agent) return
-                    const { data } = await agent.getProfile({ actor: did })
+                    //const { data } = await agent.getProfile({ actor: did })
                     item.reply = {
                         root: {},
                         parent: {
-                            author: data,
+                            author: {
+                                displayName: "user",
+                            },
                         },
                         isFakeArray: true,
                     } as any
