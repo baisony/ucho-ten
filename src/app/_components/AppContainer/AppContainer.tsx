@@ -506,6 +506,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         console.log("initialized")
     }, [userProfileDetailed])
 
+    useEffect(() => {
+        // DarkモードとLightモードの判定
+        const isDarkMode = document.documentElement.classList.contains("dark")
+
+        // theme-colorの設定
+        const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
+        const element = document.querySelector("meta[name=theme-color]")!
+        const value = element.setAttribute("content", themeColor)
+    }, [pathName])
+
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
