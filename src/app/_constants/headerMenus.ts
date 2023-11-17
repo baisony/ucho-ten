@@ -29,6 +29,21 @@ const defaultSearchMenus: HeaderMenu[] = [
     },
 ]
 
+const defaultUTabMenus: HeaderMenu[] = [
+    {
+        displayText: "U-feed",
+        info: "u-feed",
+    },
+    {
+        displayText: "Random Bookmark",
+        info: "random-bookmark",
+    },
+    {
+        displayText: "Random Post",
+        info: "random-post",
+    },
+]
+
 const defaultInboxMenus: HeaderMenu[] = [
     {
         displayText: "Inbox",
@@ -120,6 +135,7 @@ export type HeaderMenuType =
     | "home"
     | "searchTop"
     | "search"
+    | "utab"
     | "inbox"
     | "profile"
     | "onlyPost"
@@ -136,6 +152,7 @@ export const HEADER_MENUS: HeaderMenus = {
     home: defaultHomeMenus,
     searchTop: defaultSearchTopMenus,
     search: defaultSearchMenus,
+    utab: defaultUTabMenus,
     inbox: defaultInboxMenus,
     profile: defaultProfileMenus,
     onlyPost: defaultOnlyPostMenus,

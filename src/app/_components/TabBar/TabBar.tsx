@@ -13,6 +13,7 @@ import { useAgent } from "@/app/_atoms/agent"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "@/app/_types/types"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+import Image from "next/image"
 
 interface Props {
     className?: string
@@ -43,6 +44,9 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                 return
             case "/search":
                 setHilightedTab("s")
+                return
+            case "/u-tab":
+                setHilightedTab("u")
                 return
             case "/inbox":
                 setHilightedTab("i")
@@ -150,6 +154,34 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         color: hilightedTab === "s" ? "#62A8DC" : undefined,
                     }}
                 />
+            </div>
+            <div
+                className={Container({ selected: hilightedTab === "u" })}
+                onClick={() => {
+                    if (hilightedTab === "u" && tappedTabbarButton === null) {
+                        setTappedTabbarButton("utab")
+                    } else {
+                        setHilightedTab("u")
+                        router.push("/u-tab")
+                    }
+                }}
+            >
+                <div className={`${Icon()} hidden dark:inline-block`}>
+                    <Image
+                        src={"/images/logo/ucho-ten_logo_white.svg"}
+                        alt={"tab"}
+                        height={20}
+                        width={20}
+                    />
+                </div>
+                <div className={`${Icon()} dark:hidden`}>
+                    <Image
+                        src={"/images/logo/ucho-ten_logo_black.svg"}
+                        alt={"tab"}
+                        height={20}
+                        width={20}
+                    />
+                </div>
             </div>
             <div
                 className={Container({ selected: hilightedTab === "i" })}
