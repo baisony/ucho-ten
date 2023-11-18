@@ -40,6 +40,7 @@ import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
+import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -53,6 +54,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
+    const [appearanceColor] = useAppearanceColor()
     const [muteWords, setMuteWords] = useWordMutes()
     const [bookmarks, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
@@ -514,7 +516,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
         const value = element.setAttribute("content", themeColor)
-    }, [pathName])
+    }, [appearanceColor])
 
     return (
         <div
