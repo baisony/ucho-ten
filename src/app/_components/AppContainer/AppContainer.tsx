@@ -461,9 +461,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const getSettings = async (did: string) => {
         try {
-            const res = await fetch(`/api/getSettings/${did}`, {
+            const data = localStorage.getItem("session")
+            if (!data) return
+            //const session = JSON.stringify(JSON.parse(data).session)
+            //console.log(data)
+            const res = await fetch(`/api/getSettings/${data}`, {
                 method: "GET",
             })
+            console.log(res)
             //res.json()
             if ((await res.status) == 200) {
                 const data = await res.json()
