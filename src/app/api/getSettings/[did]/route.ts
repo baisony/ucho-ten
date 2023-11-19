@@ -1,24 +1,34 @@
 import { NextRequest } from "next/server"
-import { connect, DatabaseError, Row } from "@tidbcloud/serverless"
+import { connect, DatabaseError } from "@tidbcloud/serverless"
+import { BskyAgent } from "@atproto/api"
 
 const dbUrl = process.env.DATABASE_URL
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { did: string } }
+    { params }: { params: { data: string } }
 ) {
+    //console.log(params.did)
+    //@ts-ignore
+    const data = JSON.parse(params.did)
+    const agent = new BskyAgent({ service: `https://${data.server}` })
+    const resumeResult = await agent.resumeSession(data.session)
+    console.log(resumeResult)
+    if (!resumeResult.success) {
+        return new Response("resume session error", { status: 400 })
+    }
     if (dbUrl === undefined || dbUrl == "") {
         return new Response("dbUrl is empty", { status: 400 })
     }
     const conn = connect({
         url: dbUrl,
     })
-    if (params.did == "") {
+    if (data.session.did == "") {
         return new Response("did is empty", { status: 400 })
     }
     const queryString = "select `settings` from `settings` where `did` = ?"
     try {
-        const result = await conn.execute(queryString, [params.did], {
+        const result = await conn.execute(queryString, [data.session.did], {
             fullResult: true,
         })
         const status = 200

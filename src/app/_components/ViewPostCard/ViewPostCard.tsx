@@ -159,19 +159,21 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
 
-    const syncBookmarks = async () => {
+    const syncBookmarks = async (bookmarklist: any[]) => {
         if (!agent) return
         const syncData = {
-            bookmarks: bookmarks,
+            bookmarks: bookmarklist,
             muteWords: muteWords,
         }
         try {
             const syncData_string = JSON.stringify(syncData)
-            const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
+            const data = localStorage.getItem("session")
+            if (!data) return
+            const res = await fetch(`/api/setSettings/${data}`, {
                 method: "POST",
                 body: syncData_string,
             })
-            console.log(await res)
+            //console.log(await res)
             if ((await res.status) !== 200) {
                 console.log("sync error")
             }
@@ -202,14 +204,15 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             const deleteBookmark = bookmarks.splice(index, 1)
             console.log(newBookmarks)
 
-            setBookmarks(newBookmarks)
+            setBookmarks((prevBookmarks) => [...prevBookmarks, json])
+            syncBookmarks([...bookmarks, json])
             setIsBookmarked(false)
-            await syncBookmarks()
+            //await syncBookmarks()
         } else {
             console.log("add")
             setBookmarks((prevBookmarks) => [...prevBookmarks, json])
+            syncBookmarks([...bookmarks, json])
             setIsBookmarked(true)
-            await syncBookmarks()
         }
     }
 
