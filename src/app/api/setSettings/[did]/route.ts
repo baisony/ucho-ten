@@ -1,19 +1,24 @@
 import { NextRequest } from "next/server"
 import { connect, DatabaseError, Row } from "@tidbcloud/serverless"
+import { BskyAgent } from "@atproto/api"
 
 const dbUrl = process.env.DATABASE_URL
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { did: string } }
+    { params }: { params: { data: string } }
 ) {
+    //@ts-ignore
+    const data = JSON.parse(params.did)
+    const agent = new BskyAgent({ service: `https://${data.server}` })
+    const resumeResult = await agent.resumeSession(data.session)
     if (dbUrl === undefined || dbUrl == "") {
         return new Response("dbUrl is empty", { status: 400 })
     }
     const conn = connect({
         url: dbUrl,
     })
-    if (params.did == "") {
+    if (data.session.did == "") {
         return new Response("did is empty", { status: 400 })
     }
     const postBody = request.body
@@ -26,7 +31,7 @@ export async function POST(
     try {
         const result = await conn.execute(
             queryString,
-            [params.did, body, body],
+            [data.session.did, body, body],
             {
                 fullResult: true,
             }

@@ -167,11 +167,13 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
         try {
             const syncData_string = JSON.stringify(syncData)
-            const res = await fetch(`/api/setSettings/${agent?.session?.did}`, {
+            const data = localStorage.getItem("session")
+            if (!data) return
+            const res = await fetch(`/api/setSettings/${data}`, {
                 method: "POST",
                 body: syncData_string,
             })
-            console.log(await res)
+            //console.log(await res)
             if ((await res.status) !== 200) {
                 console.log("sync error")
             }
