@@ -159,10 +159,10 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
 
-    const syncBookmarks = async () => {
+    const syncBookmarks = async (bookmarklist: any[]) => {
         if (!agent) return
         const syncData = {
-            bookmarks: bookmarks,
+            bookmarks: bookmarklist,
             muteWords: muteWords,
         }
         try {
@@ -204,14 +204,15 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             const deleteBookmark = bookmarks.splice(index, 1)
             console.log(newBookmarks)
 
-            setBookmarks(newBookmarks)
+            setBookmarks((prevBookmarks) => [...prevBookmarks, json])
+            syncBookmarks([...bookmarks, json])
             setIsBookmarked(false)
-            await syncBookmarks()
+            //await syncBookmarks()
         } else {
             console.log("add")
             setBookmarks((prevBookmarks) => [...prevBookmarks, json])
+            syncBookmarks([...bookmarks, json])
             setIsBookmarked(true)
-            await syncBookmarks()
         }
     }
 
