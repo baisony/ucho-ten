@@ -816,7 +816,7 @@ const SettingsMutePage = ({
                                 <div
                                     key={index}
                                     className={
-                                        "w-full h-[50px] border-b-[1px] border-t-[1px] border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#2C2C2C] flex justify-between items-center px-[10px] cursor-pointer"
+                                        "w-full h-[50px] border-b-[1px] border-t-[1px] border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#181818] bg-white dark:bg-[#0C0F14] flex justify-between items-center px-[10px] cursor-pointer"
                                     }
                                     onClick={() => {
                                         setSelectMuteWord(muteWord)
