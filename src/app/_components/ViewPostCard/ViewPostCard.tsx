@@ -77,6 +77,7 @@ export interface ViewPostCardProps {
     t: any
     handleValueChange?: (value: any) => void
     isSearchScreen?: boolean
+    isViaUFeed?: boolean
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
@@ -95,6 +96,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         t,
         handleValueChange,
         isSearchScreen,
+        isViaUFeed,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -904,40 +906,46 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 {!isEmbedToModal && (
                                     <>
                                         <div className={`flex`}>
-                                            <div
-                                                className={`${PostReactionButton()} ${replyButton()} group-hover:md:block md:hidden`}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faComment}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        setHandleButtonClick(
-                                                            true
-                                                        )
-                                                        await handleReply()
-                                                    }}
-                                                />
-                                            </div>
-                                            <div
-                                                className={`${PostReactionButton()} ${repostButton(
-                                                    {
-                                                        isReacted: isReposted,
-                                                    }
-                                                )} group-hover:md:block ${
-                                                    !isReposted && `md:hidden`
-                                                }`}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faRetweet}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        setHandleButtonClick(
-                                                            true
-                                                        )
-                                                        await handleRepost()
-                                                    }}
-                                                />
-                                            </div>
+                                            {!isViaUFeed && (
+                                                <div
+                                                    className={`${PostReactionButton()} ${replyButton()} group-hover:md:block md:hidden`}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faComment}
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation()
+                                                            setHandleButtonClick(
+                                                                true
+                                                            )
+                                                            await handleReply()
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
+                                            {!isViaUFeed && (
+                                                <div
+                                                    className={`${PostReactionButton()} ${repostButton(
+                                                        {
+                                                            isReacted:
+                                                                isReposted,
+                                                        }
+                                                    )} group-hover:md:block ${
+                                                        !isReposted &&
+                                                        `md:hidden`
+                                                    }`}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faRetweet}
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation()
+                                                            setHandleButtonClick(
+                                                                true
+                                                            )
+                                                            await handleRepost()
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
                                             <div
                                                 className={`${PostReactionButton()} ${likeButton(
                                                     { isReacted: isLiked }
