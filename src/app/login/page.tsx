@@ -173,6 +173,16 @@ export default function CreateLoginPage() {
         }
     }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 
+    useEffect(() => {
+        // DarkモードとLightモードの判定
+        //const isDarkMode = document.documentElement.classList.contains("dark")
+
+        // theme-colorの設定
+        //const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
+        const element = document.querySelector("meta[name=theme-color]")!
+        element.setAttribute("content", "#000000")
+    }, [])
+
     return (
         <main className={background()}>
             <div className={LoginForm()}>

@@ -550,6 +550,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [userProfileDetailed])
 
     useEffect(() => {
+        console.log(appearanceColor)
         // DarkモードとLightモードの判定
         const isDarkMode = document.documentElement.classList.contains("dark")
 
@@ -557,7 +558,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
         element.setAttribute("content", themeColor)
-    }, [appearanceColor])
+    }, [appearanceColor, pathName])
 
     return (
         <div
