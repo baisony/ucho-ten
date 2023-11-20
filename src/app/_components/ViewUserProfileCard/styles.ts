@@ -3,7 +3,7 @@ import { tv } from "@nextui-org/react"
 export const viewUserProfileCardStyle = tv({
     slots: {
         PostCard:
-            "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#292929] bg-white dark:bg-[#0C0F14]",
+            "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#292929] bg-white dark:bg-[#16191F]",
         PostCardContainer:
             "pl-[8px] pt-[11px] w-full md:pb-[11px] pb-[16px] pr-[11px]",
         PostAuthor:
