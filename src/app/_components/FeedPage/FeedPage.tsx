@@ -189,6 +189,8 @@ const FeedPage = ({
 
                 checkNewTimeline()
             }, CHECK_FEED_UPDATE_INTERVAL)
+
+            return () => clearTimeout(timeoutId)
         }
     }, [isActive])
 

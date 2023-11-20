@@ -32,7 +32,7 @@ const defaultSearchMenus: HeaderMenu[] = [
 const defaultUTabMenus: HeaderMenu[] = [
     {
         displayText: "U-feed",
-        info: "u-feed",
+        info: "at://did:plc:pwlfo4w6auzwihryxik32t6d/app.bsky.feed.generator/ufeed",
     },
     {
         displayText: "Random Bookmark",
