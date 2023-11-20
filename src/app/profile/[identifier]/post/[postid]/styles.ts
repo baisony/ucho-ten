@@ -3,9 +3,9 @@ import { tv } from "@nextui-org/react"
 export const postOnlyPage = tv({
     slots: {
         Container:
-            "h-full min-w-[350px] max-w-[600px] bg-white text-black dark:bg-[#0C0F14] dark:text-[#D7D7D7] dark:border-[#181818] mt-[5px]",
+            "h-full min-w-[350px] max-w-[600px] bg-white text-black dark:bg-[#0C0F14] dark:text-[#D7D7D7] dark:border-[#292929] mt-[5px]",
         AuthorPost:
-            "w-full border-b-[1px] border-[#AAAAAA] dark:border-[#181818]",
+            "w-full border-b-[1px] border-[#AAAAAA] dark:border-[#292929]",
         Author: "flex items-center justify-between pt-[10px] pl-[14px] pr-[14px] pb-[9px] ",
         AuthorIcon:
             "bg-[#D9D9D9] md:h-[50px] md:w-[50px] h-[45px] w-[45px] rounded-full mr-[12px] overflow-hidden cursor-pointer",
