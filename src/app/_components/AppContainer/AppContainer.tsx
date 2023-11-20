@@ -85,6 +85,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/")
         router.prefetch("/login")
         router.prefetch("/search")
+        router.prefetch("/u-tab")
         router.prefetch("/inbox")
         router.prefetch("/post")
         router.prefetch("/settings")
