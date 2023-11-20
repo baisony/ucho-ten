@@ -1,4 +1,9 @@
-import { AppBskyFeedPost, AtUri, BskyAgent } from "@atproto/api"
+import {
+    AppBskyActorDefs,
+    AppBskyFeedPost,
+    AtUri,
+    BskyAgent,
+} from "@atproto/api"
 import {
     FeedViewPost,
     PostView,
@@ -7,14 +12,13 @@ import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
 export const filterDisplayPosts = (
     posts: FeedViewPost[],
-    sessionUser: any,
+    sessionUser: AppBskyActorDefs.ProfileViewDetailed | null,
     agent: BskyAgent | null
 ): FeedViewPost[] => {
     const seenUris = new Set<string>()
-
-    const filteredData = posts.filter((item) => {
+    return posts.filter((item) => {
         const uri = item.post.uri
-        const authorDID = item.post.author.did
+        const authorDID = item.post.author?.did
 
         let displayPost: boolean | null = null
 
@@ -28,7 +32,7 @@ export const filterDisplayPosts = (
 
             if (replyParent && !item.reply) {
                 const did = new AtUri(replyParent.uri).hostname
-                if (did === sessionUser.did) {
+                if (did === sessionUser?.did) {
                     item.reply = {
                         root: {},
                         parent: {
@@ -63,10 +67,10 @@ export const filterDisplayPosts = (
             } else if (authorDID === rootDID && authorDID === parentDID) {
                 // self reply
                 displayPost = true
-            } else if (parentDID === sessionUser.did) {
+            } else if (parentDID === sessionUser?.did) {
                 // reply to my post
                 displayPost = true
-            } else if (authorDID === sessionUser.did) {
+            } else if (authorDID === sessionUser?.did) {
                 // my reply
                 displayPost = true
             } else {
@@ -83,10 +87,10 @@ export const filterDisplayPosts = (
             if (authorDID === rootDID && authorDID === parentDID) {
                 // self reply
                 displayPost = true
-            } else if (parentDID === sessionUser.did) {
+            } else if (parentDID === sessionUser?.did) {
                 // reply to my post
                 displayPost = true
-            } else if (authorDID === sessionUser.did) {
+            } else if (authorDID === sessionUser?.did) {
                 // my reply
                 displayPost = true
             } else {
@@ -106,6 +110,4 @@ export const filterDisplayPosts = (
 
         return displayPost
     })
-
-    return filteredData
 }

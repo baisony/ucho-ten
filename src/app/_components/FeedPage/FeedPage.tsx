@@ -41,7 +41,6 @@ const FeedPage = ({
     isActive, // disableSlideVerticalScroll, isNextActive
 }: FeedPageProps) => {
     const { t } = useTranslation()
-
     const [agent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
@@ -68,7 +67,7 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        console.log(shouldScrollToTop.current, scrollRef.current)
+        //console.log(shouldScrollToTop.current, scrollRef.current)
 
         if (shouldScrollToTop.current && scrollRef.current) {
             scrollRef.current.scrollTop = 0
@@ -106,7 +105,6 @@ const FeedPage = ({
 
     const checkNewTimeline = async () => {
         if (!agent) return
-
         shouldCheckUpdate.current = false
 
         try {
@@ -136,8 +134,8 @@ const FeedPage = ({
 
                 const muteWordFilter = filterPosts(filteredData)
 
-                console.log(`check new ${feedKey}`, filteredData)
-                console.log(`timeline ${feedKey}`, timeline)
+                // console.log(`check new ${feedKey}`, filteredData)
+                // console.log(`timeline ${feedKey}`, timeline)
 
                 setNewTimeline(muteWordFilter)
 
@@ -168,6 +166,11 @@ const FeedPage = ({
                     console.log("setTimeout", feedKey)
                     checkNewTimeline()
                 }, CHECK_FEED_UPDATE_INTERVAL)
+
+                return () => {
+                    console.log(`unmounted ${timeoutId}`)
+                    clearTimeout(timeoutId)
+                }
             }
         } catch (e) {
             console.error(e)
@@ -175,22 +178,28 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        if (isActive !== true) {
+        if (!agent) return
+        if (!isActive) {
             return
         }
 
-        if (shouldCheckUpdate.current === false) {
+        if (!shouldCheckUpdate.current) {
             shouldCheckUpdate.current = true
 
-            console.log("set setTimeout", feedKey)
+            console.log("useEffect set setTimeout", feedKey)
 
             const timeoutId = setTimeout(() => {
-                console.log("setTimeout", feedKey)
+                console.log("useEffect setTimeout", feedKey)
 
                 checkNewTimeline()
             }, CHECK_FEED_UPDATE_INTERVAL)
+
+            return () => {
+                console.log(`unmounted ${timeoutId}`)
+                clearTimeout(timeoutId)
+            }
         }
-    }, [isActive])
+    }, [agent, isActive])
 
     const handleRefresh = () => {
         shouldScrollToTop.current = true
@@ -228,9 +237,7 @@ const FeedPage = ({
 
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
-                    const newTimeline = [...currentTimeline, ...muteWordFilter]
-
-                    return newTimeline
+                    return [...currentTimeline, ...muteWordFilter]
                 } else {
                     return [...muteWordFilter]
                 }
@@ -261,13 +268,14 @@ const FeedPage = ({
     }: QueryFunctionContext<
         ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
     >): Promise<FeedResponseObject> => {
-        console.log("getTimelineFetcher: >>")
+        // console.log("getTimelineFetcher: >>")
 
         if (agent === null) {
-            console.log("error")
+            // console.log("error")
             throw new Error("Agent does not exist")
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_key, feedKey, cursorData] = queryKey
 
         if (feedKey === "following") {
@@ -310,15 +318,15 @@ const FeedPage = ({
 
     const handleValueChange = (newValue: any) => {
         //setText(newValue);
-        console.log(newValue)
-        console.log(timeline)
+        // console.log(newValue)
+        // console.log(timeline)
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.post.uri === newValue.postUri
         )
 
         if (foundObject !== -1) {
-            console.log(timeline[foundObject])
+            // console.log(timeline[foundObject])
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
@@ -380,12 +388,12 @@ const FeedPage = ({
                 case "delete":
                     setTimeline((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //timeline.splice(foundObject, 1)
             }
-            console.log(timeline)
+            // console.log(timeline)
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"
@@ -394,7 +402,7 @@ const FeedPage = ({
     }
 
     if (data !== undefined && !isEndOfFeed) {
-        console.log(`useQuery: data.cursor: ${data.cursor}`)
+        // console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
@@ -476,6 +484,7 @@ const FeedPage = ({
                         />
                     )}
                     components={{
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         Footer: !isEndOfFeed
                             ? ListFooterSpinner
