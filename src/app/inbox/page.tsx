@@ -15,6 +15,7 @@ import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -27,6 +28,8 @@ export default function Root() {
     const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
+    const [unreadNotification, setUnreadNotification] =
+        useUnreadNotificationAtom()
 
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
@@ -286,14 +289,30 @@ export default function Root() {
         fetchIfNeeded()
     }, [notification, cursor.current])
 
+    const handleUpdateSeen = async () => {
+        if (!agent) return
+        try {
+            await agent.updateSeenNotifications()
+            //console.log(res)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     useEffect(() => {
         if (!agent) return
 
-        if (!notificationInfo.notification) {
-            fetchNotification()
-        } else {
-            setNotification(notificationInfo.notification)
-            cursor.current = notificationInfo.cursor
+        try {
+            void handleUpdateSeen()
+            setUnreadNotification(0)
+            if (!notificationInfo.notification) {
+                fetchNotification()
+            } else {
+                setNotification(notificationInfo.notification)
+                cursor.current = notificationInfo.cursor
+            }
+        } catch (e) {
+            console.log(e)
         }
     }, [agent])
 

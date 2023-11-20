@@ -3,21 +3,21 @@ import React, { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
+    faCircleInfo,
+    faFlag,
     faGear,
-    faRss,
     faHome,
     faInbox,
     faMagnifyingGlass,
     faPenToSquare,
-    faCircleInfo,
-    faFlag,
-    faUsers,
-    faUser,
     faRightFromBracket,
+    faRss,
+    faUser,
+    faUsers,
 } from "@fortawesome/free-solid-svg-icons"
-import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import "react-circular-progressbar/dist/styles.css"
 import {
+    Badge,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -37,6 +37,8 @@ import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
 import { useTranslation } from "react-i18next"
 import { useRouter } from "next/navigation"
+import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
+import { useAgent } from "@/app/_atoms/agent"
 
 interface Props {
     className?: string
@@ -45,6 +47,7 @@ interface Props {
 export const ViewSideMenu: React.FC<Props> = (props: Props) => {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const router = useRouter()
+    const [agent] = useAgent()
     const { t } = useTranslation()
     const signInModalDisclosure = useDisclosure({ id: "sign_in" })
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
@@ -53,6 +56,9 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
         null
     )
+
+    const [unreadNotification, setUnreadNotification] =
+        useUnreadNotificationAtom()
 
     return (
         <div className={"flex justify-end items-end"}>
@@ -99,7 +105,14 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                     href={"/inbox"}
                 >
                     <div className={"mr-[10px]"}>
-                        <FontAwesomeIcon icon={faInbox} />
+                        <Badge
+                            content={""}
+                            color={"primary"}
+                            size={"sm"}
+                            isInvisible={unreadNotification == 0}
+                        >
+                            <FontAwesomeIcon icon={faInbox} />
+                        </Badge>
                     </div>
                     {t("components.ViewSideMenu.inbox")}
                 </Link>

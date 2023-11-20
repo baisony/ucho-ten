@@ -41,6 +41,7 @@ import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
 import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
+import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -63,6 +64,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
+    const [unreadNotification, setUnreadNotification] =
+        useUnreadNotificationAtom()
 
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
@@ -503,6 +506,42 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const checkNewNotification = async () => {
+        if (!agent) {
+            return
+        }
+        try {
+            const { data } = await agent.countUnreadNotifications()
+            const notifications = await agent.listNotifications()
+            const { count } = data
+            const reason = ["mention", "reply"]
+            let notify_num = 0
+            for (let i = 0; i < data.count; i++) {
+                const notificationReason =
+                    notifications.data.notifications[i].reason
+                if (reason.some((item) => notificationReason.includes(item))) {
+                    notify_num++
+                }
+            }
+            if (notify_num !== unreadNotification && unreadNotification === 0) {
+                setUnreadNotification(count)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        void checkNewNotification()
+        const interval = setInterval(() => {
+            void checkNewNotification()
+        }, 10000)
+        // クリーンアップ関数
+        return () => {
+            clearInterval(interval) // インターバルをクリーンアップ
+        }
+    }, [agent])
+
     useEffect(() => {
         if (!userProfileDetailed) return
         if (!userProfileDetailed.did) return
@@ -517,7 +556,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         // theme-colorの設定
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
-        const value = element.setAttribute("content", themeColor)
+        element.setAttribute("content", themeColor)
     }, [appearanceColor])
 
     return (
