@@ -158,6 +158,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         switch (pathname) {
             case "/":
             case "/search":
+            case "/u-tab":
             case "/inbox":
             case "/post":
                 setIsRoot(true)

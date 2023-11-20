@@ -166,20 +166,28 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                     }
                 }}
             >
-                <div className={`${Icon()} hidden dark:inline-block`}>
+                <div className={`w-[25px] h-[25px] hidden dark:inline-block`}>
                     <Image
-                        src={"/images/logo/ucho-ten_logo_white.svg"}
+                        src={
+                            hilightedTab !== "u"
+                                ? "/images/logo/ucho-ten_logo_white.svg"
+                                : "/images/logo/ucho-ten_logo_blue-white.svg"
+                        }
                         alt={"tab"}
-                        height={20}
-                        width={20}
+                        height={25}
+                        width={25}
                     />
                 </div>
-                <div className={`${Icon()} dark:hidden`}>
+                <div className={`w-[25px] h-[25px] dark:hidden`}>
                     <Image
-                        src={"/images/logo/ucho-ten_logo_black.svg"}
+                        src={
+                            hilightedTab !== "u"
+                                ? "/images/logo/ucho-ten_logo_black.svg"
+                                : "/images/logo/ucho-ten_logo_orange-black.svg"
+                        }
                         alt={"tab"}
-                        height={20}
-                        width={20}
+                        height={25}
+                        width={25}
                     />
                 </div>
             </div>
