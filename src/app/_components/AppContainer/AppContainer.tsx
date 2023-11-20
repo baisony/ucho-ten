@@ -558,7 +558,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
         element.setAttribute("content", themeColor)
-    }, [appearanceColor, pathName])
+    }, [appearanceColor, agent])
 
     return (
         <div
