@@ -166,6 +166,7 @@ const Root = () => {
                                 <FeedPage
                                     {...{
                                         isActive: index === menuIndex,
+                                        isViaUFeed: true,
                                         isNextActive: index === menuIndex + 1,
                                         feedKey: menu.info,
                                         // color,

@@ -25,6 +25,7 @@ const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
 export interface FeedPageProps {
     isActive: boolean
     isNextActive: boolean
+    isViaUFeed?: boolean
     feedKey: string
     disableSlideVerticalScroll: boolean
     now?: Date
@@ -38,6 +39,7 @@ interface FeedResponseObject {
 const FeedPage = ({
     feedKey,
     now,
+    isViaUFeed,
     isActive, // disableSlideVerticalScroll, isNextActive
 }: FeedPageProps) => {
     const { t } = useTranslation()
@@ -477,6 +479,7 @@ const FeedPage = ({
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
+                                isViaUFeed: isViaUFeed,
                             }}
                         />
                     )}
