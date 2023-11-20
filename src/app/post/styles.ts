@@ -6,7 +6,7 @@ export const createPostPage = tv({
         backgroundColor: "w-full h-full absolute",
 
         PostModal:
-            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#0C0F14] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
+            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#16191F] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
@@ -42,7 +42,7 @@ export const createPostPage = tv({
         URLCardDescription: "font-gray mt-[1px] ",
         URLCardLink: "font-gray mt-[1px] text-[#0000FF]",
 
-        footer: "w-full h-[43px] absolute bottom-0 select-none bg-[#DADADA] dark:bg-[#0C0F14]",
+        footer: "w-full h-[43px] absolute bottom-0 select-none bg-[#DADADA] dark:bg-[#16191F]",
         footerTooltip: "h-full w-full flex justify-left items-left",
         footerTooltipStyle:
             "h-[20px] relative md:ml-7 md:mt-3 ml-2 mt-3 cursor-pointer",

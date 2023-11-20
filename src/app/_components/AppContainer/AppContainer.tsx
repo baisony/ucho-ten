@@ -626,7 +626,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     {shouldFillPageBackground && (
                                         <div className="absolute top-0 left-0 flex justify-center w-full h-full">
                                             <div
-                                                className={`bg-white dark:bg-[#0C0F14] w-full max-w-[600px] ${
+                                                className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
                                                     isSearchScreen
                                                         ? `lg:mt-[100px]`
                                                         : `lg:mt-[50px]`
