@@ -194,10 +194,7 @@ const FeedPage = ({
                 checkNewTimeline()
             }, CHECK_FEED_UPDATE_INTERVAL)
 
-            return () => {
-                console.log(`unmounted ${timeoutId}`)
-                clearTimeout(timeoutId)
-            }
+            return () => clearTimeout(timeoutId)
         }
     }, [agent, isActive])
 

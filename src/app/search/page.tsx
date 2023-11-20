@@ -628,7 +628,7 @@ export default function Root() {
                         {t("pages.search.FindPerson")}
                         <Link
                             className={searchSupportCard()}
-                            href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed${nextQueryParams.toString()}`}
+                            href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed?${nextQueryParams.toString()}`}
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
