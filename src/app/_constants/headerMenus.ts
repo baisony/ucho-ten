@@ -40,7 +40,7 @@ const defaultUTabMenus: HeaderMenu[] = [
     },
     {
         displayText: "Random Post",
-        info: "random-post",
+        info: "at://did:plc:pwlfo4w6auzwihryxik32t6d/app.bsky.feed.generator/random",
     },
 ]
 
