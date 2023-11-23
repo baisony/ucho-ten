@@ -31,6 +31,7 @@ export default function CreateLoginPage() {
         useState<boolean>(false)
     const [, setIsUserInfoIncorrect] = useState<boolean>(false)
     const [, setIsServerError] = useState<boolean>(false)
+    const [isSetAccount, setIsAccount] = useState<boolean | null>(null)
 
     const agent = new BskyAgent({ service: `https://${server}` })
 
@@ -164,34 +165,52 @@ export default function CreateLoginPage() {
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
-            <div
-                className={
-                    "h-full w-full bg-black flex justify-center items-end bottom-[100px] relative"
-                }
-            >
-                <div className={"bottom-[100px] absolute"}>
-                    <Button
-                        className={
-                            "w-80 h-14 bottom-[0px] bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center mb-4"
-                        }
-                        isDisabled={true}
-                    >
-                        <div className="text-zinc-400 text-xl font-bold">
-                            Create a new account
-                        </div>
-                    </Button>
-                    <Link href={"/login"}>
-                        <Button
+            <div className={"h-full w-full bg-black"}>
+                <div
+                    className={
+                        "h-full w-full bg-black pl-[30px] pr-[30px] pt-[100px] pb-[100px] flex flex-col justify-center items-center"
+                    }
+                >
+                    <div className="">
+                        <img
+                            src={"/images/logo/ucho-ten.svg"}
+                            className="h-[40px] md:h-[50px] w-full mb-[250px]"
+                            alt="Logo"
+                        />
+                        <div
                             className={
-                                "w-80 h-14 bottom-[0px] bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
+                                "w-full flex items-center justify-center"
                             }
                         >
-                            <div className="text-zinc-400 text-xl font-bold">
-                                Sign In
-                            </div>
-                        </Button>
-                    </Link>
+                            <Button
+                                className={
+                                    "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center mb-4"
+                                }
+                                isDisabled={true}
+                            >
+                                <div className="text-zinc-400 text-xl font-bold">
+                                    Create a new account
+                                </div>
+                            </Button>
+                        </div>
+                        <div
+                            className={
+                                "w-full flex items-center justify-center"
+                            }
+                        >
+                            <Link href={"/login"}>
+                                <Button
+                                    className={
+                                        "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
+                                    }
+                                >
+                                    <div className="text-zinc-400 text-xl font-bold">
+                                        Sign In
+                                    </div>
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
