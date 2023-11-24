@@ -12,7 +12,7 @@ import {
 //import { CircularProgressbar } from 'react-circular-progressbar';
 //import 'react-circular-progressbar/dist/styles.css';
 import { Button, Spinner } from "@nextui-org/react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
@@ -21,6 +21,7 @@ import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
     //        useUserProfileDetailedAtom()
+    const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
@@ -120,6 +121,7 @@ export default function CreateLoginPage() {
             }
         } catch (e) {
             setIsLoginFailed(true)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             switch (e?.status as number) {
                 case 401:
@@ -147,9 +149,12 @@ export default function CreateLoginPage() {
                             searchParams ? `&${searchParams}` : ``
                         }`
                         const paramName = "toRedirect"
-                        location.href = url.replace(
-                            new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                            "?"
+
+                        router.push(
+                            url.replace(
+                                new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+                                "?"
+                            )
                         )
                     } else {
                         location.href = "/home"
@@ -159,7 +164,7 @@ export default function CreateLoginPage() {
                 console.log(e)
             }
         }
-        resumesession()
+        void resumesession()
     }, [])
 
     useEffect(() => {
@@ -169,7 +174,7 @@ export default function CreateLoginPage() {
             user.trim() !== "" &&
             password.trim() !== ""
         ) {
-            handleLogin()
+            void handleLogin()
         }
     }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 
@@ -256,7 +261,7 @@ export default function CreateLoginPage() {
                                 user.trim() !== "" &&
                                 password.trim() !== ""
                             ) {
-                                handleLogin()
+                                void handleLogin()
                             }
                         }}
                     />
