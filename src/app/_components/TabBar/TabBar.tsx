@@ -80,7 +80,7 @@ export const TabBar: React.FC<Props> = (props: Props) => {
                         setTappedTabbarButton("home")
                     } else {
                         setHilightedTab("h")
-                        router.push("/")
+                        router.push("/home")
                     }
                 }}
             >

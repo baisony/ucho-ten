@@ -278,7 +278,7 @@ export default function Root() {
 
             setLoading(false)
 
-            router.push(`/?${nextQueryParams.toString()}`)
+            router.push(`/home?${nextQueryParams.toString()}`)
         } catch (e) {
             console.log(e)
         } finally {

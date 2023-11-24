@@ -1,232 +1,231 @@
 "use client"
-
-// import { isMobile } from "react-device-detect"
-import React, { useEffect, useRef, useState } from "react"
-import { useAtom } from "jotai"
-// import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
-import { Swiper, SwiperSlide } from "swiper/react"
-import SwiperCore from "swiper/core"
-import { Pagination, Virtual } from "swiper/modules"
-import FeedPage from "./_components/FeedPage/FeedPage"
-// import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
-// import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
-import {
-    menuIndexAtom,
-    useCurrentMenuType,
-    useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
-} from "./_atoms/headerMenu"
-import { useTappedTabbarButtonAtom } from "./_atoms/tabbarButtonTapped"
-
-import "swiper/css"
-import "swiper/css/pagination"
+import React, { useEffect, useState } from "react"
+import { BskyAgent } from "@atproto/api"
+//import { CircularProgressbar } from 'react-circular-progressbar';
+//import 'react-circular-progressbar/dist/styles.css';
+import { Button, Spinner } from "@nextui-org/react"
+import { useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
+//import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
+import {
+    useAccounts,
+    UserAccount,
+    UserAccountByDid,
+} from "@/app/_atoms/accounts"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
-SwiperCore.use([Virtual])
-
-const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
-
-const Root = () => {
-    const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("home")
-
-    //const [appearanceColor] = useAppearanceColor()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    // const [headerMenus] = useHeaderMenusAtom()
-    const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-    const [currentMenuType] = useCurrentMenuType()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
-
-    // const [darkMode, setDarkMode] = useState(false)
-    const [now, setNow] = useState<Date>(new Date())
-    const [disableSlideVerticalScroll, setDisableSlideVerticalScroll] =
+export default function CreateLoginPage() {
+    //const [userProfileDetailed, setUserProfileDetailed] =
+    //        useUserProfileDetailedAtom()
+    const router = useRouter()
+    const [accounts, setAccounts] = useAccounts()
+    const [loading, setLoading] = useState(false)
+    const [server, setServer] = useState<string>("bsky.social")
+    const [user, setUser] = useState<string>("")
+    const [password, setPassword] = useState<string>("")
+    const [isLoginFailed, setIsLoginFailed] = useState<boolean>(false)
+    const searchParams = useSearchParams()
+    const toRedirect = searchParams.get("toRedirect")
+    const [identifierIsByAutocomplete, setIdentifierByAutocomplete] =
         useState<boolean>(false)
+    const [passwordIsByAutocomplete, setPasswordByAutocomplete] =
+        useState<boolean>(false)
+    const [, setIsUserInfoIncorrect] = useState<boolean>(false)
+    const [, setIsServerError] = useState<boolean>(false)
+    const [isSetAccount, setIsAccount] = useState<boolean | null>(null)
 
-    const swiperRef = useRef<SwiperCore | null>(null)
-    // const prevMenyType = useRef<HeaderMenuType>("home")
+    const agent = new BskyAgent({ service: `https://${server}` })
 
-    // const [isAvailableMenus, setIsAvailableMenus] = useState<boolean>(false)
+    const handleLogin = async () => {
+        if (user.trim() == "" || password.trim() == "") {
+            return
+        }
 
-    // const color: "dark" | "light" = darkMode ? "dark" : "light"
+        setIsLoginFailed(false)
+        setLoading(true)
 
-    // const modeMe = (e: any) => {
-    //     setDarkMode(!!e.matches)
-    // }
+        try {
+            const res = await agent.login({
+                identifier: user,
+                password: password,
+            })
+            const { data } = res
+            console.log(data)
+            console.log(process.env.NEXT_PUBLIC_PRODUCTION_ENV)
+            if (process.env.NEXT_PUBLIC_PRODUCTION_ENV === "true") {
+                const tester = process.env.NEXT_PUBLIC_TESTER_DID?.split(",")
+                const isMatchingPath = tester?.includes(data?.did)
+                console.log(isMatchingPath)
+                if (!isMatchingPath) {
+                    setIsUserInfoIncorrect(true)
+                    setLoading(false)
+                    setIsLoginFailed(true)
+                    return
+                }
+            }
 
-    // useEffect(() => {
-    //     if (appearanceColor === "system") {
-    //         const matchMedia = window.matchMedia("(prefers-color-scheme: dark)")
+            setLoading(false)
+            console.log(agent)
 
-    //         setDarkMode(matchMedia.matches)
-    //         matchMedia.addEventListener("change", modeMe)
+            if (agent.session !== undefined) {
+                const json = {
+                    server: server,
+                    session: agent.session,
+                }
 
-    //         return () => matchMedia.removeEventListener("change", modeMe)
-    //     } else if (appearanceColor === "dark") {
-    //         setDarkMode(true)
-    //     } else if (appearanceColor === "light") {
-    //         setDarkMode(false)
-    //     }
-    // }, [appearanceColor])
+                localStorage.setItem("session", JSON.stringify(json))
+
+                const existingAccountsData: UserAccountByDid = accounts
+
+                const { data } = await agent.getProfile({
+                    actor: agent.session.did,
+                })
+
+                const accountData: UserAccount = {
+                    service: server,
+                    session: agent.session,
+                    profile: {
+                        did: agent.session.did,
+                        displayName: data?.displayName || agent.session.handle,
+                        handle: agent.session.handle,
+                        avatar: data?.avatar || "",
+                    },
+                }
+
+                existingAccountsData[agent.session.did] = accountData
+
+                setAccounts(existingAccountsData)
+            }
+
+            if (toRedirect) {
+                const url = `/${toRedirect}${
+                    searchParams ? `&${searchParams}` : ``
+                }`
+                const paramName = "toRedirect"
+                router.push(
+                    url.replace(
+                        new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+                        "?"
+                    )
+                )
+            } else {
+                router.push("/home")
+            }
+        } catch (e) {
+            setIsLoginFailed(true)
+            //@ts-ignore
+            switch (e?.status as number) {
+                case 401:
+                    setIsUserInfoIncorrect(true)
+                    break
+                case 500:
+                    setIsServerError(true)
+                    break
+            }
+            setLoading(false)
+            setIsLoginFailed(true)
+        }
+    }
 
     useEffect(() => {
-        if (tappedTabbarButton == "home") {
-            setMenuIndexChangedByMenu(true)
-            setMenuIndex(0) // at least home menu has 1 element
-        }
-    }, [tappedTabbarButton])
+        const resumesession = async () => {
+            try {
+                const storedData = localStorage.getItem("session")
+                console.log(storedData)
+                if (storedData) {
+                    const { session } = JSON.parse(storedData)
+                    console.log(await agent.resumeSession(session))
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setNow(new Date())
-        }, NOW_COUNT_UP_INTERVAL)
-
-        return () => {
-            clearInterval(intervalId)
+                    if (toRedirect) {
+                        const url = `/${toRedirect}${
+                            searchParams ? `&${searchParams}` : ``
+                        }`
+                        const paramName = "toRedirect"
+                        router.push(
+                            url.replace(
+                                new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+                                "?"
+                            )
+                        )
+                    } else {
+                        router.push("/home")
+                    }
+                } else {
+                    setIsAccount(false)
+                }
+            } catch (e) {
+                console.log(e)
+                router.push("/login")
+            }
         }
+        resumesession()
     }, [])
 
     useEffect(() => {
-        // console.log("home", currentMenuType, swiperRef.current, menuIndex)
+        if (!isMobile) return
         if (
-            currentMenuType === "home" &&
-            swiperRef.current &&
-            menuIndex !== swiperRef.current.activeIndex
+            (identifierIsByAutocomplete || passwordIsByAutocomplete) &&
+            user.trim() !== "" &&
+            password.trim() !== ""
         ) {
-            // if (currentMenuType !== prevMenyType.current) {
-            //     swiperRef.current.slideTo(menuIndex, 0)
-            // } else {
-            swiperRef.current.slideTo(menuIndex)
-            // }
+            handleLogin()
         }
-
-        //prevMenyType.current = currentMenuType
-    }, [currentMenuType, menuIndex, swiperRef.current])
-
-    // useEffect(() => {
-    //     const handleTouchMove = (event: TouchEvent) => {
-    //         console.log("Scrolling")
-    //     }
-
-    //     const handleTouchEnd = (event: TouchEvent) => {
-    //         console.log("Not Scrolling")
-    //     }
-
-    //     const swiperWrappers =
-    //         document.getElementsByClassName("swiper-wrapper")
-
-    //     Array.from(swiperWrappers).forEach((wrapper: Element) => {
-    //         if (wrapper instanceof HTMLDivElement) {
-    //             console.log("touch moving")
-    //             wrapper.addEventListener("touchmove", handleTouchMove)
-    //         }
-    //     })
-
-    //     Array.from(swiperWrappers).forEach((wrapper: Element) => {
-    //         if (wrapper instanceof HTMLDivElement) {
-    //             console.log("touch end")
-    //             wrapper.addEventListener("touchend", handleTouchEnd)
-    //         }
-    //     })
-
-    //     // Clean up event listeners
-    //     return () => {
-    //         Array.from(swiperWrappers).forEach((wrapper: Element) => {
-    //             if (wrapper instanceof HTMLDivElement) {
-    //                 wrapper.removeEventListener("touchmove", handleTouchMove)
-    //             }
-    //         })
-    //     }
-    // }, [swiperRef.current])
-
-    // useEffect(() => {
-    //     const hasValidInfo = headerMenus.every(
-    //         (item) => item.info === "following" || item.info.startsWith("at://")
-    //     )
-
-    //     if (hasValidInfo) {
-    //         setIsAvailableMenus(true)
-    //     }
-    // }, [headerMenus])
+    }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 
     return (
-        <Swiper
-            onSwiper={(swiper) => {
-                swiperRef.current = swiper
-            }}
-            cssMode={isMobile}
-            // virtual={true}
-            pagination={{ type: "custom", clickable: false }}
-            hidden={true} // ??
-            modules={[Pagination]}
-            className="swiper-home"
-            style={{ height: "100%" }}
-            touchAngle={30}
-            touchRatio={0.8}
-            touchReleaseOnEdges={true}
-            touchMoveStopPropagation={true}
-            preventInteractionOnTransition={true}
-            onActiveIndexChange={(swiper) => {
-                if (menuIndexChangedByMenu === false) {
-                    setMenuIndex(swiper.activeIndex)
-                }
-
-                if (tappedTabbarButton !== null) {
-                    setTappedTabbarButton(null)
-                }
-            }}
-            onTouchStart={(swiper, event) => {
-                setMenuIndexChangedByMenu(false)
-            }}
-            // onSlideChangeTransitionEnd={(swiper) => {
-            //     setMenuIndex(swiper.activeIndex)
-            // }}
-            // onSlideChange={(swiper) => {
-            //     console.error("onSlideChange", swiper)
-            //     setMenuIndex(swiper.activeIndex)
-            // }}
-        >
-            {menus.home.map((menu, index) => {
-                return (
-                    <SwiperSlide
-                        key={`swiperslide-home-${index}`}
-                        // virtualIndex={index}
-                    >
-                        <div
-                            id={`swiperIndex-div-${index}`}
-                            key={index}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <FeedPage
-                                {...{
-                                    isActive: index === menuIndex,
-                                    isNextActive: index === menuIndex + 1,
-                                    feedKey: menu.info,
-                                    // color,
-                                    disableSlideVerticalScroll,
-                                    now,
-                                }}
+        <>
+            <div className={"h-full w-full bg-black"}>
+                <div
+                    className={
+                        "h-full w-full bg-black pl-[30px] pr-[30px] pt-[100px] pb-[100px] flex flex-col justify-center items-center"
+                    }
+                >
+                    {isSetAccount === false && (
+                        <div className="">
+                            <img
+                                src={"/images/logo/ucho-ten.svg"}
+                                className="h-[40px] md:h-[50px] w-full mb-[250px]"
+                                alt="Logo"
                             />
-                            {/*<FeedPage*/}
-                            {/*    {...{*/}
-                            {/*        isActive: menuIndex === index,*/}
-                            {/*        feedKey: menu.info,*/}
-                            {/*        color,*/}
-                            {/*        disableSlideVerticalScroll,*/}
-                            {/*        now,*/}
-                            {/*    }}*/}
-                            {/*/>*/}
+                            <div
+                                className={
+                                    "w-full flex items-center justify-center"
+                                }
+                            >
+                                <Button
+                                    className={
+                                        "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center mb-4"
+                                    }
+                                    isDisabled={true}
+                                >
+                                    <div className="text-zinc-400 text-xl font-bold">
+                                        Create a new account
+                                    </div>
+                                </Button>
+                            </div>
+                            <div
+                                className={
+                                    "w-full flex items-center justify-center"
+                                }
+                            >
+                                <Link href={"/login"}>
+                                    <Button
+                                        className={
+                                            "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
+                                        }
+                                    >
+                                        <div className="text-zinc-400 text-xl font-bold">
+                                            Sign In
+                                        </div>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                    </SwiperSlide>
-                )
-            })}
-        </Swiper>
+                    )}
+                    {isSetAccount === null && <Spinner />}
+                </div>
+            </div>
+        </>
     )
 }
-
-export default Root

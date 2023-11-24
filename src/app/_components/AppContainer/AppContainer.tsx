@@ -50,7 +50,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { i18n } = useTranslation()
     const searchPath = ["/search"]
     const isSearchScreen = searchPath.includes(pathName)
-    const isLoginPath = ["/login"].includes(pathName)
+    const isLoginPath = ["/login", "/"].includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
@@ -71,7 +71,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
-    const specificPaths = ["/post", "/login"]
+    const specificPaths = ["/post", "/login", "/"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
@@ -83,6 +83,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         router.prefetch("/")
+        router.prefetch("/home")
         router.prefetch("/login")
         router.prefetch("/search")
         router.prefetch("/u-tab")
@@ -182,10 +183,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             const sessionJson = localStorage.getItem("session")
 
             if (!sessionJson) {
-                if (pathName === "/login") return
+                if (pathName === "/login" || pathName === "/") return
                 if (router) {
                     router.push(
-                        `/login${
+                        `/${
                             pathName
                                 ? `?toRedirect=${pathName.replace("/", "")}${
                                       searchParams ? `&${searchParams}` : ``
@@ -194,7 +195,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         }`
                     )
                 } else {
-                    location.href = "/login"
+                    location.href = "/"
                 }
                 return
             }
@@ -210,10 +211,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 setAgent(agent)
             } catch (error) {
                 console.error(error)
-                if (pathName === "/login") return
+                if (pathName === "/login" || pathName === "/") return
                 if (router) {
                     router.push(
-                        `/login${
+                        `/${
                             pathName
                                 ? `?toRedirect=${pathName.replace("/", "")}${
                                       searchParams ? `&${searchParams}` : ``
@@ -222,7 +223,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         }`
                     )
                 } else {
-                    location.href = "/login"
+                    location.href = "/"
                 }
             }
 
@@ -316,7 +317,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [imageGallery])
 
     const shouldFillPageBackground = useMemo((): boolean => {
-        if (pathName.startsWith("/login")) {
+        if (pathName.startsWith("/login") || pathName === "/") {
             return false
         } else if (
             pathName.startsWith("/search") &&
