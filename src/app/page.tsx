@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { BskyAgent } from "@atproto/api"
 //import { CircularProgressbar } from 'react-circular-progressbar';
 //import 'react-circular-progressbar/dist/styles.css';
-import { Button } from "@nextui-org/react"
+import { Button, Spinner } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
@@ -13,10 +13,12 @@ import {
     UserAccountByDid,
 } from "@/app/_atoms/accounts"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
     //        useUserProfileDetailedAtom()
+    const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
@@ -101,12 +103,14 @@ export default function CreateLoginPage() {
                     searchParams ? `&${searchParams}` : ``
                 }`
                 const paramName = "toRedirect"
-                location.href = url.replace(
-                    new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                    "?"
+                router.push(
+                    url.replace(
+                        new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+                        "?"
+                    )
                 )
             } else {
-                location.href = "/home"
+                router.push("/home")
             }
         } catch (e) {
             setIsLoginFailed(true)
@@ -128,6 +132,7 @@ export default function CreateLoginPage() {
         const resumesession = async () => {
             try {
                 const storedData = localStorage.getItem("session")
+                console.log(storedData)
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
                     console.log(await agent.resumeSession(session))
@@ -137,16 +142,21 @@ export default function CreateLoginPage() {
                             searchParams ? `&${searchParams}` : ``
                         }`
                         const paramName = "toRedirect"
-                        location.href = url.replace(
-                            new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                            "?"
+                        router.push(
+                            url.replace(
+                                new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+                                "?"
+                            )
                         )
                     } else {
-                        location.href = "/home"
+                        router.push("/home")
                     }
+                } else {
+                    setIsAccount(false)
                 }
             } catch (e) {
                 console.log(e)
+                router.push("/login")
             }
         }
         resumesession()
@@ -171,46 +181,49 @@ export default function CreateLoginPage() {
                         "h-full w-full bg-black pl-[30px] pr-[30px] pt-[100px] pb-[100px] flex flex-col justify-center items-center"
                     }
                 >
-                    <div className="">
-                        <img
-                            src={"/images/logo/ucho-ten.svg"}
-                            className="h-[40px] md:h-[50px] w-full mb-[250px]"
-                            alt="Logo"
-                        />
-                        <div
-                            className={
-                                "w-full flex items-center justify-center"
-                            }
-                        >
-                            <Button
+                    {isSetAccount === false && (
+                        <div className="">
+                            <img
+                                src={"/images/logo/ucho-ten.svg"}
+                                className="h-[40px] md:h-[50px] w-full mb-[250px]"
+                                alt="Logo"
+                            />
+                            <div
                                 className={
-                                    "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center mb-4"
+                                    "w-full flex items-center justify-center"
                                 }
-                                isDisabled={true}
                             >
-                                <div className="text-zinc-400 text-xl font-bold">
-                                    Create a new account
-                                </div>
-                            </Button>
-                        </div>
-                        <div
-                            className={
-                                "w-full flex items-center justify-center"
-                            }
-                        >
-                            <Link href={"/login"}>
                                 <Button
                                     className={
-                                        "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
+                                        "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center mb-4"
                                     }
+                                    isDisabled={true}
                                 >
                                     <div className="text-zinc-400 text-xl font-bold">
-                                        Sign In
+                                        Create a new account
                                     </div>
                                 </Button>
-                            </Link>
+                            </div>
+                            <div
+                                className={
+                                    "w-full flex items-center justify-center"
+                                }
+                            >
+                                <Link href={"/login"}>
+                                    <Button
+                                        className={
+                                            "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
+                                        }
+                                    >
+                                        <div className="text-zinc-400 text-xl font-bold">
+                                            Sign In
+                                        </div>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                    </div>
+                    )}
+                    {isSetAccount === null && <Spinner />}
                 </div>
             </div>
         </>
