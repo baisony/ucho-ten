@@ -79,11 +79,10 @@ export default function RootLayout({
                     href="/images/favicon/safari-pinned-tab.svg"
                     color="#000000"
                 />
-                <meta name="apple-touch-fullscreen" content="yes" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta
                     name="apple-mobile-web-app-status-bar-style"
-                    content="black-translucent"
+                    content="black"
                 />
                 <link
                     rel="apple-touch-startup-image"
