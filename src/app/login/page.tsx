@@ -112,12 +112,14 @@ export default function CreateLoginPage() {
                     searchParams ? `&${searchParams}` : ``
                 }`
                 const paramName = "toRedirect"
-                location.href = url.replace(
-                    new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                    "?"
+                router.push(
+                    url.replace(
+                        new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
+                        "?"
+                    )
                 )
             } else {
-                location.href = "/home"
+                router.push("/home")
             }
         } catch (e) {
             setIsLoginFailed(true)
@@ -157,7 +159,7 @@ export default function CreateLoginPage() {
                             )
                         )
                     } else {
-                        location.href = "/home"
+                        router.push("/home")
                     }
                 }
             } catch (e) {
