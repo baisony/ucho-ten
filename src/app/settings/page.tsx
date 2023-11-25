@@ -12,6 +12,12 @@ import {
     Select,
     SelectItem,
     Switch,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
     useDisclosure,
 } from "@nextui-org/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
@@ -149,55 +155,183 @@ const SettingsGeneralPage = ({
                 <div className={"font-[900]"}>
                     {t("pages.settings.appearance")}
                 </div>
+                <Table hideHeader>
+                    <TableHeader>
+                        <TableColumn>Appearance</TableColumn>
+                        <TableColumn> </TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Theme</TableCell>
+                            <TableCell>
+                                <ButtonGroup>
+                                    <Button
+                                        isDisabled={
+                                            appearanceColor === "system"
+                                        }
+                                        onClick={() => {
+                                            setAppearanceColor("system")
+                                            if (
+                                                window.matchMedia(
+                                                    "(prefers-color-scheme: dark)"
+                                                ).matches
+                                            ) {
+                                                document.documentElement.classList.add(
+                                                    "dark"
+                                                )
+                                            } else {
+                                                document.documentElement.classList.remove(
+                                                    "dark"
+                                                )
+                                            }
+                                        }}
+                                    >
+                                        {t("pages.settings.system")}
+                                    </Button>
+                                    <Button
+                                        isDisabled={appearanceColor === "light"}
+                                        onClick={() => {
+                                            setAppearanceColor("light")
+                                            document.documentElement.classList.remove(
+                                                "dark"
+                                            )
+                                        }}
+                                    >
+                                        {t("pages.settings.light")}
+                                    </Button>
+                                    <Button
+                                        isDisabled={appearanceColor === "dark"}
+                                        onClick={() => {
+                                            setAppearanceColor("dark")
+                                            document.documentElement.classList.add(
+                                                "dark"
+                                            )
+                                        }}
+                                    >
+                                        {t("pages.settings.dark")}
+                                    </Button>
+                                </ButtonGroup>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Display Language</TableCell>
+                            <TableCell>
+                                <Select
+                                    size={"sm"}
+                                    label="Languages"
+                                    selectedKeys={displayLanguage}
+                                    className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
+                                    onChange={(event) => {
+                                        handleDisplayLanguageSelectionChange(
+                                            event
+                                        )
+                                        //lngChangeはappContainerにて実装
+                                    }}
+                                >
+                                    {Object.entries(
+                                        DISPLAY_LANGUAGES || {}
+                                    ).map(([key, value]) => {
+                                        return (
+                                            <SelectItem
+                                                key={value}
+                                                className={appearanceTextColor()}
+                                            >
+                                                {key}
+                                            </SelectItem>
+                                        )
+                                    })}
+                                </Select>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>FF外からの引用を表示しない</TableCell>
+                            <TableCell>
+                                <Switch />
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Translate to</TableCell>
+                            <TableCell>
+                                <Select
+                                    size={"sm"}
+                                    label="Select a Language"
+                                    className={`${accordion()} max-w-xs`}
+                                    selectedKeys={translateTo}
+                                    onChange={(event) => {
+                                        handleTranslateToSelectionChange(event)
+                                    }}
+                                >
+                                    {Object.entries(
+                                        TO_TRANSLATE_LANGUAGES || {}
+                                    ).map(([key, value]) => {
+                                        return (
+                                            <SelectItem
+                                                key={value}
+                                                className={`${appearanceTextColor()}`}
+                                            >
+                                                {key}
+                                            </SelectItem>
+                                        )
+                                    })}
+                                </Select>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Content font size</TableCell>
+                            <TableCell>
+                                <Select
+                                    size={"sm"}
+                                    label="font size"
+                                    selectedKeys={String(contentFontSize)}
+                                    className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
+                                    onChange={(event) => {
+                                        //@ts-ignore
+                                        setContentFontSize(
+                                            Number(event.target.value)
+                                        )
+                                    }}
+                                >
+                                    <SelectItem
+                                        key={"1"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        1
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"2"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        2
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"3"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        3
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"4"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        4
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"5"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        5
+                                    </SelectItem>
+                                </Select>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
                 <div
                     className={
                         "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
                     }
                 >
                     <div>{t("pages.settings.theme")}</div>
-                    <ButtonGroup>
-                        <Button
-                            isDisabled={appearanceColor === "system"}
-                            onClick={() => {
-                                setAppearanceColor("system")
-                                if (
-                                    window.matchMedia(
-                                        "(prefers-color-scheme: dark)"
-                                    ).matches
-                                ) {
-                                    document.documentElement.classList.add(
-                                        "dark"
-                                    )
-                                } else {
-                                    document.documentElement.classList.remove(
-                                        "dark"
-                                    )
-                                }
-                            }}
-                        >
-                            {t("pages.settings.system")}
-                        </Button>
-                        <Button
-                            isDisabled={appearanceColor === "light"}
-                            onClick={() => {
-                                setAppearanceColor("light")
-                                document.documentElement.classList.remove(
-                                    "dark"
-                                )
-                            }}
-                        >
-                            {t("pages.settings.light")}
-                        </Button>
-                        <Button
-                            isDisabled={appearanceColor === "dark"}
-                            onClick={() => {
-                                setAppearanceColor("dark")
-                                document.documentElement.classList.add("dark")
-                            }}
-                        >
-                            {t("pages.settings.dark")}
-                        </Button>
-                    </ButtonGroup>
                 </div>
                 <div
                     className={
@@ -205,29 +339,6 @@ const SettingsGeneralPage = ({
                     }
                 >
                     <div>{t("pages.settings.displayLanguage")}</div>
-                    <Select
-                        size={"sm"}
-                        label="Languages"
-                        selectedKeys={displayLanguage}
-                        className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
-                        onChange={(event) => {
-                            handleDisplayLanguageSelectionChange(event)
-                            //lngChangeはappContainerにて実装
-                        }}
-                    >
-                        {Object.entries(DISPLAY_LANGUAGES || {}).map(
-                            ([key, value]) => {
-                                return (
-                                    <SelectItem
-                                        key={value}
-                                        className={appearanceTextColor()}
-                                    >
-                                        {key}
-                                    </SelectItem>
-                                )
-                            }
-                        )}
-                    </Select>
                 </div>
             </div>
             <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
