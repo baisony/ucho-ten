@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { Button, Spinner } from "@nextui-org/react"
 import Link from "next/link"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const { t } = useTranslation()
@@ -19,7 +20,7 @@ export default function Root() {
 
     return (
         <>
-            <div className={"md:h-[100px] h-[85px]"} />
+            <DummyHeader />
             <div
                 className={
                     "h-full w-full bg-black flex justify-center items-end bottom-[100px] relative"

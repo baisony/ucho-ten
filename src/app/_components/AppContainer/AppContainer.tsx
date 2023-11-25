@@ -620,12 +620,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     />
                                 )}
                                 <div
-                                    className={`pt-[0px] h-[calc(100%-50px-env(safe-area-inset-bottom))] ${
+                                    className={`pt-[0px] h-[calc(100%-50px)] ${
                                         isLoginPath && `h-full`
                                     } lg:h-full relative`}
                                 >
                                     {shouldFillPageBackground && (
-                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                        <div className="absolute top-[env(safe-area-inset-top)] left-0 flex justify-center w-full h-full">
                                             <div
                                                 className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
                                                     isSearchScreen

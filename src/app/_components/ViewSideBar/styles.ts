@@ -4,7 +4,7 @@ export const viewSideBar = tv({
     slots: {
         background: "text-black dark:text-white", //overflow-x-hidden w-full", //overflow-x-hidden w-full", //w-full h-full select-none absolute",
         AuthorIconContainer:
-            "md:h-[100px] h-[85px] border-b-[1px] border-[#E3E3E3] pl-[18px] flex items-center cursor-pointer text-black dark:text-[#D7D7D7]",
+            "md:h-[calc(100px+env(safe-area-inset-top))] h-[calc(85px+env(safe-area-inset-top))] border-b-[1px] border-[#E3E3E3] pl-[18px] flex items-center cursor-pointer text-black dark:text-[#D7D7D7]",
         AuthorDisplayName: "font-black font-[16px] text-black dark:text-white",
         AuthorHandle: "text-[#767676] dark:text-[#D7D7D7]",
         Content:

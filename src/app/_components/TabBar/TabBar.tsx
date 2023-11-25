@@ -69,9 +69,9 @@ export const TabBar: React.FC<Props> = (props: Props) => {
     return (
         <main
             className={TabBar()}
-            style={{
+            /*style={{
                 paddingBottom: "env(safe-area-inset-bottom)",
-            }}
+            }}*/
         >
             <div
                 className={Container({ selected: hilightedTab === "h" })}

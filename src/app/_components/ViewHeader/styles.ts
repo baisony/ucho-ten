@@ -1,15 +1,16 @@
 import { tv } from "@nextui-org/react"
+import React from "react"
 
 export const viewHeader = tv({
     slots: {
-        Header: "md:h-[100px] h-[85px] w-full min-w-[350px] max-w-[600px] text-white backdrop-blur-[5px] bg-black/40 fixed top-0 z-10 select-none",
+        Header: "md:h-[calc(100px+env(safe-area-inset-top))] h-[calc(85px+env(safe-area-inset-top))] w-full min-w-[350px] max-w-[600px] text-white backdrop-blur-[5px] bg-black/40 fixed top-0 z-10 select-none",
         HeaderContentTitleContainer: "",
         HeaderContentTitle: "",
         HeaderContent:
             "w-full h-[100%-86px] max-h-[400px] relative flex items-center flex-wrap overflow-y-scroll",
         HeaderInputArea:
             "h-full w-full outline-none pl-[20px] pr-[40px] text-black dark:text-white dark:bg-[#1C1C1C]",
-        top: "md:h-[73px] h-[55px] w-full flex justify-center items-center",
+        top: "md:h-[calc(73px+env(safe-area-inset-top))] h-[calc(55px+env(safe-area-inset-top))] w-full flex justify-center items-center",
         bottom: "lg:h-[27px] md:h-[27px] h-[30px] font-bold align-center overflow-x-scroll overflow-y-hidden",
     },
     variants: {
