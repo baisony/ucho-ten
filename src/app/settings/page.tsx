@@ -152,7 +152,7 @@ const SettingsGeneralPage = ({
         <>
             <DummyHeader />
             <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
-                <div className={"font-[900]"}>
+                <div className={"font-[900] ml-[28px]"}>
                     {t("pages.settings.appearance")}
                 </div>
                 <Table hideHeader>
@@ -244,12 +244,6 @@ const SettingsGeneralPage = ({
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>FF外からの引用を表示しない</TableCell>
-                            <TableCell>
-                                <Switch />
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
                             <TableCell>Translate to</TableCell>
                             <TableCell>
                                 <Select
@@ -285,8 +279,8 @@ const SettingsGeneralPage = ({
                                     selectedKeys={String(contentFontSize)}
                                     className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
                                     onChange={(event) => {
-                                        //@ts-ignore
                                         setContentFontSize(
+                                            //@ts-ignore
                                             Number(event.target.value)
                                         )
                                     }}
@@ -326,110 +320,6 @@ const SettingsGeneralPage = ({
                         </TableRow>
                     </TableBody>
                 </Table>
-                <div
-                    className={
-                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                    }
-                >
-                    <div>{t("pages.settings.theme")}</div>
-                </div>
-                <div
-                    className={
-                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                    }
-                >
-                    <div>{t("pages.settings.displayLanguage")}</div>
-                </div>
-            </div>
-            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
-                <div className={"font-[600]"}>Notification</div>
-                <div className={"flex justify-between items-center h-[40px]"}>
-                    <div>FF外からの引用リポスト通知を受け取らない</div>
-                    {/* TODO: i18n */}
-                    <Switch></Switch>
-                </div>
-            </div>
-            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
-                <div className={"font-[600]"}>
-                    {t("pages.settings.translate")}
-                </div>
-                <div
-                    className={
-                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                    }
-                >
-                    <div>{t("pages.settings.translateTo")}</div>
-                    <Select
-                        size={"sm"}
-                        label="Select a Language"
-                        className={`${accordion()} max-w-xs`}
-                        selectedKeys={translateTo}
-                        onChange={(event) => {
-                            handleTranslateToSelectionChange(event)
-                        }}
-                    >
-                        {Object.entries(TO_TRANSLATE_LANGUAGES || {}).map(
-                            ([key, value]) => {
-                                return (
-                                    <SelectItem
-                                        key={value}
-                                        className={`${appearanceTextColor()}`}
-                                    >
-                                        {key}
-                                    </SelectItem>
-                                )
-                            }
-                        )}
-                    </Select>
-                </div>
-                <div
-                    className={
-                        "flex justify-between items-center pt-[5px] pb-[5px] h-[40px]"
-                    }
-                >
-                    <div>font size</div>
-                    <Select
-                        size={"sm"}
-                        label="font size"
-                        selectedKeys={String(contentFontSize)}
-                        className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
-                        onChange={(event) => {
-                            //@ts-ignore
-                            setContentFontSize(Number(event.target.value))
-                        }}
-                    >
-                        <SelectItem
-                            key={"1"}
-                            className={`${appearanceTextColor()}`}
-                        >
-                            1
-                        </SelectItem>
-                        <SelectItem
-                            key={"2"}
-                            className={`${appearanceTextColor()}`}
-                        >
-                            2
-                        </SelectItem>
-                        <SelectItem
-                            key={"3"}
-                            className={`${appearanceTextColor()}`}
-                        >
-                            3
-                        </SelectItem>
-                        <SelectItem
-                            key={"4"}
-                            className={`${appearanceTextColor()}`}
-                        >
-                            4
-                        </SelectItem>
-                        <SelectItem
-                            key={"5"}
-                            className={`${appearanceTextColor()}`}
-                        >
-                            5
-                        </SelectItem>
-                    </Select>
-                </div>
             </div>
         </>
     )
