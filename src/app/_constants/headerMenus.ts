@@ -130,6 +130,12 @@ const defaultAboutMenus: HeaderMenu[] = [
         info: "about",
     },
 ]
+const defaultNotFoundMenus: HeaderMenu[] = [
+    {
+        displayText: "NotFound",
+        info: "notFound",
+    },
+]
 
 export type HeaderMenuType =
     | "home"
@@ -145,6 +151,7 @@ export type HeaderMenuType =
     | "myFeeds"
     | "feed"
     | "about"
+    | "notFound"
 
 type HeaderMenus = { [k in HeaderMenuType]: HeaderMenu[] }
 
@@ -162,4 +169,5 @@ export const HEADER_MENUS: HeaderMenus = {
     list: defaultListMenus,
     feed: defaultFeedMenus,
     about: defaultAboutMenus,
+    notFound: defaultNotFoundMenus,
 }

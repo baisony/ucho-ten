@@ -42,8 +42,10 @@ import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
+import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
+    const [statusCode, setStatusCode] = useStatusCodeAtPage()
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
@@ -624,17 +626,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                         isLoginPath && `h-full`
                                     } lg:h-full relative`}
                                 >
-                                    {shouldFillPageBackground && (
-                                        <div className="absolute top-0 left-0 flex justify-center w-full h-full">
-                                            <div
-                                                className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
-                                                    isSearchScreen
-                                                        ? `lg:mt-[100px]`
-                                                        : `lg:mt-[50px]`
-                                                } md:mt-[100px] mt-[85px] lg:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                                            />
-                                        </div>
-                                    )}
+                                    {shouldFillPageBackground &&
+                                        statusCode !== 404 && (
+                                            <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                                <div
+                                                    className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
+                                                        isSearchScreen
+                                                            ? `lg:mt-[100px]`
+                                                            : `lg:mt-[50px]`
+                                                    } md:mt-[100px] mt-[85px] lg:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
+                                                />
+                                            </div>
+                                        )}
                                     {children}
                                 </div>
                                 {showTabBar && <TabBar />}

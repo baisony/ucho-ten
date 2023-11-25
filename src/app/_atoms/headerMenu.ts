@@ -23,6 +23,7 @@ const menuIndexByHeader = atom<{ [k in HeaderMenuType]: number }>({
     list: 0,
     feed: 0,
     about: 0,
+    notFound: 0,
 })
 
 const headerMenusByHeader = atom<{ [k in HeaderMenuType]: HeaderMenu[] }>({
@@ -39,6 +40,7 @@ const headerMenusByHeader = atom<{ [k in HeaderMenuType]: HeaderMenu[] }>({
     list: HEADER_MENUS.list,
     feed: HEADER_MENUS.feed,
     about: HEADER_MENUS.about,
+    notFound: HEADER_MENUS.notFound,
 })
 
 export const useHeaderMenusByHeaderAtom = () => useAtom(headerMenusByHeader)
