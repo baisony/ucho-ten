@@ -60,7 +60,6 @@ import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
-import * as AppBskyActorDefs from "@atproto/api/src/client/types/app/bsky/actor/defs"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -552,26 +551,17 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             console.log(postView)
             if (
                 !embedMedia.record.record.author ||
-                !(
-                    embedMedia.record.record
-                        .author as AppBskyActorDefs.ProfileViewBasic
-                ).viewer
+                !(embedMedia.record.record.author as ProfileViewBasic).viewer
             ) {
                 return
             }
             if (
-                (
-                    embedMedia.record.record
-                        .author as AppBskyActorDefs.ProfileViewBasic
-                ).viewer?.blockedBy ||
-                (
-                    embedMedia.record.record
-                        .author as AppBskyActorDefs.ProfileViewBasic
-                ).viewer?.muted ||
-                (
-                    embedMedia.record.record
-                        .author as AppBskyActorDefs.ProfileViewBasic
-                ).viewer?.blocking
+                (embedMedia.record.record.author as ProfileViewBasic).viewer
+                    ?.blockedBy ||
+                (embedMedia.record.record.author as ProfileViewBasic).viewer
+                    ?.muted ||
+                (embedMedia.record.record.author as ProfileViewBasic).viewer
+                    ?.blocking
             ) {
                 handleInputChange("delete", postJsonData?.uri || "", "")
             }
