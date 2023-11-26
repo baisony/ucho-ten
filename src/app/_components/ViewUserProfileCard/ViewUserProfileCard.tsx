@@ -1,16 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { AppBskyEmbedImages, AppBskyEmbedRecordWithMedia } from "@atproto/api"
-import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewUserProfileCardStyle } from "./styles"
 import "react-circular-progressbar/dist/styles.css"
-import { ScrollShadow, Skeleton, useDisclosure } from "@nextui-org/react"
-import { useAgent } from "@/app/_atoms/agent"
+import { Skeleton } from "@nextui-org/react"
 
 import "react-swipeable-list/dist/styles.css"
-import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import Link from "next/link"
 
 interface Props {
@@ -27,7 +22,6 @@ interface Props {
 export const ViewUserProfileCard = (props: Props) => {
     const {
         // className,
-        isMobile,
         // uploadImageAvailable,
         // open,
         // numbersOfImage,
@@ -35,42 +29,18 @@ export const ViewUserProfileCard = (props: Props) => {
         json,
         isEmbedToModal,
         nextQueryParams,
-        t,
     } = props
-
-    const postView = useMemo((): ProfileView | null => {
-        if (json) {
-            return json
-        } else {
-            return null
-        }
-    }, [json])
-    const [agent] = useAgent()
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
     const {
         PostCard,
         PostAuthor,
-        PostContent,
-        PostContentText,
-        PostReactionButtonContainer,
         PostCardContainer,
-        PostReactionButton,
         PostAuthorIcon,
         PostAuthorDisplayName,
         PostAuthorHandle,
-        postCreatedAt,
-        moreButton,
         skeletonIcon,
         skeletonName,
         skeletonHandle,
-        skeletonText1line,
-        skeletonText2line,
-        chip,
-        bookmarkButton,
-        replyButton,
-        repostButton,
-        likeButton,
     } = viewUserProfileCardStyle()
 
     const [isDeleted, setIsDeleted] = useState<boolean>(false)

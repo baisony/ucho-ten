@@ -31,10 +31,10 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Selection,
     Spinner,
     Textarea as NextUITextarea,
     useDisclosure,
-    Selection,
 } from "@nextui-org/react"
 
 import Textarea from "react-textarea-autosize" // 追加
@@ -164,12 +164,12 @@ export default function Root() {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            handlePostClick()
+            void handlePostClick()
         }
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        addImages(files)
+        await addImages(files)
     }, [])
 
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
@@ -241,7 +241,7 @@ export default function Root() {
                 }
 
                 if (getOGPData) {
-                    const embed = {
+                    postObj.embed = {
                         $type: "app.bsky.embed.external",
                         external: {
                             uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
@@ -261,18 +261,15 @@ export default function Root() {
                             },
                         },
                     } as any
-                    postObj.embed = embed
                 } else {
-                    const embed = {
+                    postObj.embed = {
                         $type: "app.bsky.embed.images",
                         images,
                     } as AppBskyEmbedImages.Main
-
-                    postObj.embed = embed
                 }
             }
 
-            const res = await agent.post(postObj)
+            await agent.post(postObj)
 
             console.log("hoge")
 
@@ -302,7 +299,7 @@ export default function Root() {
         const imageFiles = Array.from(e.target.files)
         console.log(imageFiles)
         if (!(imageFiles.length + currentImagesCount > 4)) {
-            addImages(imageFiles)
+            void addImages(imageFiles)
         }
     }
 
@@ -317,7 +314,7 @@ export default function Root() {
         const maxFileSize = 975 * 1024 // 975KB
 
         const imageBlobs: AttachmentImage[] = await Promise.all(
-            imageFiles.map(async (file, index) => {
+            imageFiles.map(async (file) => {
                 if (file.size > maxFileSize) {
                     try {
                         setIsCompressing(true)
@@ -375,7 +372,7 @@ export default function Root() {
     }
 
     const onEmojiClick = (emoji: any) => {
-        if (isEmojiAdding.current === true) {
+        if (isEmojiAdding.current) {
             return
         }
 
@@ -511,7 +508,7 @@ export default function Root() {
     }
 
     const handleOnEmojiOpenChange = (isOpen: boolean) => {
-        if (isOpen === true) {
+        if (isOpen) {
             currentCursorPostion.current =
                 textareaRef.current?.selectionStart || 0
         } else {
@@ -562,6 +559,7 @@ export default function Root() {
                                     src={URL.createObjectURL(
                                         contentImages[editALTIndex].blob
                                     )}
+                                    alt={"updateImage"}
                                 />
                                 <div>
                                     <NextUITextarea
@@ -789,7 +787,7 @@ export default function Root() {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         setIsSetURLCard(true)
-                                                        getOGP(url)
+                                                        void getOGP(url)
                                                     }}
                                                 >
                                                     {url}
@@ -861,7 +859,7 @@ export default function Root() {
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>
                                     ) => {
-                                        handleOnAddImage(e)
+                                        void handleOnAddImage(e)
                                     }}
                                     disabled={
                                         loading ||

@@ -36,7 +36,7 @@ const LanguagesSelectionModal = ({
             hideCloseButton
         >
             <ModalContent>
-                {(onCloseLangs) => (
+                {() => (
                     <>
                         <ModalHeader>Select Languages</ModalHeader>
                         <ModalBody>
@@ -58,7 +58,7 @@ const LanguagesSelectionModal = ({
                                         <TableColumn> </TableColumn>
                                     </TableHeader>
                                     <TableBody>
-                                        {LANGUAGES.map((item, index) => {
+                                        {LANGUAGES.map((item) => {
                                             return (
                                                 <TableRow key={item.code}>
                                                     <TableCell>

@@ -9,15 +9,13 @@ import {
     ModalFooter,
     ModalHeader,
     Spinner,
-    useDisclosure,
+    tv,
 } from "@nextui-org/react"
 import { BskyAgent } from "@atproto/api"
-import { tv } from "@nextui-org/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
-import { UserAccount, useAccounts } from "../_atoms/accounts"
+import { useAccounts, UserAccount } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
-import { useRouter } from "next/navigation"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -44,7 +42,6 @@ const SignInModal = (props: SignInModalProps) => {
     } = props
 
     const { t } = useTranslation()
-    const router = useRouter()
 
     const [, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
@@ -52,17 +49,15 @@ const SignInModal = (props: SignInModalProps) => {
     // const { isOpen, onOpenChange } = useDisclosure()
 
     const [serverName, setServerName] = useState<string>("")
-    const [accountsByServices, setAccountsByServices] = useState<{
+    /*const [accountsByServices, setAccountsByServices] = useState<{
         [key: string]: UserAccount[]
-    }>({})
+    }>({})*/
     const [identity, setIdentity] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLogging, setIsLogging] = useState<boolean>(false)
     const [loginError, setLoginError] = useState<boolean>(false)
-    const [isAccountSwitching, setIsAccountSwitching] = useState(false)
-    const [authenticationRequired, setAuthenticationRequired] = useState<
-        boolean | null
-    >(null)
+    const [, setIsAccountSwitching] = useState(false)
+    const [, setAuthenticationRequired] = useState<boolean | null>(null)
     // const [selectedAccountInfo, setSelectedAccountInfo] = useState<any>(null)
 
     const { appearanceTextColor } = signInModal()
@@ -154,7 +149,7 @@ const SignInModal = (props: SignInModalProps) => {
         <Modal
             isOpen={isOpen}
             onOpenChange={(isOpen) => {
-                if (isOpen === false) {
+                if (!isOpen) {
                     setServerName("")
                     setIdentity("")
                     setPassword("")

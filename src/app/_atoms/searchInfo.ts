@@ -1,7 +1,4 @@
 import { atom, useAtom } from "jotai"
-import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-
 interface SearchInfo {
     target: string
     searchWord: string

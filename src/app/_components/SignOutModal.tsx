@@ -50,12 +50,10 @@ const SignOutModal = (props: SignOutModalProps) => {
             return
         }
 
-        const updatedAccountData = {
+        existingAccountsData[agent.session.did] = {
             ...(existingAccountsData[agent.session.did] || {}),
             session: undefined,
         }
-
-        existingAccountsData[agent.session.did] = updatedAccountData
 
         setAccounts(existingAccountsData)
 

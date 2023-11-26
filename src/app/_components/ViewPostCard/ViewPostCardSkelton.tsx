@@ -1,5 +1,4 @@
 import React from "react"
-// import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import "react-circular-progressbar/dist/styles.css"
 import { Skeleton } from "@nextui-org/react"

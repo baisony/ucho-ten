@@ -1,5 +1,6 @@
 import { Spinner } from "@nextui-org/react"
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const ListFooterSpinner = ({ context: { hasMore } }) => {
     return (

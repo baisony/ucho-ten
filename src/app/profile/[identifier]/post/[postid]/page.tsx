@@ -2,12 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type {
-    FeedViewPost,
-    PostView,
-} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -58,7 +55,7 @@ import {
     AppBskyFeedPost,
     AtUri,
 } from "@atproto/api"
-import { Bookmark, BookmarkByDid, useBookmarks } from "@/app/_atoms/bookmarks"
+import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { Linkcard } from "@/app/_components/Linkcard"
 import {
@@ -131,11 +128,11 @@ const Page = () => {
                 touchMoveStopPropagation={true}
                 preventInteractionOnTransition={true}
                 onActiveIndexChange={(swiper) => {
-                    if (menuIndexChangedByMenu === false) {
+                    if (!menuIndexChangedByMenu) {
                         setMenuIndex(swiper.activeIndex)
                     }
                 }}
-                onTouchStart={(swiper, event) => {
+                onTouchStart={() => {
                     setMenuIndexChangedByMenu(false)
                 }}
             >
@@ -165,22 +162,15 @@ const PostPage = (props: PostPageProps) => {
     const [, setImageGallery] = useImageGalleryAtom()
     const [translateTo] = useTranslationLanguage()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const router = useRouter()
     const [loading, setLoading] = useState(false)
-    const [loading2, setLoading2] = useState(false)
     const pathname = usePathname()
-    const username = pathname.replace("/profile/", "")
+    // const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     let atUri = atUri1.replace("/post/", "/app.bsky.feed.post/")
-    const [timeline, setTimeline] = useState<FeedViewPost[]>([])
-    //const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
-    //const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [thread, setThread] = useState<AppBskyFeedDefs.ThreadViewPost | null>(
         null
     )
     //const [newCursor, setNewCursor] = useState<string | null>(null)
-    const [cursor] = useState<string | null>(null)
-    const [hasCursor, setHasCursor] = useState<string | null>(null)
     const [, setIsTranslated] = useState(false)
     const [translatedText, setTranslatedText] = useState<string | null>(null)
     const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(true)
@@ -491,8 +481,6 @@ const PostPage = (props: PostPageProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const myDID = agent?.session?.did as string
-        //console.log(existingAccountsData[0][myDID])
 
         const index = bookmarks.findIndex(
             (bookmark: any) => bookmark.uri === postView.uri
@@ -502,7 +490,7 @@ const PostPage = (props: PostPageProps) => {
         if (index !== -1) {
             console.log("delete")
             const newBookmarks = bookmarks
-            const deleteBookmark = newBookmarks.splice(index, 1)
+            newBookmarks.splice(index, 1)
             setBookmarks(newBookmarks)
             setIsBookmarked(false)
         } else {
@@ -732,12 +720,6 @@ const PostPage = (props: PostPageProps) => {
         if (!userPreference) return
         const post = postView
         if (!post || !post.labels || post.labels.length === 0) return
-        type LabelActionsType = {
-            [key: string]: {
-                label: string
-                key: string
-            }
-        }
 
         post.labels.forEach((label) => {
             const labelType = LABEL_ACTIONS[label.val]
@@ -766,16 +748,6 @@ const PostPage = (props: PostPageProps) => {
             }
         })
     }, [userPreference, postView])
-
-    const postBodyText = useMemo((): string => {
-        if (postView?.record === undefined) {
-            return ""
-        } else if ((postView.record as AppBskyFeedPost.Record)?.text) {
-            return (postView.record as AppBskyFeedPost.Record)?.text
-        } else {
-            return ""
-        }
-    }, [postView])
 
     return (
         thread && (
@@ -815,7 +787,7 @@ const PostPage = (props: PostPageProps) => {
                     hideCloseButton
                 >
                     <ModalContent>
-                        {(onClose) => (
+                        {() => (
                             <>
                                 <ModalBody>
                                     <span>
@@ -874,7 +846,7 @@ const PostPage = (props: PostPageProps) => {
                                                 "mt-[15px] mb-[15px] w-full text-red-600"
                                             }
                                             onClick={() => {
-                                                handleMute()
+                                                void handleMute()
                                             }}
                                         >
                                             <FontAwesomeIcon
@@ -991,7 +963,7 @@ const PostPage = (props: PostPageProps) => {
                                                     />
                                                 }
                                                 onClick={async () => {
-                                                    translateContentText()
+                                                    await translateContentText()
                                                 }}
                                             >
                                                 {t(
@@ -1289,6 +1261,7 @@ const PostPage = (props: PostPageProps) => {
                                         thread.post.author.did !==
                                             item.post.author.did &&
                                         item.post.author.did !==
+                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                             //@ts-ignore
                                             thread?.parent?.post?.author?.did
                                     ) {

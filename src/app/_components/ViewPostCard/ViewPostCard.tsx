@@ -121,7 +121,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         PostCard,
         PostAuthor,
         PostContent,
-        PostContentText,
         PostReactionButtonContainer,
         PostCardContainer,
         PostReactionButton,
@@ -147,7 +146,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     const [, setHandleButtonClick] = useState(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
-    const [contentFontSize, setContentFontSize] = useContentFontSize()
+    const [contentFontSize] = useContentFontSize()
 
     const {
         isOpen: isOpenReply,
@@ -161,7 +160,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenChange: onOpenChangeReport,
     } = useDisclosure()
 
-    const syncBookmarks = async (bookmarklist: any[]) => {
+    const syncBookmarks = async (bookmarklist: Bookmark[]) => {
         if (!agent) return
         const syncData = {
             bookmarks: bookmarklist,
@@ -176,7 +175,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 body: syncData_string,
             })
             //console.log(await res)
-            if ((await res.status) !== 200) {
+            if (res.status !== 200) {
                 console.log("sync error")
             }
         } catch (e) {
@@ -193,7 +192,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             updatedAt: createdAt,
             deletedAt: null,
         }
-        const myDID = agent?.session?.did as string
 
         const index = bookmarks.findIndex(
             (bookmark: any) => bookmark.uri === uri
@@ -201,19 +199,19 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         console.log(index)
 
         if (index !== -1) {
-            console.log("delete")
+            //console.log("delete")
             const newBookmarks = bookmarks
-            const deleteBookmark = newBookmarks.splice(index, 1)
-            console.log(newBookmarks)
+            newBookmarks.splice(index, 1)
+            //console.log(newBookmarks)
 
             setBookmarks(newBookmarks)
-            syncBookmarks(newBookmarks)
+            void syncBookmarks(newBookmarks)
             setIsBookmarked(false)
             //await syncBookmarks()
         } else {
             console.log("add")
             setBookmarks((prevBookmarks) => [...prevBookmarks, json])
-            syncBookmarks([...bookmarks, json])
+            void syncBookmarks([...bookmarks, json])
             setIsBookmarked(true)
         }
     }
@@ -480,10 +478,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         [postJson]
     )
 
-    const deletehttp = (text: string) => {
-        return text.replace(/^https?:\/\//, "")
-    }
-
     useEffect(() => {
         if (!userPreference) {
             return
@@ -591,7 +585,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }
 
     const handleMenuClickCopyJSON = () => {
-        navigator.clipboard.writeText(JSON.stringify(postJson))
+        void navigator.clipboard.writeText(JSON.stringify(postJson))
     }
 
     const handleMenuClickReport = () => {
@@ -599,7 +593,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }
 
     const handleMenuClickDelete = () => {
-        handleDelete()
+        void handleDelete()
     }
 
     if (isSkeleton === true) {
@@ -917,7 +911,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                 quoteJson?.uri ||
                                                 json?.post?.uri
                                             if (!postUri) return
-                                            handleBookmark(postUri)
+                                            void handleBookmark(postUri)
                                         }}
                                     />
                                 </div>
