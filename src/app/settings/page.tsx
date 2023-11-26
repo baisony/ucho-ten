@@ -97,11 +97,11 @@ const Page = () => {
                 touchMoveStopPropagation={true}
                 preventInteractionOnTransition={true}
                 onActiveIndexChange={(swiper) => {
-                    if (menuIndexChangedByMenu === false) {
+                    if (!menuIndexChangedByMenu) {
                         setMenuIndex(swiper.activeIndex)
                     }
                 }}
-                onTouchStart={(swiper, event) => {
+                onTouchStart={() => {
                     setMenuIndexChangedByMenu(false)
                 }}
             >
@@ -127,11 +127,7 @@ interface SettingsGeneralPageProps {
     agent: BskyAgent | null
 }
 
-const SettingsGeneralPage = ({
-    t,
-    // nextQueryParams,
-    agent,
-}: SettingsGeneralPageProps) => {
+const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
@@ -280,6 +276,7 @@ const SettingsGeneralPage = ({
                                     className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
                                     onChange={(event) => {
                                         setContentFontSize(
+                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                             //@ts-ignore
                                             Number(event.target.value)
                                         )
@@ -334,7 +331,6 @@ interface SettingsContentFilteringPageProps {
 
 const SettingsContentFilteringPage = ({
     t,
-    nextQueryParams,
     agent,
     userPreferences,
 }: SettingsContentFilteringPageProps) => {
@@ -342,7 +338,7 @@ const SettingsContentFilteringPage = ({
     const { contentLabels } = userPreferences || {}
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [isAdultContentEnabled, setIsAdultContentEnabled] = useState(false)
+    const [isAdultContentEnabled] = useState(false)
 
     const handleButtonClick = async (key: any, value: BskyLabelPreference) => {
         if (isLoading) return
@@ -350,6 +346,7 @@ const SettingsContentFilteringPage = ({
         // ここでボタンの状態を更新
         const newContentLabels = { ...contentLabels }
         newContentLabels[key] = value
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         setUserPreferences((prevUserPreferences) => ({
             ...prevUserPreferences,
@@ -365,6 +362,7 @@ const SettingsContentFilteringPage = ({
         if (isLoading) return
         setIsLoading(true)
         const newAdultContentEnabled = e.target.checked
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         setUserPreferences((prevUserPreferences) => ({
             ...prevUserPreferences,
@@ -395,7 +393,7 @@ const SettingsContentFilteringPage = ({
                     <div>
                         <Switch
                             onChange={async (e) => {
-                                handleAdultContentEnabledChange(e)
+                                await handleAdultContentEnabledChange(e)
                             }}
                             defaultSelected={
                                 userPreferences?.adultContentEnabled
@@ -405,7 +403,7 @@ const SettingsContentFilteringPage = ({
                 </div>
             )}
             {Object.entries(userPreferences?.contentLabels || {}).map(
-                ([key, value]) => (
+                ([key]) => (
                     <div
                         key={key}
                         className={
@@ -489,19 +487,16 @@ interface SettingsMutePageProps {
     agent: BskyAgent | null
 }
 
-const SettingsMutePage = ({
-    t,
-    nextQueryParams, // agent,
-}: SettingsMutePageProps) => {
+const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
     const [agent] = useAgent()
     const [muteWords, setMuteWords] = useWordMutes()
     const [bookmarks] = useBookmarks()
     const [editMode, setEditMode] = useState<boolean>(false)
     const [inputMuteWord, setInputMuteWord] = useState<string>("")
-    const [inputMuteCategory, setInputMuteCategory] = useState<string>("")
-    const [inputTimePeriod, setInputTimePeriod] = useState<string>("")
+    const [inputMuteCategory] = useState<string>("")
+    ///const [inputTimePeriod, setInputTimePeriod] = useState<string>("")
     const [selectMuteWord, setSelectMuteWord] = useState<any>(null)
-    const [switchIsActive, setSwitchIsActive] = useState<boolean>(false)
+    const [, setSwitchIsActive] = useState<boolean>(false)
     const [modalEditMode, setModalEditMode] = useState<boolean>(false)
     const {
         isOpen: isOpenEdit,
@@ -525,7 +520,7 @@ const SettingsMutePage = ({
                 body: syncData_string,
             })
             console.log(await res)
-            if ((await res.status) !== 200) {
+            if (res.status !== 200) {
                 console.log("sync error")
             }
         } catch (e) {
@@ -548,13 +543,12 @@ const SettingsMutePage = ({
             createdAt: createdAt,
             deletedAt: null,
         }
-        const myDID = agent?.session?.did as string
         const index = muteWords.find(
             (muteWord: any) => muteWord.word === inputMuteWord
         )
         if (index) return
         setMuteWords((prevMutewords) => [...prevMutewords, json])
-        syncMuteWords([...muteWords, json])
+        void syncMuteWords([...muteWords, json])
     }, [agent, muteWords, setMuteWords, inputMuteWord, syncMuteWords])
 
     const handleSaveClick = useCallback(() => {
@@ -562,7 +556,6 @@ const SettingsMutePage = ({
         console.log("save")
         const updatedAt = new Date().getTime()
         const json: MuteWord = selectMuteWord
-        const myDID = agent?.session?.did as string
         const index = muteWords.findIndex(
             (muteWord: any) => muteWord.word === inputMuteWord
         )
@@ -577,7 +570,7 @@ const SettingsMutePage = ({
             newMuteWords[index] = json // 特定のインデックスの要素を編集
             return newMuteWords // 新しい状態を返す
         })
-        syncMuteWords(newMuteWords)
+        void syncMuteWords(newMuteWords)
     }, [
         selectMuteWord,
         agent,
@@ -590,14 +583,13 @@ const SettingsMutePage = ({
     const handleDelete = useCallback(() => {
         if (!agent) return
         console.log("delete")
-        const myDID = agent?.session?.did as string
         const index = muteWords.findIndex(
             (muteWord: any) => muteWord.word === selectMuteWord.word
         )
         const newMuteWords = muteWords
-        const deleteMutewods = newMuteWords.splice(index, 1)
+        newMuteWords.splice(index, 1)
         setMuteWords(newMuteWords)
-        syncMuteWords(newMuteWords)
+        void syncMuteWords(newMuteWords)
     }, [agent, muteWords, selectMuteWord, setMuteWords, syncMuteWords])
 
     const getNowTime = () => {
@@ -812,7 +804,7 @@ const SettingsMutePage = ({
                         </div>
                     </div>
                     <div className={"w-full h-fulll"}>
-                        {muteWords.map((muteWord: any, index: number) => {
+                        {muteWords.map((muteWord: MuteWord, index: number) => {
                             return (
                                 <div
                                     key={index}

@@ -192,7 +192,7 @@ export default function Root() {
     }, [pathname])
 
     useEffect(() => {
-        if (shouldScrollToTop.current === true) {
+        if (shouldScrollToTop.current) {
             if (shouldScrollToTop.current && scrollRef.current) {
                 scrollRef.current.scrollTop = 0
 
@@ -295,12 +295,7 @@ export default function Root() {
 
             setSearchPostsResult((currentSearchResults) => {
                 if (currentSearchResults !== null) {
-                    const newSearchResults = [
-                        ...currentSearchResults,
-                        ...results,
-                    ]
-
-                    return newSearchResults
+                    return [...currentSearchResults, ...results]
                 } else {
                     return [...results]
                 }
@@ -341,12 +336,7 @@ export default function Root() {
 
             setSearchUsersResult((currentSearchResults) => {
                 if (currentSearchResults !== null) {
-                    const newSearchResults = [
-                        ...currentSearchResults,
-                        ...data.actors,
-                    ]
-
-                    return newSearchResults
+                    return [...currentSearchResults, ...data.actors]
                 } else {
                     return [...data.actors]
                 }
@@ -391,12 +381,7 @@ export default function Root() {
 
             setSearchFeedsResult((currentSearchResults) => {
                 if (currentSearchResults !== null) {
-                    const newSearchResults = [
-                        ...currentSearchResults,
-                        ...data.feeds,
-                    ]
-
-                    return newSearchResults
+                    return [...currentSearchResults, ...data.feeds]
                 } else {
                     return [...data.feeds]
                 }
@@ -417,19 +402,19 @@ export default function Root() {
         }
     }
 
-    const loadPostsMore = async (page: number) => {
+    const loadPostsMore = async () => {
         if (hasMorePostsResult) {
             await fetchSearchPostsResult()
         }
     }
 
-    const loadUsersMore = async (page: number) => {
+    const loadUsersMore = async () => {
         if (hasMoreUsersResult) {
             await fetchSearchUsersResult()
         }
     }
 
-    const loadFeedsMore = async (page: number) => {
+    const loadFeedsMore = async () => {
         if (hasMoreFeedsResult) {
             await fetchSearchFeedsResult()
         }
@@ -475,7 +460,7 @@ export default function Root() {
                 setSearchPostsResult(null)
                 cursor.current = ""
                 numOfResult.current = 0
-                fetchSearchPostsResult()
+                void fetchSearchPostsResult()
                 break
             case "users":
                 console.log("here start search users")
@@ -485,7 +470,7 @@ export default function Root() {
                 setSearchUsersResult(null)
                 cursor.current = ""
                 numOfResult.current = 0
-                fetchSearchUsersResult()
+                void fetchSearchUsersResult()
                 break
             case "feeds":
                 console.log("here start search feeds")
@@ -495,7 +480,7 @@ export default function Root() {
                 setSearchFeedsResult(null)
                 cursor.current = ""
                 numOfResult.current = 0
-                fetchSearchFeedsResult()
+                void fetchSearchFeedsResult()
                 break
         }
     }
@@ -555,6 +540,7 @@ export default function Root() {
             switch (newValue.reaction) {
                 case "like":
                     setSearchPostsResult((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         const updatedData = [...prevData]
                         if (
@@ -607,7 +593,7 @@ export default function Root() {
                 case "delete":
                     setSearchPostsResult((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //searchPostsResult.splice(foundObject, 1)
@@ -669,7 +655,7 @@ export default function Root() {
                     initialItemCount={20}
                     atTopThreshold={100}
                     atBottomThreshold={100}
-                    itemContent={(index, item) => (
+                    itemContent={(index) => (
                         <ViewPostCard
                             {...{
                                 isTop: index === 0,
@@ -722,6 +708,7 @@ export default function Root() {
                             />
                         )}
                         components={{
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
@@ -740,7 +727,7 @@ export default function Root() {
                     initialItemCount={20}
                     atTopThreshold={100}
                     atBottomThreshold={100}
-                    itemContent={(index, item) => (
+                    itemContent={(index) => (
                         <UserCell
                             {...{
                                 isTop: index === 0,
@@ -786,6 +773,7 @@ export default function Root() {
                             />
                         )}
                         components={{
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
@@ -803,7 +791,7 @@ export default function Root() {
                     initialItemCount={20}
                     atTopThreshold={100}
                     atBottomThreshold={100}
-                    itemContent={(index, item) => (
+                    itemContent={(index) => (
                         <UserCell
                             {...{
                                 isTop: index === 0,
@@ -847,6 +835,7 @@ export default function Root() {
                             />
                         )}
                         components={{
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
@@ -881,6 +870,7 @@ const UserCell = ({
             {isTop && <DummyHeader />}
             <div
                 onClick={onClick}
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
                 className={`${userCard()}`}
                 style={{ cursor: skeleton ? "default" : "pointer" }}

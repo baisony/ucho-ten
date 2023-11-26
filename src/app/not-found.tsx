@@ -8,7 +8,7 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 const PageNotFound = () => {
     const [, setStatusCode] = useStatusCodeAtPage()
-    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
+    const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("notFound")
     useEffect(() => {
         setStatusCode(404)
