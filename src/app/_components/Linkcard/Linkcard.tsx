@@ -37,7 +37,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 href={ogpData?.uri}
                 target="_blank"
                 rel="noopener noreferrer"
-                onMouseUp={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 className={"w-full"}
             >
                 <div className={LinkCard()}>
