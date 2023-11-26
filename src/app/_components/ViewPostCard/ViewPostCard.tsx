@@ -60,6 +60,7 @@ import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
+import * as AppBskyActorDefs from "@atproto/api/src/client/types/app/bsky/actor/defs"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -528,23 +529,52 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }, [userPreference, postJson, quoteJson])
 
     useEffect(() => {
-        if (!embedRecord) {
+        if (!embedRecord && !embedMedia) {
             return
         }
 
-        if (
-            !embedRecordViewRecord?.author ||
-            !embedRecordViewRecord?.author.viewer
-        ) {
-            return
-        }
-
-        if (
-            embedRecordViewRecord.author.viewer?.blockedBy ||
-            embedRecordViewRecord.author.viewer?.muted ||
-            embedRecordViewRecord.author.viewer?.blocking
-        ) {
-            handleInputChange("delete", postJsonData?.uri || "", "")
+        if (embedRecord) {
+            if (
+                !embedRecordViewRecord?.author ||
+                !embedRecordViewRecord?.author.viewer
+            ) {
+                return
+            }
+            if (
+                embedRecordViewRecord.author.viewer?.blockedBy ||
+                embedRecordViewRecord.author.viewer?.muted ||
+                embedRecordViewRecord.author.viewer?.blocking
+            ) {
+                handleInputChange("delete", postJsonData?.uri || "", "")
+            }
+        } else if (embedMedia) {
+            console.log(embedMedia)
+            console.log(postView)
+            if (
+                !embedMedia.record.record.author ||
+                !(
+                    embedMedia.record.record
+                        .author as AppBskyActorDefs.ProfileViewBasic
+                ).viewer
+            ) {
+                return
+            }
+            if (
+                (
+                    embedMedia.record.record
+                        .author as AppBskyActorDefs.ProfileViewBasic
+                ).viewer?.blockedBy ||
+                (
+                    embedMedia.record.record
+                        .author as AppBskyActorDefs.ProfileViewBasic
+                ).viewer?.muted ||
+                (
+                    embedMedia.record.record
+                        .author as AppBskyActorDefs.ProfileViewBasic
+                ).viewer?.blocking
+            ) {
+                handleInputChange("delete", postJsonData?.uri || "", "")
+            }
         }
     }, [])
 
