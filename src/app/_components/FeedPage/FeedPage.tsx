@@ -323,6 +323,8 @@ const FeedPage = ({
         const foundObject = timeline.findIndex(
             (item) => item.post.uri === newValue.postUri
         )
+        console.log(newValue.postUri)
+        console.log(foundObject)
 
         if (foundObject !== -1) {
             // console.log(timeline[foundObject])
