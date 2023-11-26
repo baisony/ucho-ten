@@ -1,15 +1,11 @@
 "use client"
 
-// import { isMobile } from "react-device-detect"
 import React, { useEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
-// import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "../_components/FeedPage/FeedPage"
-// import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
-// import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     menuIndexAtom,
     useCurrentMenuType,
@@ -42,8 +38,7 @@ const Root = () => {
 
     // const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
-    const [disableSlideVerticalScroll, setDisableSlideVerticalScroll] =
-        useState<boolean>(false)
+    const [disableSlideVerticalScroll] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
     // const prevMenyType = useRef<HeaderMenuType>("home")
@@ -169,7 +164,7 @@ const Root = () => {
             touchMoveStopPropagation={true}
             preventInteractionOnTransition={true}
             onActiveIndexChange={(swiper) => {
-                if (menuIndexChangedByMenu === false) {
+                if (!menuIndexChangedByMenu) {
                     setMenuIndex(swiper.activeIndex)
                 }
 
@@ -177,7 +172,7 @@ const Root = () => {
                     setTappedTabbarButton(null)
                 }
             }}
-            onTouchStart={(swiper, event) => {
+            onTouchStart={() => {
                 setMenuIndexChangedByMenu(false)
             }}
             // onSlideChangeTransitionEnd={(swiper) => {

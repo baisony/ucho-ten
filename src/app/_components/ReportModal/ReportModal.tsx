@@ -44,7 +44,6 @@ export const ReportModal = (props: ReportModalProps) => {
         isOpen,
         onOpenChange,
         placement,
-        className,
         target,
         post,
         nextQueryParams,
@@ -82,15 +81,6 @@ export const ReportModal = (props: ReportModalProps) => {
             reasonType: "com.atproto.moderation.defs#reasonOther",
             reason: t("text.other"),
         },
-    }
-    const reasonTypeToReason: Record<string, string> = {
-        "com.atproto.moderation.defs#reasonMisleading": "misleading",
-        "com.atproto.moderation.defs#reasonSpam": "spam",
-        "com.atproto.moderation.defs#reasonSexual": "sexual",
-        __copyright__: "copyRight",
-        "com.atproto.moderation.defs#reasonRude": "rude",
-        "com.atproto.moderation.defs#reasonViolation": "violation",
-        "com.atproto.moderation.defs#reasonOther": "other",
     }
 
     const submitReport = async () => {
@@ -176,7 +166,6 @@ export const ReportModal = (props: ReportModalProps) => {
                                 <Select
                                     onSelectionChange={(e: any) => {
                                         setReportReasonType(
-                                            //@ts-ignore
                                             reasonList[e.currentKey].reasonType
                                         )
                                     }}
@@ -262,9 +251,9 @@ export const ReportModal = (props: ReportModalProps) => {
                             </Button>
                             <Button
                                 onPress={() => {
-                                    handleSendButtonPush
+                                    void handleSendButtonPush()
                                     setIsReportSuccess(false)
-                                    onClose
+                                    onClose()
                                 }}
                                 color={
                                     !isReportSending && isReportSuccess

@@ -4,33 +4,25 @@ import { BskyAgent } from "@atproto/api"
 //import { CircularProgressbar } from 'react-circular-progressbar';
 //import 'react-circular-progressbar/dist/styles.css';
 import { Button, Spinner } from "@nextui-org/react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
-import {
-    useAccounts,
-    UserAccount,
-    UserAccountByDid,
-} from "@/app/_atoms/accounts"
+import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
     //        useUserProfileDetailedAtom()
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
-    const [loading, setLoading] = useState(false)
-    const [server, setServer] = useState<string>("bsky.social")
-    const [user, setUser] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
-    const [isLoginFailed, setIsLoginFailed] = useState<boolean>(false)
+    const [, setLoading] = useState(false)
+    const [server] = useState<string>("bsky.social")
+    const [user] = useState<string>("")
+    const [password] = useState<string>("")
     const searchParams = useSearchParams()
     const toRedirect = searchParams.get("toRedirect")
-    const [identifierIsByAutocomplete, setIdentifierByAutocomplete] =
-        useState<boolean>(false)
-    const [passwordIsByAutocomplete, setPasswordByAutocomplete] =
-        useState<boolean>(false)
+    const [identifierIsByAutocomplete] = useState<boolean>(false)
+    const [passwordIsByAutocomplete] = useState<boolean>(false)
     const [, setIsUserInfoIncorrect] = useState<boolean>(false)
     const [, setIsServerError] = useState<boolean>(false)
     const [isSetAccount, setIsAccount] = useState<boolean | null>(null)
@@ -42,7 +34,6 @@ export default function CreateLoginPage() {
             return
         }
 
-        setIsLoginFailed(false)
         setLoading(true)
 
         try {
@@ -60,7 +51,6 @@ export default function CreateLoginPage() {
                 if (!isMatchingPath) {
                     setIsUserInfoIncorrect(true)
                     setLoading(false)
-                    setIsLoginFailed(true)
                     return
                 }
             }
@@ -82,7 +72,7 @@ export default function CreateLoginPage() {
                     actor: agent.session.did,
                 })
 
-                const accountData: UserAccount = {
+                existingAccountsData[agent.session.did] = {
                     service: server,
                     session: agent.session,
                     profile: {
@@ -92,8 +82,6 @@ export default function CreateLoginPage() {
                         avatar: data?.avatar || "",
                     },
                 }
-
-                existingAccountsData[agent.session.did] = accountData
 
                 setAccounts(existingAccountsData)
             }
@@ -113,7 +101,7 @@ export default function CreateLoginPage() {
                 router.push("/home")
             }
         } catch (e) {
-            setIsLoginFailed(true)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             switch (e?.status as number) {
                 case 401:
@@ -124,7 +112,6 @@ export default function CreateLoginPage() {
                     break
             }
             setLoading(false)
-            setIsLoginFailed(true)
         }
     }
 
@@ -159,7 +146,7 @@ export default function CreateLoginPage() {
                 router.push("/login")
             }
         }
-        resumesession()
+        void resumesession()
     }, [])
 
     useEffect(() => {
@@ -169,7 +156,7 @@ export default function CreateLoginPage() {
             user.trim() !== "" &&
             password.trim() !== ""
         ) {
-            handleLogin()
+            void handleLogin()
         }
     }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 

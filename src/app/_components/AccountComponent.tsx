@@ -29,7 +29,7 @@ const AccountComponent = (props: AccountComponentProps) => {
                     "justify-between flex items-center w-full cursor-pointer"
                 }
                 onClick={() => {
-                    onClickUserAccount(account)
+                    void onClickUserAccount(account)
                 }}
             >
                 <div className={"flex items-center mb-[10px]"}>

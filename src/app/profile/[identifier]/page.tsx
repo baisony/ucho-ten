@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
-// import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type {
     FeedViewPost,
     PostView,
@@ -97,11 +96,11 @@ const Page = () => {
                 touchMoveStopPropagation={true}
                 preventInteractionOnTransition={true}
                 onActiveIndexChange={(swiper) => {
-                    if (menuIndexChangedByMenu === false) {
+                    if (!menuIndexChangedByMenu) {
                         setMenuIndex(swiper.activeIndex)
                     }
                 }}
-                onTouchStart={(swiper, event) => {
+                onTouchStart={() => {
                     setMenuIndexChangedByMenu(false)
                 }}
             >
@@ -126,7 +125,7 @@ interface PostPageProps {
 }
 
 const PostPage = (props: PostPageProps) => {
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const { nullTimeline } = tabBarSpaceStyles()
     const router = useRouter()
     const pathname = usePathname()
     const { t } = useTranslation()
@@ -135,22 +134,12 @@ const PostPage = (props: PostPageProps) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     const username = pathname.replace("/profile/", "")
 
-    //const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
-    // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
-    // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [profile, setProfile] = useState<any>(null)
-    // const [newCursor, setNewCursor] = useState<string | null>(null)
-    // const [hasCursor, setHasCursor] = useState<string | null>(null)
-    // const [isProfileMine, setIsProfileMine] = useState(false)
-    //const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
-    // const [isEditing, setIsEditing] = useState(false)
-    // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
 
-    //const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -163,38 +152,6 @@ const PostPage = (props: PostPageProps) => {
             clearInterval(intervalId)
         }
     }, [])
-
-    const formattingTimeline = (timeline: FeedViewPost[]) => {
-        const seenUris = new Set<string>()
-
-        const filteredData = timeline.filter((item) => {
-            const uri = item.post.uri
-            if (item.reply) {
-                if (item.reason) {
-                    return true
-                } else if (
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
-                ) {
-                    return true
-                } else {
-                    return false
-                }
-            }
-
-            // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
-            if (!seenUris.has(uri)) {
-                seenUris.add(uri)
-                return true
-            }
-
-            return false
-        })
-
-        return filteredData as FeedViewPost[]
-    }
 
     const formattingOnlyPostsTimeline = (timeline: FeedViewPost[]) => {
         const seenUris = new Set<string>()
@@ -330,7 +287,7 @@ const PostPage = (props: PostPageProps) => {
         }
     }
 
-    const loadMore = async (page: any) => {
+    const loadMore = async () => {
         await fetchTimeline()
     }
 
@@ -373,6 +330,7 @@ const PostPage = (props: PostPageProps) => {
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         const updatedData = [...prevData]
                         if (
@@ -431,7 +389,7 @@ const PostPage = (props: PostPageProps) => {
                 case "delete":
                     setTimeline((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //timeline.splice(foundObject, 1)
@@ -475,7 +433,7 @@ const PostPage = (props: PostPageProps) => {
 
         if (timeline) {
             const timelineData: UserProfilePageCellProps[] = timeline.map(
-                (post, index) => {
+                (post) => {
                     const postProps: ViewPostCardProps = {
                         isTop: false,
                         isMobile,
@@ -501,7 +459,7 @@ const PostPage = (props: PostPageProps) => {
         } else {
             const timelineData: UserProfilePageCellProps[] = Array.from({
                 length: 20,
-            }).map((_, index) => {
+            }).map(() => {
                 const postProps: ViewPostCardProps = {
                     isTop: false,
                     isSkeleton: true,
@@ -552,6 +510,7 @@ const PostPage = (props: PostPageProps) => {
                 />
             )}
             components={{
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
@@ -735,77 +694,75 @@ const UserProfileComponent = ({
     const renderTextWithLinks = useMemo(() => {
         if (!profile?.description) return
         const description = profile?.description
-        if (true) {
-            const post: any[] = []
-            description.split("\n").map((line: string, i: number) => {
-                const words = line.split(" ")
-                const updatedLine = words.map((word, j: number) => {
-                    if (word.includes("http://") || word.includes("https://")) {
-                        const url = word.replace(/https?:\/\//, "") // http://またはhttps://を削除
-                        return (
-                            <Chip
-                                size={"sm"}
-                                variant="faded"
-                                key={i + "_" + j}
-                                startContent={<FontAwesomeIcon icon={faLink} />}
-                            >
-                                {url.startsWith("bsky.app") ? (
-                                    <Link
-                                        className={"cursor-pointer"}
-                                        href={
-                                            url.replace(
-                                                "bsky.app",
-                                                `${location.protocol}//${window.location.host}`
-                                            ) + `?${nextQueryParams.toString()}`
-                                        }
-                                    >
-                                        {url}
-                                    </Link>
-                                ) : (
-                                    <a
-                                        href={word}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {url}
-                                    </a>
-                                )}
-                            </Chip>
-                        )
-                    } else if (word.startsWith("@")) {
-                        let handle = word.substring(1) // remove "@" symbol from match
-                        if (handle.endsWith(".")) {
-                            handle = handle.slice(0, -1)
-                        }
-                        return (
-                            <Chip
-                                size={"sm"}
-                                key={i + "_" + j}
-                                className={`cursor-pointer`}
-                                variant="faded"
-                                startContent={<FontAwesomeIcon icon={faAt} />}
-                            >
+        const post: any[] = []
+        description.split("\n").map((line: string, i: number) => {
+            const words = line.split(" ")
+            const updatedLine = words.map((word, j: number) => {
+                if (word.includes("http://") || word.includes("https://")) {
+                    const url = word.replace(/https?:\/\//, "") // http://またはhttps://を削除
+                    return (
+                        <Chip
+                            size={"sm"}
+                            variant="faded"
+                            key={i + "_" + j}
+                            startContent={<FontAwesomeIcon icon={faLink} />}
+                        >
+                            {url.startsWith("bsky.app") ? (
                                 <Link
-                                    key={j}
-                                    href={`/profile/${handle}?${nextQueryParams.toString()}`}
+                                    className={"cursor-pointer"}
+                                    href={
+                                        url.replace(
+                                            "bsky.app",
+                                            `${location.protocol}//${window.location.host}`
+                                        ) + `?${nextQueryParams.toString()}`
+                                    }
                                 >
-                                    {handle}
+                                    {url}
                                 </Link>
-                            </Chip>
-                        )
+                            ) : (
+                                <a
+                                    href={word}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {url}
+                                </a>
+                            )}
+                        </Chip>
+                    )
+                } else if (word.startsWith("@")) {
+                    let handle = word.substring(1) // remove "@" symbol from match
+                    if (handle.endsWith(".")) {
+                        handle = handle.slice(0, -1)
                     }
-                    return <span key={i + "_" + j}>{word} </span>
-                })
-
-                post.push(
-                    <p key={i}>
-                        {updatedLine}
-                        <br />
-                    </p>
-                )
+                    return (
+                        <Chip
+                            size={"sm"}
+                            key={i + "_" + j}
+                            className={`cursor-pointer`}
+                            variant="faded"
+                            startContent={<FontAwesomeIcon icon={faAt} />}
+                        >
+                            <Link
+                                key={j}
+                                href={`/profile/${handle}?${nextQueryParams.toString()}`}
+                            >
+                                {handle}
+                            </Link>
+                        </Chip>
+                    )
+                }
+                return <span key={i + "_" + j}>{word} </span>
             })
-            return post
-        }
+
+            post.push(
+                <p key={i}>
+                    {updatedLine}
+                    <br />
+                </p>
+            )
+        })
+        return post
     }, [profile?.description])
 
     const copyToClipboard = useCallback(
@@ -814,6 +771,7 @@ const UserProfileComponent = ({
                 .writeText(text)
                 .then(() => {
                     console.log("Copy successful")
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     //@ts-ignore
                     setCopyContent(key)
                 })
@@ -1018,7 +976,7 @@ const UserProfileComponent = ({
                 hideCloseButton
             >
                 <ModalContent>
-                    {(onCloseLangs) => (
+                    {() => (
                         <>
                             <ModalHeader>Copy</ModalHeader>
                             <ModalBody>
@@ -1071,7 +1029,7 @@ const UserProfileComponent = ({
                 hideCloseButton
             >
                 <ModalContent>
-                    {(onCloseProperty) => (
+                    {() => (
                         <>
                             <ModalHeader>Copy</ModalHeader>
                             <ModalBody>
@@ -1252,7 +1210,7 @@ const UserProfileComponent = ({
                                                 />
                                             }
                                             onClick={() => {
-                                                handleMute()
+                                                void handleMute()
                                             }}
                                         >
                                             {!isMuted

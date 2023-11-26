@@ -70,12 +70,7 @@ export const filterDisplayPosts = (
             } else if (parentDID === sessionUser?.did) {
                 // reply to my post
                 displayPost = true
-            } else if (authorDID === sessionUser?.did) {
-                // my reply
-                displayPost = true
-            } else {
-                displayPost = false
-            }
+            } else displayPost = authorDID === sessionUser?.did
         }
 
         const record = item.post.record as AppBskyFeedPost.Record

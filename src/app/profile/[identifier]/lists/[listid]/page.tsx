@@ -45,7 +45,7 @@ export default function Root() {
 
     const pathname = usePathname()
     const { t } = useTranslation()
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const { nullTimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
     //const username = pathname.replace("/profile/", "")
@@ -64,7 +64,7 @@ export default function Root() {
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
-    const shouldScrollToTop = useRef<boolean>(false)
+    // const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -160,7 +160,7 @@ export default function Root() {
         }
     }
 
-    const loadMore = async (page: any) => {
+    const loadMore = async () => {
         if (!agent) {
             return
         }
@@ -208,6 +208,7 @@ export default function Root() {
                     )
                 }
             })
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
@@ -240,7 +241,7 @@ export default function Root() {
             //await fetchFeed()
         }
 
-        doFetch()
+        void doFetch()
     }, [agent, atUri])
 
     const handleSubscribeClick = async () => {
@@ -277,6 +278,7 @@ export default function Root() {
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         const updatedData = [...prevData]
                         if (
@@ -335,7 +337,7 @@ export default function Root() {
                 case "delete":
                     setTimeline((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //timeline.splice(foundObject, 1)
@@ -496,6 +498,7 @@ export default function Root() {
                 />
             )}
             components={{
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}

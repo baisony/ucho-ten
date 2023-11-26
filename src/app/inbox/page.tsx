@@ -22,14 +22,13 @@ export default function Root() {
     setCurrentMenuType("inbox")
 
     const { t } = useTranslation()
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const { nullTimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
-    const [unreadNotification, setUnreadNotification] =
-        useUnreadNotificationAtom()
+    const [, setUnreadNotification] = useUnreadNotificationAtom()
 
     const [notification, setNotification] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState(false)
@@ -51,7 +50,7 @@ export default function Root() {
 
     useEffect(() => {
         if (tappedTabbarButton == "inbox") {
-            if (loading.current === true) {
+            if (loading.current) {
                 setTappedTabbarButton(null)
                 return
             }
@@ -72,7 +71,7 @@ export default function Root() {
                 await fetchNotification()
             }
 
-            doFetch()
+            void doFetch()
         }
     }, [tappedTabbarButton])
 
@@ -129,7 +128,7 @@ export default function Root() {
                     )
                 }
 
-                const allPosts: any[] = []
+                const allPosts: PostView[] = []
 
                 for (const dividedNotifications of dividedReplyNotifications) {
                     const posts = await agent.getPosts({
@@ -144,11 +143,7 @@ export default function Root() {
 
                 setNotification((currentNotifications) => {
                     if (currentNotifications !== null) {
-                        const notifications = [
-                            ...currentNotifications,
-                            ...allPosts,
-                        ]
-                        return notifications
+                        return [...currentNotifications, ...allPosts]
                     } else {
                         return [...allPosts]
                     }
@@ -169,16 +164,12 @@ export default function Root() {
             setHasMore(false)
             console.log(e)
         } finally {
-            if (
+            loading.current = !!(
                 agent &&
                 notification &&
                 notification.length < 20 &&
                 cursor.current.length > 0
-            ) {
-                loading.current = true
-            } else {
-                loading.current = false
-            }
+            )
         }
     }
 
@@ -196,6 +187,7 @@ export default function Root() {
             switch (newValue.reaction) {
                 case "like":
                     setNotification((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         const updatedData = [...prevData]
                         if (
@@ -248,7 +240,7 @@ export default function Root() {
                 case "delete":
                     setNotification((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //notification.splice(foundObject, 1)
@@ -261,7 +253,7 @@ export default function Root() {
         }
     }
 
-    const loadMore = async (_: number) => {
+    const loadMore = async () => {
         if (hasMore && !isEndOfFeed) {
             await fetchNotification()
         }
@@ -274,7 +266,7 @@ export default function Root() {
                 notification &&
                 notification.length < 20 &&
                 cursor.current.length > 0 &&
-                loading.current === false
+                !loading.current
             ) {
                 await fetchNotification()
             } else {
@@ -286,7 +278,7 @@ export default function Root() {
             }
         }
 
-        fetchIfNeeded()
+        void fetchIfNeeded()
     }, [notification, cursor.current])
 
     const handleUpdateSeen = async () => {
@@ -306,7 +298,7 @@ export default function Root() {
             void handleUpdateSeen()
             setUnreadNotification(0)
             if (!notificationInfo.notification) {
-                fetchNotification()
+                void fetchNotification()
             } else {
                 setNotification(notificationInfo.notification)
                 cursor.current = notificationInfo.cursor
@@ -322,7 +314,7 @@ export default function Root() {
                 <Virtuoso
                     totalCount={20}
                     initialItemCount={20}
-                    itemContent={(index, item) => (
+                    itemContent={(index) => (
                         <ViewPostCard
                             {...{
                                 isTop: index === 0,
@@ -370,6 +362,7 @@ export default function Root() {
                         />
                     )}
                     components={{
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         Footer: !isEndOfFeed
                             ? ListFooterSpinner

@@ -34,8 +34,6 @@ import { useAtom } from "jotai"
 import { isMobile } from "react-device-detect"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Virtuoso } from "react-virtuoso"
-import { ViewPostCard } from "@/app/_components/ViewPostCard"
-import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -74,11 +72,11 @@ const Page = () => {
                 touchMoveStopPropagation={true}
                 preventInteractionOnTransition={true}
                 onActiveIndexChange={(swiper) => {
-                    if (menuIndexChangedByMenu === false) {
+                    if (!menuIndexChangedByMenu) {
                         setMenuIndex(swiper.activeIndex)
                     }
                 }}
-                onTouchStart={(swiper, event) => {
+                onTouchStart={() => {
                     setMenuIndexChangedByMenu(false)
                 }}
             >
@@ -151,7 +149,7 @@ const MyFeedsPage = () => {
     }
 
     useEffect(() => {
-        fetchFeeds()
+        void fetchFeeds()
     }, [agent])
 
     const uriToURL = (uri: string) => {

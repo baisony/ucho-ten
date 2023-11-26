@@ -9,7 +9,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import { Badge } from "@nextui-org/react"
 import { usePathname, useRouter } from "next/navigation"
-import { useAgent } from "@/app/_atoms/agent"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { isTabQueryParamValue, TabQueryParamValue } from "@/app/_types/types"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
@@ -20,18 +19,15 @@ interface Props {
     className?: string
 }
 
-export const TabBar: React.FC<Props> = (props: Props) => {
+export const TabBar: React.FC<Props> = () => {
     const router = useRouter()
     const pathname = usePathname()
 
-    const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
 
-    const { className } = props
-    const [unreadNotification, setUnreadNotification] =
-        useUnreadNotificationAtom()
+    const [unreadNotification] = useUnreadNotificationAtom()
     const { TabBar, Container, Icon } = tabBar()
     const [hilightedTab, setHilightedTab] = useState<TabQueryParamValue | "">(
         ""

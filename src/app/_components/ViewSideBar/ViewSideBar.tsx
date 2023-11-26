@@ -6,7 +6,6 @@ import {
     faCircleQuestion,
     faFlag,
     faGear,
-    faHand,
     faRightFromBracket,
     faRss,
     faUser,
@@ -69,12 +68,10 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
             return
         }
 
-        const updatedAccountData: UserAccount = {
+        existingAccountsData[agent.session.did] = {
             ...(existingAccountsData[agent.session.did] || {}),
             session: undefined,
         }
-
-        existingAccountsData[agent.session.did] = updatedAccountData
 
         setAccounts(existingAccountsData)
 

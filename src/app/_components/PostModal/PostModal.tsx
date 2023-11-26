@@ -3,7 +3,6 @@ import {
     AppBskyEmbedRecord,
     AppBskyFeedPost,
     BlobRef,
-    BskyAgent,
     RichText,
 } from "@atproto/api"
 import React, {
@@ -39,10 +38,10 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Selection,
     Spinner,
     Textarea as NextUITextarea,
     useDisclosure,
-    Selection,
 } from "@nextui-org/react"
 import { useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
@@ -65,7 +64,7 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LANGUAGES } from "@/app/_constants/lanuages"
 import LanguagesSelectionModal from "../LanguageSelectionModal"
 
-export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
+//export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -89,8 +88,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
 
-    const [userProfileDetailedAtom, setUserProfileDetailedAtom] =
-        useUserProfileDetailedAtom()
+    const [userProfileDetailedAtom] = useUserProfileDetailedAtom()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
@@ -123,7 +121,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
     const [isSetURLCard, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [isGetOGPFetchError, setIsGetOGPFetchError] = useState(false)
+    const [, setIsGetOGPFetchError] = useState(false)
     // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
     const [OGPImage, setOGPImage] = useState<any>([])
@@ -146,23 +144,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         contentRightImagesContainer,
         contentRightUrlCard,
         contentRightUrlCardDeleteButton,
-        URLCard,
-        URLCardThumbnail,
-        URLCardDetail,
-        URLCardDetailContent,
-        URLCardTitle,
-        URLCardDescription,
-        URLCardLink,
         footer,
         footerTooltip,
         footerCharacterCount,
         footerCharacterCountText,
         footerTooltipStyle,
-        dropdown,
-        popover,
         ImageDeleteButton,
         ImageAddALTButton,
-        ImageEditButton,
     } = postModal()
     const { isOpen /*onOpen, onOpenChange*/ } = useDisclosure()
     const {
@@ -188,12 +176,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            handlePostClick()
+            void handlePostClick()
         }
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        addImages(files)
+        void addImages(files)
     }, [])
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
     //const filesUpdated: FileWithPath[] = acceptedFiles;
@@ -244,7 +232,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             }
 
             if (type === "Reply") {
-                const reply = {
+                postObj.reply = {
                     root: {
                         uri: postData.uri,
                         cid: postData.cid,
@@ -254,14 +242,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         cid: postData.cid,
                     },
                 } as any
-                postObj.reply = reply
             } else if (type === "Quote") {
                 console.log("hoge")
-                const embed = {
+                postObj.embed = {
                     $type: "app.bsky.embed.record",
                     record: postData,
                 } as AppBskyEmbedRecord.Main
-                postObj.embed = embed
             }
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
@@ -275,7 +261,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     images.push(image)
                 }
                 if (getOGPData) {
-                    const embed = {
+                    postObj.embed = {
                         $type: "app.bsky.embed.external",
                         external: {
                             uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
@@ -295,7 +281,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             },
                         },
                     } as any
-                    postObj.embed = embed
                 } else {
                     if (
                         postObj?.embed &&
@@ -316,17 +301,15 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
                         console.log(postObj)
                     } else {
-                        const embed = {
+                        postObj.embed = {
                             $type: "app.bsky.embed.images",
                             images,
                         } as AppBskyEmbedImages.Main
-
-                        postObj.embed = embed
                     }
                 }
             }
             console.log(postObj)
-            const res = await agent.post(postObj)
+            await agent.post(postObj)
             props.onClose(true)
             console.log("hoge")
         } catch (e) {
@@ -350,7 +333,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         const imageFiles = Array.from(e.target.files)
         console.log(imageFiles)
         if (!(imageFiles.length + currentImagesCount > 4)) {
-            addImages(imageFiles)
+            void addImages(imageFiles)
         }
     }
 
@@ -365,7 +348,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         const maxFileSize = 975 * 1024 // 975KB
 
         const imageBlobs: AttachmentImage[] = await Promise.all(
-            imageFiles.map(async (file, index) => {
+            imageFiles.map(async (file) => {
                 if (file.size > maxFileSize) {
                     try {
                         setIsCompressing(true)
@@ -423,7 +406,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     }
 
     const onEmojiClick = (emoji: any) => {
-        if (isEmojiAdding.current === true) {
+        if (isEmojiAdding.current) {
             return
         }
 
@@ -546,7 +529,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     }
 
     const handleOnEmojiOpenChange = (isOpen: boolean) => {
-        if (isOpen === true) {
+        if (isOpen) {
             currentCursorPostion.current =
                 textareaRef.current?.selectionStart || 0
         } else {
@@ -612,6 +595,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     src={URL.createObjectURL(
                                         contentImages[editALTIndex].blob
                                     )}
+                                    alt={"EditAltOfImage"}
                                 />
                                 <div>
                                     <NextUITextarea
@@ -860,7 +844,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         setIsSetURLCard(true)
-                                                        getOGP(url)
+                                                        void getOGP(url)
                                                     }}
                                                 >
                                                     {url}
@@ -980,7 +964,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         }
                                     }}
                                 >
-                                    {LANGUAGES.map((item, index) => {
+                                    {LANGUAGES.map((item) => {
                                         return (
                                             <DropdownItem key={item.code}>
                                                 {item.name}

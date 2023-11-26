@@ -7,10 +7,10 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
+    tv,
 } from "@nextui-org/react"
 import { BskyAgent } from "@atproto/api"
-import { tv } from "@nextui-org/react"
-import { UserAccount, UserAccountByDid, useAccounts } from "../_atoms/accounts"
+import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import AccountComponent from "./AccountComponent"
 
@@ -20,6 +20,7 @@ export const signInModal = tv({
         appearanceTextColor: "text-black dark:text-white",
     },
 })
+
 // ---
 
 interface AccountSwitchModalProps {
@@ -105,13 +106,11 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
                 throw new Error("Authentication error")
             }
 
-            const updatedAccountData: UserAccount = {
+            existingAccountsData[agent.session.did] = {
                 service: account.service,
                 session: agent.session,
                 profile: account.profile,
             }
-
-            existingAccountsData[agent.session.did] = updatedAccountData
 
             setAccounts(existingAccountsData)
 
@@ -131,7 +130,7 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
     useEffect(() => {
         const tempAccountsByServices: { [key: string]: UserAccount[] } = {}
 
-        Object.entries(accounts).forEach(([did, account]) => {
+        Object.entries(accounts).forEach(([, account]) => {
             if (!tempAccountsByServices[account.service]) {
                 tempAccountsByServices[account.service] = []
             }

@@ -1,10 +1,7 @@
-import { BskyAgent } from "@atproto/api"
 import React from "react"
 import { linkcard } from "./styles"
 import "react-circular-progressbar/dist/styles.css"
 import { Spinner } from "@nextui-org/react"
-
-export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
 interface Props {
     children?: React.ReactNode
@@ -15,7 +12,7 @@ interface Props {
 }
 
 export const Linkcard: React.FC<Props> = (props: Props) => {
-    const { type, postData, ogpData, skeleton } = props
+    const { ogpData, skeleton } = props
     const {
         LinkCard,
         LinkCardThumbnailContainer,

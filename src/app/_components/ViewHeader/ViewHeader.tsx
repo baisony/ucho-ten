@@ -11,11 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
 import { Button } from "@nextui-org/react"
-// import { Tabs, Tab, Chip } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-// import { useAgent } from "@/app/_atoms/agent"
-// import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
-// import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import {
@@ -27,11 +23,8 @@ import {
 } from "@/app/_atoms/headerMenu"
 import { HeaderMenuType } from "@/app/_constants/headerMenus"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-
 import { useTranslation } from "react-i18next"
-
 import "swiper/css"
-// import "swiper/css/pagination"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import { useAtom } from "jotai"

@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-// import { viewSideMenu } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
@@ -25,11 +24,8 @@ import {
     DropdownTrigger,
     useDisclosure,
 } from "@nextui-org/react"
-// import { useRouter } from "next/navigation"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { UserAccount } from "@/app/_atoms/accounts"
-// import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-// import { useTranslation } from "react-i18next"
 import Link from "next/link"
 import logoImage from "../../../../public/images/logo/ucho-ten.svg"
 import SignInModal from "../SignInModal"
@@ -38,16 +34,14 @@ import AccountSwitchModal from "../AccountSwitchModal"
 import { useTranslation } from "react-i18next"
 import { useRouter } from "next/navigation"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
-import { useAgent } from "@/app/_atoms/agent"
 
 interface Props {
     className?: string
 }
 
-export const ViewSideMenu: React.FC<Props> = (props: Props) => {
+export const ViewSideMenu: React.FC<Props> = () => {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const router = useRouter()
-    const [agent] = useAgent()
     const { t } = useTranslation()
     const signInModalDisclosure = useDisclosure({ id: "sign_in" })
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
@@ -57,8 +51,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
         null
     )
 
-    const [unreadNotification, setUnreadNotification] =
-        useUnreadNotificationAtom()
+    const [unreadNotification] = useUnreadNotificationAtom()
 
     return (
         <div className={"flex justify-end items-end"}>
@@ -172,6 +165,7 @@ export const ViewSideMenu: React.FC<Props> = (props: Props) => {
                                 className={
                                     "h-[20px] w-[20px] rounded-full overflow-hidden mr-[10px]"
                                 }
+                                alt={"avatar"}
                             />
                             <div className={"text-[14px]"}>
                                 {userProfileDetailed?.displayName}

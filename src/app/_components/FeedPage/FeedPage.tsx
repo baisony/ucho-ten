@@ -90,12 +90,14 @@ const FeedPage = ({
                 if (post.post?.embed?.record) {
                     const embedRecord = post.post.embed.record
                     if (muteWord.isActive) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         return embedRecord?.value?.text.includes(muteWord.word)
                     } else {
                         return false
                     }
                 } else {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     return post.post.record?.text.includes(muteWord.word)
                 }
@@ -193,7 +195,7 @@ const FeedPage = ({
             const timeoutId = setTimeout(() => {
                 console.log("useEffect setTimeout", feedKey)
 
-                checkNewTimeline()
+                void checkNewTimeline()
             }, CHECK_FEED_UPDATE_INTERVAL)
 
             return () => clearTimeout(timeoutId)
@@ -275,7 +277,7 @@ const FeedPage = ({
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey, cursorData] = queryKey
+        const [_key, feedKey] = queryKey
 
         if (feedKey === "following") {
             const response = await agent.getTimeline({
@@ -331,6 +333,7 @@ const FeedPage = ({
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         const updatedData = [...prevData]
                         if (
@@ -435,7 +438,7 @@ const FeedPage = ({
                     initialItemCount={20}
                     atTopThreshold={100}
                     atBottomThreshold={100}
-                    itemContent={(index, _) => (
+                    itemContent={(index) => (
                         <ViewPostCard
                             {...{
                                 isTop: index === 0,

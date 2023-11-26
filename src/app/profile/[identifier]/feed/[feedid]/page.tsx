@@ -33,6 +33,7 @@ import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { BskyAgent } from "@atproto/api"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -40,7 +41,7 @@ export default function Root() {
 
     const pathname = usePathname()
     const { t } = useTranslation()
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const { nullTimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
     const atUri1 = pathname.replace("/profile/", "at://")
@@ -87,8 +88,10 @@ export default function Root() {
             if (item.reply) {
                 if (item.reason) return true
                 if (
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     //@ts-ignore
                     item.post.author.did === item.reply.parent.author.did &&
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     //@ts-ignore
                     item.reply.parent.author.did === item.reply.root.author.did
                 )
@@ -174,7 +177,7 @@ export default function Root() {
         }
     }
 
-    const loadMore = async (page: any) => {
+    const loadMore = async () => {
         if (!agent) {
             return
         }
@@ -211,9 +214,7 @@ export default function Root() {
 
             setTimeline((currentTimeline) => {
                 if (currentTimeline !== null) {
-                    const newTimeline = [...currentTimeline, ...diffTimeline]
-
-                    return newTimeline
+                    return [...currentTimeline, ...diffTimeline]
                 } else {
                     return [...diffTimeline]
                 }
@@ -242,31 +243,9 @@ export default function Root() {
             await fetchFeed()
         }
 
-        doFetch()
+        void doFetch()
     }, [agent, atUri])
 
-    // const handleLikeClick = () => {
-    //     if (!agent) return
-    //     if (!feedInfo) return
-    //     try {
-    //     } catch (e) {}
-    // }
-
-    const handlePinnedClick = async () => {
-        if (!agent) return
-        if (!feedInfo) return
-        try {
-            if (isPinned) {
-                const res = await agent.removePinnedFeed(feedInfo.view.uri)
-                setIsPinned(false)
-            } else if (!isPinned) {
-                const res = await agent.addPinnedFeed(feedInfo.view.uri)
-                setIsPinned(true)
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    }
     const handleSubscribeClick = async () => {
         if (!agent) return
         if (!feedInfo) return
@@ -297,6 +276,7 @@ export default function Root() {
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         const updatedData = [...prevData]
                         if (
@@ -355,7 +335,7 @@ export default function Root() {
                 case "delete":
                     setTimeline((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //timeline.splice(foundObject, 1)
@@ -373,6 +353,7 @@ export default function Root() {
 
         if (feedInfo) {
             const feedProps: FeedProps = {
+                agent,
                 feedInfo,
                 isSubscribed,
                 isPinned,
@@ -387,6 +368,7 @@ export default function Root() {
             data.push(feedData)
         } else {
             const feedProps: FeedProps = {
+                agent: null,
                 isSkeleton: true,
             }
 
@@ -419,7 +401,7 @@ export default function Root() {
         } else {
             const timelineData: CustomFeedCellProps[] = Array.from({
                 length: 20,
-            }).map((_) => {
+            }).map(() => {
                 const postProps: ViewPostCardProps = {
                     isTop: false,
                     isSkeleton: true,
@@ -466,6 +448,7 @@ export default function Root() {
                 />
             )}
             components={{
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
@@ -495,6 +478,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
 }
 
 interface FeedProps {
+    agent: BskyAgent | null
     feedInfo?: any
     isSubscribed?: boolean
     isPinned?: boolean
@@ -503,6 +487,7 @@ interface FeedProps {
 }
 
 const FeedHeaderComponent = ({
+    agent,
     feedInfo,
     isSubscribed,
     isPinned,
@@ -511,6 +496,22 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
+    const [isPinned1, setIsPinned1] = useState(isPinned)
+    const handlePinnedClick = async () => {
+        if (!agent) return
+        if (!feedInfo) return
+        try {
+            if (isPinned1) {
+                await agent.removePinnedFeed(feedInfo.view.uri)
+                setIsPinned1(false)
+            } else if (!isPinned) {
+                await agent.addPinnedFeed(feedInfo.view.uri)
+                setIsPinned1(true)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
 
     const {
         ProfileContainer,
@@ -536,6 +537,7 @@ const FeedHeaderComponent = ({
                         <img
                             className={ProfileImage()}
                             src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                            alt={"profile"}
                         />
                     ) : (
                         <div className={ProfileImage()}>
@@ -581,7 +583,10 @@ const FeedHeaderComponent = ({
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
-                        <div className={ProfileActionButton()}>
+                        <div
+                            className={ProfileActionButton()}
+                            onClick={handlePinnedClick}
+                        >
                             <FontAwesomeIcon
                                 icon={faThumbTack}
                                 className={PinButton({

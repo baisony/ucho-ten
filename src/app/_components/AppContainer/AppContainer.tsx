@@ -33,7 +33,7 @@ import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
-import { useWordMutes } from "@/app/_atoms/wordMute"
+import { MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
@@ -45,7 +45,7 @@ import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
-    const [statusCode, setStatusCode] = useStatusCodeAtPage()
+    const [statusCode] = useStatusCodeAtPage()
     const router = useRouter()
     const pathName = usePathname()
     const searchParams = useSearchParams()
@@ -59,7 +59,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useHeaderMenusByHeaderAtom()
     const [appearanceColor] = useAppearanceColor()
     const [muteWords, setMuteWords] = useWordMutes()
-    const [bookmarks, setBookmarks] = useBookmarks()
+    const [, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -285,7 +285,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         }
 
-        restoreSession()
+        void restoreSession()
     }, [agent && agent.hasSession, pathName])
 
     useEffect(() => {
@@ -326,11 +326,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             !searchParams.get("word")
         ) {
             return false
-        } else if (pathName.startsWith("/post")) {
-            return false
-        } else {
-            return true
-        }
+        } else return !pathName.startsWith("/post")
     }, [pathName, searchParams])
 
     useEffect(() => {
@@ -352,7 +348,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     deletedAt: null,
                 }
                 const isDuplicate = muteWords.find(
-                    (muteWord: any) => muteWord.word === word
+                    (muteWord: MuteWord) => muteWord.word === word
                 )
 
                 if (!isDuplicate) {
@@ -423,7 +419,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         const lngChange = (lng: any) => {
             const lang = lng.replace(/-\w+$/, "")
             console.log(lang)
-            i18n.changeLanguage(lang)
+            void i18n.changeLanguage(lang)
             console.log(i18n.resolvedLanguage)
         }
         lngChange(displayLanguage[0])
@@ -454,7 +450,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
-    const setLoggedIn = async (did: string) => {
+    /*const setLoggedIn = async (did: string) => {
         try {
             const res = await fetch(`/api/setLoggedIn/${did}`, {
                 method: "GET",
@@ -464,9 +460,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
         //console.log(await res.json())
         //if (res.status !== 200) return
-    }
+    }*/
 
-    const getSettings = async (did: string) => {
+    const getSettings = async () => {
         try {
             const data = localStorage.getItem("session")
             if (!data) return
@@ -474,7 +470,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 method: "GET",
             })
             //res.json()
-            if ((await res.status) == 200) {
+            if (res.status == 200) {
                 const data = await res.json()
                 if (data.hasOwnProperty("bookmarks")) {
                     const bookmarks = data.bookmarks
@@ -488,7 +484,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 } else {
                     setMuteWords([])
                 }
-            } else if ((await res.status) == 404) {
+            } else if (res.status == 404) {
                 setBookmarks([])
                 setMuteWords([])
             }
@@ -497,7 +493,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }
 
-    const setSettings = async (did: string) => {
+    /*const setSettings = async (did: string) => {
         try {
             const res = await fetch(`/api/setSettings/${did}`, {
                 method: "POST",
@@ -508,7 +504,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         } catch (e) {
             console.log(e)
         }
-    }
+    }*/
 
     const checkNewNotification = async () => {
         if (!agent) {
@@ -549,7 +545,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!userProfileDetailed) return
         if (!userProfileDetailed.did) return
-        getSettings(userProfileDetailed.did)
+        void getSettings()
         console.log("initialized")
     }, [userProfileDetailed])
 

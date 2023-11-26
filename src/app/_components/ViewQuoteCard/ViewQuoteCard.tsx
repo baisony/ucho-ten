@@ -30,7 +30,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
     const router = useRouter()
     const [, setImageGallery] = useImageGalleryAtom()
     const {
-        className,
         postJson,
         isSkeleton,
         isEmbedToModal,

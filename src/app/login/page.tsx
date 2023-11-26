@@ -16,7 +16,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
-import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
+import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
@@ -91,7 +91,7 @@ export default function CreateLoginPage() {
                     actor: agent.session.did,
                 })
 
-                const accountData: UserAccount = {
+                existingAccountsData[agent.session.did] = {
                     service: server,
                     session: agent.session,
                     profile: {
@@ -101,8 +101,6 @@ export default function CreateLoginPage() {
                         avatar: data?.avatar || "",
                     },
                 }
-
-                existingAccountsData[agent.session.did] = accountData
 
                 setAccounts(existingAccountsData)
             }
