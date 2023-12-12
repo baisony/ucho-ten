@@ -922,12 +922,23 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         <div className={`flex`}>
                                             {!isViaUFeed && (
                                                 <div
-                                                    className={`${PostReactionButton()} ${replyButton()} group-hover:md:block md:hidden`}
+                                                    className={`${PostReactionButton()} ${replyButton(
+                                                        {
+                                                            replyDisabled:
+                                                                postJson?.viewer
+                                                                    ?.replyDisabled,
+                                                        }
+                                                    )} group-hover:md:block md:hidden`}
                                                 >
                                                     <FontAwesomeIcon
                                                         icon={faComment}
                                                         onClick={async (e) => {
                                                             e.stopPropagation()
+                                                            if (
+                                                                postJson?.viewer
+                                                                    ?.replyDisabled
+                                                            )
+                                                                return
                                                             setHandleButtonClick(
                                                                 true
                                                             )
