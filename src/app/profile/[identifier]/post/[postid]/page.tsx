@@ -1199,8 +1199,13 @@ const PostPage = (props: PostPageProps) => {
                             <div className={ReactionButton()}>
                                 <FontAwesomeIcon
                                     icon={faComment}
-                                    className={ReactionButton()}
+                                    className={ReactionButton({
+                                        isReplyDisabled:
+                                            postView?.viewer?.replyDisabled,
+                                    })}
                                     onClick={() => {
+                                        if (postView?.viewer?.replyDisabled)
+                                            return
                                         void handleReply()
                                     }}
                                 />

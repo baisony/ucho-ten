@@ -21,5 +21,11 @@ export const postOnlyPage = tv({
             "md:text-[20px] text-[16px] text-[#AAAAAA] cursor-pointer",
         dropdown: "",
     },
-    variants: {},
+    variants: {
+        isReplyDisabled: {
+            true: {
+                ReactionButton: "text-gray-300 dark:text-gray-700",
+            },
+        },
+    },
 })

@@ -75,5 +75,10 @@ export const viewPostCard = tv({
                 likeButton: "text-[#909090] dark:text-[#636363]",
             },
         },
+        replyDisabled: {
+            true: {
+                replyButton: "text-gray-300 dark:text-gray-700",
+            },
+        },
     },
 })
