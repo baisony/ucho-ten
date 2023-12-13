@@ -49,7 +49,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const pathname = usePathname()
     const specificPaths = ["/search"]
     const isMatchingPath = specificPaths.includes(pathname)
-    console.log(isMatchingPath)
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
