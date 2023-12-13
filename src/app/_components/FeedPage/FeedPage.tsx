@@ -161,21 +161,6 @@ const FeedPage = ({
                     }
                 }
             }
-
-            if (isActive) {
-                shouldCheckUpdate.current = true
-
-                console.log("set setTimeout", feedKey)
-                const timeoutId = setTimeout(() => {
-                    console.log("setTimeout", feedKey)
-                    checkNewTimeline()
-                }, CHECK_FEED_UPDATE_INTERVAL)
-
-                return () => {
-                    console.log(`unmounted ${timeoutId}`)
-                    clearTimeout(timeoutId)
-                }
-            }
         } catch (e) {
             console.error(e)
         }
@@ -192,13 +177,16 @@ const FeedPage = ({
 
             console.log("useEffect set setTimeout", feedKey)
 
-            const timeoutId = setTimeout(() => {
+            const timeoutId = setInterval(() => {
                 console.log("useEffect setTimeout", feedKey)
 
                 void checkNewTimeline()
             }, CHECK_FEED_UPDATE_INTERVAL)
 
-            return () => clearTimeout(timeoutId)
+            return () => {
+                console.log(`useEffect unmounted ${timeoutId}`)
+                clearInterval(timeoutId)
+            }
         }
     }, [agent, isActive])
 
