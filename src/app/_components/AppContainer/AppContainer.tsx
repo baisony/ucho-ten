@@ -43,6 +43,7 @@ import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
+import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()
@@ -68,6 +69,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
     const [unreadNotification, setUnreadNotification] =
         useUnreadNotificationAtom()
+
+    const [translateTo, setTranslateTo] = useTranslationLanguage()
 
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
@@ -330,6 +333,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [pathName, searchParams])
 
     useEffect(() => {
+        if (!translateTo) return
+        if (translateTo[0] !== "") return
+        //setTranslateTo([])
+    }, [translateTo])
+
+    useEffect(() => {
         if (!agent) return
         if (muteWords.length === 0) return
         //ミュートワードはあるけど新システムに移行してない場合
@@ -559,6 +568,8 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         const element = document.querySelector("meta[name=theme-color]")!
         element.setAttribute("content", themeColor)
     }, [appearanceColor, agent])
+
+    console.log(window.navigator.languages)
 
     return (
         <div

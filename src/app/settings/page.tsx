@@ -158,7 +158,7 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                     </TableHeader>
                     <TableBody>
                         <TableRow>
-                            <TableCell>Theme</TableCell>
+                            <TableCell>{t("pages.settings.theme")}</TableCell>
                             <TableCell>
                                 <ButtonGroup>
                                     <Button
@@ -210,7 +210,9 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Display Language</TableCell>
+                            <TableCell>
+                                {t("pages.settings.displayLanguage")}
+                            </TableCell>
                             <TableCell>
                                 <Select
                                     size={"sm"}
@@ -240,7 +242,9 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Translate to</TableCell>
+                            <TableCell>
+                                {t("pages.settings.translateTo")}
+                            </TableCell>
                             <TableCell>
                                 <Select
                                     size={"sm"}
@@ -267,7 +271,9 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Content font size</TableCell>
+                            <TableCell>
+                                {t("pages.settings.contentFontSize")}
+                            </TableCell>
                             <TableCell>
                                 <Select
                                     size={"sm"}
@@ -379,10 +385,7 @@ const SettingsContentFilteringPage = ({
                 className={
                     "w-full flex justify-between text-black dark:text-white"
                 }
-            >
-                <div>birthday</div>
-                <div></div>
-            </div>
+            ></div>
             {userPreferences?.birthDate && (
                 <div
                     className={

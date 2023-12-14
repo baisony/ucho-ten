@@ -52,6 +52,7 @@
       "large": "Large",
       "huge": "Huge",
       "displayLanguage": "Display Language",
+      "contentFontSize": "Content Font Size",
       "notifications": "Notifications",
       "translate": "Translate",
       "translateTo": "Translate To",
@@ -107,6 +108,8 @@
     },
     "ViewPostCard": {
       "report": "Report",
+      "mute": "Mute",
+      "unmute": "Unmute",
       "delete": "Delete",
       "copyURL": "Copy Post URL",
       "copyJSON": "Copy Post JSON",
