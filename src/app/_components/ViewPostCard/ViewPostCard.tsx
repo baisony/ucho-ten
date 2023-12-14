@@ -705,9 +705,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
     }
 
-    const [isLongPressActive, setLongPressActive] = useState(false)
-    const timeoutId = useRef<number | null>(null)
-
     const handleLongPress = () => {
         console.log(props)
         onOpenOption()
@@ -715,7 +712,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const handleMouseDown = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
-            setLongPressActive(true)
             const timer = setTimeout(() => {
                 handleLongPress()
             }, 500)
@@ -739,7 +735,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const handleTouchStart = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
-            setLongPressActive(true)
             const timer = setTimeout(() => {
                 handleLongPress()
             }, 500)
@@ -912,10 +907,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                     backgroundColor: isEmbedToModal ? "transparent" : "",
                 }}
                 onClick={(e) => {
-                    if (isLongPressActive) {
-                        setLongPressActive(false)
-                        return
-                    }
                     e.stopPropagation()
                     router.push(
                         `/profile/${postJsonData?.author.did}/post/${
@@ -923,12 +914,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                         }?${nextQueryParams.toString()}`
                     )
                 }}
-                /*onMouseDown={(e) => {
-                    e.stopPropagation()
-                    // @ts-ignore
-                    handleMouseDown(e)
-                    //console.log(e)
-                }}*/
                 onTouchStart={(e) => {
                     e.stopPropagation()
                     // @ts-ignore
