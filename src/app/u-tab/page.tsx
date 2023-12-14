@@ -162,21 +162,19 @@ const Root = () => {
                                 height: "100%",
                             }}
                         >
-                            {menu.displayText === "U-feed" ||
-                                (menu.displayText === "Random Post" && (
-                                    <FeedPage
-                                        {...{
-                                            isActive: index === menuIndex,
-                                            isViaUFeed: true,
-                                            isNextActive:
-                                                index === menuIndex + 1,
-                                            feedKey: menu.info,
-                                            // color,
-                                            disableSlideVerticalScroll,
-                                            now,
-                                        }}
-                                    />
-                                ))}
+                            {menu.info !== "random-bookmark" && (
+                                <FeedPage
+                                    {...{
+                                        isActive: index === menuIndex,
+                                        isViaUFeed: true,
+                                        isNextActive: index === menuIndex + 1,
+                                        feedKey: menu.info,
+                                        // color,
+                                        disableSlideVerticalScroll,
+                                        now,
+                                    }}
+                                />
+                            )}
                             {menu.info === "random-bookmark" &&
                                 bookmarks.length > 0 && (
                                     <>
