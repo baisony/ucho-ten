@@ -10,6 +10,7 @@ import {
     AppBskyEmbedImages,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
+    AppBskyFeedPost,
 } from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
@@ -60,6 +61,7 @@ import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
+import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -141,12 +143,17 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         !!postView?.viewer?.repost
     )
     const [userPreference] = useUserPreferencesAtom()
+    const [translateTo] = useTranslationLanguage()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
     const [, setHandleButtonClick] = useState(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [contentFontSize] = useContentFontSize()
+    const [isTranslated, setIsTranslated] = useState<boolean>(false)
+    const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(false)
+    const [translateError, setTranslateError] = useState<boolean>(false)
+    const [translatedJsonData, setTranslatedJsonData] = useState<any>(null)
 
     const {
         isOpen: isOpenReply,
@@ -617,6 +624,48 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         handleValueChange(json)
     }
 
+    const translateContentText = async () => {
+        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
+            return
+        }
+
+        setIsTranslated(true)
+        setViewTranslatedText(true)
+        const res = await fetch(
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
+                translateTo[0] ? translateTo[0] : `auto`
+            }&dt=t&q=` +
+                encodeURIComponent(
+                    (postView?.record as AppBskyFeedPost.Record)?.text
+                )
+        )
+        if (res.status === 200) {
+            const json = await res.json()
+            if (json[0] !== undefined) {
+                const combinedText = json[0].reduce(
+                    (acc: string, item: any[]) => {
+                        if (item[0]) {
+                            return acc + item[0]
+                        }
+                        return acc
+                    },
+                    ""
+                )
+                console.log(combinedText)
+                console.log(postJson)
+                const translatedJson = JSON.parse(JSON.stringify(postJson))
+                if (translatedJson && translatedJson.record) {
+                    translatedJson.record["text"] = combinedText
+                }
+                console.log(translatedJson)
+                //setTranslatedText(combinedText)
+                setTranslatedJsonData(translatedJson)
+            }
+        } else {
+            setTranslateError(true)
+        }
+    }
+
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
             {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
@@ -818,7 +867,50 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         : 15
                                 }] ${isEmbedToPost && `text-[13px]`}`}
                             >
-                                {bodyText}
+                                {!viewTranslatedText && bodyText}
+                                {translatedJsonData !== null &&
+                                    viewTranslatedText && (
+                                        <>
+                                            <div>
+                                                {processPostBodyText(
+                                                    nextQueryParams,
+                                                    null,
+                                                    translatedJsonData
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                {/*@ts-ignore*/}
+                                {!(postJson?.record?.langs as any)?.includes(
+                                    translateTo[0].slice(0, 2)
+                                ) && (
+                                    <>
+                                        <Button
+                                            size={"sm"}
+                                            variant={"flat"}
+                                            radius={"full"}
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                if (!isTranslated) {
+                                                    await translateContentText()
+                                                }
+                                                if (viewTranslatedText) {
+                                                    setViewTranslatedText(false)
+                                                } else {
+                                                    setViewTranslatedText(true)
+                                                }
+                                            }}
+                                        >
+                                            {!translateError
+                                                ? !viewTranslatedText
+                                                    ? "translate"
+                                                    : t(
+                                                          "pages.postOnlyPage.viewOriginal"
+                                                      )
+                                                : "Translate error"}
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         )}
                         {embedImages && !contentWarning && (
