@@ -7,6 +7,7 @@ import {
 } from "@nextui-org/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
+    faLanguage,
     faCode,
     faEllipsis,
     faFlag,
@@ -16,6 +17,7 @@ import {
 
 interface MoreDropDownMenuProps {
     isThisUser: boolean
+    onClickTranslate: () => void
     onClickCopyURL: () => void
     onClickCopyJSON: () => void
     onClickReport: () => void
@@ -25,6 +27,7 @@ interface MoreDropDownMenuProps {
 
 const MoreDropDownMenu = ({
     isThisUser,
+    onClickTranslate,
     onClickCopyURL,
     onClickCopyJSON,
     onClickReport,
@@ -47,6 +50,15 @@ const MoreDropDownMenu = ({
                     aria-label="Multiple selection actions"
                     selectionMode="multiple"
                 >
+                    <DropdownItem
+                        key="0"
+                        startContent={<FontAwesomeIcon icon={faLanguage} />}
+                        onClick={() => {
+                            onClickTranslate()
+                        }}
+                    >
+                        Translate
+                    </DropdownItem>
                     <DropdownItem
                         key="1"
                         startContent={<FontAwesomeIcon icon={faLink} />}

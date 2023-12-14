@@ -39,6 +39,7 @@ import {
     ModalBody,
     ModalContent,
     ScrollShadow,
+    Spinner,
     useDisclosure,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
@@ -383,36 +384,6 @@ const PostPage = (props: PostPageProps) => {
         return null
     }
 
-    // function renderNestedRepliesViewPostCards(
-    //     post: any,
-    //     isMobile: boolean
-    // ): JSX.Element | null {
-    //     if (post && post.replies) {
-    //         const nestedViewPostCards = renderNestedViewPostCards(
-    //             post.replies,
-    //             isMobile
-    //         ) // 再帰呼び出し
-
-    //         return (
-    //             <>
-    //                 {nestedViewPostCards}
-    //                 <ViewPostCard
-    //                     isTop={false}
-    //                     bodyText={processPostBodyText(
-    //                         nextQueryParams,
-    //                         post.replies.post
-    //                     )}
-    //                     postJson={post.replies.post}
-    //                     isMobile={isMobile}
-    //                     nextQueryParams={nextQueryParams}
-    //                     t={t}
-    //                 />
-    //             </>
-    //         )
-    //     }
-    //     return null // ネストが終了したらnullを返す
-    // }
-
     const handleReply = async () => {
         console.log("open")
         setModalType("Reply")
@@ -749,549 +720,517 @@ const PostPage = (props: PostPageProps) => {
         })
     }, [userPreference, postView])
 
-    return (
-        thread && (
-            <>
-                <Modal
-                    isOpen={isOpen}
-                    onOpenChange={onOpenChange}
-                    placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px] bg-transparent"}
-                >
-                    <ModalContent>
-                        {(onClose) => (
-                            <PostModal
-                                type={modalType ? modalType : "Reply"}
-                                postData={postView}
-                                onClose={onClose}
-                            />
-                        )}
-                    </ModalContent>
-                </Modal>
-                <ReportModal
-                    isOpen={isOpenReport}
-                    onOpenChange={onOpenChangeReport}
-                    placement={isMobile ? "top" : "center"}
-                    className={"z-[100] max-w-[600px] bg-transparent"}
-                    target={"post"}
-                    post={postView}
-                    nextQueryParams={nextQueryParams}
-                />
-                <Modal
-                    isOpen={isOpenOption}
-                    onOpenChange={onOpenChangeOption}
-                    placement={"bottom"}
-                    className={
-                        "z-[100] max-w-[600px] text-black dark:text-white"
-                    }
-                    hideCloseButton
-                >
-                    <ModalContent>
-                        {() => (
-                            <>
-                                <ModalBody>
-                                    <span>
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full"
+    return thread ? (
+        <>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                placement={isMobile ? "top" : "center"}
+                className={"z-[100] max-w-[600px] bg-transparent"}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <PostModal
+                            type={modalType ? modalType : "Reply"}
+                            postData={postView}
+                            onClose={onClose}
+                        />
+                    )}
+                </ModalContent>
+            </Modal>
+            <ReportModal
+                isOpen={isOpenReport}
+                onOpenChange={onOpenChangeReport}
+                placement={isMobile ? "top" : "center"}
+                className={"z-[100] max-w-[600px] bg-transparent"}
+                target={"post"}
+                post={postView}
+                nextQueryParams={nextQueryParams}
+            />
+            <Modal
+                isOpen={isOpenOption}
+                onOpenChange={onOpenChangeOption}
+                placement={"bottom"}
+                className={"z-[100] max-w-[600px] text-black dark:text-white"}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {() => (
+                        <>
+                            <ModalBody>
+                                <span>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={async () => {
+                                            if (!window.navigator.share) {
+                                                alert(
+                                                    "ご利用のブラウザでは共有できません。"
+                                                )
+                                                // TODO: do not use alert.
+                                                // TODO: i18n
+                                                return
                                             }
-                                            onClick={async () => {
-                                                if (!window.navigator.share) {
-                                                    alert(
-                                                        "ご利用のブラウザでは共有できません。"
-                                                    )
-                                                    // TODO: do not use alert.
-                                                    // TODO: i18n
-                                                    return
-                                                }
-                                                try {
-                                                    const url = new AtUri(atUri)
-                                                    const bskyURL = `https://bsky.app/profile/${
-                                                        url.host
-                                                    }/${url.pathname.replace(
-                                                        "/app.bsky.feed.post/",
-                                                        "/post/"
-                                                    )}`
-                                                    console.log(url)
-                                                    await window.navigator.share(
-                                                        {
-                                                            url: bskyURL,
-                                                        }
-                                                    )
-                                                } catch (e) {}
-                                            }}
+                                            try {
+                                                const url = new AtUri(atUri)
+                                                const bskyURL = `https://bsky.app/profile/${
+                                                    url.host
+                                                }/${url.pathname.replace(
+                                                    "/app.bsky.feed.post/",
+                                                    "/post/"
+                                                )}`
+                                                console.log(url)
+                                                await window.navigator.share({
+                                                    url: bskyURL,
+                                                })
+                                            } catch (e) {}
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faArrowUpFromBracket}
+                                            className={"w-[40px]"}
+                                        />
+                                        {t("pages.postOnlyPage.share")}
+                                    </div>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={async () => {
+                                            await translateContentText()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faLanguage}
+                                            className={"w-[40px]"}
+                                        />
+                                        {t("pages.postOnlyPage.translate")}
+                                    </div>
+                                    <div
+                                        className={
+                                            "mt-[15px] mb-[15px] w-full text-red-600"
+                                        }
+                                        onClick={() => {
+                                            void handleMute()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faVolumeXmark}
+                                            className={"w-[40px]"}
+                                        />
+                                        {!isMuted ? (
+                                            <span>Mute</span>
+                                        ) : (
+                                            <span>Un mute</span>
+                                        )}
+                                    </div>
+                                    <div
+                                        className={
+                                            "mt-[15px] mb-[15px] w-full text-red-600"
+                                        }
+                                        onClick={() => {
+                                            onOpenReport()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faFlag}
+                                            className={"w-[40px]"}
+                                        />
+                                        Report
+                                    </div>
+                                </span>
+                            </ModalBody>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <DummyHeader />
+            <main className={`${Container()}`}>
+                {thread?.parent && (
+                    <>{renderNestedViewPostCards(thread, isMobile)}</>
+                )}
+                <div className={AuthorPost()}>
+                    <div className={Author()}>
+                        <div className={"flex items-center"}>
+                            <Link
+                                className={AuthorIcon()}
+                                href={`/profile/${postView?.author
+                                    .did}?${nextQueryParams.toString()}`}
+                            >
+                                <img
+                                    src={
+                                        postView?.author?.avatar ||
+                                        defaultIcon.src
+                                    }
+                                    alt={"avatar"}
+                                />
+                            </Link>
+                            <div>
+                                <div>
+                                    <Link
+                                        className={AuthorDisplayName()}
+                                        href={`/profile/${postView?.author
+                                            .did}?${nextQueryParams.toString()}`}
+                                    >
+                                        {postView?.author?.displayName}
+                                    </Link>
+                                </div>
+                                <div>
+                                    <Link
+                                        className={AuthorHandle()}
+                                        href={`/profile/${postView?.author
+                                            .did}?${nextQueryParams.toString()}`}
+                                    >
+                                        {postView?.author?.handle}
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            className={
+                                "md:h-[20px] h-[10px] hover:cursor-pointer items-center hidden md:block"
+                            }
+                        >
+                            <Dropdown
+                                className={`${dropdown()} text-black dark:text-white`}
+                            >
+                                <DropdownTrigger>
+                                    <FontAwesomeIcon
+                                        icon={faEllipsis}
+                                        className={"h-[20px] text-[#AAAAAA] "}
+                                        size={"xs"}
+                                    />
+                                </DropdownTrigger>
+                                <DropdownMenu>
+                                    <DropdownSection
+                                        title="Actions"
+                                        showDivider
+                                    >
+                                        <DropdownItem
+                                            key="share"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faArrowUpFromBracket}
+                                                />
+                                            }
                                         >
-                                            <FontAwesomeIcon
-                                                icon={faArrowUpFromBracket}
-                                                className={"w-[40px]"}
-                                            />
                                             {t("pages.postOnlyPage.share")}
-                                        </div>
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full"
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="translate"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faLanguage}
+                                                />
                                             }
                                             onClick={async () => {
                                                 await translateContentText()
                                             }}
                                         >
-                                            <FontAwesomeIcon
-                                                icon={faLanguage}
-                                                className={"w-[40px]"}
-                                            />
                                             {t("pages.postOnlyPage.translate")}
-                                        </div>
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                        </DropdownItem>
+                                    </DropdownSection>
+                                    <DropdownSection
+                                        title="Copy"
+                                        showDivider={isPostMine}
+                                    >
+                                        <DropdownItem
+                                            key="json"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faCode}
+                                                />
                                             }
                                             onClick={() => {
-                                                void handleMute()
+                                                void navigator.clipboard.writeText(
+                                                    JSON.stringify(
+                                                        postView?.post || ""
+                                                    )
+                                                )
                                             }}
                                         >
-                                            <FontAwesomeIcon
-                                                icon={faVolumeXmark}
-                                                className={"w-[40px]"}
-                                            />
-                                            {!isMuted ? (
-                                                <span>Mute</span>
-                                            ) : (
-                                                <span>Un mute</span>
-                                            )}
-                                        </div>
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                            {t("pages.postOnlyPage.copyJSON")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="uri"
+                                            startContent={
+                                                <FontAwesomeIcon icon={faU} />
                                             }
                                             onClick={() => {
-                                                onOpenReport()
+                                                void navigator.clipboard.writeText(
+                                                    atUri
+                                                )
                                             }}
                                         >
-                                            <FontAwesomeIcon
-                                                icon={faFlag}
-                                                className={"w-[40px]"}
-                                            />
-                                            Report
-                                        </div>
+                                            {t("pages.postOnlyPage.copyURL")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="did"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faUser}
+                                                />
+                                            }
+                                            onClick={() => {
+                                                void navigator.clipboard.writeText(
+                                                    postView?.author.did || ""
+                                                )
+                                            }}
+                                        >
+                                            {t("pages.postOnlyPage.copyDID")}
+                                        </DropdownItem>
+                                    </DropdownSection>
+                                    <DropdownSection title="Danger zone">
+                                        {agent?.session?.did !==
+                                        postView?.author.did ? (
+                                            <DropdownItem
+                                                key="delete"
+                                                className="text-danger"
+                                                color="danger"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faFlag}
+                                                    />
+                                                }
+                                                onClick={() => {
+                                                    onOpenReport()
+                                                }}
+                                            >
+                                                {t("pages.postOnlyPage.report")}
+                                            </DropdownItem>
+                                        ) : (
+                                            <DropdownItem
+                                                key="delete"
+                                                className="text-danger"
+                                                color="danger"
+                                                startContent={
+                                                    <FontAwesomeIcon
+                                                        icon={faTrash}
+                                                    />
+                                                }
+                                            >
+                                                {t("pages.postOnlyPage.delete")}
+                                            </DropdownItem>
+                                        )}
+                                    </DropdownSection>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </div>
+                        <div
+                            className={
+                                "md:h-[20px] h-[10px] hover:cursor-pointer items-center block md:hidden"
+                            }
+                        >
+                            <FontAwesomeIcon
+                                icon={faEllipsis}
+                                className={"h-[20px] flex text-[#AAAAAA]"}
+                                size={"xs"}
+                                onClick={onOpenOption}
+                            />
+                        </div>
+                    </div>
+                    <div className={PostContent()}>
+                        {processPostBodyText(nextQueryParams, postView)}
+                        {translateError && (
+                            <div className={"text-red-500"}>
+                                {t("pages.postOnlyPage.translateError")}
+                            </div>
+                        )}
+                        {translatedText !== null && viewTranslatedText && (
+                            <>
+                                <div className={"select-none"}>
+                                    Translated by Google
+                                    <span
+                                        onClick={() => {
+                                            setViewTranslatedText(false)
+                                        }}
+                                        className={"cursor-pointer"}
+                                    >
+                                        &nbsp;-{" "}
+                                        {t("pages.postOnlyPage.viewOriginal")}
                                     </span>
-                                </ModalBody>
+                                </div>
+                                <div>{translatedText}</div>
                             </>
                         )}
-                    </ModalContent>
-                </Modal>
-                <DummyHeader />
-                <main className={`${Container()}`}>
-                    {thread?.parent && (
-                        <>{renderNestedViewPostCards(thread, isMobile)}</>
-                    )}
-                    <div className={AuthorPost()}>
-                        <div className={Author()}>
-                            <div className={"flex items-center"}>
-                                <Link
-                                    className={AuthorIcon()}
-                                    href={`/profile/${postView?.author
-                                        .did}?${nextQueryParams.toString()}`}
-                                >
-                                    <img
-                                        src={
-                                            postView?.author?.avatar ||
-                                            defaultIcon.src
-                                        }
-                                        alt={"avatar"}
-                                    />
-                                </Link>
-                                <div>
-                                    <div>
-                                        <Link
-                                            className={AuthorDisplayName()}
-                                            href={`/profile/${postView?.author
-                                                .did}?${nextQueryParams.toString()}`}
-                                        >
-                                            {postView?.author?.displayName}
-                                        </Link>
-                                    </div>
-                                    <div>
-                                        <Link
-                                            className={AuthorHandle()}
-                                            href={`/profile/${postView?.author
-                                                .did}?${nextQueryParams.toString()}`}
-                                        >
-                                            {postView?.author?.handle}
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
+                        {embedImages && !contentWarning && (
+                            <EmbedImages
+                                embedImages={embedImages}
+                                onImageClick={(index: number) => {
+                                    handleImageClick(index)
+                                }}
+                            />
+                        )}
+                        {contentWarning && !isDeleted && (
                             <div
-                                className={
-                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center hidden md:block"
-                                }
+                                className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
                             >
-                                <Dropdown
-                                    className={`${dropdown()} text-black dark:text-white`}
-                                >
-                                    <DropdownTrigger>
-                                        <FontAwesomeIcon
-                                            icon={faEllipsis}
-                                            className={
-                                                "h-[20px] text-[#AAAAAA] "
-                                            }
-                                            size={"xs"}
-                                        />
-                                    </DropdownTrigger>
-                                    <DropdownMenu>
-                                        <DropdownSection
-                                            title="Actions"
-                                            showDivider
-                                        >
-                                            <DropdownItem
-                                                key="share"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={
-                                                            faArrowUpFromBracket
-                                                        }
-                                                    />
-                                                }
-                                            >
-                                                {t("pages.postOnlyPage.share")}
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="translate"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faLanguage}
-                                                    />
-                                                }
-                                                onClick={async () => {
-                                                    await translateContentText()
-                                                }}
-                                            >
-                                                {t(
-                                                    "pages.postOnlyPage.translate"
-                                                )}
-                                            </DropdownItem>
-                                        </DropdownSection>
-                                        <DropdownSection
-                                            title="Copy"
-                                            showDivider={isPostMine}
-                                        >
-                                            <DropdownItem
-                                                key="json"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faCode}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    void navigator.clipboard.writeText(
-                                                        JSON.stringify(
-                                                            postView?.post || ""
-                                                        )
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "pages.postOnlyPage.copyJSON"
-                                                )}
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="uri"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faU}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    void navigator.clipboard.writeText(
-                                                        atUri
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "pages.postOnlyPage.copyURL"
-                                                )}
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="did"
-                                                startContent={
-                                                    <FontAwesomeIcon
-                                                        icon={faUser}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    void navigator.clipboard.writeText(
-                                                        postView?.author.did ||
-                                                            ""
-                                                    )
-                                                }}
-                                            >
-                                                {t(
-                                                    "pages.postOnlyPage.copyDID"
-                                                )}
-                                            </DropdownItem>
-                                        </DropdownSection>
-                                        <DropdownSection title="Danger zone">
-                                            {agent?.session?.did !==
-                                            postView?.author.did ? (
-                                                <DropdownItem
-                                                    key="delete"
-                                                    className="text-danger"
-                                                    color="danger"
-                                                    startContent={
-                                                        <FontAwesomeIcon
-                                                            icon={faFlag}
-                                                        />
-                                                    }
-                                                    onClick={() => {
-                                                        onOpenReport()
-                                                    }}
-                                                >
-                                                    {t(
-                                                        "pages.postOnlyPage.report"
-                                                    )}
-                                                </DropdownItem>
-                                            ) : (
-                                                <DropdownItem
-                                                    key="delete"
-                                                    className="text-danger"
-                                                    color="danger"
-                                                    startContent={
-                                                        <FontAwesomeIcon
-                                                            icon={faTrash}
-                                                        />
-                                                    }
-                                                >
-                                                    {t(
-                                                        "pages.postOnlyPage.delete"
-                                                    )}
-                                                </DropdownItem>
-                                            )}
-                                        </DropdownSection>
-                                    </DropdownMenu>
-                                </Dropdown>
-                            </div>
-                            <div
-                                className={
-                                    "md:h-[20px] h-[10px] hover:cursor-pointer items-center block md:hidden"
-                                }
-                            >
-                                <FontAwesomeIcon
-                                    icon={faEllipsis}
-                                    className={"h-[20px] flex text-[#AAAAAA]"}
-                                    size={"xs"}
-                                    onClick={onOpenOption}
-                                />
-                            </div>
-                        </div>
-                        <div className={PostContent()}>
-                            {processPostBodyText(nextQueryParams, postView)}
-                            {translateError && (
-                                <div className={"text-red-500"}>
-                                    {t("pages.postOnlyPage.translateError")}
+                                <div className={"ml-[20px]"}>
+                                    {t("components.ViewPostCard.warning")}:{" "}
+                                    {warningReason}
                                 </div>
-                            )}
-                            {translatedText !== null && viewTranslatedText && (
-                                <>
-                                    <div className={"select-none"}>
-                                        Translated by Google
-                                        <span
-                                            onClick={() => {
-                                                setViewTranslatedText(false)
-                                            }}
-                                            className={"cursor-pointer"}
-                                        >
-                                            &nbsp;-{" "}
-                                            {t(
-                                                "pages.postOnlyPage.viewOriginal"
-                                            )}
-                                        </span>
-                                    </div>
-                                    <div>{translatedText}</div>
-                                </>
-                            )}
-                            {embedImages && !contentWarning && (
-                                <EmbedImages
-                                    embedImages={embedImages}
-                                    onImageClick={(index: number) => {
-                                        handleImageClick(index)
+                                <Button
+                                    variant={"light"}
+                                    color={"primary"}
+                                    onClick={() => {
+                                        setContentWarning(false)
                                     }}
-                                />
-                            )}
-                            {contentWarning && !isDeleted && (
-                                <div
-                                    className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
                                 >
-                                    <div className={"ml-[20px]"}>
-                                        {t("components.ViewPostCard.warning")}:{" "}
-                                        {warningReason}
-                                    </div>
-                                    <Button
-                                        variant={"light"}
-                                        color={"primary"}
-                                        onClick={() => {
-                                            setContentWarning(false)
-                                        }}
-                                    >
-                                        {t("components.ViewPostCard.show")}
-                                    </Button>
-                                </div>
-                            )}
-                            {embedMedia && (
-                                <EmbedMedia
-                                    embedMedia={embedMedia}
-                                    onImageClick={(index: number) => {
-                                        handleImageClick(index)
-                                    }}
+                                    {t("components.ViewPostCard.show")}
+                                </Button>
+                            </div>
+                        )}
+                        {embedMedia && (
+                            <EmbedMedia
+                                embedMedia={embedMedia}
+                                onImageClick={(index: number) => {
+                                    handleImageClick(index)
+                                }}
+                                nextQueryParams={nextQueryParams}
+                            />
+                        )}
+                        {embedExternal && (
+                            <div className={"h-full w-full mt-[5px]"}>
+                                <Linkcard ogpData={embedExternal.external} />
+                            </div>
+                        )}
+                        {embedRecord &&
+                            embedRecordViewRecord &&
+                            !embedFeed &&
+                            !embedMuteList &&
+                            !notfoundEmbedRecord &&
+                            !embedRecordBlocked && (
+                                <ViewPostCard
+                                    isTop={false}
+                                    bodyText={processPostBodyText(
+                                        nextQueryParams,
+                                        null,
+                                        embedRecordViewRecord
+                                    )}
+                                    quoteJson={embedRecordViewRecord}
+                                    isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
+                                    t={t}
                                 />
                             )}
-                            {embedExternal && (
-                                <div className={"h-full w-full mt-[5px]"}>
-                                    <Linkcard
-                                        ogpData={embedExternal.external}
-                                    />
-                                </div>
-                            )}
-                            {embedRecord &&
-                                embedRecordViewRecord &&
-                                !embedFeed &&
-                                !embedMuteList &&
-                                !notfoundEmbedRecord &&
-                                !embedRecordBlocked && (
-                                    <ViewPostCard
-                                        isTop={false}
-                                        bodyText={processPostBodyText(
-                                            nextQueryParams,
-                                            null,
-                                            embedRecordViewRecord
-                                        )}
-                                        quoteJson={embedRecordViewRecord}
-                                        isEmbedToPost={true}
-                                        nextQueryParams={nextQueryParams}
-                                        t={t}
-                                    />
-                                )}
-                            {embedFeed && <ViewFeedCard feed={embedFeed} />}
-                            {embedMuteList && (
-                                <ViewMuteListCard list={embedMuteList} />
-                            )}
-                            {(notfoundEmbedRecord || embedRecordBlocked) && (
-                                <ViewNotFoundCard />
-                            )}
-                        </div>
-                        <div className={PostCreatedAt()}>
-                            {formatDate(postView!.indexedAt)}
-                        </div>
-                        <div className={ReactionButtonContainer()}>
-                            <div className={ReactionButton()}>
-                                <FontAwesomeIcon
-                                    icon={
-                                        !isBookmarked
-                                            ? faRegularBookmark
-                                            : faSolidBookmark
-                                    }
-                                    className={ReactionButton()}
-                                    onClick={() => {
-                                        void handleBookmark()
-                                    }}
-                                />
-                            </div>
-                            <div className={ReactionButton()}>
-                                <FontAwesomeIcon
-                                    icon={faComment}
-                                    className={ReactionButton({
-                                        isReplyDisabled:
-                                            postView?.viewer?.replyDisabled,
-                                    })}
-                                    onClick={() => {
-                                        if (postView?.viewer?.replyDisabled)
-                                            return
-                                        void handleReply()
-                                    }}
-                                />
-                            </div>
-                            <div
-                                className={`${ReactionButton()} ${
-                                    agent?.session?.did !==
-                                        postView?.author.did && `hidden`
-                                }`}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faQuoteLeft}
-                                    className={ReactionButton()}
-                                    onClick={() => {
-                                        void handleQuote()
-                                    }}
-                                />
-                            </div>
-                            <div className={ReactionButton()}>
-                                <FontAwesomeIcon
-                                    icon={faRetweet}
-                                    className={ReactionButton()}
-                                    style={{
-                                        color: isReposted
-                                            ? "#17BF63"
-                                            : "#909090",
-                                    }}
-                                    onClick={() => {
-                                        void handleRepost()
-                                    }}
-                                />
-                            </div>
-                            <div className={ReactionButton()}>
-                                <FontAwesomeIcon
-                                    icon={
-                                        !isLiked ? faRegularStar : faSolidStar
-                                    }
-                                    className={ReactionButton()}
-                                    style={{
-                                        color: isLiked ? "#fd7e00" : "#909090",
-                                    }}
-                                    onClick={() => {
-                                        void handleLike()
-                                    }}
-                                />
-                            </div>
-                        </div>
+                        {embedFeed && <ViewFeedCard feed={embedFeed} />}
+                        {embedMuteList && (
+                            <ViewMuteListCard list={embedMuteList} />
+                        )}
+                        {(notfoundEmbedRecord || embedRecordBlocked) && (
+                            <ViewNotFoundCard />
+                        )}
                     </div>
-                    <div className={"h-full"}>
-                        {thread?.replies &&
-                            (
-                                thread.replies as Array<AppBskyFeedDefs.ThreadViewPost>
-                            ).map((item: any, index: number) => {
-                                console.log(thread)
-                                console.log(item)
-                                if (tab === "authors") {
-                                    if (
-                                        thread.post.author.did !==
-                                            item.post.author.did &&
-                                        item.post.author.did !==
-                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                            //@ts-ignore
-                                            thread?.parent?.post?.author?.did
-                                    ) {
-                                        return null
-                                    }
+                    <div className={PostCreatedAt()}>
+                        {formatDate(postView!.indexedAt)}
+                    </div>
+                    <div className={ReactionButtonContainer()}>
+                        <div className={ReactionButton()}>
+                            <FontAwesomeIcon
+                                icon={
+                                    !isBookmarked
+                                        ? faRegularBookmark
+                                        : faSolidBookmark
                                 }
-                                return (
-                                    <ViewPostCard
-                                        isTop={false}
-                                        key={index}
-                                        bodyText={processPostBodyText(
-                                            nextQueryParams,
-                                            item.post as PostView
-                                        )}
-                                        postJson={item.post as PostView}
-                                        //isMobile={isMobile}
-                                        nextQueryParams={nextQueryParams}
-                                        t={t}
-                                    />
-                                )
-                            })}
+                                className={ReactionButton()}
+                                onClick={() => {
+                                    void handleBookmark()
+                                }}
+                            />
+                        </div>
+                        <div className={ReactionButton()}>
+                            <FontAwesomeIcon
+                                icon={faComment}
+                                className={ReactionButton({
+                                    isReplyDisabled:
+                                        postView?.viewer?.replyDisabled,
+                                })}
+                                onClick={() => {
+                                    if (postView?.viewer?.replyDisabled) return
+                                    void handleReply()
+                                }}
+                            />
+                        </div>
+                        <div
+                            className={`${ReactionButton()} ${
+                                agent?.session?.did !== postView?.author.did &&
+                                `hidden`
+                            }`}
+                        >
+                            <FontAwesomeIcon
+                                icon={faQuoteLeft}
+                                className={ReactionButton()}
+                                onClick={() => {
+                                    void handleQuote()
+                                }}
+                            />
+                        </div>
+                        <div className={ReactionButton()}>
+                            <FontAwesomeIcon
+                                icon={faRetweet}
+                                className={ReactionButton()}
+                                style={{
+                                    color: isReposted ? "#17BF63" : "#909090",
+                                }}
+                                onClick={() => {
+                                    void handleRepost()
+                                }}
+                            />
+                        </div>
+                        <div className={ReactionButton()}>
+                            <FontAwesomeIcon
+                                icon={!isLiked ? faRegularStar : faSolidStar}
+                                className={ReactionButton()}
+                                style={{
+                                    color: isLiked ? "#fd7e00" : "#909090",
+                                }}
+                                onClick={() => {
+                                    void handleLike()
+                                }}
+                            />
+                        </div>
                     </div>
-                </main>
-            </>
-        )
+                </div>
+                <div className={"h-full"}>
+                    {thread?.replies &&
+                        (
+                            thread.replies as Array<AppBskyFeedDefs.ThreadViewPost>
+                        ).map((item: any, index: number) => {
+                            console.log(thread)
+                            console.log(item)
+                            if (tab === "authors") {
+                                if (
+                                    thread.post.author.did !==
+                                        item.post.author.did &&
+                                    item.post.author.did !==
+                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                        //@ts-ignore
+                                        thread?.parent?.post?.author?.did
+                                ) {
+                                    return null
+                                }
+                            }
+                            return (
+                                <ViewPostCard
+                                    isTop={false}
+                                    key={index}
+                                    bodyText={processPostBodyText(
+                                        nextQueryParams,
+                                        item.post as PostView
+                                    )}
+                                    postJson={item.post as PostView}
+                                    //isMobile={isMobile}
+                                    nextQueryParams={nextQueryParams}
+                                    t={t}
+                                />
+                            )
+                        })}
+                </div>
+            </main>
+        </>
+    ) : (
+        <div className={"w-full h-full"}>
+            <div className={"flex items-center justify-center h-full w-full"}>
+                <Spinner />
+            </div>
+        </div>
     )
 }
 

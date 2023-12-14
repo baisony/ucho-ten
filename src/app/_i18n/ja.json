@@ -52,6 +52,7 @@
       "large": "大",
       "huge": "特大",
       "displayLanguage": "表示言語",
+      "contentFontSize": "フォントサイズ",
       "notifications": "通知",
       "translate": "翻訳",
       "translateTo": "翻訳先の言語",
@@ -107,6 +108,8 @@
     },
     "ViewPostCard": {
       "report": "報告",
+      "mute": "ミュート",
+      "unmute": "ミュート解除",
       "delete": "削除",
       "copyURL": "投稿のURLをコピー",
       "copyJSON": "投稿のJSONをコピー",

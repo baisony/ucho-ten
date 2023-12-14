@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
@@ -10,6 +10,8 @@ import {
     AppBskyEmbedImages,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
+    AppBskyFeedPost,
+    AtUri,
 } from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
@@ -22,10 +24,14 @@ import {
     faStar as faHeartRegular,
 } from "@fortawesome/free-regular-svg-icons"
 import {
+    faArrowUpFromBracket,
     faBookmark as faBookmarkSolid,
+    faFlag,
+    faLanguage,
     faReply,
     faRetweet,
     faStar as faHeartSolid,
+    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
@@ -35,7 +41,13 @@ import { Linkcard } from "@/app/_components/Linkcard"
 // import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { ReportModal } from "@/app/_components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
-import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
+import {
+    Button,
+    Modal,
+    ModalBody,
+    ModalContent,
+    useDisclosure,
+} from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
@@ -60,6 +72,7 @@ import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
+import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -141,12 +154,23 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         !!postView?.viewer?.repost
     )
     const [userPreference] = useUserPreferencesAtom()
+    const [translateTo] = useTranslationLanguage()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
     const [, setHandleButtonClick] = useState(false)
     const [bookmarks, setBookmarks] = useBookmarks()
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [contentFontSize] = useContentFontSize()
+    const [isTranslated, setIsTranslated] = useState<boolean>(false)
+    const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(false)
+    const [translateError, setTranslateError] = useState<boolean>(false)
+    const [translatedJsonData, setTranslatedJsonData] = useState<any>(null)
+    const [isMuted, setIsMuted] = useState<boolean>(!!postJson?.viewer?.muted)
+    const {
+        isOpen: isOpenOption,
+        onOpen: onOpenOption,
+        onOpenChange: onOpenChangeOption,
+    } = useDisclosure()
 
     const {
         isOpen: isOpenReply,
@@ -451,6 +475,28 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
     }
 
+    const handleMute = async () => {
+        if (loading) {
+            return
+        }
+
+        if (postView === null) {
+            return
+        }
+
+        setLoading(true)
+
+        if (isMuted) {
+            setIsMuted(!isMuted)
+            await agent?.unmute(postView.author.did)
+        } else {
+            setIsMuted(!isMuted)
+            await agent?.mute(postView.author.did)
+        }
+
+        setLoading(false)
+    }
+
     const handleImageClick = useCallback(
         (images: ViewImage[], index: number) => {
             if (images !== undefined) {
@@ -617,6 +663,107 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         handleValueChange(json)
     }
 
+    const translateContentText = async () => {
+        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
+            return
+        }
+
+        setIsTranslated(true)
+        setViewTranslatedText(true)
+        const res = await fetch(
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
+                translateTo[0] ? translateTo[0] : `auto`
+            }&dt=t&q=` +
+                encodeURIComponent(
+                    (postView?.record as AppBskyFeedPost.Record)?.text
+                )
+        )
+        if (res.status === 200) {
+            const json = await res.json()
+            if (json[0] !== undefined) {
+                const combinedText = json[0].reduce(
+                    (acc: string, item: any[]) => {
+                        if (item[0]) {
+                            return acc + item[0]
+                        }
+                        return acc
+                    },
+                    ""
+                )
+                console.log(combinedText)
+                console.log(postJson)
+                const translatedJson = JSON.parse(JSON.stringify(postJson))
+                if (translatedJson && translatedJson.record) {
+                    translatedJson.record["text"] = combinedText
+                }
+                console.log(translatedJson)
+                //setTranslatedText(combinedText)
+                setTranslatedJsonData(translatedJson)
+            }
+        } else {
+            setTranslateError(true)
+        }
+    }
+
+    const [isLongPressActive, setLongPressActive] = useState(false)
+    const timeoutId = useRef<number | null>(null)
+
+    const handleLongPress = () => {
+        console.log(props)
+        onOpenOption()
+    }
+
+    const handleMouseDown = useCallback(
+        (e: React.MouseEvent<HTMLDivElement>) => {
+            setLongPressActive(true)
+            const timer = setTimeout(() => {
+                handleLongPress()
+            }, 500)
+
+            document.addEventListener("mouseup", () => {
+                //setLongPressActive(false)
+                //setIsExpanded(false)
+                clearTimeout(timer)
+            })
+            document.addEventListener("mousemove", () => {
+                //setLongPressActive(false)
+                clearTimeout(timer)
+            })
+            document.addEventListener("contextmenu", () => {
+                //setLongPressActive(false)
+                clearTimeout(timer)
+            })
+        },
+        []
+    )
+
+    const handleTouchStart = useCallback(
+        (e: React.MouseEvent<HTMLDivElement>) => {
+            setLongPressActive(true)
+            const timer = setTimeout(() => {
+                handleLongPress()
+            }, 500)
+            document.addEventListener("touchend", () => {
+                //setLongPressActive(false)
+                //setIsExpanded(false)
+                clearTimeout(timer)
+            })
+            document.addEventListener("touchmove", () => {
+                //setLongPressActive(false)
+                clearTimeout(timer)
+            })
+            document.addEventListener("touchcancel", () => {
+                //setLongPressActive(false)
+                clearTimeout(timer)
+            })
+            document.addEventListener("contextmenu", () => {
+                //setLongPressActive(false)
+                clearTimeout(timer)
+            })
+        },
+        []
+    )
+
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
             {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
@@ -646,6 +793,113 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 post={postJson}
                 nextQueryParams={nextQueryParams}
             />
+            <Modal
+                isOpen={isOpenOption}
+                onOpenChange={onOpenChangeOption}
+                placement={"bottom"}
+                className={"z-[100] max-w-[600px] text-black dark:text-white"}
+                hideCloseButton
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalBody>
+                                <span>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={async () => {
+                                            if (!window.navigator.share) {
+                                                alert(
+                                                    "ご利用のブラウザでは共有できません。"
+                                                )
+                                                // TODO: do not use alert.
+                                                // TODO: i18n
+                                                return
+                                            }
+                                            try {
+                                                const url = new AtUri(
+                                                    postView?.uri || ""
+                                                )
+                                                const bskyURL = `https://bsky.app/profile/${
+                                                    url.host
+                                                }/${url.pathname.replace(
+                                                    "/app.bsky.feed.post/",
+                                                    "/post/"
+                                                )}`
+                                                console.log(url)
+                                                await window.navigator.share({
+                                                    url: bskyURL,
+                                                })
+                                            } catch (e) {}
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faArrowUpFromBracket}
+                                            className={"w-[40px]"}
+                                        />
+                                        {t("pages.postOnlyPage.share")}
+                                    </div>
+                                    <div
+                                        className={"mt-[15px] mb-[15px] w-full"}
+                                        onClick={async () => {
+                                            await translateContentText()
+                                            onClose()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faLanguage}
+                                            className={"w-[40px]"}
+                                        />
+                                        {t("pages.postOnlyPage.translate")}
+                                    </div>
+                                    <div
+                                        className={
+                                            "mt-[15px] mb-[15px] w-full text-red-600"
+                                        }
+                                        onClick={() => {
+                                            void handleMute()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faVolumeXmark}
+                                            className={"w-[40px]"}
+                                        />
+                                        {!isMuted ? (
+                                            <span>
+                                                {" "}
+                                                {t(
+                                                    "components.ViewPostCard.mute"
+                                                )}
+                                            </span>
+                                        ) : (
+                                            <span>
+                                                {" "}
+                                                {t(
+                                                    "components.ViewPostCard.unmute"
+                                                )}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div
+                                        className={
+                                            "mt-[15px] mb-[15px] w-full text-red-600"
+                                        }
+                                        onClick={() => {
+                                            onOpenReport()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faFlag}
+                                            className={"w-[40px]"}
+                                        />
+                                        {t("components.ViewPostCard.report")}
+                                    </div>
+                                </span>
+                            </ModalBody>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
             <main
                 className={`${
                     quoteJson
@@ -658,12 +912,28 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                     backgroundColor: isEmbedToModal ? "transparent" : "",
                 }}
                 onClick={(e) => {
+                    if (isLongPressActive) {
+                        setLongPressActive(false)
+                        return
+                    }
                     e.stopPropagation()
                     router.push(
                         `/profile/${postJsonData?.author.did}/post/${
                             postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
                         }?${nextQueryParams.toString()}`
                     )
+                }}
+                /*onMouseDown={(e) => {
+                    e.stopPropagation()
+                    // @ts-ignore
+                    handleMouseDown(e)
+                    //console.log(e)
+                }}*/
+                onTouchStart={(e) => {
+                    e.stopPropagation()
+                    // @ts-ignore
+                    handleTouchStart(e)
+                    //console.log(e)
                 }}
             >
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
@@ -764,6 +1034,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         agent?.session?.did !==
                                         postJsonData?.author.did
                                     }
+                                    onClickTranslate={translateContentText}
                                     onClickCopyURL={handleMenuClickCopyURL}
                                     onClickCopyJSON={handleMenuClickCopyJSON}
                                     onClickReport={handleMenuClickReport}
@@ -818,7 +1089,48 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         : 15
                                 }] ${isEmbedToPost && `text-[13px]`}`}
                             >
-                                {bodyText}
+                                {!viewTranslatedText && bodyText}
+                                {translatedJsonData !== null &&
+                                    viewTranslatedText && (
+                                        <>
+                                            <div>
+                                                {processPostBodyText(
+                                                    nextQueryParams,
+                                                    null,
+                                                    translatedJsonData
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                {/*@ts-ignore*/}
+                                {viewTranslatedText && (
+                                    <>
+                                        <Button
+                                            size={"sm"}
+                                            variant={"flat"}
+                                            radius={"full"}
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                if (!isTranslated) {
+                                                    await translateContentText()
+                                                }
+                                                if (viewTranslatedText) {
+                                                    setViewTranslatedText(false)
+                                                } else {
+                                                    setViewTranslatedText(true)
+                                                }
+                                            }}
+                                        >
+                                            {!translateError
+                                                ? !viewTranslatedText
+                                                    ? "translate"
+                                                    : t(
+                                                          "pages.postOnlyPage.viewOriginal"
+                                                      )
+                                                : "Translate error"}
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         )}
                         {embedImages && !contentWarning && (
