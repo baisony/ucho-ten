@@ -706,6 +706,7 @@ const UserProfileComponent = ({
                             variant="faded"
                             key={i + "_" + j}
                             startContent={<FontAwesomeIcon icon={faLink} />}
+                            className={"overflow-hidden w-full"}
                         >
                             {url.startsWith("bsky.app") ? (
                                 <Link
