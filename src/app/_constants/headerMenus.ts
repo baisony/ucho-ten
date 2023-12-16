@@ -1,5 +1,12 @@
 import { HeaderMenu } from "@/app/_atoms/headerMenu"
 
+const defaultLoginPageMenus: HeaderMenu[] = [
+    {
+        displayText: "Login",
+        info: "login",
+    },
+]
+
 const defaultHomeMenus: HeaderMenu[] = [
     {
         displayText: "Following",
@@ -138,6 +145,7 @@ const defaultNotFoundMenus: HeaderMenu[] = [
 ]
 
 export type HeaderMenuType =
+    | "login"
     | "home"
     | "searchTop"
     | "search"
@@ -156,6 +164,7 @@ export type HeaderMenuType =
 type HeaderMenus = { [k in HeaderMenuType]: HeaderMenu[] }
 
 export const HEADER_MENUS: HeaderMenus = {
+    login: defaultLoginPageMenus,
     home: defaultHomeMenus,
     searchTop: defaultSearchTopMenus,
     search: defaultSearchMenus,

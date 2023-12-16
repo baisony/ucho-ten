@@ -76,7 +76,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
-    const specificPaths = ["/post", "/login", "/"]
+    const specificPaths = ["/post", "/"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
@@ -569,8 +569,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         element.setAttribute("content", themeColor)
     }, [appearanceColor, agent])
 
-    console.log(window.navigator.languages)
-
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
@@ -647,7 +645,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                         )}
                                     {children}
                                 </div>
-                                {showTabBar && <TabBar />}
+                                {showTabBar && !isLoginPath && <TabBar />}
                             </div>
                             {imageSlides && imageSlideIndex !== null && (
                                 <div
