@@ -3,6 +3,7 @@
 import "../../_i18n/config" //i18
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import React, {
+    useCallback,
     useEffect,
     useLayoutEffect,
     useMemo,
@@ -515,7 +516,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }*/
 
-    const checkNewNotification = async () => {
+    const checkNewNotification = useCallback(async () => {
         if (!agent) {
             return
         }
@@ -525,20 +526,18 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             const { count } = data
             const reason = ["mention", "reply"]
             let notify_num = 0
-            for (let i = 0; i < data.count; i++) {
+            for (let i = 0; i < count; i++) {
                 const notificationReason =
                     notifications.data.notifications[i].reason
                 if (reason.some((item) => notificationReason.includes(item))) {
                     notify_num++
                 }
             }
-            if (notify_num !== unreadNotification && unreadNotification === 0) {
-                setUnreadNotification(count)
-            }
+            setUnreadNotification(notify_num)
         } catch (e) {
             console.log(e)
         }
-    }
+    }, [agent, setUnreadNotification])
 
     useEffect(() => {
         void checkNewNotification()
