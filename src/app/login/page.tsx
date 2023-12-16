@@ -17,10 +17,13 @@ import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
 import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
     //        useUserProfileDetailedAtom()
+    const [, setCurrentMenuType] = useCurrentMenuType()
+    setCurrentMenuType("login")
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
     const [loading, setLoading] = useState(false)

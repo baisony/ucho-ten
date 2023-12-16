@@ -141,7 +141,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
     useEffect(() => {
         console.log(searchInfo)
-
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -202,12 +201,14 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         />
                     }
                     onClick={() => {
-                        //setIsSideBarOpen(!isSideBarOpen)
-                        //console.log(setValue)
                         if (isRoot) {
                             setSideBarOpen(true)
                         } else {
-                            router.back()
+                            if (pathname === "/login") {
+                                router.push("/")
+                            } else {
+                                router.back()
+                            }
                         }
                     }}
                 />
