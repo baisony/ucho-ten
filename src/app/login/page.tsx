@@ -18,6 +18,7 @@ import { isMobile } from "react-device-detect"
 import "./shakeButton.css"
 import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
@@ -26,6 +27,7 @@ export default function CreateLoginPage() {
     setCurrentMenuType("login")
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
+    const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
     const [loading, setLoading] = useState(false)
     const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
@@ -146,6 +148,7 @@ export default function CreateLoginPage() {
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
                     console.log(await agent.resumeSession(session))
+                    setIsSessionExpired(false)
 
                     if (toRedirect) {
                         const url = `/${toRedirect}${
