@@ -9,6 +9,7 @@ import { isMobile } from "react-device-detect"
 //import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
 import Link from "next/link"
+import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 export default function CreateLoginPage() {
     //const [userProfileDetailed, setUserProfileDetailed] =
@@ -25,7 +26,8 @@ export default function CreateLoginPage() {
     const [passwordIsByAutocomplete] = useState<boolean>(false)
     const [, setIsUserInfoIncorrect] = useState<boolean>(false)
     const [, setIsServerError] = useState<boolean>(false)
-    const [isSetAccount, setIsAccount] = useState<boolean | null>(null)
+    const [isSetAccount, setIsSetAccount] = useState<boolean | null>(null)
+    const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
 
     const agent = new BskyAgent({ service: `https://${server}` })
 
@@ -123,6 +125,7 @@ export default function CreateLoginPage() {
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
                     console.log(await agent.resumeSession(session))
+                    setIsSessionExpired(false)
 
                     if (toRedirect) {
                         const url = `/${toRedirect}${
@@ -139,11 +142,16 @@ export default function CreateLoginPage() {
                         router.push("/home")
                     }
                 } else {
-                    setIsAccount(false)
+                    setIsSetAccount(false)
                 }
             } catch (e) {
-                console.log(e)
-                router.push("/login")
+                if (isSessionExpired) {
+                    setIsSetAccount(false)
+                } else {
+                    setIsSessionExpired(true)
+                    console.log(e)
+                    router.push("/login")
+                }
             }
         }
         void resumesession()

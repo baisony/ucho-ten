@@ -31,6 +31,7 @@ import { useAtom } from "jotai"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
 import Link from "next/link"
+import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 interface Props {
     className?: string
@@ -77,6 +78,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const [isComposing, setComposing] = useState(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
     const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
+    const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
 
     const swiperRef = useRef<SwiperCore | null>(null)
     const prevMenuType = useRef<HeaderMenuType>("home")
