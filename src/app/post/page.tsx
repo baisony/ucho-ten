@@ -60,6 +60,7 @@ import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { LANGUAGES } from "../_constants/lanuages"
 import LanguagesSelectionModal from "../_components/LanguageSelectionModal"
+import { useQueryClient } from "@tanstack/react-query"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -73,6 +74,7 @@ export default function Root() {
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const postParam = searchParams.get("text")
+    const queryClient = useQueryClient()
 
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [agent] = useAgent()
@@ -268,13 +270,15 @@ export default function Root() {
                     } as AppBskyEmbedImages.Main
                 }
             }
-
             await agent.post(postObj)
 
             console.log("hoge")
 
             setLoading(false)
-
+            //queryClient.clear() 動く
+            await queryClient.refetchQueries({
+                queryKey: ["getFeed", "following"],
+            })
             router.push(`/home?${nextQueryParams.toString()}`)
         } catch (e) {
             console.log(e)

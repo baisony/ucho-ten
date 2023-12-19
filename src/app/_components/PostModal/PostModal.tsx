@@ -63,6 +63,7 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LANGUAGES } from "@/app/_constants/lanuages"
 import LanguagesSelectionModal from "../LanguageSelectionModal"
+import { useQueryClient } from "@tanstack/react-query"
 
 //export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -167,6 +168,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const [editALTIndex, setEditALTIndex] = useState(0)
     const [altText, setAltText] = useState("")
+    const queryClient = useQueryClient()
+    const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
     //const [selectedColor, setSelectedColor] = useState("default")
 
@@ -311,6 +314,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             console.log(postObj)
             await agent.post(postObj)
             props.onClose(true)
+            await queryClient.refetchQueries({
+                queryKey: ["getFeed", "following"],
+            })
             console.log("hoge")
         } catch (e) {
             console.log(e)
