@@ -11,7 +11,11 @@ import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import { QueryFunctionContext, useQuery } from "@tanstack/react-query"
+import {
+    QueryFunctionContext,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
@@ -190,10 +194,27 @@ const FeedPage = ({
         }
     }, [agent, isActive])
 
-    const handleRefresh = () => {
+    const queryClient = useQueryClient()
+
+    const handleRefresh = async () => {
         shouldScrollToTop.current = true
 
         const mergedTimeline = mergePosts(newTimeline, timeline)
+        await queryClient.refetchQueries({
+            queryKey: ["getFeed", feedKey],
+        })
+        queryClient.setQueryData(
+            getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
+            (prevData: FeedResponseObject | undefined) => {
+                if (prevData) {
+                    return {
+                        ...prevData,
+                        posts: mergedTimeline,
+                    }
+                }
+                return prevData
+            }
+        )
 
         setTimeline(mergedTimeline)
         setNewTimeline([])
@@ -266,6 +287,7 @@ const FeedPage = ({
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_key, feedKey] = queryKey
+        console.log(queryKey)
 
         if (feedKey === "following") {
             const response = await agent.getTimeline({
@@ -295,6 +317,7 @@ const FeedPage = ({
         queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
         queryFn: getTimelineFetcher,
         select: (fishes) => {
+            console.log(fishes)
             return fishes
         },
         notifyOnChangeProps: ["data"],
