@@ -200,21 +200,6 @@ const FeedPage = ({
         shouldScrollToTop.current = true
 
         const mergedTimeline = mergePosts(newTimeline, timeline)
-        await queryClient.refetchQueries({
-            queryKey: ["getFeed", feedKey],
-        })
-        queryClient.setQueryData(
-            getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
-            (prevData: FeedResponseObject | undefined) => {
-                if (prevData) {
-                    return {
-                        ...prevData,
-                        posts: mergedTimeline,
-                    }
-                }
-                return prevData
-            }
-        )
 
         setTimeline(mergedTimeline)
         setNewTimeline([])
@@ -223,6 +208,10 @@ const FeedPage = ({
         if (mergedTimeline.length > 0) {
             latestCID.current = mergedTimeline[0].post.cid
         }
+
+        await queryClient.refetchQueries({
+            queryKey: ["getFeed", feedKey],
+        })
 
         shouldCheckUpdate.current = true
     }
