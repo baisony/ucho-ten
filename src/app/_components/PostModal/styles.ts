@@ -21,7 +21,7 @@ export const postModal = tv({
         contentLeftAuthorIcon:
             "w-[28px] h-[28px] bg-black rounded-[10px] overflow-hidden cursor-pointer z-[1]",
         contentLeftAuthorIconImage: "w-full h-full drag-none",
-        contentRight: "w-[calc(100%)] relative h-[calc(100%-10px)] ",
+        contentRight: "w-full relative h-[calc(100%-10px)] ",
         contentRightTextArea:
             "w-[calc(100%)] placeholder-[#808080] bg-transparent resize-none outline-none overflow-visible",
         contentRightImagesContainer:

@@ -31,8 +31,9 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
             ? `${uri.replace(/\/$/, "")}${thumb}`
             : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
         : null
+    console.log(skeleton)
     return (
-        <>
+        <div className={"w-full"}>
             <a
                 href={ogpData?.uri}
                 target="_blank"
@@ -41,39 +42,41 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 className={"w-full"}
             >
                 <div className={LinkCard()}>
-                    {generatedURL && (
-                        <div className={LinkCardThumbnailContainer()}>
-                            {!skeleton ? (
-                                <img
-                                    src={generatedURL}
-                                    className={LinkCardThumbnail()}
-                                    alt={ogpData?.alt}
-                                />
-                            ) : (
+                    <div className={LinkCardThumbnailContainer()}>
+                        {!skeleton ? (
+                            <img
+                                src={generatedURL || ""}
+                                className={LinkCardThumbnail()}
+                                alt={ogpData?.alt}
+                            />
+                        ) : (
+                            <>
                                 <div
-                                    style={{
-                                        position: "relative",
-                                        textAlign: "center",
-                                        top: "50%",
-                                        left: "50%",
-                                        transform:
-                                            "translateY(-50%) translateX(-50%)",
-                                        WebkitTransform:
-                                            "translateY(-50%) translateX(-50%)",
-                                    }}
+                                    className={
+                                        "w-full h-full items-center justify-center flex"
+                                    }
                                 >
                                     <Spinner size="md" />
                                 </div>
-                            )}
-                        </div>
-                    )}
+                            </>
+                        )}
+                    </div>
                     <div
                         className={`${LinkCardContent()} ${
-                            thumb ? "w-[calc(100%-6rem)]" : "w-full"
+                            thumb
+                                ? "md:w-[calc(100%-100px)] md:w-[calc(100%-80px)]"
+                                : "w-full"
                         }`}
                     >
-                        <div className="w-full min-w-0">
-                            <div className={LinkCardTitle()}>
+                        <div className="w-full">
+                            <div
+                                className={LinkCardTitle()}
+                                style={{
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                }}
+                            >
                                 {ogpData && (ogpData?.title || "No Title")}
                             </div>
                             <div
@@ -101,7 +104,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                     </div>
                 </div>
             </a>
-        </>
+        </div>
     )
 }
 
