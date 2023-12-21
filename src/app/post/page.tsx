@@ -274,7 +274,6 @@ export default function Root() {
 
             console.log("hoge")
 
-            setLoading(false)
             //queryClient.clear() 動く
             await queryClient.refetchQueries({
                 queryKey: ["getFeed", "following"],
@@ -450,14 +449,15 @@ export default function Root() {
         console.log(url)
         setIsOGPGetProcessing(true)
         try {
-            const response = await fetch(
-                `https://ucho-ten-ogp-api.vercel.app/api/ogp?url=` + url
+            const res = await fetch(
+                `/api/getOGPData/${encodeURIComponent(url)}`,
+                {
+                    method: "GET",
+                }
             )
-            if (!response.ok) {
-                throw new Error("HTTP status " + response.status)
-            }
-            const res = await response.json()
-            const thumb = res["image:secure_url"] || res?.image
+            const ogp = await res.json()
+            console.log(ogp)
+            const thumb = ogp["image:secure_url"] || ogp?.ogImage[0].url
             const uri = url
             const generatedURL = thumb?.startsWith("http")
                 ? thumb
@@ -465,11 +465,11 @@ export default function Root() {
                 ? `${uri.replace(/\/$/, "")}${thumb}`
                 : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
             const json = {
-                title: res?.title,
-                description: res?.description,
+                title: ogp?.ogTitle,
+                description: ogp?.ogDescription,
                 thumb: generatedURL,
                 uri: url,
-                alt: "",
+                alt: ogp?.ogDescription || "",
             }
             setGetOGPData(json)
             const image = await fetch(

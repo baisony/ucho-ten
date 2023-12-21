@@ -8,6 +8,7 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { data: string } }
 ) {
+    console.log(params)
     //@ts-ignore
     const data = JSON.parse(params.did)
     const agent = new BskyAgent({ service: `https://${data.server}` })
