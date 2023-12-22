@@ -664,6 +664,7 @@ export default function Root() {
                                 bodyText: undefined,
                                 nextQueryParams,
                                 t,
+                                isSearchScreen: true,
                             }}
                         />
                     )}
@@ -733,6 +734,7 @@ export default function Root() {
                                 isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
+                                isSearchScreen: true,
                             }}
                         />
                     )}
@@ -769,6 +771,7 @@ export default function Root() {
                                             }?${nextQueryParams.toString()}`
                                         )
                                     },
+                                    isSearchScreen: true,
                                 }}
                             />
                         )}
@@ -797,6 +800,7 @@ export default function Root() {
                                 isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
+                                isSearchScreen: true,
                             }}
                         />
                     )}
@@ -831,6 +835,7 @@ export default function Root() {
                                     now,
                                     nextQueryParams,
                                     t,
+                                    isSearchScreen: true,
                                 }}
                             />
                         )}
@@ -855,19 +860,21 @@ interface UserCellProps {
     onClick?: () => void
     skeleton?: boolean
     //index?: number
+    isSearchScreen?: boolean
 }
 
 const UserCell = ({
     isTop,
     actor,
     onClick,
-    skeleton, //index,
+    skeleton,
+    isSearchScreen,
 }: UserCellProps) => {
     const { userCard } = layout()
 
     return (
         <>
-            {isTop && <DummyHeader />}
+            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
             <div
                 onClick={onClick}
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
