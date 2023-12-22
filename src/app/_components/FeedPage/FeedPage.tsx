@@ -321,6 +321,9 @@ const FeedPage = ({
             feedKey !== "" &&
             isActive /*shouldLoad */ &&
             loadMoreFeed,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
     })
 
     const handleValueChange = (newValue: any) => {
