@@ -13,8 +13,9 @@ import "./globals.css"
 // })
 
 export const metadata: Metadata = {
-    title: "タイトル",
-    description: "説明...",
+    title: "Ucho-ten Bluesky Client",
+    description:
+        "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
     viewport:
         "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
 }
