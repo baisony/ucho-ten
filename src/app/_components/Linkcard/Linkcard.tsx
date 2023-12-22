@@ -31,7 +31,6 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
             ? `${uri.replace(/\/$/, "")}${thumb}`
             : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
         : null
-    console.log(skeleton)
     return (
         <div className={"w-full"}>
             <a
@@ -42,25 +41,27 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 className={"w-full"}
             >
                 <div className={LinkCard()}>
-                    <div className={LinkCardThumbnailContainer()}>
-                        {!skeleton ? (
-                            <img
-                                src={generatedURL || ""}
-                                className={LinkCardThumbnail()}
-                                alt={ogpData?.alt}
-                            />
-                        ) : (
-                            <>
-                                <div
-                                    className={
-                                        "w-full h-full items-center justify-center flex"
-                                    }
-                                >
-                                    <Spinner size="md" />
-                                </div>
-                            </>
-                        )}
-                    </div>
+                    {thumb && (
+                        <div className={LinkCardThumbnailContainer()}>
+                            {!skeleton ? (
+                                <img
+                                    src={generatedURL || ""}
+                                    className={LinkCardThumbnail()}
+                                    alt={ogpData?.alt}
+                                />
+                            ) : (
+                                <>
+                                    <div
+                                        className={
+                                            "w-full h-full items-center justify-center flex"
+                                        }
+                                    >
+                                        <Spinner size="md" />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
                     <div
                         className={`${LinkCardContent()} ${
                             thumb
