@@ -169,6 +169,7 @@ const Root = () => {
                                         isViaUFeed: true,
                                         isNextActive: index === menuIndex + 1,
                                         feedKey: menu.info,
+                                        pageName: "utab",
                                         // color,
                                         disableSlideVerticalScroll,
                                         now,

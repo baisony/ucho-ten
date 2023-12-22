@@ -22,6 +22,7 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
+import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
@@ -31,6 +32,7 @@ export interface FeedPageProps {
     isNextActive: boolean
     isViaUFeed?: boolean
     feedKey: string
+    pageName: string
     disableSlideVerticalScroll: boolean
     now?: Date
 }
@@ -45,6 +47,7 @@ const FeedPage = ({
     now,
     isViaUFeed,
     isActive, // disableSlideVerticalScroll, isNextActive
+    pageName,
 }: FeedPageProps) => {
     const { t } = useTranslation()
     const [agent] = useAgent()
@@ -64,6 +67,9 @@ const FeedPage = ({
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
+
+    const virtuosoRef = useRef(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -315,12 +321,12 @@ const FeedPage = ({
             feedKey !== "" &&
             isActive /*shouldLoad */ &&
             loadMoreFeed,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
     })
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
-        // console.log(newValue)
-        // console.log(timeline)
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.post.uri === newValue.postUri
@@ -405,6 +411,25 @@ const FeedPage = ({
         }
     }
 
+    const handleSaveScrollPosition = () => {
+        console.log("save")
+        if (!isActive) return
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`${pageName}-${feedKey}`] = state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
@@ -461,6 +486,9 @@ const FeedPage = ({
                             // setListScrollRefAtom(ref)
                         }
                     }}
+                    ref={virtuosoRef}
+                    //@ts-ignore
+                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
                     context={{ hasMore }}
                     increaseViewportBy={200}
                     overscan={200}
@@ -484,6 +512,8 @@ const FeedPage = ({
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
+                                handleSaveScrollPosition:
+                                    handleSaveScrollPosition,
                                 isViaUFeed: isViaUFeed,
                             }}
                         />
