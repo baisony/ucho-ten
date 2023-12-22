@@ -27,6 +27,7 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Input,
+    menu,
     Modal,
     ModalBody,
     ModalContent,
@@ -48,6 +49,7 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import {
     menuIndexAtom,
     useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
@@ -61,11 +63,12 @@ import { Pagination } from "swiper/modules"
 
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next"
 import { notFound } from "next/navigation"
+import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("profile")
-
+    const [menus] = useHeaderMenusByHeaderAtom()
     const [agent] = useAgent()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
@@ -83,6 +86,7 @@ const Page = () => {
             swiperRef.current &&
             menuIndex !== swiperRef.current.activeIndex
         ) {
+            console.log(menuIndex)
             swiperRef.current.slideTo(menuIndex)
         }
     }, [currentMenuType, menuIndex, swiperRef.current])
@@ -117,6 +121,7 @@ const Page = () => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
+                initialSlide={menuIndex}
                 cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 modules={[Pagination]}
@@ -136,15 +141,14 @@ const Page = () => {
                     setMenuIndexChangedByMenu(false)
                 }}
             >
-                <SwiperSlide>
-                    <PostPage tab={"posts"} />
-                </SwiperSlide>
-                <SwiperSlide>
-                    <PostPage tab={"replies"} />
-                </SwiperSlide>
-                <SwiperSlide>
-                    <PostPage tab={"media"} />
-                </SwiperSlide>
+                {menus.profile.map((menu, index) => {
+                    return (
+                        <SwiperSlide>
+                            {/* @ts-ignore */}
+                            <PostPage tab={menu.info} />
+                        </SwiperSlide>
+                    )
+                })}
             </Swiper>
         </>
     ) : (
@@ -176,6 +180,9 @@ const PostPage = (props: PostPageProps) => {
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
+
+    const virtuosoRef = useRef(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -435,6 +442,25 @@ const PostPage = (props: PostPageProps) => {
         }
     }
 
+    const handleSaveScrollPosition = () => {
+        console.log("save")
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`profile-${username}-${props.tab}`]?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`profile-${username}-${props.tab}`] =
+                    state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     const dataWithDummy = useMemo((): UserProfilePageCellProps[] => {
         let data: UserProfilePageCellProps[] = []
 
@@ -479,7 +505,7 @@ const PostPage = (props: PostPageProps) => {
                         now,
                         nextQueryParams,
                         t,
-                        handleValueChange: handleValueChange,
+                        handleSaveScrollPosition: handleSaveScrollPosition,
                     }
 
                     return {
@@ -501,6 +527,7 @@ const PostPage = (props: PostPageProps) => {
                     now,
                     nextQueryParams,
                     t,
+                    handleSaveScrollPosition: handleSaveScrollPosition,
                 }
 
                 return {
@@ -528,6 +555,11 @@ const PostPage = (props: PostPageProps) => {
                 }
             }}
             context={{ hasMore }}
+            ref={virtuosoRef}
+            restoreStateFrom={
+                //@ts-ignore
+                scrollPositions[`profile-${username}-${props.tab}`]
+            }
             overscan={200}
             increaseViewportBy={200}
             data={dataWithDummy}
