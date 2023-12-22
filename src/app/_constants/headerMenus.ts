@@ -61,7 +61,7 @@ const defaultInboxMenus: HeaderMenu[] = [
 const defaultProfileMenus: HeaderMenu[] = [
     {
         displayText: "Posts",
-        info: "profile",
+        info: "posts",
     },
     {
         displayText: "Replies",
