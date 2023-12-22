@@ -41,67 +41,72 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                 className={"w-full"}
             >
                 <div className={LinkCard()}>
-                    {thumb && (
-                        <div className={LinkCardThumbnailContainer()}>
-                            {!skeleton ? (
-                                <img
-                                    src={generatedURL || ""}
-                                    className={LinkCardThumbnail()}
-                                    alt={ogpData?.alt}
-                                />
-                            ) : (
-                                <>
-                                    <div
-                                        className={
-                                            "w-full h-full items-center justify-center flex"
-                                        }
-                                    >
-                                        <Spinner size="md" />
-                                    </div>
-                                </>
+                    {skeleton ? (
+                        <>
+                            <div
+                                className={
+                                    "w-full h-full items-center justify-center flex"
+                                }
+                            >
+                                <Spinner size="md" />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {thumb && (
+                                <div className={LinkCardThumbnailContainer()}>
+                                    <img
+                                        src={generatedURL || ""}
+                                        className={LinkCardThumbnail()}
+                                        alt={ogpData?.alt}
+                                    />
+                                </div>
                             )}
-                        </div>
-                    )}
-                    <div
-                        className={`${LinkCardContent()} ${
-                            thumb
-                                ? "md:w-[calc(100%-100px)] w-[calc(100%-80px)]"
-                                : "w-full"
-                        }`}
-                    >
-                        <div className="w-full">
+
                             <div
-                                className={LinkCardTitle()}
-                                style={{
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                }}
+                                className={`${LinkCardContent()} ${
+                                    thumb
+                                        ? "md:w-[calc(100%-100px)] w-[calc(100%-80px)]"
+                                        : "w-full"
+                                }`}
                             >
-                                {ogpData && (ogpData?.title || "No Title")}
-                            </div>
-                            <div
-                                className={LinkCardDescription()}
-                                style={{
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: "vertical",
-                                    display: "-webkit-box",
-                                    overflow: "hidden",
-                                }}
-                            >
-                                {ogpData && (ogpData?.description || "")}
-                            </div>
-                            <div className={LinkCardSiteName()}>
-                                <div className="text-gray-400">
-                                    {
-                                        ogpData?.uri.match(
-                                            /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
-                                        )[1]
-                                    }
+                                <div className="w-full">
+                                    <div
+                                        className={LinkCardTitle()}
+                                        style={{
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                        }}
+                                    >
+                                        {ogpData &&
+                                            (ogpData?.title || "No Title")}
+                                    </div>
+                                    <div
+                                        className={LinkCardDescription()}
+                                        style={{
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: "vertical",
+                                            display: "-webkit-box",
+                                            overflow: "hidden",
+                                        }}
+                                    >
+                                        {ogpData &&
+                                            (ogpData?.description || "")}
+                                    </div>
+                                    <div className={LinkCardSiteName()}>
+                                        <div className="text-gray-400">
+                                            {
+                                                ogpData?.uri.match(
+                                                    /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
+                                                )[1]
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
             </a>
         </div>
