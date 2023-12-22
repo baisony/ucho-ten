@@ -114,6 +114,7 @@ export default function Root() {
     useEffect(() => {
         console.log(searchTarget, searchText)
         console.log(searchInfo.target, searchInfo.searchWord)
+        if (searchInfo.target === "" || searchInfo.searchWord === "") return
 
         if (
             searchInfo.target !== searchParams.get("target") ||
@@ -132,7 +133,7 @@ export default function Root() {
 
         setSearchTarget(target)
         setSearchText(word)
-    }, [searchParams])
+    }, [searchParams, searchInfo.target, searchInfo.searchWord])
 
     useEffect(() => {
         console.log("searchInfo", searchInfo)
