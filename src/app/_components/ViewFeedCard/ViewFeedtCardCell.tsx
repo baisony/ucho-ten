@@ -15,6 +15,7 @@ export interface ViewFeedCardCellProps {
     feed: GeneratorView
     nextQueryParams: URLSearchParams
     t: any
+    isSearchScreen?: boolean
 }
 
 export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
@@ -23,7 +24,7 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
     const feedURI = new AtUri(feed.uri)
     return (
         <>
-            {isTop && <DummyHeader />}
+            {isTop && <DummyHeader isSearchScreen={props.isSearchScreen} />}
 
             <Link
                 className={`${userCard()}`}
