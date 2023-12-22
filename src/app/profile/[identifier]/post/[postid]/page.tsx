@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { usePathname } from "next/navigation"
+import { notFound, usePathname } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -185,6 +185,7 @@ const PostPage = (props: PostPageProps) => {
     const [contentWarning, setContentWarning] = useState<boolean>(false)
     const [warningReason, setWarningReason] = useState<string>("")
     const [modalType, setModalType] = useState<"Reply" | "Quote" | null>(null)
+    const [notfoundPost, setNotfoundPost] = useState<boolean | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const {
         isOpen: isOpenReport,
@@ -254,13 +255,20 @@ const PostPage = (props: PostPageProps) => {
                 atUri = atUri.replace(toAtUri.hostname, did.data.did)
             }
             const { data } = await agent.getPostThread({ uri: atUri })
+            if (data.thread?.blocked) {
+                setNotfoundPost(true)
+                return
+            }
             // @ts-ignore - it's hard to handle unknown types
             setThread(data.thread)
             setIsLiked(!!(data.thread.post as PostView).viewer?.like)
             setIsReposted(!!(data.thread.post as PostView).viewer?.repost)
             setIsMuted(!!(data.thread.post as PostView).author.viewer?.muted)
-        } catch (e) {
-            console.log(e)
+        } catch (e: unknown) {
+            //@ts-ignore
+            if (e.message.startsWith("Post not found")) {
+                setNotfoundPost(true)
+            }
         }
     }
 
@@ -720,7 +728,7 @@ const PostPage = (props: PostPageProps) => {
         })
     }, [userPreference, postView])
 
-    return thread ? (
+    return thread && !notfoundPost ? (
         <>
             <Modal
                 isOpen={isOpen}
@@ -1225,6 +1233,8 @@ const PostPage = (props: PostPageProps) => {
                 </div>
             </main>
         </>
+    ) : notfoundPost ? (
+        notFound()
     ) : (
         <div className={"w-full h-full"}>
             <div className={"flex items-center justify-center h-full w-full"}>
