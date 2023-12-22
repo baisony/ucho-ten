@@ -203,6 +203,7 @@ const Root = () => {
                                     isActive: index === menuIndex,
                                     isNextActive: index === menuIndex + 1,
                                     feedKey: menu.info,
+                                    pageName: "home",
                                     // color,
                                     disableSlideVerticalScroll,
                                     now,
