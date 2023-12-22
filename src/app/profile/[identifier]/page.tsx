@@ -59,15 +59,23 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination } from "swiper/modules"
 
+import type { InferGetServerSidePropsType, GetServerSideProps } from "next"
+import { notFound } from "next/navigation"
+
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("profile")
 
+    const [agent] = useAgent()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
 
     const swiperRef = useRef<SwiperCore | null>(null)
+    const pathname = usePathname()
+    const username = pathname.replace("/profile/", "")
+
+    const [hidden, setHidden] = useState<boolean | null>(null)
 
     useEffect(() => {
         if (
@@ -79,7 +87,31 @@ const Page = () => {
         }
     }, [currentMenuType, menuIndex, swiperRef.current])
 
-    return (
+    const fetchProfile = async () => {
+        if (!agent) return
+        try {
+            const { data } = await agent.getProfile({ actor: username })
+            console.log(data)
+            const user = data.viewer
+            if (user?.muted || user?.blockedBy || user?.blocking) {
+                setHidden(true)
+            } else {
+                setHidden(false)
+            }
+            //setProfile(data)
+            //return data
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    useEffect(() => {
+        if (!agent) return
+        console.log(agent)
+        void fetchProfile()
+    }, [agent])
+
+    return hidden === false ? (
         <>
             <Swiper
                 onSwiper={(swiper) => {
@@ -115,6 +147,8 @@ const Page = () => {
                 </SwiperSlide>
             </Swiper>
         </>
+    ) : (
+        hidden && notFound()
     )
 }
 
@@ -280,7 +314,6 @@ const PostPage = (props: PostPageProps) => {
         if (!agent) return
         try {
             const { data } = await agent.getProfile({ actor: username })
-            console.log(data)
             setProfile(data)
         } catch (e) {
             console.error(e)
@@ -563,7 +596,7 @@ const UserProfileComponent = ({
     const [onHoverButton, setOnHoverButton] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isMuted, setIsMuted] = useState(!!profile?.viewer?.muted)
-    console.log(profile)
+    //console.log(profile)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
     const [description, setDescription] = useState(profile?.description)
