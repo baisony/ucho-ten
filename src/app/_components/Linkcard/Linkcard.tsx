@@ -64,7 +64,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                     <div
                         className={`${LinkCardContent()} ${
                             thumb
-                                ? "md:w-[calc(100%-100px)] md:w-[calc(100%-80px)]"
+                                ? "md:w-[calc(100%-100px)] w-[calc(100%-80px)]"
                                 : "w-full"
                         }`}
                     >
@@ -88,8 +88,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                     overflow: "hidden",
                                 }}
                             >
-                                {ogpData &&
-                                    (ogpData?.description || "No Description")}
+                                {ogpData && (ogpData?.description || "")}
                             </div>
                             <div className={LinkCardSiteName()}>
                                 <div className="text-gray-400">

@@ -20,7 +20,7 @@ export const createPostPage = tv({
         contentLeftAuthorIcon:
             "w-[30px] h-[30px] bg-black rounded-[10px] overflow-hidden cursor-pointer ",
         contentLeftAuthorIconImage: "w-full h-full drag-none",
-        contentRight: "w-full relative h-[calc(100%-10px)] ",
+        contentRight: "w-[calc(100%-54px)] relative h-[calc(100%-10px)] ",
         contentRightTextArea:
             "w-[calc(100%)] placeholder-[#808080] bg-transparent resize-none outline-none overflow-visible",
         contentRightImagesContainer:
