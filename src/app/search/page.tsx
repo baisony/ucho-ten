@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Image, Skeleton } from "@nextui-org/react"
+import { Image, menu, Skeleton } from "@nextui-org/react"
 import type {
     GeneratorView,
     PostView,
@@ -89,7 +89,7 @@ export default function Root() {
     }, [])
 
     useEffect(() => {
-        switch (searchParams.get("target")) {
+        switch (searchTarget) {
             case "posts":
                 setMenuIndex(0)
                 break
@@ -103,7 +103,7 @@ export default function Root() {
                 setMenuIndex(0)
                 break
         }
-    }, [searchParams])
+    }, [searchTarget])
 
     useEffect(() => {
         if (!searchParams) return
@@ -112,21 +112,18 @@ export default function Root() {
     }, [searchParams])
 
     useEffect(() => {
-        console.log(searchTarget, searchText)
-        console.log(searchInfo.target, searchInfo.searchWord)
-        if (searchInfo.target === "" || searchInfo.searchWord === "") return
+        //console.log(searchTarget, searchText)
+        //console.log(searchParams.get("target"), searchParams.get("word"))
+        //console.log(searchInfo.target, searchInfo.searchWord)
 
-        if (
-            searchInfo.target !== searchParams.get("target") ||
-            searchInfo.searchWord !== searchParams.get("word")
-        ) {
+        if (searchInfo.searchWord !== searchParams.get("word")) {
             setCurrentMenuType("searchTop")
             return
         }
 
         setCurrentMenuType("search")
-
-        const target = searchParams.get("target") || "posts"
+        console.log(searchTarget)
+        const target = searchTarget || "posts"
         const word = searchParams.get("word") || ""
 
         console.log(target, word)
@@ -136,9 +133,6 @@ export default function Root() {
     }, [searchParams, searchInfo.target, searchInfo.searchWord])
 
     useEffect(() => {
-        console.log("searchInfo", searchInfo)
-        console.log(searchParams.get("word"), searchParams.get("target"))
-
         const searchParamsWord = searchParams.get("word")
         const searchParamsTarget = searchParams.get("word")
 
@@ -150,8 +144,6 @@ export default function Root() {
         ) {
             return
         }
-
-        console.log("searchInfo", searchInfo)
 
         if (searchInfo.searchWord === "") {
             return
@@ -165,20 +157,6 @@ export default function Root() {
         setSearchText(searchInfo.searchWord)
 
         cursor.current = ""
-
-        // if (searchTarget === "posts") {
-        //     if (searchPostsResult === null && searchInfo.posts !== null) {
-        //         setSearchPostsResult(searchInfo.posts)
-
-        //         cursor.current = searchInfo.postCursor
-        //     }
-        // } else if (searchTarget === "users") {
-        //     if (searchUsersResult === null && searchInfo.users !== null) {
-        //         setSearchUsersResult(searchInfo.users)
-
-        //         cursor.current = searchInfo.userCursor
-        //     }
-        // }
 
         const queryParams = new URLSearchParams(nextQueryParams)
 
@@ -240,7 +218,6 @@ export default function Root() {
         if (searchText === "") {
             return
         }
-        console.log("")
 
         try {
             console.log("")
@@ -423,7 +400,7 @@ export default function Root() {
 
     const resetAll = () => {
         console.log("resetall")
-
+        setCurrentMenuType("searchTop")
         setSearchTarget("")
 
         numOfResult.current = 0
@@ -499,6 +476,8 @@ export default function Root() {
     }, [agent, searchText, searchTarget])
 
     useEffect(() => {
+        console.log(menuIndex)
+        console.log(searchParams.get("target"))
         if (currentMenuType !== "search") {
             return
         }
@@ -510,6 +489,8 @@ export default function Root() {
         const target = menus.search[menuIndex].info
 
         setSearchTarget(target)
+
+        console.log(target)
 
         setSearchInfo((prevSearchInfo) => {
             const newSearchInfo = prevSearchInfo

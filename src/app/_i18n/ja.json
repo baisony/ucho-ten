@@ -114,12 +114,11 @@
       "copyURL": "投稿のURLをコピー",
       "copyJSON": "投稿のJSONをコピー",
       "warning": "コンテンツ警告",
-      "show": "表示"
+      "show": "表示",
+      "Today": "今日",
+      "Yesterday": "昨日"
     },
     "LinkCard": {
-    },
-    "ViewHeader": {
-      "search": "検索"
     },
     "ViewSideMenu": {
       "home": "ホーム",
@@ -134,6 +133,31 @@
       "profile": "プロフィール",
       "switchAccount": "アカウント切り替え",
       "logout": "ログアウト"
+    },
+    "ViewHeader":{
+      "Login": "ログイン",
+      "Following": "フォロー中",
+      "search": "検索",
+      "Search": "検索",
+      "Bookmark": "ブックマーク",
+      "Inbox": "受信箱",
+      "My Feeds": "購読中のフィード",
+      "General": "一般",
+      "Content Filtering": "コンテンツ表示設定",
+      "Mute": "ミュート設定",
+      "Author's" : "関連性の高い投稿",
+      "Other's": "その他の投稿",
+      "Posts": "投稿",
+      "Users": "ユーザー",
+      "Feeds": "フィード",
+      "Replies": "返信",
+      "Media": "写真・画像",
+      "Lists": "リスト",
+      "NotFound": "ページが見つかりません",
+      "Random Bookmark": "ランダムなブックマーク",
+      "Random Post": "ランダムな投稿",
+      "Random User": "ランダムなユーザー",
+      "About": "Ucho-tenについて"
     }
   },
   "modal": {

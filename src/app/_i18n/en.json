@@ -114,12 +114,11 @@
       "copyURL": "Copy Post URL",
       "copyJSON": "Copy Post JSON",
       "warning": "Content Warning",
-      "show": "Show"
+      "show": "Show",
+      "Today": "Today",
+      "Yesterday": "Yesterday"
     },
     "LinkCard": {
-    },
-    "ViewHeader": {
-      "search": "Search"
     },
     "ViewSideMenu": {
       "home": "Home",
@@ -134,6 +133,31 @@
       "profile": "Profile",
       "switchAccount": "Switch Account",
       "logout": "Logout"
+    },
+    "ViewHeader":{
+      "Login": "Login",
+      "Following": "Following",
+      "search": "Search",
+      "Search": "Search",
+      "Bookmark": "Bookmark",
+      "Inbox": "Inbox",
+      "My Feeds": "My Feeds",
+      "General": "General",
+      "Content Filtering": "Content Filtering",
+      "Mute": "Mute",
+      "Author's" : "Author's",
+      "Other's": "Other's",
+      "Posts": "Posts",
+      "Users": "Users",
+      "Feeds": "Feeds",
+      "Replies": "Replies",
+      "Media": "Media",
+      "Lists": "Lists",
+      "NotFound": "Not Found",
+      "Random Bookmark": "Random Bookmark",
+      "Random Post": "Random Post",
+      "Random User": "Random User",
+      "About": "About"
     }
   },
   "modal": {

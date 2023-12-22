@@ -186,6 +186,17 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         return menus[currentMenuType]
     }, [menus, currentMenuType])
 
+    const tl = (word: string) => {
+        const translate = t(`components.ViewHeader.${word}`)
+        let res
+        if (translate === `components.ViewHeader.${word}`) {
+            res = word
+        } else {
+            res = translate
+        }
+        return res
+    }
+
     return (
         <main className={Header({ isMatchingPath })}>
             <div className={top({ isMatchingPath })}>
@@ -346,7 +357,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                     isMatchingPath ? `lg:h-[27px]` : `lg:h-full`
                                 } cursor-pointer`}
                             >
-                                {menu.displayText}
+                                {tl(menu.displayText)}
                             </div>
                         </SwiperSlide>
                     ))}

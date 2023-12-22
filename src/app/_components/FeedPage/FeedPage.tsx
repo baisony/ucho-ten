@@ -25,7 +25,7 @@ import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 const FEED_FETCH_LIMIT: number = 30
-const CHECK_FEED_UPDATE_INTERVAL: number = 5 * 1000
+const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
 export interface FeedPageProps {
     isActive: boolean
@@ -184,9 +184,8 @@ const FeedPage = ({
 
         if (!shouldCheckUpdate.current) {
             shouldCheckUpdate.current = true
-
+            void checkNewTimeline()
             console.log("useEffect set setTimeout", feedKey)
-
             const timeoutId = setInterval(() => {
                 console.log("useEffect setTimeout", feedKey)
 
