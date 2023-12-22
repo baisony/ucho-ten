@@ -32,8 +32,11 @@ import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
 import { useTranslation } from "react-i18next"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
+import { useHighlightedTab } from "@/app/_atoms/hightlightedTab"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+import { viewSideMenuStyle } from "@/app/_components/ViewSideMenu/styles"
 
 interface Props {
     className?: string
@@ -41,8 +44,10 @@ interface Props {
 
 export const ViewSideMenu: React.FC<Props> = () => {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const pathName = usePathname()
     const router = useRouter()
     const { t } = useTranslation()
+    const { menuItem } = viewSideMenuStyle()
     const signInModalDisclosure = useDisclosure({ id: "sign_in" })
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
     const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
@@ -50,6 +55,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
         null
     )
+    const [highlightedTab, sethighlightedTab] = useHighlightedTab()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
     const [unreadNotification] = useUnreadNotificationAtom()
 
@@ -70,9 +78,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     </Link>
                 </div>
                 <Link
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/home",
+                    })}
                     href={"/home"}
                 >
                     <div className={"mr-[10px]"}>
@@ -81,9 +89,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     {t("components.ViewSideMenu.home")}
                 </Link>
                 <Link
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/bookmarks",
+                    })}
                     href={"/bookmarks"}
                 >
                     <div className={"mr-[10px]"}>
@@ -92,9 +100,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     {t("components.ViewSideMenu.bookmark")}
                 </Link>
                 <Link
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/inbox",
+                    })}
                     href={"/inbox"}
                 >
                     <div className={"mr-[10px]"}>
@@ -110,9 +118,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     {t("components.ViewSideMenu.inbox")}
                 </Link>
                 <Link
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/feeds",
+                    })}
                     href={"/feeds"}
                 >
                     <div className={"mr-[10px]"}>
@@ -121,10 +129,20 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     {t("components.ViewSideMenu.feed")}
                 </Link>
                 <Link
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/search",
+                    })}
                     href={"/search"}
+                    onClick={() => {
+                        if (
+                            highlightedTab === "s" &&
+                            tappedTabbarButton === null
+                        ) {
+                            setTappedTabbarButton("search")
+                        } else {
+                            sethighlightedTab("s")
+                        }
+                    }}
                 >
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faMagnifyingGlass} />
@@ -132,9 +150,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     {t("components.ViewSideMenu.search")}
                 </Link>
                 <Link
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/post",
+                    })}
                     href={"/post"}
                 >
                     <div className={"mr-[10px]"}>
@@ -144,9 +162,9 @@ export const ViewSideMenu: React.FC<Props> = () => {
                 </Link>
                 <Link
                     href={"/settings"}
-                    className={
-                        "mb-[15px] cursor-pointer flex hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                    }
+                    className={menuItem({
+                        isLocationHere: pathName === "/settings",
+                    })}
                 >
                     <div className={"mr-[10px]"}>
                         <FontAwesomeIcon icon={faGear} />
@@ -155,11 +173,7 @@ export const ViewSideMenu: React.FC<Props> = () => {
                 </Link>
                 <Dropdown>
                     <DropdownTrigger>
-                        <div
-                            className={
-                                "w-full flex cursor-pointer hover:text-[#FFFFFF] dark:hover:text-[#FFFFFF]"
-                            }
-                        >
+                        <div className={menuItem()}>
                             <img
                                 src={userProfileDetailed?.avatar}
                                 className={
