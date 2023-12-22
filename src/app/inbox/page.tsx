@@ -16,6 +16,7 @@ import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
+import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -37,6 +38,9 @@ export default function Root() {
 
     const cursor = useRef<string>("")
     const loading = useRef<boolean>(false)
+
+    const virtuosoRef = useRef(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -308,6 +312,24 @@ export default function Root() {
         }
     }, [agent])
 
+    const handleSaveScrollPosition = () => {
+        console.log("save")
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`inbox`]?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`inbox`] = state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     return (
         <>
             {!notification && (
@@ -337,6 +359,9 @@ export default function Root() {
                         }
                     }}
                     context={{ hasMore }}
+                    ref={virtuosoRef}
+                    //@ts-ignore
+                    restoreStateFrom={scrollPositions[`inbox`]}
                     overscan={200}
                     increaseViewportBy={200}
                     data={notification}
@@ -358,6 +383,8 @@ export default function Root() {
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
+                                handleSaveScrollPosition:
+                                    handleSaveScrollPosition,
                             }}
                         />
                     )}
