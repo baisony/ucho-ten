@@ -77,7 +77,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [searchText, setSearchText] = useState<string>("")
     const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
     const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
-    const specificPaths = ["/post", "/"]
+    const specificPaths = ["/post", "/", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)

@@ -252,7 +252,7 @@ export default function Root() {
                                 : selectedURL,
                             description: getOGPData?.description
                                 ? getOGPData.description
-                                : "No Description.",
+                                : "",
                             thumb: {
                                 $type: "blob",
                                 ref: {

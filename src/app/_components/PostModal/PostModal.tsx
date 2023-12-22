@@ -273,7 +273,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 : selectedURL,
                             description: getOGPData?.description
                                 ? getOGPData.description
-                                : "No Description.",
+                                : "",
                             thumb: {
                                 $type: "blob",
                                 ref: {
