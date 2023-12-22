@@ -89,6 +89,7 @@ export interface ViewPostCardProps {
     nextQueryParams: URLSearchParams
     t: any
     handleValueChange?: (value: any) => void
+    handleSaveScrollPosition?: () => void
     isSearchScreen?: boolean
     isViaUFeed?: boolean
 }
@@ -108,6 +109,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         nextQueryParams,
         t,
         handleValueChange,
+        handleSaveScrollPosition,
         isSearchScreen,
         isViaUFeed,
     } = props
@@ -663,6 +665,12 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         handleValueChange(json)
     }
 
+    const handleChangeSaveScrollPosition = () => {
+        if (!handleSaveScrollPosition) return
+        console.log("hoge")
+        handleSaveScrollPosition()
+    }
+
     const translateContentText = async () => {
         if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
             return
@@ -908,6 +916,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 }}
                 onClick={(e) => {
                     e.stopPropagation()
+                    console.log("hogehoge")
+                    handleChangeSaveScrollPosition()
                     router.push(
                         `/profile/${postJsonData?.author.did}/post/${
                             postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
@@ -927,6 +937,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
+                                console.log("hogehoge")
                             }}
                             href={`/profile/${(
                                 json?.reason?.by as ProfileViewBasic

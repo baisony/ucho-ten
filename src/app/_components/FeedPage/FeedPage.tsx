@@ -70,7 +70,6 @@ const FeedPage = ({
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
-    const scrollPositionRef = useRef<any>(null)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -325,9 +324,6 @@ const FeedPage = ({
     })
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
-        // console.log(newValue)
-        // console.log(timeline)
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.post.uri === newValue.postUri
@@ -412,35 +408,30 @@ const FeedPage = ({
         }
     }
 
+    const handleSaveScrollPosition = () => {
+        console.log("save")
+        if (!isActive) return
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`${pageName}-${feedKey}`] = state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
-
-    useEffect(() => {
-        if (!isActive) return
-        if (virtuosoRef.current) {
-            //@ts-ignore
-            virtuosoRef?.current?.getState((state) => {
-                console.log(feedKey)
-                console.log(state)
-                console.log(timeline?.length)
-                if (state.scrollTop == 0) return
-                if (
-                    state.scrollTop !==
-                    //@ts-ignore
-                    scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-                ) {
-                    console.log(scrollPositions)
-                    const updatedScrollPositions = { ...scrollPositions }
-                    //@ts-ignore
-                    updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                    setScrollPositions(updatedScrollPositions)
-                }
-            })
-        }
-    }, [virtuosoRef.current, isActive])
 
     return (
         <>
@@ -518,6 +509,8 @@ const FeedPage = ({
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
+                                handleSaveScrollPosition:
+                                    handleSaveScrollPosition,
                                 isViaUFeed: isViaUFeed,
                             }}
                         />
