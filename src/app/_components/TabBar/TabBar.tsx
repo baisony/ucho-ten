@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -10,10 +10,11 @@ import {
 import { Badge } from "@nextui-org/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { isTabQueryParamValue, TabQueryParamValue } from "@/app/_types/types"
+import { isTabQueryParamValue } from "@/app/_types/types"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import Image from "next/image"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
+import { useHighlightedTab } from "@/app/_atoms/hightlightedTab"
 
 interface Props {
     className?: string
@@ -29,37 +30,35 @@ export const TabBar: React.FC<Props> = () => {
 
     const [unreadNotification] = useUnreadNotificationAtom()
     const { TabBar, Container, Icon } = tabBar()
-    const [hilightedTab, setHilightedTab] = useState<TabQueryParamValue | "">(
-        ""
-    )
+    const [highlightedTab, setHighLightedTab] = useHighlightedTab()
 
     useEffect(() => {
         switch (pathname) {
             case "/":
-                setHilightedTab("h")
+                setHighLightedTab("h")
                 return
             case "/search":
-                setHilightedTab("s")
+                setHighLightedTab("s")
                 return
             case "/u-tab":
-                setHilightedTab("u")
+                setHighLightedTab("u")
                 return
             case "/inbox":
-                setHilightedTab("i")
+                setHighLightedTab("i")
                 return
             case "/post":
-                setHilightedTab("p")
+                setHighLightedTab("p")
                 return
         }
 
         const tabQueryParam = nextQueryParams.get("f")
 
         if (isTabQueryParamValue(tabQueryParam)) {
-            setHilightedTab(tabQueryParam)
+            setHighLightedTab(tabQueryParam)
             return
         }
 
-        setHilightedTab("h")
+        setHighLightedTab("h")
     }, [pathname, nextQueryParams])
 
     return (
@@ -70,12 +69,12 @@ export const TabBar: React.FC<Props> = () => {
             }}
         >
             <div
-                className={Container({ selected: hilightedTab === "h" })}
+                className={Container({ selected: highlightedTab === "h" })}
                 onClick={() => {
-                    if (hilightedTab === "h" && tappedTabbarButton === null) {
+                    if (highlightedTab === "h" && tappedTabbarButton === null) {
                         setTappedTabbarButton("home")
                     } else {
-                        setHilightedTab("h")
+                        setHighLightedTab("h")
                         router.push("/home")
                     }
                 }}
@@ -84,17 +83,17 @@ export const TabBar: React.FC<Props> = () => {
                     icon={faHome}
                     className={Icon()}
                     style={{
-                        color: hilightedTab === "h" ? "#62A8DC" : undefined,
+                        color: highlightedTab === "h" ? "#62A8DC" : undefined,
                     }}
                 />
             </div>
             <div
-                className={Container({ selected: hilightedTab === "s" })}
+                className={Container({ selected: highlightedTab === "s" })}
                 onClick={() => {
-                    if (hilightedTab === "s" && tappedTabbarButton === null) {
+                    if (highlightedTab === "s" && tappedTabbarButton === null) {
                         setTappedTabbarButton("search")
                     } else {
-                        setHilightedTab("s")
+                        setHighLightedTab("s")
                         router.push("/search")
                     }
                 }}
@@ -103,17 +102,17 @@ export const TabBar: React.FC<Props> = () => {
                     icon={faSearch}
                     className={Icon()}
                     style={{
-                        color: hilightedTab === "s" ? "#62A8DC" : undefined,
+                        color: highlightedTab === "s" ? "#62A8DC" : undefined,
                     }}
                 />
             </div>
             <div
-                className={Container({ selected: hilightedTab === "u" })}
+                className={Container({ selected: highlightedTab === "u" })}
                 onClick={() => {
-                    if (hilightedTab === "u" && tappedTabbarButton === null) {
+                    if (highlightedTab === "u" && tappedTabbarButton === null) {
                         setTappedTabbarButton("utab")
                     } else {
-                        setHilightedTab("u")
+                        setHighLightedTab("u")
                         router.push("/u-tab")
                     }
                 }}
@@ -121,7 +120,7 @@ export const TabBar: React.FC<Props> = () => {
                 <div className={`w-[25px] h-[25px] hidden dark:inline-block`}>
                     <Image
                         src={
-                            hilightedTab !== "u"
+                            highlightedTab !== "u"
                                 ? "/images/logo/ucho-ten_logo_white.svg"
                                 : "/images/logo/ucho-ten_logo_blue-white.svg"
                         }
@@ -133,7 +132,7 @@ export const TabBar: React.FC<Props> = () => {
                 <div className={`w-[25px] h-[25px] dark:hidden`}>
                     <Image
                         src={
-                            hilightedTab !== "u"
+                            highlightedTab !== "u"
                                 ? "/images/logo/ucho-ten_logo_black.svg"
                                 : "/images/logo/ucho-ten_logo_orange-black.svg"
                         }
@@ -144,12 +143,12 @@ export const TabBar: React.FC<Props> = () => {
                 </div>
             </div>
             <div
-                className={Container({ selected: hilightedTab === "i" })}
+                className={Container({ selected: highlightedTab === "i" })}
                 onClick={() => {
-                    if (hilightedTab === "i" && tappedTabbarButton === null) {
+                    if (highlightedTab === "i" && tappedTabbarButton === null) {
                         setTappedTabbarButton("inbox")
                     } else {
-                        setHilightedTab("i")
+                        setHighLightedTab("i")
                         router.push("/inbox")
                     }
                     //setSelectedTab("inbox")
@@ -164,18 +163,19 @@ export const TabBar: React.FC<Props> = () => {
                     <FontAwesomeIcon
                         icon={faInbox}
                         className={Icon({
-                            selected: hilightedTab === "i",
+                            selected: highlightedTab === "i",
                         })}
                         style={{
-                            color: hilightedTab === "i" ? "#62A8DC" : undefined,
+                            color:
+                                highlightedTab === "i" ? "#62A8DC" : undefined,
                         }}
                     />
                 </Badge>
             </div>
             <div
-                className={Container({ selected: hilightedTab === "p" })}
+                className={Container({ selected: highlightedTab === "p" })}
                 onClick={() => {
-                    setHilightedTab("p")
+                    setHighLightedTab("p")
                     router.push("/post")
                     //setSelectedTab("post")
                     //props.setValue("post")
@@ -184,7 +184,7 @@ export const TabBar: React.FC<Props> = () => {
                 <FontAwesomeIcon
                     icon={faPenToSquare}
                     className={Icon({
-                        selected: hilightedTab === "p",
+                        selected: highlightedTab === "p",
                     })}
                 />
             </div>
