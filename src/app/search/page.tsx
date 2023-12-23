@@ -690,6 +690,7 @@ export default function Root() {
                         ref={virtuosoRef}
                         //@ts-ignore
                         restoreStateFrom={
+                            //@ts-ignore
                             scrollPositions[`search-posts-${searchText}`]
                         }
                         context={{ hasMore: hasMorePostsResult }}
@@ -767,6 +768,7 @@ export default function Root() {
                         ref={virtuosoRef}
                         //@ts-ignore
                         restoreStateFrom={
+                            //@ts-ignore
                             scrollPositions[`search-users-${searchText}`]
                         }
                         context={{ hasMore: hasMoreFeedsResult }}
@@ -839,6 +841,7 @@ export default function Root() {
                         ref={virtuosoRef}
                         //@ts-ignore
                         restoreStateFrom={
+                            //@ts-ignore
                             scrollPositions[`search-feeds-${searchText}`]
                         }
                         context={{ hasMore: hasMoreUsersResult }}
