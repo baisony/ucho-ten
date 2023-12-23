@@ -632,7 +632,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 >
                                     {shouldFillPageBackground &&
                                         statusCode !== 404 && (
-                                            <div className="absolute top-0 left-0 flex justify-center w-full h-full">
+                                            <div className="absolute top-0 left-0 flex justify-center w-full h-full lg:hidden">
                                                 <div
                                                     className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
                                                         isSearchScreen
