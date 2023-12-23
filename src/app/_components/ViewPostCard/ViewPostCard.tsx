@@ -1119,11 +1119,15 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         >
                                             {!translateError
                                                 ? !viewTranslatedText
-                                                    ? "translate"
+                                                    ? t(
+                                                          "pages.postOnlyPage.translate"
+                                                      )
                                                     : t(
                                                           "pages.postOnlyPage.viewOriginal"
                                                       )
-                                                : "Translate error"}
+                                                : t(
+                                                      "pages.postOnlyPage.translateErorr"
+                                                  )}
                                         </Button>
                                     </>
                                 )}

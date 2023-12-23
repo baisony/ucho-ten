@@ -23,6 +23,21 @@ export const filterDisplayPosts = (
         let displayPost: boolean | null = null
 
         if (
+            //@ts-ignore
+            (item.post.record as PostView)?.text?.startsWith("@") &&
+            (item.post.record as PostView)?.facets
+        ) {
+            //@ts-ignore
+            item.post.record.facets.map((facet: any) => {
+                console.log(facet)
+                if (facet.index.byteStart == 0) {
+                    displayPost = false
+                    return
+                }
+            })
+        }
+
+        if (
             item?.post?.record &&
             (item.post.record as PostView)?.reply &&
             !item.reply
