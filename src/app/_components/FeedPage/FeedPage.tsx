@@ -176,6 +176,51 @@ const FeedPage = ({
         }
     }
 
+    const initialLoad = async () => {
+        if (!agent) return
+        console.log("initial")
+        try {
+            let response: AppBskyFeedGetTimeline.Response
+
+            if (feedKey === "following") {
+                response = await agent.getTimeline({
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            } else {
+                response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            }
+
+            const { data } = response
+
+            if (data) {
+                const { feed } = data
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(feed, userProfileDetailed, agent)
+                        : feed
+
+                const muteWordFilter = filterPosts(filteredData)
+
+                setTimeline(muteWordFilter)
+
+                if (muteWordFilter.length > 0) {
+                    latestCID.current = muteWordFilter[0].post.cid
+                }
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    useEffect(() => {
+        console.log(latestCID.current)
+    }, [latestCID.current])
+
     useEffect(() => {
         if (!agent) return
         if (!isActive) {
@@ -184,7 +229,8 @@ const FeedPage = ({
 
         if (!shouldCheckUpdate.current) {
             shouldCheckUpdate.current = true
-            void checkNewTimeline()
+            void initialLoad()
+            //void checkNewTimeline()
             //console.log("useEffect set setTimeout", feedKey)
             const timeoutId = setInterval(() => {
                 console.log("fetch", feedKey)
@@ -246,12 +292,6 @@ const FeedPage = ({
                     return [...muteWordFilter]
                 }
             })
-
-            if (muteWordFilter.length > 0) {
-                latestCID.current = muteWordFilter[0].post.cid
-            } else {
-                latestCID.current = ""
-            }
         } else {
             setTimeline([])
             setHasMore(false)
