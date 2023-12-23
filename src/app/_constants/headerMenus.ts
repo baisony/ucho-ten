@@ -49,6 +49,10 @@ const defaultUTabMenus: HeaderMenu[] = [
         displayText: "Random Post",
         info: "at://did:plc:pwlfo4w6auzwihryxik32t6d/app.bsky.feed.generator/random",
     },
+    {
+        displayText: "Tutorial",
+        info: "at://did:plc:metxzqysekddoeuepe7inggd/app.bsky.feed.generator/aaajpbgtmzqya",
+    },
 ]
 
 const defaultInboxMenus: HeaderMenu[] = [

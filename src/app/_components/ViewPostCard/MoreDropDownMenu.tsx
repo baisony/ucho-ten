@@ -57,7 +57,7 @@ const MoreDropDownMenu = ({
                             onClickTranslate()
                         }}
                     >
-                        Translate
+                        {t("pages.postOnlyPage.translate")}
                     </DropdownItem>
                     <DropdownItem
                         key="1"
