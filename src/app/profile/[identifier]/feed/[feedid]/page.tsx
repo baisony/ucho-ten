@@ -52,23 +52,12 @@ export default function Root() {
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
-    // const [availavleNewTimeline, setAvailableNewTimeline] = useState(false)
-    // const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-    // const [post, setPost] = useState<any>(null)
-    // const [newCursor, setNewCursor] = useState<string | null>(null)
-    // const [hasCursor, setHasCursor] = useState<string | null>(null)
-    // const [isLiked, setIsLiked] = useState<boolean>(false)
-    // const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
-    // const [isPostMine, setIsPostMine] = useState<boolean>(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
-    // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [, setUserPreference] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
-    // const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -119,7 +108,6 @@ export default function Root() {
 
         try {
             const res = await agent.getPreferences()
-            console.log(res)
             setUserPreference(res)
 
             const { feeds } = res
@@ -132,7 +120,6 @@ export default function Root() {
             }
 
             if (saved) {
-                console.log(saved.includes(atUri))
                 setIsSubscribed(saved.includes(atUri))
             } else {
                 setIsSubscribed(false)
@@ -151,8 +138,6 @@ export default function Root() {
             const feedInfo = await agent.app.bsky.feed.getFeedGenerator({
                 feed: atUri,
             })
-
-            console.log(feedInfo)
 
             setFeedInfo(feedInfo.data)
 
@@ -267,7 +252,6 @@ export default function Root() {
     }
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
         console.log(newValue)
         console.log(timeline)
         if (!timeline) return
@@ -342,9 +326,7 @@ export default function Root() {
                         updatedData.splice(foundObject, 1)
                         return updatedData
                     })
-                //timeline.splice(foundObject, 1)
             }
-            console.log(timeline)
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"
@@ -479,7 +461,6 @@ export default function Root() {
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
-            // onScroll={(e) => disableScrollIfNeeded(e)}
             className={nullTimeline()}
         />
     )
@@ -527,8 +508,6 @@ const FeedHeaderComponent = ({
     const handlePinnedClick = async () => {
         if (!agent) return
         if (!feedInfo) return
-        console.log("click")
-        console.log(isPinned1)
         try {
             if (isPinned1) {
                 await agent.removePinnedFeed(feedInfo.view.uri)

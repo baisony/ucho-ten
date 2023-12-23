@@ -276,16 +276,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             }
                         })
                         .catch((e) => {
-                            console.log(e)
+                            //console.log(e)
                         })
 
                     promises.push(userPreferencesPromise)
                 }
 
                 // 並列で実行する
-                Promise.all(promises).then(() => {
-                    console.log("done")
-                })
+                Promise.all(promises).then(() => {})
             }
         }
 
@@ -293,7 +291,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [agent && agent.hasSession, pathName])
 
     useEffect(() => {
-        console.log(searchText)
         if (searchText === "" || !searchText) return
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", searchText)
@@ -428,9 +425,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     useLayoutEffect(() => {
         const lngChange = (lng: any) => {
             const lang = lng.replace(/-\w+$/, "")
-            console.log(lang)
             void i18n.changeLanguage(lang)
-            console.log(i18n.resolvedLanguage)
         }
         lngChange(displayLanguage[0])
     }, [displayLanguage])
@@ -554,7 +549,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         if (!userProfileDetailed) return
         if (!userProfileDetailed.did) return
         void getSettings()
-        console.log("initialized")
     }, [userProfileDetailed])
 
     useEffect(() => {

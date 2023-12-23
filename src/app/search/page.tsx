@@ -10,7 +10,6 @@ import type {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { layout } from "@/app/search/styles"
 import {
     menuIndexAtom,
@@ -44,14 +43,10 @@ export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
     const [currentMenuType] = useCurrentMenuType()
-    //const [menus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [searchInfo, setSearchInfo] = useSearchInfoAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [tappedTabbarButton] = useTappedTabbarButtonAtom()
-
-    // const searchWord = searchParams.get("word") || ""
-    // const target = searchParams.get("target") || "posts"
 
     const [loading, setLoading] = useState(false)
     const [hasMorePostsResult, setHasMorePostsResult] = useState<boolean>(false)
@@ -116,21 +111,14 @@ export default function Root() {
     }, [searchParams])
 
     useEffect(() => {
-        //console.log(searchTarget, searchText)
-        //console.log(searchParams.get("target"), searchParams.get("word"))
-        //console.log(searchInfo.target, searchInfo.searchWord)
-
         if (searchInfo.searchWord !== searchParams.get("word")) {
             setCurrentMenuType("searchTop")
             return
         }
 
         setCurrentMenuType("search")
-        console.log(searchTarget)
         const target = searchTarget || "posts"
         const word = searchParams.get("word") || ""
-
-        console.log(target, word)
 
         setSearchTarget(target)
         setSearchText(word)
@@ -424,10 +412,6 @@ export default function Root() {
         setSearchInfo({
             target: "",
             searchWord: "",
-            // posts: null,
-            // users: null,
-            // postCursor: "",
-            // userCursor: "",
         })
     }
 
@@ -513,7 +497,6 @@ export default function Root() {
     }
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
         console.log(newValue)
         console.log(searchPostsResult)
         if (!searchPostsResult) return
@@ -582,7 +565,6 @@ export default function Root() {
                         updatedData.splice(foundObject, 1)
                         return updatedData
                     })
-                //searchPostsResult.splice(foundObject, 1)
             }
             console.log(searchPostsResult)
         } else {

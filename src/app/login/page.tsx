@@ -9,20 +9,15 @@ import {
     faLock,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
-//import { CircularProgressbar } from 'react-circular-progressbar';
-//import 'react-circular-progressbar/dist/styles.css';
 import { Button, Spinner } from "@nextui-org/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
-//import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import "./shakeButton.css"
 import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 export default function CreateLoginPage() {
-    //const [userProfileDetailed, setUserProfileDetailed] =
-    //        useUserProfileDetailedAtom()
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("login")
     const router = useRouter()
@@ -185,11 +180,6 @@ export default function CreateLoginPage() {
     }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 
     useEffect(() => {
-        // DarkモードとLightモードの判定
-        //const isDarkMode = document.documentElement.classList.contains("dark")
-
-        // theme-colorの設定
-        //const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
         element.setAttribute("content", "#000000")
     }, [])

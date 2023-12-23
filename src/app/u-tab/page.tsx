@@ -1,15 +1,11 @@
 "use client"
 
-// import { isMobile } from "react-device-detect"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
-// import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
 import FeedPage from "../_components/FeedPage/FeedPage"
-// import FeedPageQuery from "./_components/FeedPage/FeedPageQuery"
-// import LazyFeedPage from "./_components/FeedPage/LazyFeedPage"
 import {
     menuIndexAtom,
     useCurrentMenuType,
@@ -39,17 +35,13 @@ const Root = () => {
     setCurrentMenuType("utab")
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    //const [appearanceColor] = useAppearanceColor()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    // const [headerMenus] = useHeaderMenusAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
-
-    // const [darkMode, setDarkMode] = useState(false)
     const [now, setNow] = useState<Date>(new Date())
     const [disableSlideVerticalScroll] = useState<boolean>(false)
 
@@ -78,20 +70,13 @@ const Root = () => {
     }, [])
 
     useEffect(() => {
-        // console.log("home", currentMenuType, swiperRef.current, menuIndex)
         if (
             currentMenuType === "utab" &&
             swiperRef.current &&
             menuIndex !== swiperRef.current.activeIndex
         ) {
-            // if (currentMenuType !== prevMenyType.current) {
-            //     swiperRef.current.slideTo(menuIndex, 0)
-            // } else {
             swiperRef.current.slideTo(menuIndex)
-            // }
         }
-
-        //prevMenyType.current = currentMenuType
     }, [currentMenuType, menuIndex, swiperRef.current])
 
     const randomBookmark = useCallback(async () => {
@@ -116,7 +101,6 @@ const Root = () => {
                 swiperRef.current = swiper
             }}
             cssMode={isMobile}
-            // virtual={true}
             pagination={{ type: "custom", clickable: false }}
             hidden={true} // ??
             modules={[Pagination]}
@@ -140,21 +124,11 @@ const Root = () => {
             onTouchStart={() => {
                 setMenuIndexChangedByMenu(false)
             }}
-            // onSlideChangeTransitionEnd={(swiper) => {
-            //     setMenuIndex(swiper.activeIndex)
-            // }}
-            // onSlideChange={(swiper) => {
-            //     console.error("onSlideChange", swiper)
-            //     setMenuIndex(swiper.activeIndex)
-            // }}
         >
             {menus.utab.map((menu, index) => {
                 console.log(menu)
                 return (
-                    <SwiperSlide
-                        key={`swiperslide-home-${index}`}
-                        // virtualIndex={index}
-                    >
+                    <SwiperSlide key={`swiperslide-home-${index}`}>
                         <div
                             id={`swiperIndex-div-${index}`}
                             key={index}
@@ -171,7 +145,6 @@ const Root = () => {
                                         isNextActive: index === menuIndex + 1,
                                         feedKey: menu.info,
                                         pageName: "utab",
-                                        // color,
                                         disableSlideVerticalScroll,
                                         now,
                                     }}

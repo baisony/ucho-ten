@@ -140,7 +140,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [searchParams])
 
     useEffect(() => {
-        console.log(searchInfo)
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -170,7 +169,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [pathname])
 
     useEffect(() => {
-        console.log("currentMenuType", currentMenuType)
         if (swiperRef.current && menuIndex !== swiperRef.current.activeIndex) {
             if (currentMenuType !== prevMenuType.current) {
                 swiperRef.current.slideTo(menuIndex, 0)
@@ -267,11 +265,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
 
                                 queryParams.set("word", searchText)
                                 queryParams.set("target", searchTarget)
-
-                                console.log(
-                                    "queryParams.toString()",
-                                    queryParams.toString()
-                                )
 
                                 router.push(`/search?${queryParams.toString()}`)
                             }}

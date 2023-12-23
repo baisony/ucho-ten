@@ -165,13 +165,11 @@ const PostPage = (props: PostPageProps) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [loading, setLoading] = useState(false)
     const pathname = usePathname()
-    // const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     let atUri = atUri1.replace("/post/", "/app.bsky.feed.post/")
     const [thread, setThread] = useState<AppBskyFeedDefs.ThreadViewPost | null>(
         null
     )
-    //const [newCursor, setNewCursor] = useState<string | null>(null)
     const [, setIsTranslated] = useState(false)
     const [translatedText, setTranslatedText] = useState<string | null>(null)
     const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(true)
@@ -221,29 +219,6 @@ const PostPage = (props: PostPageProps) => {
         }
     }, [thread])
 
-    // const FormattingTimeline = (timeline: FeedViewPost[]) => {
-    //     const seenUris = new Set<string>()
-    //     const filteredData = timeline.filter((item) => {
-    //         const uri = item.post.uri
-    //         if (item.reply) {
-    //             if (item.reason) return true
-    //             return (
-    //                 //@ts-ignore
-    //                 item.post.author.did === item.reply.parent.author.did &&
-    //                 //@ts-ignore
-    //                 item.reply.parent.author.did === item.reply.root.author.did
-    //             )
-    //         }
-    //         // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
-    //         if (!seenUris.has(uri)) {
-    //             seenUris.add(uri)
-    //             return true
-    //         }
-    //         return false
-    //     })
-    //     return filteredData as FeedViewPost[]
-    // }
-
     const fetchPost = async () => {
         if (!agent) return
         try {
@@ -271,38 +246,6 @@ const PostPage = (props: PostPageProps) => {
             }
         }
     }
-
-    // TODO: should be implemented.
-    // const loadMore = async (page: any) => {
-    //     if (!agent) return
-    //     if (!cursor) return
-    //     if (loading) return
-    //     if (loading2) return
-    //     try {
-    //         setLoading2(true)
-    //         const { data } = await agent.getAuthorFeed({
-    //             cursor: !hasCursor ? cursor : hasCursor,
-    //             actor: username,
-    //         })
-    //         const { feed } = data
-    //         if (data.cursor) {
-    //             setHasCursor(data.cursor)
-    //         }
-    //         const filteredData = FormattingTimeline(feed)
-    //         const diffTimeline = filteredData.filter((newItem) => {
-    //             return !timeline.some(
-    //                 (oldItem) => oldItem.post.uri === newItem.post.uri
-    //             )
-    //         })
-
-    //         //取得データをリストに追加
-    //         setTimeline([...timeline, ...diffTimeline])
-    //         setLoading2(false)
-    //     } catch (e) {
-    //         setLoading2(false)
-    //         console.log(e)
-    //     }
-    // }
 
     useEffect(() => {
         if (!agent) return

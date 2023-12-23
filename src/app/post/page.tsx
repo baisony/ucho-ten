@@ -41,7 +41,6 @@ import Textarea from "react-textarea-autosize" // 追加
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
-// import Compressor from "compressorjs"
 import imageCompression, {
     Options as ImageCompressionOptions,
 } from "browser-image-compression"
@@ -107,11 +106,9 @@ export default function Root() {
     const [getOGPData, setGetOGPData] = useState<any>(null)
     const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    // const [compressingLength, setCompressingLength] = useState(0)
     const [OGPImage, setOGPImage] = useState<any>([])
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    //const hiddenInput = useRef<HTMLDivElement>(null)
     const currentCursorPostion = useRef<number>(0)
     const isEmojiAdding = useRef<boolean>(false)
 
@@ -142,8 +139,6 @@ export default function Root() {
         appearanceTextColor,
     } = createPostPage()
     const { isOpen } = useDisclosure()
-
-    // const [darkMode, setDarkMode] = useState(false)
 
     const {
         isOpen: isOpenALT,
@@ -176,11 +171,8 @@ export default function Root() {
 
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
 
-    //const filesUpdated: FileWithPath[] = acceptedFiles;
-
     const handleDrop = (e: any) => {
         e.preventDefault()
-        //const file = e.dataTransfer.files[0];
         // ファイルの処理を行う
     }
 
@@ -382,9 +374,6 @@ export default function Root() {
         isEmojiAdding.current = true
 
         if (textareaRef.current) {
-            // const target = textareaRef.current
-            // const cursorPosition = target.selectionStart
-
             setContentText((prevContentText) => {
                 return `${prevContentText.slice(
                     0,
@@ -406,29 +395,6 @@ export default function Root() {
     const handleDragStart = (e: any) => {
         e.preventDefault()
     }
-
-    // const userList = [
-    //     {
-    //         name: "John Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=1",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    //     {
-    //         name: "Jane Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=2",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    //     {
-    //         name: "Kate Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=3",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    //     {
-    //         name: "Mark Doe",
-    //         avatar: "https://i.pravatar.cc/100?img=4",
-    //         did: "did:plc:txandrhc7afdozk6a2itgltm",
-    //     },
-    // ]
 
     const detectURL = (text: string) => {
         // URLを検出する正規表現パターン
@@ -456,7 +422,6 @@ export default function Root() {
                 }
             )
             const ogp = await res.json()
-            console.log(ogp)
             const thumb = ogp["image:secure_url"] || ogp?.ogImage[0].url
             const uri = url
             const generatedURL = thumb?.startsWith("http")
@@ -583,8 +548,6 @@ export default function Root() {
                                     onClick={() => {
                                         onCloseALT()
                                         handleALTClick()
-                                        console.log(altText)
-                                        console.log(altOfImageList)
                                     }}
                                 >
                                     {t("button.save")}
@@ -608,11 +571,7 @@ export default function Root() {
                             className={headerCancelButton()}
                             isDisabled={loading}
                             onClick={() => {
-                                // if (history[0] === "/post" || history[0] === "") {
-                                //     router.push(`/?${nextQueryParams.toString()}`)
-                                // } else {
                                 router.back()
-                                // }
                             }}
                         >
                             {t("button.cancel")}
@@ -684,12 +643,6 @@ export default function Root() {
                                 }}
                                 onKeyDown={handleKeyDown}
                                 disabled={loading}
-                                // onFocus={(e) =>
-                                //     e.currentTarget.setSelectionRange(
-                                //         e.currentTarget.value.length,
-                                //         e.currentTarget.value.length
-                                //     )
-                                // }
                                 onPaste={handlePaste}
                             />
                             {(contentImages.length > 0 || isCompressing) && (
@@ -837,7 +790,6 @@ export default function Root() {
                                         loading ||
                                         isCompressing ||
                                         contentImages.length >= 4 ||
-                                        // isImageMaxLimited ||
                                         getOGPData ||
                                         isOGPGetProcessing
                                     }
@@ -869,7 +821,6 @@ export default function Root() {
                                         loading ||
                                         isCompressing ||
                                         contentImages.length >= 4 ||
-                                        // isImageMaxLimited ||
                                         getOGPData ||
                                         isOGPGetProcessing
                                     }
