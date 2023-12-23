@@ -439,8 +439,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 if (parsedAppearanceColor === "system") {
                     if (e.matches) {
                         document.documentElement.classList.add("dark")
+                        const element = document.querySelector(
+                            "meta[name=theme-color]"
+                        )!
+                        element.setAttribute("content", "#000000")
                     } else {
                         document.documentElement.classList.remove("dark")
+                        const element = document.querySelector(
+                            "meta[name=theme-color]"
+                        )!
+                        element.setAttribute("content", "#FFFFFF")
                     }
                 }
             }
@@ -454,18 +462,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             mql.removeEventListener("change", mediaQueryLlistener)
         }
     }, [])
-
-    /*const setLoggedIn = async (did: string) => {
-        try {
-            const res = await fetch(`/api/setLoggedIn/${did}`, {
-                method: "GET",
-            })
-        } catch (e) {
-            console.log(e)
-        }
-        //console.log(await res.json())
-        //if (res.status !== 200) return
-    }*/
 
     const getSettings = async () => {
         try {
@@ -497,19 +493,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             console.log(e)
         }
     }
-
-    /*const setSettings = async (did: string) => {
-        try {
-            const res = await fetch(`/api/setSettings/${did}`, {
-                method: "POST",
-                body: "{}",
-            })
-            //200が出ればOK
-            //console.log(await res.status)
-        } catch (e) {
-            console.log(e)
-        }
-    }*/
 
     const checkNewNotification = useCallback(async () => {
         if (!agent) {
