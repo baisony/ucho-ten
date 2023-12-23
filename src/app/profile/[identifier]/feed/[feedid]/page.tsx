@@ -590,7 +590,7 @@ const FeedHeaderComponent = ({
                                 className={"text-black dark:text-white"}
                                 aria-label="dropdown share menu"
                             >
-                                {window.navigator.share && (
+                                {window?.navigator?.share && (
                                     <>
                                         <DropdownItem
                                             key="share"
