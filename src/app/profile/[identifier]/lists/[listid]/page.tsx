@@ -559,7 +559,9 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
-    const [isSubscribed1, setIsSubscribed1] = useState<boolean>(!!!isSubscribed)
+    const [isSubscribed1, setIsSubscribed1] = useState<boolean | undefined>(
+        isSubscribed
+    )
 
     const {
         ProfileContainer,
@@ -573,6 +575,11 @@ const FeedHeaderComponent = ({
         Buttons,
         ShareButton,
     } = viewFeedPage()
+
+    useEffect(() => {
+        if (isSubscribed === undefined) return
+        setIsSubscribed1(isSubscribed)
+    }, [isSubscribed])
 
     return (
         <div className={ProfileContainer()}>

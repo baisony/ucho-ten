@@ -503,8 +503,14 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
-    const [isPinned1, setIsPinned1] = useState(!!!isPinned)
-    const [isSubscribed1, setIsSubscribed1] = useState(!!!isSubscribed)
+    const [isPinned1, setIsPinned1] = useState(isPinned)
+    const [isSubscribed1, setIsSubscribed1] = useState(isSubscribed)
+
+    useEffect(() => {
+        if (isSubscribed === undefined || !isPinned === undefined) return
+        setIsSubscribed1(isSubscribed)
+        setIsPinned1(isPinned)
+    }, [isSubscribed, isPinned])
     const handlePinnedClick = async () => {
         if (!agent) return
         if (!feedInfo) return
