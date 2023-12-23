@@ -124,6 +124,7 @@ const Root = () => {
             style={{ height: "100%" }}
             touchAngle={30}
             touchRatio={0.8}
+            initialSlide={menuIndex}
             touchReleaseOnEdges={true}
             touchMoveStopPropagation={true}
             preventInteractionOnTransition={true}

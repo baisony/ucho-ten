@@ -274,7 +274,7 @@ const MyFeedsPage = () => {
                                                     : `text-[#929292]`
                                             }`}
                                             onClick={async (e) => {
-                                                e.stopPropagation()
+                                                e.preventDefault()
                                                 if (
                                                     userPreferences.pinned.includes(
                                                         data.uri
@@ -306,7 +306,7 @@ const MyFeedsPage = () => {
                                     <div
                                         className={"cursor-pointer"}
                                         onClick={async (e) => {
-                                            e.stopPropagation()
+                                            e.preventDefault()
                                             setSelectedFeed(data)
                                             onOpen()
                                         }}

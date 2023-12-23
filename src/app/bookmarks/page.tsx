@@ -1,19 +1,17 @@
 "use client"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
-import { DummyHeader } from "@/app/_components/DummyHeader"
 import { isMobile } from "react-device-detect"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { Virtuoso } from "react-virtuoso"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
+import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -25,6 +23,9 @@ export default function Root() {
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [bookmarks, setBookmarks] = useBookmarks()
     const [timeline, setTimeline] = useState<PostView[]>([])
+
+    const virtuosoRef = useRef(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     const fetchBookmarks = async () => {
         if (!agent) {
@@ -130,6 +131,24 @@ export default function Root() {
         }
     }
 
+    const handleSaveScrollPosition = () => {
+        console.log("save")
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`bookmark`]?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`bookmark`] = state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     useEffect(() => {
         fetchBookmarks()
     }, [agent])
@@ -145,6 +164,9 @@ export default function Root() {
                             }
                         }}
                         //context={{ hasMore }}
+                        ref={virtuosoRef}
+                        //@ts-ignore
+                        restoreStateFrom={scrollPositions[`bookmark`]}
                         overscan={200}
                         increaseViewportBy={200}
                         data={timeline}
@@ -165,6 +187,8 @@ export default function Root() {
                                     nextQueryParams,
                                     t,
                                     handleValueChange: handleValueChange,
+                                    handleSaveScrollPosition:
+                                        handleSaveScrollPosition,
                                 }}
                             />
                         )}

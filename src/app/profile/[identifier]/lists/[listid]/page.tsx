@@ -38,6 +38,7 @@ import {
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -67,6 +68,9 @@ export default function Root() {
     // const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
+
+    const virtuosoRef = useRef(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -350,6 +354,24 @@ export default function Root() {
         }
     }
 
+    const handleSaveScrollPosition = () => {
+        console.log("save")
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`list-${atUri}`]?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`list-${atUri}`] = state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
         let data: CustomFeedCellProps[] = []
 
@@ -412,6 +434,7 @@ export default function Root() {
                             nextQueryParams,
                             t,
                             handleValueChange: handleValueChange,
+                            handleSaveScrollPosition: handleSaveScrollPosition,
                         }
                         return {
                             postProps,
@@ -481,6 +504,9 @@ export default function Root() {
                     scrollRef.current = ref
                 }
             }}
+            ref={virtuosoRef}
+            //@ts-ignore
+            restoreStateFrom={scrollPositions[`list-${atUri}`]}
             context={{ hasMore }}
             overscan={200}
             increaseViewportBy={200}

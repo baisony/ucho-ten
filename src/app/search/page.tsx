@@ -103,7 +103,7 @@ export default function Root() {
                 setMenuIndex(0)
                 break
         }
-    }, [searchTarget])
+    }, [])
 
     useEffect(() => {
         if (!searchParams) return
