@@ -185,15 +185,15 @@ const FeedPage = ({
         if (!shouldCheckUpdate.current) {
             shouldCheckUpdate.current = true
             void checkNewTimeline()
-            console.log("useEffect set setTimeout", feedKey)
+            //console.log("useEffect set setTimeout", feedKey)
             const timeoutId = setInterval(() => {
-                console.log("useEffect setTimeout", feedKey)
+                console.log("fetch", feedKey)
 
                 void checkNewTimeline()
             }, CHECK_FEED_UPDATE_INTERVAL)
 
             return () => {
-                console.log(`useEffect unmounted ${timeoutId}`)
+                console.log(`useEffect unmounted ${feedKey}`)
                 clearInterval(timeoutId)
             }
         }
@@ -281,7 +281,6 @@ const FeedPage = ({
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_key, feedKey] = queryKey
-        console.log(queryKey)
 
         if (feedKey === "following") {
             const response = await agent.getTimeline({

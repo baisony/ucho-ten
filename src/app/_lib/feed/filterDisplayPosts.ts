@@ -42,7 +42,6 @@ export const filterDisplayPosts = (
                     } as any
                 } else {
                     if (!agent) return
-                    //const { data } = await agent.getProfile({ actor: did })
                     item.reply = {
                         root: {},
                         parent: {
@@ -61,7 +60,6 @@ export const filterDisplayPosts = (
             const parentDID = (item.reply.parent as PostView).author.did
 
             if (item.reason) {
-                // repost
                 // repost
                 displayPost = true
             } else if (authorDID === rootDID && authorDID === parentDID) {

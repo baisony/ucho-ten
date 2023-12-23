@@ -1,19 +1,14 @@
 "use client"
 import React, { useEffect, useState } from "react"
 import { BskyAgent } from "@atproto/api"
-//import { CircularProgressbar } from 'react-circular-progressbar';
-//import 'react-circular-progressbar/dist/styles.css';
 import { Button, Spinner } from "@nextui-org/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
-//import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
 import Link from "next/link"
 import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 export default function CreateLoginPage() {
-    //const [userProfileDetailed, setUserProfileDetailed] =
-    //        useUserProfileDetailedAtom()
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
     const [, setLoading] = useState(false)
@@ -121,10 +116,9 @@ export default function CreateLoginPage() {
         const resumesession = async () => {
             try {
                 const storedData = localStorage.getItem("session")
-                console.log(storedData)
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
-                    console.log(await agent.resumeSession(session))
+                    await agent.resumeSession(session)
                     setIsSessionExpired(false)
 
                     if (toRedirect) {

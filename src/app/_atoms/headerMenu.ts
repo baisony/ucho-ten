@@ -6,9 +6,6 @@ export interface HeaderMenu {
     info: string
 }
 
-// const headerMenus = atom<HeaderMenu[]>([])
-// export const useHeaderMenusAtom = () => useAtom(headerMenus)
-
 const menuIndexByHeader = atom<{ [k in HeaderMenuType]: number }>({
     login: 0,
     home: 0,
@@ -47,21 +44,8 @@ const headerMenusByHeader = atom<{ [k in HeaderMenuType]: HeaderMenu[] }>({
 
 export const useHeaderMenusByHeaderAtom = () => useAtom(headerMenusByHeader)
 
-// export const headerMenusByHeaderAtom = atom<HeaderMenu[]>((get) => {
-//     const currentHeaderMenusByHeader = get(headerMenusByHeader);
-//     const currentType = get(currentMenuType)
-//     return currentHeaderMenusByHeader[currentType]
-// })
-
-// export const useMenuIndexByHeader = () => useAtom(menuIndexByHeader)
-
 const currentMenuType = atom<HeaderMenuType>("home")
 export const useCurrentMenuType = () => useAtom(currentMenuType)
-
-// export const menuIndexAtom = atom<number>((get) => {
-//     const currentType = get(currentMenuType)
-//     return get(menuIndexByHeader)[currentType]
-// })
 
 export const menuIndexAtom = atom(
     (get) => {

@@ -178,7 +178,6 @@ export default function Root() {
     }
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
         console.log(newValue)
         console.log(notification)
         if (!notification) return
@@ -247,7 +246,6 @@ export default function Root() {
                         updatedData.splice(foundObject, 1)
                         return updatedData
                     })
-                //notification.splice(foundObject, 1)
             }
             console.log(notification)
         } else {
@@ -289,7 +287,6 @@ export default function Root() {
         if (!agent) return
         try {
             await agent.updateSeenNotifications()
-            //console.log(res)
         } catch (e) {
             console.log(e)
         }
@@ -353,11 +350,6 @@ export default function Root() {
             )}
             {notification && (
                 <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            //scrollRef.current = ref
-                        }
-                    }}
                     context={{ hasMore }}
                     ref={virtuosoRef}
                     //@ts-ignore

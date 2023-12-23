@@ -213,12 +213,6 @@ const MyFeedsPage = () => {
             )}
             {savedFeeds.length !== 0 && (
                 <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            //scrollRef.current = ref
-                        }
-                    }}
-                    //context={{ hasMore }}
                     overscan={200}
                     increaseViewportBy={200}
                     data={savedFeeds}
@@ -321,8 +315,6 @@ const MyFeedsPage = () => {
                             </Link>
                         </>
                     )}
-                    //endReached={loadMore}
-                    //className={nullTimeline()}
                 />
             )}
         </div>

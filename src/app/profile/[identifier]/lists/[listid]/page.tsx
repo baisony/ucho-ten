@@ -49,7 +49,6 @@ export default function Root() {
     const { nullTimeline } = tabBarSpaceStyles()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [agent] = useAgent()
-    //const username = pathname.replace("/profile/", "")
     const atUri1 = pathname.replace("/profile/", "at://")
     let atUri = atUri1.replace("/lists/", "/app.bsky.graph.list/")
 
@@ -60,12 +59,9 @@ export default function Root() {
     >(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    //const [isSubscribe, setIsSubscribe] = useState<boolean>(false)
-    // const [hasMoreLimit, setHasMoreLimit] = useState(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
-    // const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
@@ -112,8 +108,6 @@ export default function Root() {
             const { data } = await agent.app.bsky.graph.getList({ list: atUri })
             setIsSubscribed(!!data.list.viewer?.muted)
             setFeedInfo(data.list)
-            console.log(data.list)
-            console.log(data.list.purpose)
             await fetchFeed(data.list.purpose)
         } catch (e) {
             console.error(e)
@@ -242,7 +236,6 @@ export default function Root() {
 
         const doFetch = async () => {
             await fetchUserPreference()
-            //await fetchFeed()
         }
 
         void doFetch()
@@ -269,16 +262,12 @@ export default function Root() {
     }
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
-        console.log(newValue)
-        console.log(timeline)
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => (item?.post as PostView).uri === newValue.postUri
         )
 
         if (foundObject !== -1) {
-            console.log(timeline[foundObject])
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
@@ -346,7 +335,6 @@ export default function Root() {
                     })
                 //timeline.splice(foundObject, 1)
             }
-            console.log(timeline)
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"
@@ -381,7 +369,6 @@ export default function Root() {
                 isSubscribed,
                 onClick: handleSubscribeClick,
             }
-            console.log(feedInfo?.purpose)
 
             const feedData: CustomFeedCellProps = {
                 isDummyHeader: false,
@@ -462,8 +449,6 @@ export default function Root() {
                     }
                 })
 
-                console.log("timelineData", timelineData)
-
                 data = [...data, ...timelineData]
             } else if (feedInfo?.purpose === "app.bsky.graph.defs#curatelist") {
                 const timelineData: CustomFeedCellProps[] = Array.from({
@@ -483,8 +468,6 @@ export default function Root() {
                         postProps,
                     }
                 })
-
-                console.log("timelineData", timelineData)
 
                 data = [...data, ...timelineData]
             }
@@ -529,7 +512,6 @@ export default function Root() {
                 Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
             }}
             endReached={loadMore}
-            // onScroll={(e) => disableScrollIfNeeded(e)}
             className={nullTimeline()}
         />
     )
@@ -664,8 +646,6 @@ const FeedHeaderComponent = ({
                         onClick={() => {
                             try {
                                 onClick
-                                console.log("click")
-                                console.log(isSubscribed1)
                                 if (isSubscribed1) {
                                     setIsSubscribed1(false)
                                 } else {

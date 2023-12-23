@@ -102,8 +102,6 @@ const Page = () => {
             } else {
                 setHidden(false)
             }
-            //setProfile(data)
-            //return data
         } catch (e) {
             console.error(e)
         }
@@ -342,22 +340,11 @@ const PostPage = (props: PostPageProps) => {
         void fetchProfile()
     }, [agent, username])
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         checkNewTimeline()
-    //     }, 15000)
-    //     // クリーンアップ関数
-    //     return () => {
-    //         clearInterval(interval) // インターバルをクリーンアップ
-    //     }
-    // }, [agent, cursor])
-
     const onClickDomain = (domain: string) => {
         router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
     }
 
     const handleValueChange = (newValue: any) => {
-        //setText(newValue);
         console.log(newValue)
         console.log(timeline)
         if (!timeline) return
