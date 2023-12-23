@@ -522,10 +522,13 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
-    const [isPinned1, setIsPinned1] = useState(isPinned)
+    const [isPinned1, setIsPinned1] = useState(!!!isPinned)
+    const [isSubscribed1, setIsSubscribed1] = useState(!!!isSubscribed)
     const handlePinnedClick = async () => {
         if (!agent) return
         if (!feedInfo) return
+        console.log("click")
+        console.log(isPinned1)
         try {
             if (isPinned1) {
                 await agent.removePinnedFeed(feedInfo.view.uri)
@@ -631,7 +634,7 @@ const FeedHeaderComponent = ({
                             <FontAwesomeIcon
                                 icon={faThumbTack}
                                 className={PinButton({
-                                    isPinned: isPinned,
+                                    isPinned: isPinned1,
                                 })}
                             />
                         </div>
@@ -643,10 +646,23 @@ const FeedHeaderComponent = ({
                             onMouseEnter={() => {
                                 setOnHoverButton(true)
                             }}
-                            onClick={onClick}
+                            onClick={() => {
+                                try {
+                                    onClick
+                                    console.log("click")
+                                    console.log(isSubscribed1)
+                                    if (isSubscribed1) {
+                                        setIsSubscribed1(false)
+                                    } else {
+                                        setIsSubscribed1(true)
+                                    }
+                                } catch (e) {
+                                    console.log(e)
+                                }
+                            }}
                             isDisabled={isSkeleton}
                         >
-                            {isSubscribed
+                            {isSubscribed1
                                 ? !onHoverButton
                                     ? t("button.subscribed")
                                     : t("button.unsubscribe")

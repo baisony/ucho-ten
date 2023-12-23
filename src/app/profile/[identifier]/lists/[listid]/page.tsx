@@ -577,6 +577,7 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
+    const [isSubscribed1, setIsSubscribed1] = useState<boolean>(!!!isSubscribed)
 
     const {
         ProfileContainer,
@@ -649,14 +650,27 @@ const FeedHeaderComponent = ({
                         onMouseEnter={() => {
                             setOnHoverButton(true)
                         }}
-                        onClick={onClick}
+                        onClick={() => {
+                            try {
+                                onClick
+                                console.log("click")
+                                console.log(isSubscribed1)
+                                if (isSubscribed1) {
+                                    setIsSubscribed1(false)
+                                } else {
+                                    setIsSubscribed1(true)
+                                }
+                            } catch (e) {
+                                console.log(e)
+                            }
+                        }}
                         isDisabled={
                             isSkeleton ||
                             feedInfo?.purpose ===
                                 "app.bsky.graph.defs#curatelist"
                         }
                     >
-                        {isSubscribed
+                        {isSubscribed1
                             ? !onHoverButton
                                 ? t("button.subscribed")
                                 : t("button.unsubscribe")
