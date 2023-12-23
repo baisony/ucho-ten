@@ -615,12 +615,29 @@ const FeedHeaderComponent = ({
                                 />
                             </div>
                         </DropdownTrigger>
-                        <DropdownMenu className={"text-black dark:text-white"}>
+                        <DropdownMenu
+                            className={"text-black dark:text-white"}
+                            aria-label="dropdown share menu"
+                        >
+                            {window.navigator.share && (
+                                <>
+                                    <DropdownItem
+                                        key="share"
+                                        onClick={() => {
+                                            window.navigator.share({
+                                                title: feedInfo.view?.title,
+                                                text: feedInfo.view
+                                                    ?.description,
+                                                url: feedInfo.view?.uri,
+                                            })
+                                        }}
+                                    >
+                                        {t("pages.feedOnlyPage.shareFeed")}
+                                    </DropdownItem>
+                                </>
+                            )}
                             <DropdownItem key="new">
                                 {t("pages.feedOnlyPage.copyFeedURL")}
-                            </DropdownItem>
-                            <DropdownItem key="copy">
-                                {t("pages.feedOnlyPage.postThisFeed")}{" "}
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>

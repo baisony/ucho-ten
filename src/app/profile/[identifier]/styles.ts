@@ -4,7 +4,7 @@ export const viewProfilePage = tv({
     slots: {
         background: "max-w-[600px] min-w-[350px] w-full",
         ProfileContainer:
-            "w-full max-h-[800px] bg-white border-[#E3E3E3] dark:border-[#828282] border-b-[2px]",
+            "w-full max-h-[800px] bg-white border-[#E3E3E3] dark:border-[#828282] border-b-[2px] lg:rounded-b-lg lg:mb-[10px] lg:overflow-hidden",
         HeaderImageContainer: "w-full h-[150px] relative",
         ProfileHeaderImage: "h-full w-full object-cover",
         ProfileInfoContainer:

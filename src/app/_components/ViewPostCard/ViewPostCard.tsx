@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
@@ -813,10 +813,10 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         onClick={async () => {
                                             if (!window.navigator.share) {
                                                 alert(
-                                                    "ご利用のブラウザでは共有できません。"
+                                                    t(
+                                                        "alert.cannotShareInBrowser"
+                                                    )
                                                 )
-                                                // TODO: do not use alert.
-                                                // TODO: i18n
                                                 return
                                             }
                                             try {

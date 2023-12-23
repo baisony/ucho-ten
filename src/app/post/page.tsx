@@ -554,7 +554,7 @@ export default function Root() {
                 <ModalContent>
                     {(onCloseALT) => (
                         <>
-                            <ModalHeader>Edit ALT</ModalHeader>
+                            <ModalHeader>{t("modal.post.editALT")}</ModalHeader>
                             <ModalBody>
                                 <img
                                     className={
@@ -576,7 +576,7 @@ export default function Root() {
                             </ModalBody>
                             <ModalFooter>
                                 <Button color={"danger"} onClick={onCloseALT}>
-                                    Cancel
+                                    {t("button.cancel")}
                                 </Button>
                                 <Button
                                     color={"primary"}
@@ -587,7 +587,7 @@ export default function Root() {
                                         console.log(altOfImageList)
                                     }}
                                 >
-                                    Save
+                                    {t("button.save")}
                                 </Button>
                             </ModalFooter>
                         </>

@@ -33,8 +33,9 @@
       "translateErorr": "Translation Error"
     },
     "feedOnlyPage": {
+      "shareFeed": "Share this Feed",
       "copyFeedURL": "Copy Feed URL",
-      "postThisFeed": "Post This Feed",
+      "postThisFeed": "Post this Feed",
       "createdBy": "Created By"
     },
     "settings": {
@@ -179,7 +180,8 @@
       "addLinkcard": "Add Linkcard",
       "splitSentence": "Split Sentence",
       "quote": "Quote",
-      "reply": "Reply"
+      "reply": "Reply",
+      "editALT": "Edit ALT"
     }
   },
   "button": {
@@ -213,6 +215,9 @@
     "show": "Show",
     "post": "Post",
     "newPosts": "New Posts"
+  },
+  "alert": {
+    "cannotShareInBrowser": "Cannot Share in Your Browser."
   },
   "text": {
     "noMoreContent": "No more content",
