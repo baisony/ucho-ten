@@ -16,6 +16,7 @@ export interface ViewFeedCardCellProps {
     nextQueryParams: URLSearchParams
     t: any
     isSearchScreen?: boolean
+    handleSaveScrollPosition?: () => void
 }
 
 export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
@@ -32,6 +33,11 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
                 href={`/profile/${feedURI.hostname}/feed/${
                     feedURI.rkey
                 }?${nextQueryParams.toString()}`}
+                onClick={() => {
+                    if (props.handleSaveScrollPosition) {
+                        props.handleSaveScrollPosition()
+                    }
+                }}
             >
                 <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
                     {isSkeleton && (
