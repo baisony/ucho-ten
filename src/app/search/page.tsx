@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Image, menu, Skeleton } from "@nextui-org/react"
+import { Image, Skeleton } from "@nextui-org/react"
 import type {
     GeneratorView,
     PostView,
@@ -32,6 +32,7 @@ import { ViewPostCard } from "../_components/ViewPostCard"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
     const router = useRouter()
@@ -77,6 +78,8 @@ export default function Root() {
     const shouldScrollToTop = useRef<boolean>(false)
     const scrollRef = useRef<HTMLElement | null>(null)
     const [isEndOfContent, setIsEndOfContent] = useState(false)
+    const virtuosoRef = useRef(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -588,6 +591,26 @@ export default function Root() {
         }
     }
 
+    const handleSaveScrollPosition = () => {
+        console.log(`save: ${searchText} ${searchTarget}`)
+        //@ts-ignore
+        virtuosoRef?.current?.getState((state) => {
+            console.log(state)
+            if (
+                state.scrollTop !==
+                //@ts-ignore
+                scrollPositions[`search-${searchTarget}-${searchText}`]
+                    ?.scrollTop
+            ) {
+                const updatedScrollPositions = { ...scrollPositions }
+                //@ts-ignore
+                updatedScrollPositions[`search-${searchTarget}-${searchText}`] =
+                    state
+                setScrollPositions(updatedScrollPositions)
+            }
+        })
+    }
+
     return (
         <>
             {searchText === "" && (
@@ -664,6 +687,11 @@ export default function Root() {
                                 scrollRef.current = ref
                             }
                         }}
+                        ref={virtuosoRef}
+                        //@ts-ignore
+                        restoreStateFrom={
+                            scrollPositions[`search-posts-${searchText}`]
+                        }
                         context={{ hasMore: hasMorePostsResult }}
                         overscan={200}
                         increaseViewportBy={200}
@@ -686,6 +714,8 @@ export default function Root() {
                                     nextQueryParams,
                                     t,
                                     handleValueChange: handleValueChange,
+                                    handleSaveScrollPosition:
+                                        handleSaveScrollPosition,
                                     isSearchScreen: true,
                                 }}
                             />
@@ -734,6 +764,11 @@ export default function Root() {
                                 scrollRef.current = ref
                             }
                         }}
+                        ref={virtuosoRef}
+                        //@ts-ignore
+                        restoreStateFrom={
+                            scrollPositions[`search-users-${searchText}`]
+                        }
                         context={{ hasMore: hasMoreFeedsResult }}
                         overscan={200}
                         increaseViewportBy={200}
@@ -747,6 +782,7 @@ export default function Root() {
                                     isTop: index === 0,
                                     actor: data,
                                     onClick: () => {
+                                        handleSaveScrollPosition()
                                         router.push(
                                             `/profile/${
                                                 data.did
@@ -800,6 +836,11 @@ export default function Root() {
                                 scrollRef.current = ref
                             }
                         }}
+                        ref={virtuosoRef}
+                        //@ts-ignore
+                        restoreStateFrom={
+                            scrollPositions[`search-feeds-${searchText}`]
+                        }
                         context={{ hasMore: hasMoreUsersResult }}
                         overscan={200}
                         increaseViewportBy={200}
@@ -818,6 +859,8 @@ export default function Root() {
                                     nextQueryParams,
                                     t,
                                     isSearchScreen: true,
+                                    handleSaveScrollPosition:
+                                        handleSaveScrollPosition,
                                 }}
                             />
                         )}
