@@ -33,6 +33,7 @@ import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 
 export default function Root() {
     const router = useRouter()
@@ -899,6 +900,7 @@ const UserCell = ({
     isSearchScreen,
 }: UserCellProps) => {
     const { userCard } = layout()
+    const [contentFontSize] = useContentFontSize()
 
     return (
         <>
@@ -925,42 +927,78 @@ const UserCell = ({
                         />
                     )}
                 </div>
-                <div className={"h-[50px] w-[calc(100%-50px)] pl-[10px]"}>
+                <div
+                    className={
+                        "h-[75px] w-[calc(100%-50px)] pl-[10px] items-center justify-center flex"
+                    }
+                >
                     <div className={"w-full"}>
-                        <div className={"text-[15px]"}>
+                        <div className={"w-full"}>
+                            <div className={"text-[15px]"}>
+                                {skeleton && (
+                                    <Skeleton
+                                        className={`h-[15px] w-[100px]`}
+                                        style={{ borderRadius: "10px" }}
+                                    />
+                                )}
+                                {!skeleton && actor?.displayName}
+                            </div>
+                            <div className={" text-[13px] text-gray-500"}>
+                                {skeleton && (
+                                    <Skeleton
+                                        className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
+                                        style={{ borderRadius: "10px" }}
+                                    />
+                                )}
+                                {!skeleton && `@${actor?.handle}`}
+                            </div>
+                        </div>
+                        <div
+                            className={"w-full text-[13px]"}
+                            style={{
+                                whiteSpace: "nowrap",
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                            }}
+                        >
                             {skeleton && (
                                 <Skeleton
-                                    className={`h-[15px] w-[100px]`}
+                                    className={`h-[13px] w-full mt-[10px] mb-[10px]`}
                                     style={{ borderRadius: "10px" }}
                                 />
                             )}
-                            {!skeleton && actor?.displayName}
-                        </div>
-                        <div className={" text-[13px] text-gray-500"}>
-                            {skeleton && (
-                                <Skeleton
-                                    className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
-                                    style={{ borderRadius: "10px" }}
-                                />
+                            {!skeleton && (
+                                <div
+                                    className={`text-[${
+                                        contentFontSize == 1
+                                            ? 12
+                                            : contentFontSize == 2
+                                            ? 13
+                                            : contentFontSize == 3
+                                            ? 14
+                                            : contentFontSize == 4
+                                            ? 15
+                                            : contentFontSize == 5
+                                            ? 16
+                                            : 14
+                                    }px] md:text-[${
+                                        contentFontSize == 1
+                                            ? 14
+                                            : contentFontSize == 2
+                                            ? 15
+                                            : contentFontSize == 3
+                                            ? 16
+                                            : contentFontSize == 4
+                                            ? 17
+                                            : contentFontSize == 5
+                                            ? 18
+                                            : 15
+                                    }]`}
+                                >
+                                    {actor?.description}
+                                </div>
                             )}
-                            {!skeleton && `@${actor?.handle}`}
                         </div>
-                    </div>
-                    <div
-                        className={"w-full text-[13px]"}
-                        style={{
-                            whiteSpace: "nowrap",
-                            textOverflow: "ellipsis",
-                            overflow: "hidden",
-                        }}
-                    >
-                        {skeleton && (
-                            <Skeleton
-                                className={`h-[13px] w-full mt-[10px] mb-[10px]`}
-                                style={{ borderRadius: "10px" }}
-                            />
-                        )}
-                        {!skeleton && actor?.description}
                     </div>
                 </div>
             </div>

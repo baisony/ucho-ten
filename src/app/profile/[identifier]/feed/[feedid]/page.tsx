@@ -33,7 +33,7 @@ import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { BskyAgent } from "@atproto/api"
+import { AtUri, BskyAgent } from "@atproto/api"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
@@ -522,10 +522,13 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
-    const [isPinned1, setIsPinned1] = useState(isPinned)
+    const [isPinned1, setIsPinned1] = useState(!!!isPinned)
+    const [isSubscribed1, setIsSubscribed1] = useState(!!!isSubscribed)
     const handlePinnedClick = async () => {
         if (!agent) return
         if (!feedInfo) return
+        console.log("click")
+        console.log(isPinned1)
         try {
             if (isPinned1) {
                 await agent.removePinnedFeed(feedInfo.view.uri)
@@ -600,12 +603,40 @@ const FeedHeaderComponent = ({
                             </DropdownTrigger>
                             <DropdownMenu
                                 className={"text-black dark:text-white"}
+                                aria-label="dropdown share menu"
                             >
-                                <DropdownItem key="new">
+                                {window.navigator.share && (
+                                    <>
+                                        <DropdownItem
+                                            key="share"
+                                            onClick={() => {
+                                                const aturl = new AtUri(
+                                                    feedInfo.view?.uri
+                                                )
+                                                window.navigator.share({
+                                                    title: feedInfo.view?.title,
+                                                    text: feedInfo.view
+                                                        ?.description,
+                                                    url: `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`,
+                                                })
+                                            }}
+                                        >
+                                            {t("pages.feedOnlyPage.shareFeed")}
+                                        </DropdownItem>
+                                    </>
+                                )}
+                                <DropdownItem
+                                    key="new"
+                                    onClick={() => {
+                                        const aturl = new AtUri(
+                                            feedInfo.view?.uri
+                                        )
+                                        navigator.clipboard.writeText(
+                                            `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`
+                                        )
+                                    }}
+                                >
                                     {t("pages.feedOnlyPage.copyFeedURL")}
-                                </DropdownItem>
-                                <DropdownItem key="copy">
-                                    {t("pages.feedOnlyPage.postThisFeed")}{" "}
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
@@ -616,7 +647,7 @@ const FeedHeaderComponent = ({
                             <FontAwesomeIcon
                                 icon={faThumbTack}
                                 className={PinButton({
-                                    isPinned: isPinned,
+                                    isPinned: isPinned1,
                                 })}
                             />
                         </div>
@@ -628,10 +659,23 @@ const FeedHeaderComponent = ({
                             onMouseEnter={() => {
                                 setOnHoverButton(true)
                             }}
-                            onClick={onClick}
+                            onClick={() => {
+                                try {
+                                    onClick
+                                    console.log("click")
+                                    console.log(isSubscribed1)
+                                    if (isSubscribed1) {
+                                        setIsSubscribed1(false)
+                                    } else {
+                                        setIsSubscribed1(true)
+                                    }
+                                } catch (e) {
+                                    console.log(e)
+                                }
+                            }}
                             isDisabled={isSkeleton}
                         >
-                            {isSubscribed
+                            {isSubscribed1
                                 ? !onHoverButton
                                     ? t("button.subscribed")
                                     : t("button.unsubscribe")

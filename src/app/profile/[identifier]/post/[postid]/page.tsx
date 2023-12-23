@@ -772,10 +772,10 @@ const PostPage = (props: PostPageProps) => {
                                         onClick={async () => {
                                             if (!window.navigator.share) {
                                                 alert(
-                                                    "ご利用のブラウザでは共有できません。"
+                                                    t(
+                                                        "alert.cannotShareInBrowser"
+                                                    )
                                                 )
-                                                // TODO: do not use alert.
-                                                // TODO: i18n
                                                 return
                                             }
                                             try {

@@ -33,6 +33,7 @@
       "translateErorr": "翻訳に失敗しました"
     },
     "feedOnlyPage": {
+      "shareFeed": "このフィードを共有する",
       "copyFeedURL": "フィードのURLをコピー",
       "postThisFeed": "このフィードを投稿する",
       "createdBy": "作成者"
@@ -179,7 +180,8 @@
       "addLinkcard": "リンクカードを追加",
       "splitSentence": "文章を複数のポストに分割",
       "quote": "引用",
-      "reply": "返信"
+      "reply": "返信",
+      "editALT": "ALTを編集"
     }
   },
   "button": {
@@ -213,6 +215,9 @@
     "show": "表示",
     "post": "送信",
     "newPosts": "新しい投稿"
+  },
+  "alert": {
+    "cannotShareInBrowser": "ご利用のブラウザでは共有できません"
   },
   "text": {
     "noMoreContent": "これ以上はありません",

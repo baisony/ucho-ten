@@ -577,6 +577,7 @@ const FeedHeaderComponent = ({
 }: FeedProps) => {
     const { t } = useTranslation()
     const [onHoverButton, setOnHoverButton] = useState(false)
+    const [isSubscribed1, setIsSubscribed1] = useState<boolean>(!!!isSubscribed)
 
     const {
         ProfileContainer,
@@ -615,12 +616,40 @@ const FeedHeaderComponent = ({
                                 />
                             </div>
                         </DropdownTrigger>
-                        <DropdownMenu className={"text-black dark:text-white"}>
-                            <DropdownItem key="new">
+                        <DropdownMenu
+                            className={"text-black dark:text-white"}
+                            aria-label="dropdown share menu"
+                        >
+                            {window.navigator.share && (
+                                <>
+                                    <DropdownItem
+                                        key="share"
+                                        onClick={() => {
+                                            const aturl = new AtUri(
+                                                feedInfo.view?.uri
+                                            )
+                                            window.navigator.share({
+                                                title: feedInfo.view?.title,
+                                                text: feedInfo.view
+                                                    ?.description,
+                                                url: `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`,
+                                            })
+                                        }}
+                                    >
+                                        {t("pages.feedOnlyPage.shareFeed")}
+                                    </DropdownItem>
+                                </>
+                            )}
+                            <DropdownItem
+                                key="new"
+                                onClick={() => {
+                                    const aturl = new AtUri(feedInfo.view?.uri)
+                                    navigator.clipboard.writeText(
+                                        `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
+                                    )
+                                }}
+                            >
                                 {t("pages.feedOnlyPage.copyFeedURL")}
-                            </DropdownItem>
-                            <DropdownItem key="copy">
-                                {t("pages.feedOnlyPage.postThisFeed")}{" "}
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
@@ -632,14 +661,27 @@ const FeedHeaderComponent = ({
                         onMouseEnter={() => {
                             setOnHoverButton(true)
                         }}
-                        onClick={onClick}
+                        onClick={() => {
+                            try {
+                                onClick
+                                console.log("click")
+                                console.log(isSubscribed1)
+                                if (isSubscribed1) {
+                                    setIsSubscribed1(false)
+                                } else {
+                                    setIsSubscribed1(true)
+                                }
+                            } catch (e) {
+                                console.log(e)
+                            }
+                        }}
                         isDisabled={
                             isSkeleton ||
                             feedInfo?.purpose ===
                                 "app.bsky.graph.defs#curatelist"
                         }
                     >
-                        {isSubscribed
+                        {isSubscribed1
                             ? !onHoverButton
                                 ? t("button.subscribed")
                                 : t("button.unsubscribe")

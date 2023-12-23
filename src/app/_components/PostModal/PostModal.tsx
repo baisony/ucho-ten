@@ -593,7 +593,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 <ModalContent>
                     {(onCloseALT) => (
                         <>
-                            <ModalHeader>Edit ALT</ModalHeader>
+                            <ModalHeader>{t("modal.post.editALT")}</ModalHeader>
                             <ModalBody>
                                 <img
                                     className={
@@ -615,7 +615,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             </ModalBody>
                             <ModalFooter>
                                 <Button color={"danger"} onClick={onCloseALT}>
-                                    Cancel
+                                    {t("button.cancel")}
                                 </Button>
                                 <Button
                                     color={"primary"}
@@ -626,7 +626,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         console.log(altOfImageList)
                                     }}
                                 >
-                                    Save
+                                    {t("button.save")}
                                 </Button>
                             </ModalFooter>
                         </>

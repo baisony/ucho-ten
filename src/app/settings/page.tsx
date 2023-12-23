@@ -410,7 +410,7 @@ const SettingsContentFilteringPage = ({
                     <div
                         key={key}
                         className={
-                            "flex justify-between items-center pt-[5px] pb-[5px] text-black dark:text-white"
+                            "flex justify-between items-center pt-[5px] pb-[5px] text-black dark:text-white bg-white dark:bg-[#16191F] w-full"
                         }
                     >
                         <div>
