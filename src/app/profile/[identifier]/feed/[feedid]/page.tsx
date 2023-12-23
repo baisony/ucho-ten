@@ -33,7 +33,7 @@ import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { BskyAgent } from "@atproto/api"
+import { AtUri, BskyAgent } from "@atproto/api"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
@@ -610,11 +610,14 @@ const FeedHeaderComponent = ({
                                         <DropdownItem
                                             key="share"
                                             onClick={() => {
+                                                const aturl = new AtUri(
+                                                    feedInfo.view?.uri
+                                                )
                                                 window.navigator.share({
                                                     title: feedInfo.view?.title,
                                                     text: feedInfo.view
                                                         ?.description,
-                                                    url: feedInfo.view?.uri,
+                                                    url: `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`,
                                                 })
                                             }}
                                         >
@@ -622,7 +625,17 @@ const FeedHeaderComponent = ({
                                         </DropdownItem>
                                     </>
                                 )}
-                                <DropdownItem key="new">
+                                <DropdownItem
+                                    key="new"
+                                    onClick={() => {
+                                        const aturl = new AtUri(
+                                            feedInfo.view?.uri
+                                        )
+                                        navigator.clipboard.writeText(
+                                            `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`
+                                        )
+                                    }}
+                                >
                                     {t("pages.feedOnlyPage.copyFeedURL")}
                                 </DropdownItem>
                             </DropdownMenu>

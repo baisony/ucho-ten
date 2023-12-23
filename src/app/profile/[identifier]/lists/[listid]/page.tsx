@@ -625,11 +625,14 @@ const FeedHeaderComponent = ({
                                     <DropdownItem
                                         key="share"
                                         onClick={() => {
+                                            const aturl = new AtUri(
+                                                feedInfo.view?.uri
+                                            )
                                             window.navigator.share({
                                                 title: feedInfo.view?.title,
                                                 text: feedInfo.view
                                                     ?.description,
-                                                url: feedInfo.view?.uri,
+                                                url: `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`,
                                             })
                                         }}
                                     >
@@ -637,7 +640,15 @@ const FeedHeaderComponent = ({
                                     </DropdownItem>
                                 </>
                             )}
-                            <DropdownItem key="new">
+                            <DropdownItem
+                                key="new"
+                                onClick={() => {
+                                    const aturl = new AtUri(feedInfo.view?.uri)
+                                    navigator.clipboard.writeText(
+                                        `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
+                                    )
+                                }}
+                            >
                                 {t("pages.feedOnlyPage.copyFeedURL")}
                             </DropdownItem>
                         </DropdownMenu>
