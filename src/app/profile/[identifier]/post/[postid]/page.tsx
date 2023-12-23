@@ -891,9 +891,7 @@ const PostPage = (props: PostPageProps) => {
                                             }
                                             onClick={() => {
                                                 void navigator.clipboard.writeText(
-                                                    JSON.stringify(
-                                                        postView?.post || ""
-                                                    )
+                                                    JSON.stringify(thread)
                                                 )
                                             }}
                                         >
