@@ -590,26 +590,6 @@ const FeedHeaderComponent = ({
                                 className={"text-black dark:text-white"}
                                 aria-label="dropdown share menu"
                             >
-                                {window?.navigator?.share && (
-                                    <>
-                                        <DropdownItem
-                                            key="share"
-                                            onClick={() => {
-                                                const aturl = new AtUri(
-                                                    feedInfo.view?.uri
-                                                )
-                                                window.navigator.share({
-                                                    title: feedInfo.view?.title,
-                                                    text: feedInfo.view
-                                                        ?.description,
-                                                    url: `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`,
-                                                })
-                                            }}
-                                        >
-                                            {t("pages.feedOnlyPage.shareFeed")}
-                                        </DropdownItem>
-                                    </>
-                                )}
                                 <DropdownItem
                                     key="new"
                                     onClick={() => {
