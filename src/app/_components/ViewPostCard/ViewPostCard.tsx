@@ -1161,7 +1161,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 </Button>
                             </div>
                         )}
-                        {embedMedia && (
+                        {embedMedia && !contentWarning && (
                             <EmbedMedia
                                 embedMedia={embedMedia}
                                 onImageClick={(images, index) => {
@@ -1170,17 +1170,23 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 nextQueryParams={nextQueryParams}
                             />
                         )}
-                        {embedExternal && !isEmbedToPost && !isEmbedToModal && (
-                            <div className={"h-full w-full mt-[5px]"}>
-                                <Linkcard ogpData={embedExternal.external} />
-                            </div>
-                        )}
+                        {embedExternal &&
+                            !isEmbedToPost &&
+                            !isEmbedToModal &&
+                            !contentWarning && (
+                                <div className={"h-full w-full mt-[5px]"}>
+                                    <Linkcard
+                                        ogpData={embedExternal.external}
+                                    />
+                                </div>
+                            )}
                         {embedRecord &&
                             embedRecordViewRecord &&
                             !embedFeed &&
                             !embedMuteList &&
                             !notfoundEmbedRecord &&
-                            !embedRecordBlocked && (
+                            !embedRecordBlocked &&
+                            !contentWarning && (
                                 <ViewPostCard
                                     isTop={false}
                                     bodyText={processPostBodyText(
