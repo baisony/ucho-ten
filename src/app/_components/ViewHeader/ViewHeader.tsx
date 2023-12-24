@@ -334,19 +334,24 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                     currentMenu.map((menu: HeaderMenu, index: number) => (
                         <SwiperSlide
                             key={`view-header-menu-${index}`}
-                            className="pl-3 pr-3"
                             onClick={() => {
                                 setMenuIndexChangedByMenu(true)
                                 setMenuIndex(index)
                             }}
-                            style={{ width: "fit-content" }}
+                            className="pl-3 pr-3"
+                            style={{
+                                width:
+                                    currentMenu.length <= 3
+                                        ? `${100 / currentMenu.length}%`
+                                        : "fit-content",
+                            }}
                         >
                             <div
                                 className={`${
                                     menuIndex === index
                                         ? "text-white"
                                         : "text-[#909090]"
-                                } md:text-[15px] text-[13px] lg:flex md:block flex items-center ${
+                                } md:text-[15px] text-[13px] flex justify-center items-center ${
                                     isMatchingPath ? `lg:h-[27px]` : `lg:h-full`
                                 } cursor-pointer`}
                             >

@@ -11,6 +11,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
+    faD,
+    faN,
     faAt,
     faCopy,
     faEllipsis,
@@ -934,7 +936,7 @@ const UserProfileComponent = ({
 
                                 <h3 className="text-default-500 text-small select-none">
                                     {t("pages.profile.displayName")} (
-                                    {displayName.length} / 64)
+                                    {displayName?.length ?? 0} / 64)
                                 </h3>
                                 <div className={"w-full"}>
                                     <Input
@@ -945,7 +947,7 @@ const UserProfileComponent = ({
                                 </div>
                                 <h3 className="text-default-500 text-small select-none">
                                     {t("pages.profile.bio")} (
-                                    {description.length} / 256)
+                                    {description?.length ?? 0} / 256)
                                 </h3>
                                 <div className={"w-full"}>
                                     <Textarea
@@ -1191,6 +1193,9 @@ const UserProfileComponent = ({
                                     <DropdownMenu aria-label={"copy-dropdown"}>
                                         <DropdownItem
                                             key="copydid"
+                                            startContent={
+                                                <FontAwesomeIcon icon={faD} />
+                                            }
                                             onClick={() => {
                                                 void navigator.clipboard.writeText(
                                                     profile.did
@@ -1201,6 +1206,9 @@ const UserProfileComponent = ({
                                         </DropdownItem>
                                         <DropdownItem
                                             key="copyhandle"
+                                            startContent={
+                                                <FontAwesomeIcon icon={faAt} />
+                                            }
                                             onClick={() => {
                                                 void navigator.clipboard.writeText(
                                                     profile.handle
@@ -1211,6 +1219,9 @@ const UserProfileComponent = ({
                                         </DropdownItem>
                                         <DropdownItem
                                             key="copydisplayname"
+                                            startContent={
+                                                <FontAwesomeIcon icon={faN} />
+                                            }
                                             onClick={() => {
                                                 void navigator.clipboard.writeText(
                                                     profile.displayName

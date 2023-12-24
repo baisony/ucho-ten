@@ -200,7 +200,11 @@ export const ViewSideMenu: React.FC<Props> = () => {
                                 }
                                 alt={"avatar"}
                             />
-                            <div className={"text-[14px]"}>
+                            <div
+                                className={
+                                    "text-[14px] overflow-hidden w-[120px] overflow-ellipsis whitespace-nowrap"
+                                }
+                            >
                                 {userProfileDetailed?.displayName}
                             </div>
                         </div>
