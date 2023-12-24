@@ -632,6 +632,22 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         void navigator.clipboard.writeText(urlToCopy)
     }
 
+    const handleMenuClickCopyATURI = () => {
+        if (!postJsonData) {
+            return
+        }
+
+        void navigator.clipboard.writeText(postJsonData.uri)
+    }
+
+    const handleMenuClickCopyDID = () => {
+        if (!postJsonData) {
+            return
+        }
+
+        void navigator.clipboard.writeText(postJsonData.author.did)
+    }
+
     const handleMenuClickCopyJSON = () => {
         void navigator.clipboard.writeText(JSON.stringify(postJson))
     }
@@ -1032,6 +1048,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     }
                                     onClickTranslate={translateContentText}
                                     onClickCopyURL={handleMenuClickCopyURL}
+                                    onClickCopyATURI={handleMenuClickCopyATURI}
+                                    onClickCopyDID={handleMenuClickCopyDID}
                                     onClickCopyJSON={handleMenuClickCopyJSON}
                                     onClickReport={handleMenuClickReport}
                                     onClickDelete={handleMenuClickDelete}

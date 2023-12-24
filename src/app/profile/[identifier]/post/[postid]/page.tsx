@@ -23,8 +23,9 @@ import {
     faRetweet,
     faStar as faSolidStar,
     faTrash,
-    faU,
+    faAt,
     faUser,
+    faChain,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
@@ -891,24 +892,25 @@ const PostPage = (props: PostPageProps) => {
                                         showDivider={isPostMine}
                                     >
                                         <DropdownItem
-                                            key="json"
+                                            key="url"
                                             startContent={
                                                 <FontAwesomeIcon
-                                                    icon={faCode}
+                                                    icon={faChain}
                                                 />
                                             }
                                             onClick={() => {
+                                                const url = new AtUri(atUri)
                                                 void navigator.clipboard.writeText(
-                                                    JSON.stringify(thread)
+                                                    `https://bsky.app/profile/${url.hostname}/post/${url.rkey}`
                                                 )
                                             }}
                                         >
-                                            {t("pages.postOnlyPage.copyJSON")}
+                                            {t("pages.postOnlyPage.copyURL")}
                                         </DropdownItem>
                                         <DropdownItem
-                                            key="uri"
+                                            key="aturi"
                                             startContent={
-                                                <FontAwesomeIcon icon={faU} />
+                                                <FontAwesomeIcon icon={faAt} />
                                             }
                                             onClick={() => {
                                                 void navigator.clipboard.writeText(
@@ -916,7 +918,7 @@ const PostPage = (props: PostPageProps) => {
                                                 )
                                             }}
                                         >
-                                            {t("pages.postOnlyPage.copyURL")}
+                                            {t("pages.postOnlyPage.copyATURI")}
                                         </DropdownItem>
                                         <DropdownItem
                                             key="did"
@@ -932,6 +934,21 @@ const PostPage = (props: PostPageProps) => {
                                             }}
                                         >
                                             {t("pages.postOnlyPage.copyDID")}
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="json"
+                                            startContent={
+                                                <FontAwesomeIcon
+                                                    icon={faCode}
+                                                />
+                                            }
+                                            onClick={() => {
+                                                void navigator.clipboard.writeText(
+                                                    JSON.stringify(thread)
+                                                )
+                                            }}
+                                        >
+                                            {t("pages.postOnlyPage.copyJSON")}
                                         </DropdownItem>
                                     </DropdownSection>
                                     <DropdownSection title="Danger zone">

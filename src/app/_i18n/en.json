@@ -28,6 +28,7 @@
       "translate": "Translate",
       "copyJSON": "Copy Post JSON",
       "copyURL": "Copy Post URL",
+      "copyATURI": "Copy AT URI",
       "copyDID": "Copy Author DID",
       "viewOriginal": "View Original Post",
       "translateErorr": "Translation Error"
