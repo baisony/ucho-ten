@@ -536,6 +536,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         console.log(appearanceColor)
+        if (pathName === "/login" || pathName === "/") return
         // DarkモードとLightモードの判定
         const isDarkMode = document.documentElement.classList.contains("dark")
 
@@ -543,7 +544,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
         element.setAttribute("content", themeColor)
-    }, [appearanceColor, agent])
+    }, [appearanceColor, agent, pathName])
 
     return (
         <div

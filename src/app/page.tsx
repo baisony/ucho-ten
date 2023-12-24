@@ -162,11 +162,6 @@ export default function CreateLoginPage() {
         }
     }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 
-    useEffect(() => {
-        const element = document.querySelector("meta[name=theme-color]")!
-        element.setAttribute("content", "#000000")
-    }, [])
-
     return (
         <>
             <div className={"h-full w-full bg-black"}>
