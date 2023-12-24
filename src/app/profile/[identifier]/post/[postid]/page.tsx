@@ -767,9 +767,17 @@ const PostPage = (props: PostPageProps) => {
                                             className={"w-[40px]"}
                                         />
                                         {!isMuted ? (
-                                            <span>Mute</span>
+                                            <span>
+                                                {t(
+                                                    "components.ViewPostCard.mute"
+                                                )}
+                                            </span>
                                         ) : (
-                                            <span>Un mute</span>
+                                            <span>
+                                                {t(
+                                                    "components.ViewPostCard.unmute"
+                                                )}
+                                            </span>
                                         )}
                                     </div>
                                     <div
@@ -784,7 +792,7 @@ const PostPage = (props: PostPageProps) => {
                                             icon={faFlag}
                                             className={"w-[40px]"}
                                         />
-                                        Report
+                                        {t("pages.postOnlyPage.report")}
                                     </div>
                                 </span>
                             </ModalBody>
@@ -1026,7 +1034,7 @@ const PostPage = (props: PostPageProps) => {
                                 </Button>
                             </div>
                         )}
-                        {embedMedia && (
+                        {embedMedia && !contentWarning && (
                             <EmbedMedia
                                 embedMedia={embedMedia}
                                 onImageClick={(index: number) => {
@@ -1035,7 +1043,7 @@ const PostPage = (props: PostPageProps) => {
                                 nextQueryParams={nextQueryParams}
                             />
                         )}
-                        {embedExternal && (
+                        {embedExternal && !contentWarning && (
                             <div className={"h-full w-full mt-[5px]"}>
                                 <Linkcard ogpData={embedExternal.external} />
                             </div>
@@ -1045,7 +1053,8 @@ const PostPage = (props: PostPageProps) => {
                             !embedFeed &&
                             !embedMuteList &&
                             !notfoundEmbedRecord &&
-                            !embedRecordBlocked && (
+                            !embedRecordBlocked &&
+                            !contentWarning && (
                                 <ViewPostCard
                                     isTop={false}
                                     bodyText={processPostBodyText(

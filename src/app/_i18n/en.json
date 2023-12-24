@@ -110,7 +110,7 @@
     "ViewPostCard": {
       "report": "Report",
       "mute": "Mute",
-      "unmute": "Unmute",
+      "unmute": "Un mute",
       "delete": "Delete",
       "copyURL": "Copy Post URL",
       "copyJSON": "Copy Post JSON",
