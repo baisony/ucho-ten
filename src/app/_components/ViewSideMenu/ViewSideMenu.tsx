@@ -125,14 +125,7 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     href={"/u-tab"}
                 >
                     <div className={"mr-[10px]"}>
-                        <Badge
-                            content={""}
-                            color={"primary"}
-                            size={"sm"}
-                            isInvisible={unreadNotification == 0}
-                        >
-                            <FontAwesomeIcon icon={faCloud} />
-                        </Badge>
+                        <FontAwesomeIcon icon={faCloud} />
                     </div>
                     U-tab
                 </Link>
