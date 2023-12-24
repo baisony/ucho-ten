@@ -258,7 +258,7 @@ export default function RootLayout({
                 <meta name="apple-mobile-web-app-title" content="Ucho-ten" />
                 <meta name="application-name" content="Ucho-ten" />
                 <meta name="msapplication-TileColor" content="#b91d47" />
-                <meta name="theme-color" content="#ffffff" />
+                <meta name="theme-color" content="#000000" />
                 <meta name="robots" content="noarchive,max-image-preview" />
             </head>
             <body
