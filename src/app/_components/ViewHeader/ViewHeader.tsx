@@ -31,6 +31,7 @@ import { useAtom } from "jotai"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
 import Link from "next/link"
+import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 
 interface Props {
     className?: string
@@ -49,6 +50,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const pathname = usePathname()
     const specificPaths = ["/search"]
     const isMatchingPath = specificPaths.includes(pathname)
+    const [feedGenerators] = useFeedGeneratorsAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
@@ -57,23 +59,11 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         useTappedTabbarButtonAtom()
     const [searchInfo, setSearchInfo] = useSearchInfoAtom()
 
-    const {
-        // className,
-        isMobile,
-        //open,
-        //tab,
-        //page,
-        //isNextPage,
-        setSideBarOpen,
-        //selectedTab,
-    } = props
+    const { isMobile, setSideBarOpen } = props
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState<string>("")
-    //const [searchTarget, setSearchTarget] = useState<string>("posts")
-    // const target = searchParams.get("target")
     const [nextQueryParams] = useNextQueryParamsAtom()
-    // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false)
     const [isComposing, setComposing] = useState(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
     const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
@@ -81,20 +71,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     const swiperRef = useRef<SwiperCore | null>(null)
     const prevMenuType = useRef<HeaderMenuType>("home")
 
-    const {
-        Header,
-        //HeaderContentTitleContainer,
-        //HeaderContentTitle,
-        top,
-        bottom,
-        HeaderInputArea,
-    } = viewHeader()
-
-    // useEffect(() => {
-    //     if (searchInfo.searchWord !== "") {
-    //         setSearchText(searchInfo.searchWord)
-    //     }
-    // }, [])
+    const { Header, top, bottom, HeaderInputArea } = viewHeader()
 
     useEffect(() => {
         if (tappedTabbarButton == "search") {
@@ -103,10 +80,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
             setSearchInfo({
                 target: "",
                 searchWord: "",
-                // posts: null,
-                // users: null,
-                // postCursor: "",
-                // userCursor: "",
             })
 
             const queryParams = new URLSearchParams(searchParams)
@@ -181,8 +154,11 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
     }, [currentMenuType, menuIndex, swiperRef.current])
 
     const currentMenu = useMemo(() => {
+        if (currentMenuType === "home") {
+            if (feedGenerators === null) return
+        }
         return menus[currentMenuType]
-    }, [menus, currentMenuType])
+    }, [menus, currentMenuType, feedGenerators])
 
     const tl = (word: string) => {
         const translate = t(`components.ViewHeader.${word}`)
@@ -300,18 +276,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                         />
                     </Link>
                 )}
-                {/*selectedTab === "single" && (
-                    <Button
-                        variant="light"
-                        className={"absolute right-[0px] p-[20px] text-white"}
-                        startContent={
-                            <FontAwesomeIcon
-                                className={"h-[20px]"}
-                                icon={faPlus}
-                            />
-                        }
-                    />
-                )*/}
             </div>
             {/* <ScrollShadow
                 className={bottom({ page: page })}
@@ -326,7 +290,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                 }}
                 cssMode={isMobile}
                 slidesPerView={"auto"}
-                //modules={[Pagination]}
                 className={bottom({ isMatchingPath })}
                 navigation={true}
             >
