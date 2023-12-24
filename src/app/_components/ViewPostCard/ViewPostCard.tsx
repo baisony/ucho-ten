@@ -734,29 +734,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenOption()
     }
 
-    const handleMouseDown = useCallback(
-        (e: React.MouseEvent<HTMLDivElement>) => {
-            const timer = setTimeout(() => {
-                handleLongPress()
-            }, 500)
-
-            document.addEventListener("mouseup", () => {
-                //setLongPressActive(false)
-                //setIsExpanded(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("mousemove", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("contextmenu", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-        },
-        []
-    )
-
     const handleTouchStart = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
             const timer = setTimeout(() => {

@@ -118,7 +118,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             alt={"avatar"}
                         />
                     </div>
-                    <div className={"ml-[12px]"}>
+                    <div className={"ml-[12px] w-[204px]"}>
                         <div className={AuthorDisplayName()}>
                             {userProfileDetailed?.displayName ||
                                 userProfileDetailed?.handle}
