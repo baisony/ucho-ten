@@ -13,12 +13,16 @@ import {
     faFlag,
     faLink,
     faTrash,
+    faAt,
+    faUser,
 } from "@fortawesome/free-solid-svg-icons"
 
 interface MoreDropDownMenuProps {
     isThisUser: boolean
     onClickTranslate: () => void
     onClickCopyURL: () => void
+    onClickCopyATURI: () => void
+    onClickCopyDID: () => void
     onClickCopyJSON: () => void
     onClickReport: () => void
     onClickDelete: () => void
@@ -29,6 +33,8 @@ const MoreDropDownMenu = ({
     isThisUser,
     onClickTranslate,
     onClickCopyURL,
+    onClickCopyATURI,
+    onClickCopyDID,
     onClickCopyJSON,
     onClickReport,
     onClickDelete,
@@ -50,33 +56,55 @@ const MoreDropDownMenu = ({
                     aria-label="Multiple selection actions"
                     selectionMode="multiple"
                 >
-                    <DropdownItem
-                        key="0"
-                        startContent={<FontAwesomeIcon icon={faLanguage} />}
-                        onClick={() => {
-                            onClickTranslate()
-                        }}
-                    >
-                        {t("pages.postOnlyPage.translate")}
-                    </DropdownItem>
-                    <DropdownItem
-                        key="1"
-                        startContent={<FontAwesomeIcon icon={faLink} />}
-                        onClick={() => {
-                            onClickCopyURL()
-                        }}
-                    >
-                        {t("components.ViewPostCard.copyURL")}
-                    </DropdownItem>
-                    <DropdownItem
-                        key="2"
-                        startContent={<FontAwesomeIcon icon={faCode} />}
-                        onClick={() => {
-                            onClickCopyJSON()
-                        }}
-                    >
-                        {t("components.ViewPostCard.copyJSON")}
-                    </DropdownItem>
+                    <DropdownSection title="Actions">
+                        <DropdownItem
+                            key="0"
+                            startContent={<FontAwesomeIcon icon={faLanguage} />}
+                            onClick={() => {
+                                onClickTranslate()
+                            }}
+                        >
+                            {t("pages.postOnlyPage.translate")}
+                        </DropdownItem>
+                    </DropdownSection>
+                    <DropdownSection title="Copy">
+                        <DropdownItem
+                            key="1"
+                            startContent={<FontAwesomeIcon icon={faLink} />}
+                            onClick={() => {
+                                onClickCopyURL()
+                            }}
+                        >
+                            {t("components.ViewPostCard.copyURL")}
+                        </DropdownItem>
+                        <DropdownItem
+                            key="2"
+                            startContent={<FontAwesomeIcon icon={faAt} />}
+                            onClick={() => {
+                                onClickCopyATURI()
+                            }}
+                        >
+                            {t("components.ViewPostCard.copyATURI")}
+                        </DropdownItem>
+                        <DropdownItem
+                            key="3"
+                            startContent={<FontAwesomeIcon icon={faUser} />}
+                            onClick={() => {
+                                onClickCopyDID()
+                            }}
+                        >
+                            {t("components.ViewPostCard.copyDID")}
+                        </DropdownItem>
+                        <DropdownItem
+                            key="4"
+                            startContent={<FontAwesomeIcon icon={faCode} />}
+                            onClick={() => {
+                                onClickCopyJSON()
+                            }}
+                        >
+                            {t("components.ViewPostCard.copyJSON")}
+                        </DropdownItem>
+                    </DropdownSection>
                     <DropdownSection title="Danger zone">
                         {isThisUser ? (
                             <DropdownItem
