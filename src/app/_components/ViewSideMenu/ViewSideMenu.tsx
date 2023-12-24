@@ -7,6 +7,7 @@ import {
     faGear,
     faHome,
     faInbox,
+    faCloud,
     faMagnifyingGlass,
     faPenToSquare,
     faRightFromBracket,
@@ -27,7 +28,7 @@ import {
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { UserAccount } from "@/app/_atoms/accounts"
 import Link from "next/link"
-import logoImage from "../../../../public/images/logo/ucho-ten.svg"
+import logoImage from "@/../public/images/logo/ucho-ten.svg"
 import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
@@ -119,6 +120,24 @@ export const ViewSideMenu: React.FC<Props> = () => {
                 </Link>
                 <Link
                     className={menuItem({
+                        isLocationHere: pathName === "/u-tab",
+                    })}
+                    href={"/u-tab"}
+                >
+                    <div className={"mr-[10px]"}>
+                        <Badge
+                            content={""}
+                            color={"primary"}
+                            size={"sm"}
+                            isInvisible={unreadNotification == 0}
+                        >
+                            <FontAwesomeIcon icon={faCloud} />
+                        </Badge>
+                    </div>
+                    U-tab
+                </Link>
+                <Link
+                    className={menuItem({
                         isLocationHere: pathName === "/feeds",
                     })}
                     href={"/feeds"}
@@ -150,17 +169,6 @@ export const ViewSideMenu: React.FC<Props> = () => {
                     {t("components.ViewSideMenu.search")}
                 </Link>
                 <Link
-                    className={menuItem({
-                        isLocationHere: pathName === "/post",
-                    })}
-                    href={"/post"}
-                >
-                    <div className={"mr-[10px]"}>
-                        <FontAwesomeIcon icon={faPenToSquare} />
-                    </div>
-                    {t("components.ViewSideMenu.post")}
-                </Link>
-                <Link
                     href={"/settings"}
                     className={menuItem({
                         isLocationHere: pathName === "/settings",
@@ -170,6 +178,17 @@ export const ViewSideMenu: React.FC<Props> = () => {
                         <FontAwesomeIcon icon={faGear} />
                     </div>
                     {t("components.ViewSideMenu.settings")}
+                </Link>
+                <Link
+                    className={menuItem({
+                        isLocationHere: pathName === "/post",
+                    })}
+                    href={"/post"}
+                >
+                    <div className={"mr-[10px]"}>
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                    </div>
+                    {t("components.ViewSideMenu.post")}
                 </Link>
                 <Dropdown>
                     <DropdownTrigger>
