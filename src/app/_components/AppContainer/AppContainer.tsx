@@ -595,7 +595,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
                                 }
                             >
-                                {showTabBar && (
+                                {(pathName === "/login" || showTabBar) && (
                                     <ViewHeader
                                         isMobile={isMobile}
                                         setSideBarOpen={handleSideBarOpen}
