@@ -37,7 +37,7 @@ export default function RootLayout({
                 <meta property="og:type" content="website" />
                 <meta property="og:site_name" content="Ucho-ten" />
                 <meta property="og:title" content="Ucho-ten Bluesky Client" />
-                <meta property="og:url" content="https://test.ucho-ten.net" />
+                <meta property="og:url" content="https://ucho-ten.net" />
                 <meta property="og:locale" content="ja_JP" />
                 <meta
                     name="description"
