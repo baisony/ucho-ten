@@ -932,8 +932,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 }}
                 onClick={(e) => {
                     e.stopPropagation()
-                    console.log("hogehoge")
                     handleChangeSaveScrollPosition()
+                    console.log("hogehoge")
                     router.push(
                         `/profile/${postJsonData?.author.did}/post/${
                             postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
@@ -953,7 +953,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                console.log("hogehoge")
+                                handleChangeSaveScrollPosition()
                             }}
                             href={`/profile/${(
                                 json?.reason?.by as ProfileViewBasic
@@ -976,6 +976,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                 })}
                                 onClick={(e) => {
                                     e.stopPropagation()
+                                    handleChangeSaveScrollPosition()
                                 }}
                                 href={`/profile/${postJsonData?.author
                                     .did}?${nextQueryParams.toString()}`}
@@ -993,6 +994,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             <Link
                                 onClick={(e) => {
                                     e.stopPropagation()
+                                    handleChangeSaveScrollPosition()
                                 }}
                                 href={`/profile/${postJsonData?.author
                                     .did}?${nextQueryParams.toString()}`}
@@ -1013,6 +1015,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     <Link
                                         onClick={(e) => {
                                             e.stopPropagation()
+                                            handleChangeSaveScrollPosition()
                                         }}
                                         href={`/profile/${postJsonData?.author
                                             .did}?${nextQueryParams.toString()}`}
