@@ -111,8 +111,11 @@
     "ViewPostCard": {
       "report": "報告",
       "mute": "ミュート",
+      "muteThisUser?": "このユーザーをミュートしますか？",
       "unmute": "ミュート解除",
+      "unMuteThisUser?": "このユーザーのミュートを解除しますか？",
       "delete": "削除",
+      "deletePost?": "本当にこの投稿を削除しますか？",
       "copyURL": "URLをコピー",
       "copyJSON": "JSONをコピー",
       "copyATURI": "atURIをコピー",

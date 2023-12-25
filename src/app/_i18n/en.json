@@ -111,8 +111,11 @@
     "ViewPostCard": {
       "report": "Report",
       "mute": "Mute",
+      "muteThisUser?": "Are you sure you want to unmute this user?",
       "unmute": "Un mute",
+      "unMuteThisUser?": "Are you sure you want to mute this user?",
       "delete": "Delete",
+      "deletePost?": "Are you sure you want to delete this post?",
       "copyURL": "Copy Post URL",
       "copyJSON": "Copy Post JSON",
       "warning": "Content Warning",
