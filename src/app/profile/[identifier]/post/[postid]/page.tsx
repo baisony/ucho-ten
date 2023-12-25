@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { notFound, usePathname } from "next/navigation"
+import { notFound, usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -157,6 +157,7 @@ interface PostPageProps {
 
 const PostPage = (props: PostPageProps) => {
     const { tab } = props
+    const router = useRouter()
     const [agent] = useAgent()
     const [userPreference] = useUserPreferencesAtom()
     const [isDeleted, setIsDeleted] = useState<boolean>(false)
@@ -422,6 +423,21 @@ const PostPage = (props: PostPageProps) => {
             setIsBookmarked(true)
         }
     }
+
+    const handleDelete = async () => {
+        if (loading) return
+        if (!agent) return
+        if (!thread?.post) return
+        try {
+            setLoading(true)
+            await agent.deletePost(thread?.post?.uri)
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const handleMute = async () => {
         if (loading) {
             return
@@ -707,7 +723,7 @@ const PostPage = (props: PostPageProps) => {
                 hideCloseButton
             >
                 <ModalContent>
-                    {() => (
+                    {(onClose) => (
                         <>
                             <ModalBody>
                                 <span>
@@ -724,12 +740,8 @@ const PostPage = (props: PostPageProps) => {
                                             }
                                             try {
                                                 const url = new AtUri(atUri)
-                                                const bskyURL = `https://bsky.app/profile/${
-                                                    url.host
-                                                }/${url.pathname.replace(
-                                                    "/app.bsky.feed.post/",
-                                                    "/post/"
-                                                )}`
+                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/${url.rkey}`
+
                                                 console.log(url)
                                                 await window.navigator.share({
                                                     url: bskyURL,
@@ -747,6 +759,7 @@ const PostPage = (props: PostPageProps) => {
                                         className={"mt-[15px] mb-[15px] w-full"}
                                         onClick={async () => {
                                             await translateContentText()
+                                            onClose()
                                         }}
                                     >
                                         <FontAwesomeIcon
@@ -755,46 +768,96 @@ const PostPage = (props: PostPageProps) => {
                                         />
                                         {t("pages.postOnlyPage.translate")}
                                     </div>
-                                    <div
-                                        className={
-                                            "mt-[15px] mb-[15px] w-full text-red-600"
-                                        }
-                                        onClick={() => {
-                                            void handleMute()
-                                        }}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faVolumeXmark}
-                                            className={"w-[40px]"}
-                                        />
-                                        {!isMuted ? (
-                                            <span>
-                                                {t(
-                                                    "components.ViewPostCard.mute"
-                                                )}
-                                            </span>
-                                        ) : (
-                                            <span>
-                                                {t(
-                                                    "components.ViewPostCard.unmute"
-                                                )}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div
-                                        className={
-                                            "mt-[15px] mb-[15px] w-full text-red-600"
-                                        }
-                                        onClick={() => {
-                                            onOpenReport()
-                                        }}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faFlag}
-                                            className={"w-[40px]"}
-                                        />
-                                        {t("pages.postOnlyPage.report")}
-                                    </div>
+                                    {thread?.post?.author?.did !==
+                                        agent?.session?.did && (
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                            }
+                                            onClick={() => {
+                                                let confirm
+                                                if (isMuted) {
+                                                    confirm = window?.confirm(
+                                                        t(
+                                                            "components.ViewPostCard.unMuteThisUser?"
+                                                        )
+                                                    )
+                                                } else {
+                                                    confirm = window?.confirm(
+                                                        t(
+                                                            "components.ViewPostCard.muteThisUser?"
+                                                        )
+                                                    )
+                                                }
+                                                if (!confirm) return
+                                                void handleMute()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faVolumeXmark}
+                                                className={"w-[40px]"}
+                                            />
+                                            {!isMuted ? (
+                                                <span>
+                                                    {" "}
+                                                    {t(
+                                                        "components.ViewPostCard.mute"
+                                                    )}
+                                                </span>
+                                            ) : (
+                                                <span>
+                                                    {" "}
+                                                    {t(
+                                                        "components.ViewPostCard.unmute"
+                                                    )}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {thread?.post?.author?.did ===
+                                    agent?.session?.did ? (
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                            }
+                                            onClick={() => {
+                                                const confirm = window?.confirm(
+                                                    t(
+                                                        "components.ViewPostCard.deletePost?"
+                                                    )
+                                                )
+                                                if (!confirm) return
+                                                void handleDelete()
+                                                onClose()
+                                                router.back()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faTrash}
+                                                className={"w-[40px]"}
+                                            />
+                                            {t(
+                                                "components.ViewPostCard.delete"
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className={
+                                                "mt-[15px] mb-[15px] w-full text-red-600"
+                                            }
+                                            onClick={() => {
+                                                onOpenReport()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faFlag}
+                                                className={"w-[40px]"}
+                                            />
+                                            {t(
+                                                "components.ViewPostCard.report"
+                                            )}
+                                        </div>
+                                    )}
                                 </span>
                             </ModalBody>
                         </>
