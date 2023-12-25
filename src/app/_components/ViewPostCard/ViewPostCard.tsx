@@ -817,12 +817,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                 const url = new AtUri(
                                                     postView?.uri || ""
                                                 )
-                                                const bskyURL = `https://bsky.app/profile/${
-                                                    url.host
-                                                }/${url.pathname.replace(
-                                                    "/app.bsky.feed.post/",
-                                                    "/post/"
-                                                )}`
+
+                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/${url.rkey}`
                                                 console.log(url)
                                                 await window.navigator.share({
                                                     url: bskyURL,
