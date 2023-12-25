@@ -1,6 +1,9 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
-import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
@@ -177,10 +180,6 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        console.log(latestCID.current)
-    }, [latestCID.current])
-
-    useEffect(() => {
         if (!agent) return
         if (!isActive) {
             return
@@ -211,12 +210,14 @@ const FeedPage = ({
 
         const mergedTimeline = mergePosts(newTimeline, timeline)
 
+        if (!mergedTimeline[0]?.post) return
+        //@ts-ignore
         setTimeline(mergedTimeline)
         setNewTimeline([])
         setHasUpdate(false)
 
         if (mergedTimeline.length > 0) {
-            latestCID.current = mergedTimeline[0].post.cid
+            latestCID.current = (mergedTimeline[0].post as PostView).cid
         }
 
         await queryClient.refetchQueries({

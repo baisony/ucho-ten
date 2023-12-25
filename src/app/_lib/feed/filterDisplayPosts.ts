@@ -29,7 +29,6 @@ export const filterDisplayPosts = (
         ) {
             //@ts-ignore
             item.post.record.facets.map((facet: any) => {
-                console.log(facet)
                 if (facet.index.byteStart == 0) {
                     displayPost = false
                     return
