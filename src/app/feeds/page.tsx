@@ -34,6 +34,7 @@ import { useAtom } from "jotai"
 import { isMobile } from "react-device-detect"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Virtuoso } from "react-virtuoso"
+import { useTranslation } from "react-i18next"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -95,6 +96,7 @@ export default Page
 
 const MyFeedsPage = () => {
     const [agent] = useAgent()
+    const { t } = useTranslation()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { background, FeedCard } = layout()
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
@@ -166,18 +168,16 @@ const MyFeedsPage = () => {
                     {(onClose) => (
                         <>
                             <ModalHeader>
-                                Would you like to delete{" "}
-                                {selectedFeed?.displayName}
-                                {" ?"}
+                                {t("pages.feeds.deleteFeed?")}
+                                {`"${selectedFeed?.displayName}" ?`}
                             </ModalHeader>
-                            {/* TODO: i18n */}
                             <ModalFooter>
                                 <Button
                                     color="danger"
                                     variant="light"
                                     onClick={onClose}
                                 >
-                                    No
+                                    {t("button.no")}
                                 </Button>
                                 <Button
                                     color="primary"
@@ -186,7 +186,7 @@ const MyFeedsPage = () => {
                                         onClose()
                                     }}
                                 >
-                                    Yes
+                                    {t("button.yes")}
                                 </Button>
                             </ModalFooter>
                         </>
@@ -205,7 +205,7 @@ const MyFeedsPage = () => {
                         !isFetching ?? (
                             <div className={`text-white dark:text-black`}>
                                 {/* FIXME: WTF is this? */}
-                                ないよー
+                                {t("pages.feeds.notFound")}
                             </div>
                         )
                     )}

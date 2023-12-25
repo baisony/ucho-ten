@@ -216,10 +216,11 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                             <TableCell>
                                 <Select
                                     size={"sm"}
-                                    label="Languages"
+                                    label={t("pages.settings.selectLanguage")}
                                     selectedKeys={displayLanguage}
                                     className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
                                     onChange={(event) => {
+                                        if (event.target.value === "") return
                                         handleDisplayLanguageSelectionChange(
                                             event
                                         )
@@ -248,10 +249,11 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                             <TableCell>
                                 <Select
                                     size={"sm"}
-                                    label="Select a Language"
+                                    label={t("pages.settings.selectLanguage")}
                                     className={`${accordion()} max-w-xs`}
                                     selectedKeys={translateTo}
                                     onChange={(event) => {
+                                        if (event.target.value === "") return
                                         handleTranslateToSelectionChange(event)
                                     }}
                                 >
@@ -277,10 +279,11 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                             <TableCell>
                                 <Select
                                     size={"sm"}
-                                    label="font size"
+                                    label={t("pages.settings.size")}
                                     selectedKeys={String(contentFontSize)}
                                     className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
                                     onChange={(event) => {
+                                        if (event.target.value === "") return
                                         setContentFontSize(
                                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                             //@ts-ignore
@@ -639,9 +642,9 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             onClose()
                                         }}
                                     >
-                                        cancel
+                                        {t("button.cancel")}
                                     </Button>
-                                    <div>Edit word</div>
+                                    <div>{t("pages.mute.editMuteText")}</div>
                                     <Button
                                         className={"lg:hidden"}
                                         variant={"light"}
@@ -660,7 +663,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             inputMuteWord.length >= 21
                                         }
                                     >
-                                        save
+                                        {t("button.save")}
                                     </Button>
                                 </ModalHeader>
                                 <ModalBody>
@@ -671,7 +674,9 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                                     "flex justify-between"
                                                 }
                                             >
-                                                <div>ワード</div>
+                                                <div>
+                                                    {t("pages.mute.text")}
+                                                </div>
                                                 <div
                                                     className={`${
                                                         inputMuteWord.length >=
@@ -699,7 +704,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             ></Input>
                                         </div>
                                         <div className={"flex justify-between"}>
-                                            <div>有効</div>
+                                            <div>{t("pages.mute.enable")}</div>
                                             <Switch
                                                 defaultSelected={
                                                     modalEditMode
@@ -712,13 +717,19 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             />
                                         </div>
                                         <div className={"mt-[10px]"}>
-                                            <div>ミュート解除までの期間</div>
+                                            <div>
+                                                {t(
+                                                    "pages.mute.durationUntilUnmute"
+                                                )}
+                                            </div>
                                             <div
                                                 className={
                                                     "flex justify-between items-center"
                                                 }
                                             >
-                                                <div>期間</div>
+                                                <div>
+                                                    {t("pages.mute.period")}
+                                                </div>
                                                 <Select
                                                     size={"sm"}
                                                     label=""
@@ -759,7 +770,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                                     onClose()
                                                 }}
                                             >
-                                                delete
+                                                {t("button.delete")}
                                             </div>
                                         </div>
                                     </div>
@@ -771,7 +782,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                         }}
                                         className={"hidden lg:block"}
                                     >
-                                        cancel
+                                        {t("button.cancel")}
                                     </Button>
                                     <Button
                                         color={"primary"}
@@ -791,7 +802,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             inputMuteWord.length >= 21
                                         }
                                     >
-                                        save
+                                        {t("button.save")}
                                     </Button>
                                 </ModalFooter>
                             </>
@@ -824,10 +835,10 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                     <div className={"flex"}>
                                         <div>
                                             {muteWord.end === null
-                                                ? "無期限"
+                                                ? t("pages.mute.forever")
                                                 : muteWord.end < getNowTime()
                                                 ? getEndTime()
-                                                : "期限切れ"}
+                                                : t("pages.mute.expired")}
                                         </div>
                                         <div className={"w-[14px] ml-[10px]"}>
                                             <FontAwesomeIcon
@@ -851,9 +862,9 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                         setEditMode(false)
                                     }}
                                 >
-                                    cancel
+                                    {"button.cancel"}
                                 </div>
-                                <Button>delete</Button>
+                                <Button>{"button.delete"}</Button>
                             </>
                         ) : (
                             <>
@@ -869,7 +880,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                     }}
                                     isDisabled={muteWords.length >= 30}
                                 >
-                                    add
+                                    {t("pages.mute.add")}
                                 </Button>
                             </>
                         )}

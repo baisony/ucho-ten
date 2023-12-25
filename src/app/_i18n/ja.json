@@ -6,6 +6,9 @@
     },
     "inbox": {},
     "post": {},
+    "feeds": {
+      "deleteFeed?": "本当にこのフィードを削除しますか "
+    },
     "profile": {
       "editProfile": "プロフィールを編集",
       "displayName": "名前",
@@ -48,11 +51,13 @@
       "system": "自動",
       "auto": "自動",
       "appearance": "外観",
+      "size": "サイズ",
       "fontSize": "フォントサイズ",
       "small": "小",
       "medium": "中",
       "large": "大",
       "huge": "特大",
+      "selectLanguage": "言語を選択",
       "displayLanguage": "表示言語",
       "contentFontSize": "フォントサイズ",
       "notifications": "通知",
@@ -74,7 +79,15 @@
     "mute": {
       "title": "ミュート",
       "muteWord": "ミュートワード",
-      "muteUser": "ミュートユーザー"
+      "muteUser": "ミュートユーザー",
+      "add": "追加",
+      "text": "ワード",
+      "enable": "有効",
+      "period": "期間",
+      "durationUntilUnmute": "ミュート解除までの期間",
+      "editMuteText": "ミュートワードを編集",
+      "expired": "期限切れ",
+      "forever": "無制限"
     },
     "bookmarks": {
       "title": "ブックマーク",
@@ -111,8 +124,11 @@
     "ViewPostCard": {
       "report": "報告",
       "mute": "ミュート",
+      "muteThisUser?": "このユーザーをミュートしますか？",
       "unmute": "ミュート解除",
+      "unMuteThisUser?": "このユーザーのミュートを解除しますか？",
       "delete": "削除",
+      "deletePost?": "本当にこの投稿を削除しますか？",
       "copyURL": "URLをコピー",
       "copyJSON": "JSONをコピー",
       "copyATURI": "atURIをコピー",

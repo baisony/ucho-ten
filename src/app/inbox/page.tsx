@@ -1,287 +1,166 @@
 "use client"
-
-import React, { useEffect, useRef, useState } from "react"
-import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
+import { isMobile } from "react-device-detect"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { ListFooterSpinner } from "../_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-import { useNotificationInfoAtom } from "../_atoms/notification"
-import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { useTranslation } from "react-i18next"
-import { useCurrentMenuType } from "../_atoms/headerMenu"
-import { ViewPostCard } from "../_components/ViewPostCard"
-import { processPostBodyText } from "../_lib/post/processPostBodyText"
+import { mergePosts } from "@/app/_lib/feed/mergePosts"
+import {
+    QueryFunctionContext,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
-import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
+import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
-export default function Root() {
+const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
+
+export interface FeedPageProps {
+    isActive: boolean
+    isNextActive: boolean
+    isViaUFeed?: boolean
+    disableSlideVerticalScroll: boolean
+    now?: Date
+}
+
+interface FeedResponseObject {
+    posts: PostView[]
+    cursor: string // TODO: should consider adding ? to handle undefined.
+}
+
+const FeedPage = ({
+    now,
+    isViaUFeed,
+    isActive, // disableSlideVerticalScroll, isNextActive
+}: FeedPageProps) => {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("inbox")
-
     const { t } = useTranslation()
-    const { nullTimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [notificationInfo, setNotificationInfo] = useNotificationInfoAtom()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
-    const [, setUnreadNotification] = useUnreadNotificationAtom()
+    const [unreadNotification, setUnreadNotification] =
+        useUnreadNotificationAtom()
+    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const [timeline, setTimeline] = useState<PostView[] | null>(null)
+    const [newTimeline, setNewTimeline] = useState<PostView[]>([])
+    const [hasMore, setHasMore] = useState<boolean>(false)
+    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const [cursorState, setCursorState] = useState<string>()
+    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
 
-    const [notification, setNotification] = useState<PostView[] | null>(null)
-    const [hasMore, setHasMore] = useState(false)
-    const [now, setNow] = useState<Date>(new Date())
-    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
-
-    const cursor = useRef<string>("")
-    const loading = useRef<boolean>(false)
+    const scrollRef = useRef<HTMLElement | null>(null)
+    const shouldScrollToTop = useRef<boolean>(false)
+    const latestCID = useRef<string>("")
+    const shouldCheckUpdate = useRef<boolean>(false)
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const feedKey = "Inbox"
+    const pageName = "Inbox"
+
+    const getFeedKeys = {
+        all: ["getNotification"] as const,
+        feedkey: (feedKey: string) => [...getFeedKeys.all, feedKey] as const,
+        feedkeyWithCursor: (feedKey: string, cursor: string) =>
+            [...getFeedKeys.feedkey(feedKey), cursor] as const,
+    }
 
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            setNow(new Date())
-        }, 60 * 1000)
+        if (shouldScrollToTop.current && scrollRef.current) {
+            scrollRef.current.scrollTop = 0
 
-        return () => {
-            clearInterval(intervalId)
+            shouldScrollToTop.current = false
         }
-    }, [])
+    }, [timeline])
 
-    useEffect(() => {
-        if (tappedTabbarButton == "inbox") {
-            if (loading.current) {
-                setTappedTabbarButton(null)
-                return
-            }
-
-            const doFetch = async () => {
-                cursor.current = ""
-
-                setNotificationInfo((prevNotificationInfo) => {
-                    const newNotificationInfo = prevNotificationInfo
-
-                    newNotificationInfo.notification = null
-                    newNotificationInfo.cursor = ""
-
-                    return newNotificationInfo
-                })
-
-                setNotification(null)
-                await fetchNotification()
-            }
-
-            void doFetch()
+    const loadMore = useCallback(() => {
+        if (hasMore) {
+            setLoadMoreFeed(true)
         }
-    }, [tappedTabbarButton])
+    }, [hasMore])
 
-    useEffect(() => {
-        if (notification) {
-            setNotificationInfo((prevNotificationInfo) => {
-                const newNotificationInfo = prevNotificationInfo
+    const checkNewTimeline = async () => {
+        if (!agent) return
+        shouldCheckUpdate.current = false
 
-                newNotificationInfo.notification = notification
-                newNotificationInfo.cursor = cursor.current
-
-                return newNotificationInfo
-            })
-        }
-    }, [notification, cursor.current])
-
-    const fetchNotification = async () => {
         try {
-            if (!agent) {
-                return
-            }
+            const { data } = await agent.countUnreadNotifications()
+            const { count } = data
+            console.log(count)
+            if (count == 0) return
 
-            loading.current = true
-
-            const { data } = await agent.listNotifications({
-                cursor: cursor.current,
+            const notifData = await agent.listNotifications({
+                cursor: "",
             })
-            console.log(data)
-            if (
-                data.notifications.length === 0 &&
-                (cursor.current === data.cursor || !data.cursor)
-            ) {
-                setIsEndOfFeed(true)
-            }
 
             if (data) {
-                if (data.cursor) {
-                    cursor.current = data.cursor
-                }
+                const { notifications } = notifData.data
 
-                console.log("notifications", data.notifications)
-
-                const replyNotifications = data.notifications.filter(
-                    (notification) =>
-                        notification.reason === "reply" ||
-                        notification.reason === "mention"
-                )
-
-                const dividedReplyNotifications = []
-
-                for (let i = 0; i < replyNotifications.length; i += 25) {
-                    dividedReplyNotifications.push(
-                        replyNotifications.slice(i, i + 25)
+                const replies = notifications.filter((notification) => {
+                    return (
+                        !notification.isRead &&
+                        (notification.reason === "reply" ||
+                            notification.reason === "mention")
                     )
-                }
-
-                const allPosts: PostView[] = []
-
-                for (const dividedNotifications of dividedReplyNotifications) {
-                    const posts = await agent.getPosts({
-                        uris: dividedNotifications.map(
-                            (notification) => notification.uri
-                        ),
-                    })
-                    allPosts.push(...posts.data.posts)
-                }
-
-                console.log("replyNotifications", replyNotifications)
-
-                setNotification((currentNotifications) => {
-                    if (currentNotifications !== null) {
-                        return [...currentNotifications, ...allPosts]
-                    } else {
-                        return [...allPosts]
-                    }
                 })
 
-                if (cursor.current.length > 0) {
-                    setHasMore(true)
-                } else {
-                    setHasMore(false)
+                setNewTimeline(replies)
+
+                if (replies.length > 0) {
+                    console.log(
+                        "new and old cid",
+                        feedKey,
+                        replies[0].cid,
+                        latestCID.current
+                    )
+                    if (
+                        replies[0].cid !== latestCID.current &&
+                        latestCID.current !== ""
+                    ) {
+                        setHasUpdate(true)
+                    } else {
+                        setHasUpdate(false)
+                    }
                 }
-            } else {
-                setNotification([])
-                setHasMore(false)
-                // もしresがundefinedだった場合の処理
-                console.log("Responseがundefinedです。")
             }
         } catch (e) {
-            setHasMore(false)
-            console.log(e)
-        } finally {
-            loading.current = !!(
-                agent &&
-                notification &&
-                notification.length < 20 &&
-                cursor.current.length > 0
-            )
-        }
-    }
-
-    const handleValueChange = (newValue: any) => {
-        console.log(newValue)
-        console.log(notification)
-        if (!notification) return
-        const foundObject = notification.findIndex(
-            (item) => item.uri === newValue.postUri
-        )
-
-        if (foundObject !== -1) {
-            console.log(notification[foundObject])
-            switch (newValue.reaction) {
-                case "like":
-                    setNotification((prevData) => {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-ignore
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.like =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unlike":
-                    setNotification((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.like = undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "repost":
-                    setNotification((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.repost =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unrepost":
-                    setNotification((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.repost = undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "delete":
-                    setNotification((prevData) => {
-                        const updatedData = [...prevData]
-                        updatedData.splice(foundObject, 1)
-                        return updatedData
-                    })
-            }
-            console.log(notification)
-        } else {
-            console.log(
-                "指定されたURIを持つオブジェクトは見つかりませんでした。"
-            )
-        }
-    }
-
-    const loadMore = async () => {
-        if (hasMore && !isEndOfFeed) {
-            await fetchNotification()
+            console.error(e)
         }
     }
 
     useEffect(() => {
-        const fetchIfNeeded = async () => {
-            if (
-                agent &&
-                notification &&
-                notification.length < 20 &&
-                cursor.current.length > 0 &&
-                !loading.current
-            ) {
-                await fetchNotification()
-            } else {
-                loading.current = false
+        if (!agent) return
 
-                if (tappedTabbarButton !== null) {
-                    setTappedTabbarButton(null)
-                }
+        if (!shouldCheckUpdate.current) {
+            shouldCheckUpdate.current = true
+            //void initialLoad()
+            void checkNewTimeline()
+            //console.log("useEffect set setTimeout", feedKey)
+            const timeoutId = setInterval(() => {
+                console.log("fetch", feedKey)
+
+                void checkNewTimeline()
+            }, CHECK_FEED_UPDATE_INTERVAL)
+
+            return () => {
+                console.log(`useEffect unmounted ${feedKey}`)
+                clearInterval(timeoutId)
             }
         }
+    }, [agent])
 
-        void fetchIfNeeded()
-    }, [notification, cursor.current])
+    const queryClient = useQueryClient()
 
     const handleUpdateSeen = async () => {
         if (!agent) return
@@ -292,22 +171,198 @@ export default function Root() {
         }
     }
 
-    useEffect(() => {
+    const handleRefresh = async () => {
         if (!agent) return
+        shouldScrollToTop.current = true
 
-        try {
-            void handleUpdateSeen()
-            setUnreadNotification(0)
-            if (!notificationInfo.notification) {
-                void fetchNotification()
-            } else {
-                setNotification(notificationInfo.notification)
-                cursor.current = notificationInfo.cursor
-            }
-        } catch (e) {
-            console.log(e)
+        const mergedTimeline = mergePosts(newTimeline, timeline)
+        //@ts-ignore
+        setTimeline(mergedTimeline)
+        setNewTimeline([])
+        setHasUpdate(false)
+
+        if (mergedTimeline.length > 0) {
+            latestCID.current = (mergedTimeline[0] as PostView).cid
         }
-    }, [agent])
+        void handleUpdateSeen()
+        await queryClient.refetchQueries({
+            queryKey: ["getNotification", feedKey],
+        })
+
+        shouldCheckUpdate.current = true
+    }
+
+    const handleFetchResponse = (response: FeedResponseObject) => {
+        if (response) {
+            const { posts, cursor } = response
+            if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
+            setCursorState(response.cursor)
+
+            console.log("posts", posts)
+
+            const muteWordFilter = posts
+
+            //console.log("filteredData", filteredData)
+            console.log("muteWordFilter", muteWordFilter)
+
+            if (timeline === null) {
+                if (muteWordFilter.length > 0) {
+                    latestCID.current = muteWordFilter[0].cid
+                }
+            }
+
+            setTimeline((currentTimeline) => {
+                if (currentTimeline !== null) {
+                    return [...currentTimeline, ...muteWordFilter]
+                } else {
+                    return [...muteWordFilter]
+                }
+            })
+        } else {
+            setTimeline([])
+            setHasMore(false)
+            return
+        }
+
+        setCursorState(response.cursor)
+
+        if (cursorState !== "") {
+            setHasMore(true)
+        } else {
+            setHasMore(false)
+        }
+    }
+
+    const getTimelineFetcher = async ({
+        queryKey,
+    }: QueryFunctionContext<
+        ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
+    >): Promise<FeedResponseObject> => {
+        // console.log("getTimelineFetcher: >>")
+
+        if (agent === null) {
+            // console.log("error")
+            throw new Error("Agent does not exist")
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [_key, feedKey] = queryKey
+
+        const { data } = await agent.listNotifications({
+            cursor: cursorState || "",
+        })
+
+        const reply = data.notifications.filter((notification) => {
+            return (
+                notification.reason === "reply" ||
+                notification.reason === "mention"
+            )
+        })
+
+        return {
+            posts: reply as PostView[],
+            cursor: data.cursor || "",
+        }
+    }
+
+    const { data /*isLoading, isError*/ } = useQuery({
+        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
+        queryFn: getTimelineFetcher,
+        select: (fishes) => {
+            console.log(fishes)
+            return fishes
+        },
+        notifyOnChangeProps: ["data"],
+        enabled: agent !== null && loadMoreFeed,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+    })
+
+    const handleValueChange = (newValue: any) => {
+        if (!timeline) return
+        const foundObject = timeline.findIndex(
+            (post) => post.uri === newValue.postUri
+        )
+        console.log(newValue.postUri)
+        console.log(foundObject)
+
+        if (foundObject !== -1) {
+            // console.log(timeline[foundObject])
+            switch (newValue.reaction) {
+                case "like":
+                    setTimeline((prevData) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        //@ts-ignore
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unlike":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.like =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "repost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                newValue.reactionUri
+                        }
+                        return updatedData
+                    })
+                    break
+                case "unrepost":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        if (
+                            updatedData[foundObject] &&
+                            updatedData[foundObject].post &&
+                            updatedData[foundObject].post.viewer
+                        ) {
+                            updatedData[foundObject].post.viewer.repost =
+                                undefined
+                        }
+                        return updatedData
+                    })
+                    break
+                case "delete":
+                    setTimeline((prevData) => {
+                        const updatedData = [...prevData]
+                        updatedData.splice(foundObject, 1)
+                        return updatedData
+                    })
+                //timeline.splice(foundObject, 1)
+            }
+            // console.log(timeline)
+        } else {
+            console.log(
+                "指定されたURIを持つオブジェクトは見つかりませんでした。"
+            )
+        }
+    }
 
     const handleSaveScrollPosition = () => {
         console.log("save")
@@ -317,22 +372,56 @@ export default function Root() {
             if (
                 state.scrollTop !==
                 //@ts-ignore
-                scrollPositions[`inbox`]?.scrollTop
+                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
             ) {
                 const updatedScrollPositions = { ...scrollPositions }
                 //@ts-ignore
-                updatedScrollPositions[`inbox`] = state
+                updatedScrollPositions[`${pageName}-${feedKey}`] = state
                 setScrollPositions(updatedScrollPositions)
             }
         })
     }
 
+    if (data !== undefined && !isEndOfFeed) {
+        // console.log(`useQuery: data.cursor: ${data.cursor}`)
+        handleFetchResponse(data)
+        setLoadMoreFeed(false)
+    }
+
+    useEffect(() => {
+        if (unreadNotification > 0) {
+            void handleUpdateSeen()
+            setUnreadNotification(0)
+        }
+    }, [])
+
     return (
         <>
-            {!notification && (
+            {hasUpdate && (
+                <div
+                    className={
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
+                    }
+                >
+                    <div
+                        className={
+                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
+                        }
+                        onClick={handleRefresh}
+                    >
+                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
+                        {t("button.newPosts")}
+                    </div>
+                </div>
+            )}
+            {timeline === null && (
                 <Virtuoso
+                    overscan={200}
+                    increaseViewportBy={200}
                     totalCount={20}
                     initialItemCount={20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
                     itemContent={(index) => (
                         <ViewPostCard
                             {...{
@@ -348,35 +437,42 @@ export default function Root() {
                     className={nullTimeline()}
                 />
             )}
-            {notification && (
+            {timeline !== null && (
                 <Virtuoso
-                    context={{ hasMore }}
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                            // setListScrollRefAtom(ref)
+                        }
+                    }}
                     ref={virtuosoRef}
                     //@ts-ignore
-                    restoreStateFrom={scrollPositions[`inbox`]}
-                    overscan={200}
+                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                    context={{ hasMore }}
                     increaseViewportBy={200}
-                    data={notification}
+                    overscan={200}
+                    data={timeline}
                     atTopThreshold={100}
                     atBottomThreshold={100}
-                    itemContent={(index, data) => (
+                    itemContent={(index, post) => (
                         <ViewPostCard
-                            key={`notif-${data.uri}`}
+                            key={`feed-${post.uri}`}
                             {...{
                                 isTop: index === 0,
                                 isMobile,
                                 isSkeleton: false,
                                 bodyText: processPostBodyText(
                                     nextQueryParams,
-                                    data || null
+                                    post || null
                                 ),
-                                postJson: data || null,
+                                postJson: post || null,
                                 now,
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
                                 handleSaveScrollPosition:
                                     handleSaveScrollPosition,
+                                isViaUFeed: isViaUFeed,
                             }}
                         />
                     )}
@@ -388,9 +484,13 @@ export default function Root() {
                             : ListFooterNoContent,
                     }}
                     endReached={loadMore}
-                    className={nullTimeline()}
+                    // onScroll={(e) => disableScrollIfNeeded(e)}
+                    //className="overflow-y-auto"
+                    className={notNulltimeline()}
                 />
             )}
         </>
     )
 }
+
+export default FeedPage

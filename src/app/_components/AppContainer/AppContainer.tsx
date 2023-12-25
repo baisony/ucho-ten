@@ -45,6 +45,7 @@ import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()
@@ -493,7 +494,12 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             console.log(e)
         }
     }
-
+    const queryClient = useQueryClient()
+    const autoRefetch = async () => {
+        await queryClient.refetchQueries({
+            queryKey: ["getNotification", "Inbox"],
+        })
+    }
     const checkNewNotification = useCallback(async () => {
         if (!agent) {
             return
@@ -511,7 +517,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                     notify_num++
                 }
             }
+            if (notify_num === 0) return
             setUnreadNotification(notify_num)
+            autoRefetch()
         } catch (e) {
             console.log(e)
         }
