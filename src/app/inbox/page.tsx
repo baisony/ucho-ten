@@ -25,16 +25,12 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
-export interface FeedPageProps {
-    now?: Date
-}
-
 interface FeedResponseObject {
     posts: PostView[]
     cursor: string // TODO: should consider adding ? to handle undefined.
 }
 
-const FeedPage = ({ now }: FeedPageProps) => {
+export default function FeedPage() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("inbox")
     const { t } = useTranslation()
@@ -458,7 +454,6 @@ const FeedPage = ({ now }: FeedPageProps) => {
                                     post || null
                                 ),
                                 postJson: post || null,
-                                now,
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
@@ -483,5 +478,3 @@ const FeedPage = ({ now }: FeedPageProps) => {
         </>
     )
 }
-
-export default FeedPage
