@@ -1135,11 +1135,17 @@ const UserProfileComponent = ({
             <div className={ProfileContainer()}>
                 <div className={HeaderImageContainer()}>
                     {!isSkeleton ? (
-                        <img
-                            className={ProfileHeaderImage()}
-                            src={profile?.banner}
-                            alt={"banner"}
-                        />
+                        !!profile?.banner ? (
+                            <img
+                                className={ProfileHeaderImage()}
+                                src={profile?.banner}
+                                alt={"banner"}
+                            />
+                        ) : (
+                            <div
+                                className={`${ProfileHeaderImage()} bg-white dark:bg-gray-800`}
+                            />
+                        )
                     ) : (
                         <Skeleton className={`h-full w-full`} />
                     )}
