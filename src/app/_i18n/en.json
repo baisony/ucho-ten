@@ -6,6 +6,10 @@
     },
     "inbox": {},
     "post": {},
+    "feeds": {
+      "deleteFeed?": "Are you sure you want to delete ",
+      "notFound": "Not found subscribed Feeds"
+    },
     "profile": {
       "editProfile": "Edit Profile",
       "displayName": "Display Name",
@@ -48,11 +52,13 @@
       "system": "System",
       "auto": "Auto",
       "appearance": "Appearance",
+      "size": "Size",
       "fontSize": "Font Size",
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
       "huge": "Huge",
+      "selectLanguage": "Select Language",
       "displayLanguage": "Display Language",
       "contentFontSize": "Content Font Size",
       "notifications": "Notifications",
@@ -74,7 +80,15 @@
     "mute": {
       "title": "Mute",
       "muteWord": "Mute Word",
-      "muteUser": "Mute User"
+      "muteUser": "Mute User",
+      "add": "Add",
+      "text": "Text",
+      "enable": "Enable",
+      "period": "Period",
+      "durationUntilUnmute": "Duration until unmute",
+      "editMuteText": "Edit mute text",
+      "expired": "Expired",
+      "forever": "Forever"
     },
     "bookmarks": {
       "title": "Bookmarks",
