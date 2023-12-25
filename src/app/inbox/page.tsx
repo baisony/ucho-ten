@@ -26,10 +26,6 @@ import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
 export interface FeedPageProps {
-    isActive: boolean
-    isNextActive: boolean
-    isViaUFeed?: boolean
-    disableSlideVerticalScroll: boolean
     now?: Date
 }
 
@@ -38,11 +34,7 @@ interface FeedResponseObject {
     cursor: string // TODO: should consider adding ? to handle undefined.
 }
 
-const FeedPage = ({
-    now,
-    isViaUFeed,
-    isActive, // disableSlideVerticalScroll, isNextActive
-}: FeedPageProps) => {
+const FeedPage = ({ now }: FeedPageProps) => {
     const [, setCurrentMenuType] = useCurrentMenuType()
     setCurrentMenuType("inbox")
     const { t } = useTranslation()
@@ -472,7 +464,6 @@ const FeedPage = ({
                                 handleValueChange: handleValueChange,
                                 handleSaveScrollPosition:
                                     handleSaveScrollPosition,
-                                isViaUFeed: isViaUFeed,
                             }}
                         />
                     )}
