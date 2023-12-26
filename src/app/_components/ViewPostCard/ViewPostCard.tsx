@@ -93,6 +93,7 @@ export interface ViewPostCardProps {
     handleSaveScrollPosition?: () => void
     isSearchScreen?: boolean
     isViaUFeed?: boolean
+    isDisplayMode?: boolean
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
@@ -113,6 +114,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         handleSaveScrollPosition,
         isSearchScreen,
         isViaUFeed,
+        isDisplayMode,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
