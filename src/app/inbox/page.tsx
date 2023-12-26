@@ -2,7 +2,13 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useCallback, useEffect, useRef, useState } from "react"
+import {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
@@ -22,17 +28,18 @@ import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { Notification } from "@atproto/api/dist/client/types/app/bsky/notification/listNotifications"
 
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
 interface FeedResponseObject {
     posts: PostView[]
     cursor: string // TODO: should consider adding ? to handle undefined.
+    notifications: Notification[]
 }
 
 export default function FeedPage() {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("inbox")
     const { t } = useTranslation()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
@@ -56,6 +63,10 @@ export default function FeedPage() {
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = "Inbox"
     const pageName = "Inbox"
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("inbox")
+    }, [])
 
     const getFeedKeys = {
         all: ["getNotification"] as const,
@@ -182,8 +193,10 @@ export default function FeedPage() {
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
-            const { posts, cursor } = response
-            if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
+            const { posts, cursor, notifications } = response
+            if (notifications.length === 0) {
+                setIsEndOfFeed(true)
+            }
             setCursorState(response.cursor)
 
             console.log("posts", posts)
@@ -250,6 +263,7 @@ export default function FeedPage() {
         return {
             posts: reply as PostView[],
             cursor: data.cursor || "",
+            notifications: data.notifications,
         }
     }
 
@@ -261,7 +275,7 @@ export default function FeedPage() {
             return fishes
         },
         notifyOnChangeProps: ["data"],
-        enabled: agent !== null && loadMoreFeed,
+        enabled: agent !== null && (loadMoreFeed || timeline?.length === 0),
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         refetchOnReconnect: false,
