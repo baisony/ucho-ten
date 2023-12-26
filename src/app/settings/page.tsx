@@ -167,21 +167,9 @@ const SettingsGeneralPage = ({
             labels: [],
         },
         record: {
-            text: "有頂天 チュートリアル 1 / 5\n🈶頂天について\nいいねやFF数といった、SNSで強調される要素を隠した特徴のクライアントです。\n\n有頂天はそれらの「数字」が人々に与えるバイアスは大きく、認知に影響を与えていると考えます。\n「いいね」「フォロワー数」が多いから面白い、間違ってない…など。\nこれらの要素を有頂天が隠し、物事の評価を他者へ委ねることよりも自力で判断をする機会を作って、SNSで自分を見失わないことを目標としています。\n\nそんな環境を取り巻くSNSですが、\n皆さんがどうか、楽しく、健康に、SNSを続けられることを願っています。\n\n開発者　ばいそに @bisn.ucho-ten.net",
+            text: "あのイーハトーヴォのすきとおった風、夏でも底に冷たさをもつ青いそら、うつくしい森で飾られたモリーオ市、郊外のぎらぎらひかる草の波。",
             $type: "app.bsky.feed.post",
             langs: ["ja"],
-            facets: [
-                {
-                    $type: "app.bsky.richtext.facet",
-                    index: { byteEnd: 799, byteStart: 781 },
-                    features: [
-                        {
-                            did: "did:plc:txandrhc7afdozk6a2itgltm",
-                            $type: "app.bsky.richtext.facet#mention",
-                        },
-                    ],
-                },
-            ],
             createdAt: "2023-12-23T16:44:01.300Z",
         },
         replyCount: 1,
@@ -200,12 +188,14 @@ const SettingsGeneralPage = ({
                     "w-full pt-[5px] pb-[7px] text-black dark:text-white"
                 }
             >
-                <div className={"font-[900] ml-[28px]"}>
+                <div className={"font-[600]"}>
                     {t("pages.settings.appearance")}
                 </div>
                 <Table hideHeader className={"w-full"}>
                     <TableHeader>
-                        <TableColumn>Appearance</TableColumn>
+                        <TableColumn>
+                            {t("pages.settings.appearance")}
+                        </TableColumn>
                         <TableColumn> </TableColumn>
                     </TableHeader>
                     <TableBody>
@@ -408,21 +398,31 @@ const SettingsGeneralPage = ({
                         </TableRow>
                     </TableBody>
                 </Table>
-                <div
-                    onClick={(e) => {
-                        return
-                    }}
-                >
-                    <ViewPostCard
-                        isTop={false}
-                        t={t}
-                        bodyText={processPostBodyText(
-                            nextQueryParams,
-                            testJson
-                        )}
-                        postJson={testJson}
-                        nextQueryParams={nextQueryParams}
-                    />
+                <div className={"lg:w-full h-full mt-[20px]"}>
+                    <div
+                        className={
+                            "sm:text-black sm:dark:text-white lg:text-white lg:dark:text-black font-[600]"
+                        }
+                    >
+                        {t("pages.settings.fontSizePreview")}
+                    </div>
+                    <div
+                        onClick={(e) => {
+                            if (e.button === 0) return
+                        }}
+                        style={{ pointerEvents: "none" }}
+                    >
+                        <ViewPostCard
+                            isTop={false}
+                            t={t}
+                            bodyText={processPostBodyText(
+                                nextQueryParams,
+                                testJson
+                            )}
+                            postJson={testJson}
+                            nextQueryParams={nextQueryParams}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
