@@ -59,6 +59,8 @@ import { type MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -135,7 +137,10 @@ interface SettingsGeneralPageProps {
     agent: BskyAgent | null
 }
 
-const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
+const SettingsGeneralPage = ({
+    t,
+    nextQueryParams,
+}: SettingsGeneralPageProps) => {
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
@@ -152,16 +157,45 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
         setTranslateTo(e.target.value.split(","))
     }
 
+    const testJson = {
+        uri: "at://did:plc:zdpzt7tc2zzfffzrtfgy2imz/app.bsky.feed.post/3kha275xdht2t",
+        cid: "bafyreian4dkpve2fklm3bdycyxzxzjwu6wmsufzq6xqq2wked6pek4vtcq",
+        author: {
+            did: "did:plc:zdpzt7tc2zzfffzrtfgy2imz",
+            handle: "tutorial.ucho-ten.net",
+            viewer: { muted: false, blockedBy: false },
+            labels: [],
+        },
+        record: {
+            text: "あのイーハトーヴォのすきとおった風、夏でも底に冷たさをもつ青いそら、うつくしい森で飾られたモリーオ市、郊外のぎらぎらひかる草の波。",
+            $type: "app.bsky.feed.post",
+            langs: ["ja"],
+            createdAt: "2023-12-23T16:44:01.300Z",
+        },
+        replyCount: 1,
+        repostCount: 28,
+        likeCount: 50,
+        indexedAt: "2023-12-23T16:44:01.300Z",
+        viewer: {},
+        labels: [],
+    }
+
     return (
-        <>
+        <div className={"w-full h-full"}>
             <DummyHeader />
-            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
-                <div className={"font-[900] ml-[28px]"}>
+            <div
+                className={
+                    "w-full pt-[5px] pb-[7px] text-black dark:text-white"
+                }
+            >
+                <div className={"font-[600]"}>
                     {t("pages.settings.appearance")}
                 </div>
-                <Table hideHeader>
+                <Table hideHeader className={"w-full"}>
                     <TableHeader>
-                        <TableColumn>Appearance</TableColumn>
+                        <TableColumn>
+                            {t("pages.settings.appearance")}
+                        </TableColumn>
                         <TableColumn> </TableColumn>
                     </TableHeader>
                     <TableBody>
@@ -329,13 +363,69 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                                     >
                                         5
                                     </SelectItem>
+                                    <SelectItem
+                                        key={"6"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        6
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"7"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        7
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"8"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        8
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"9"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        9
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"10"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        10
+                                    </SelectItem>
                                 </Select>
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
+                <div className={"lg:w-full h-full mt-[20px]"}>
+                    <div
+                        className={
+                            "sm:text-black sm:dark:text-white lg:text-white lg:dark:text-black font-[600]"
+                        }
+                    >
+                        {t("pages.settings.fontSizePreview")}
+                    </div>
+                    <div
+                        onClick={(e) => {
+                            if (e.button === 0) return
+                        }}
+                        style={{ pointerEvents: "none" }}
+                    >
+                        <ViewPostCard
+                            isTop={false}
+                            t={t}
+                            bodyText={processPostBodyText(
+                                nextQueryParams,
+                                testJson
+                            )}
+                            postJson={testJson}
+                            nextQueryParams={nextQueryParams}
+                        />
+                    </div>
+                </div>
             </div>
-        </>
+        </div>
     )
 }
 

@@ -17,9 +17,7 @@ export const viewPostCard = tv({
         postCreatedAt: "text-[#B8B8B8] font-light text-[12px]",
         moreButton: "text-[#B8B8B8] font-light text-[12px]",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
-        PostContent:
-            "w-[100%-5px] h-full ml-[36px] mr-[0px] text-[14px] md:text-[15px]",
-        PostContentText: "text-[13px] md:text-[15px]",
+        PostContent: "w-[100%-5px] h-full ml-[36px] mr-[0px]",
         PostReactionButtonContainer:
             "h-[20px] mt-[15px] flex items-center justify-between ml-[36px]",
         PostReactionButton:
