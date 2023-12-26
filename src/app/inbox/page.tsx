@@ -239,10 +239,7 @@ export default function FeedPage() {
     }: QueryFunctionContext<
         ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
     >): Promise<FeedResponseObject> => {
-        // console.log("getTimelineFetcher: >>")
-
         if (agent === null) {
-            // console.log("error")
             throw new Error("Agent does not exist")
         }
 
@@ -260,8 +257,25 @@ export default function FeedPage() {
             )
         })
 
+        const dividedReplyNotifications = []
+
+        for (let i = 0; i < reply.length; i += 25) {
+            dividedReplyNotifications.push(reply.slice(i, i + 25))
+        }
+
+        const allPosts: PostView[] = []
+
+        for (const dividedNotifications of dividedReplyNotifications) {
+            const posts = await agent.getPosts({
+                uris: dividedNotifications.map(
+                    (notification) => notification.uri
+                ),
+            })
+            allPosts.push(...posts.data.posts)
+        }
+
         return {
-            posts: reply as PostView[],
+            posts: allPosts,
             cursor: data.cursor || "",
             notifications: data.notifications,
         }
@@ -467,7 +481,7 @@ export default function FeedPage() {
                                     nextQueryParams,
                                     post || null
                                 ),
-                                postJson: post || null,
+                                postJson: post,
                                 nextQueryParams,
                                 t,
                                 handleValueChange: handleValueChange,
