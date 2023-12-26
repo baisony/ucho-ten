@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 import { createLoginPage } from "./styles"
 import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -19,7 +19,6 @@ import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 export default function CreateLoginPage() {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("login")
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
     const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
@@ -43,6 +42,10 @@ export default function CreateLoginPage() {
         LoginFormHandle,
         LoginFormLoginButton,
     } = createLoginPage()
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("login")
+    }, [])
 
     const agent = new BskyAgent({ service: `https://${server}` })
 

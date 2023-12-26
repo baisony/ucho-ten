@@ -1,6 +1,12 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, {
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname } from "next/navigation"
@@ -38,8 +44,6 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("feed")
-
     const pathname = usePathname()
     const { t } = useTranslation()
     const { nullTimeline } = tabBarSpaceStyles()
@@ -63,6 +67,10 @@ export default function Root() {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("feed")
+    }, [])
 
     useEffect(() => {
         const intervalId = setInterval(() => {

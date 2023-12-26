@@ -1,23 +1,30 @@
 "use client"
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import type {
     FeedViewPost,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { usePathname, useRouter } from "next/navigation"
+import { notFound, usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-    faD,
-    faN,
     faAt,
     faCopy,
+    faD,
     faEllipsis,
     faFlag,
     faLink,
+    faN,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
@@ -29,7 +36,6 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Input,
-    menu,
     Modal,
     ModalBody,
     ModalContent,
@@ -62,14 +68,10 @@ import { useAtom } from "jotai/index"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination } from "swiper/modules"
-
-import type { InferGetServerSidePropsType, GetServerSideProps } from "next"
-import { notFound } from "next/navigation"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("profile")
     const [menus] = useHeaderMenusByHeaderAtom()
     const [agent] = useAgent()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
@@ -81,6 +83,10 @@ const Page = () => {
     const username = pathname.replace("/profile/", "")
 
     const [hidden, setHidden] = useState<boolean | null>(null)
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("profile")
+    }, [])
 
     useEffect(() => {
         if (
@@ -143,7 +149,7 @@ const Page = () => {
             >
                 {menus.profile.map((menu, index) => {
                     return (
-                        <SwiperSlide>
+                        <SwiperSlide key={index}>
                             {/* @ts-ignore */}
                             <PostPage tab={menu.info} />
                         </SwiperSlide>

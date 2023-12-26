@@ -1,6 +1,12 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react"
 import { useAtom } from "jotai"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -32,7 +38,6 @@ const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 const Root = () => {
     const { t } = useTranslation()
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("utab")
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
@@ -51,6 +56,10 @@ const Root = () => {
     const [randomPost, setRandomPost] = useState<PostView | undefined>(
         undefined
     )
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("utab")
+    }, [])
 
     useEffect(() => {
         if (tappedTabbarButton == "utab") {

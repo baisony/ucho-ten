@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -23,8 +23,6 @@ const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 const Root = () => {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("home")
-
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
@@ -37,6 +35,10 @@ const Root = () => {
     const [disableSlideVerticalScroll] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("home")
+    }, [])
 
     useEffect(() => {
         if (tappedTabbarButton == "home") {

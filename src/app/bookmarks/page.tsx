@@ -1,7 +1,7 @@
 "use client"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -15,8 +15,6 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("bookmarks")
-
     const { t } = useTranslation()
     const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
@@ -26,6 +24,10 @@ export default function Root() {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("bookmarks")
+    }, [])
 
     const fetchBookmarks = async () => {
         if (!agent) {

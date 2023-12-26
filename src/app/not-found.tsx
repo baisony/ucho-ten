@@ -3,7 +3,7 @@ import zazen from "@/../public/images/404page/zazen_obousan.png"
 import fortyfour from "@/../public/images/404page/404.png"
 import Image from "next/image"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
-import { useEffect } from "react"
+import { useLayoutEffect } from "react"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { useRouter } from "next/navigation"
 
@@ -11,8 +11,8 @@ const PageNotFound = () => {
     const router = useRouter()
     const [, setStatusCode] = useStatusCodeAtPage()
     const [, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("notFound")
-    useEffect(() => {
+    useLayoutEffect(() => {
+        setCurrentMenuType("notFound")
         setStatusCode(404)
     }, [])
     return (
