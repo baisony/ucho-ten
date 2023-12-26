@@ -59,6 +59,8 @@ import { type MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
+import { ViewPostCard } from "@/app/_components/ViewPostCard"
+import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -135,7 +137,10 @@ interface SettingsGeneralPageProps {
     agent: BskyAgent | null
 }
 
-const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
+const SettingsGeneralPage = ({
+    t,
+    nextQueryParams,
+}: SettingsGeneralPageProps) => {
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
@@ -152,14 +157,53 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
         setTranslateTo(e.target.value.split(","))
     }
 
+    const testJson = {
+        uri: "at://did:plc:zdpzt7tc2zzfffzrtfgy2imz/app.bsky.feed.post/3kha275xdht2t",
+        cid: "bafyreian4dkpve2fklm3bdycyxzxzjwu6wmsufzq6xqq2wked6pek4vtcq",
+        author: {
+            did: "did:plc:zdpzt7tc2zzfffzrtfgy2imz",
+            handle: "tutorial.ucho-ten.net",
+            viewer: { muted: false, blockedBy: false },
+            labels: [],
+        },
+        record: {
+            text: "有頂天 チュートリアル 1 / 5\n🈶頂天について\nいいねやFF数といった、SNSで強調される要素を隠した特徴のクライアントです。\n\n有頂天はそれらの「数字」が人々に与えるバイアスは大きく、認知に影響を与えていると考えます。\n「いいね」「フォロワー数」が多いから面白い、間違ってない…など。\nこれらの要素を有頂天が隠し、物事の評価を他者へ委ねることよりも自力で判断をする機会を作って、SNSで自分を見失わないことを目標としています。\n\nそんな環境を取り巻くSNSですが、\n皆さんがどうか、楽しく、健康に、SNSを続けられることを願っています。\n\n開発者　ばいそに @bisn.ucho-ten.net",
+            $type: "app.bsky.feed.post",
+            langs: ["ja"],
+            facets: [
+                {
+                    $type: "app.bsky.richtext.facet",
+                    index: { byteEnd: 799, byteStart: 781 },
+                    features: [
+                        {
+                            did: "did:plc:txandrhc7afdozk6a2itgltm",
+                            $type: "app.bsky.richtext.facet#mention",
+                        },
+                    ],
+                },
+            ],
+            createdAt: "2023-12-23T16:44:01.300Z",
+        },
+        replyCount: 1,
+        repostCount: 28,
+        likeCount: 50,
+        indexedAt: "2023-12-23T16:44:01.300Z",
+        viewer: {},
+        labels: [],
+    }
+
     return (
-        <>
+        <div className={"w-full h-full"}>
             <DummyHeader />
-            <div className={"pt-[5px] pb-[7px] text-black dark:text-white"}>
+            <div
+                className={
+                    "w-full pt-[5px] pb-[7px] text-black dark:text-white"
+                }
+            >
                 <div className={"font-[900] ml-[28px]"}>
                     {t("pages.settings.appearance")}
                 </div>
-                <Table hideHeader>
+                <Table hideHeader className={"w-full"}>
                     <TableHeader>
                         <TableColumn>Appearance</TableColumn>
                         <TableColumn> </TableColumn>
@@ -329,13 +373,59 @@ const SettingsGeneralPage = ({ t }: SettingsGeneralPageProps) => {
                                     >
                                         5
                                     </SelectItem>
+                                    <SelectItem
+                                        key={"6"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        6
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"7"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        7
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"8"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        8
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"9"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        9
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={"10"}
+                                        className={`${appearanceTextColor()}`}
+                                    >
+                                        10
+                                    </SelectItem>
                                 </Select>
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
+                <div
+                    onClick={(e) => {
+                        return
+                    }}
+                >
+                    <ViewPostCard
+                        isTop={false}
+                        t={t}
+                        bodyText={processPostBodyText(
+                            nextQueryParams,
+                            testJson
+                        )}
+                        postJson={testJson}
+                        nextQueryParams={nextQueryParams}
+                    />
+                </div>
             </div>
-        </>
+        </div>
     )
 }
 

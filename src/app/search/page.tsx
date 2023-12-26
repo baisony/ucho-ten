@@ -951,31 +951,29 @@ const UserCell = ({
                             )}
                             {!skeleton && (
                                 <div
-                                    className={`text-[${
+                                    className={`${
                                         contentFontSize == 1
-                                            ? 12
+                                            ? `text-[12px]`
                                             : contentFontSize == 2
-                                            ? 13
+                                            ? `text-[13px]`
                                             : contentFontSize == 3
-                                            ? 14
+                                            ? `text-[14px]`
                                             : contentFontSize == 4
-                                            ? 15
+                                            ? `text-[15px]`
                                             : contentFontSize == 5
-                                            ? 16
-                                            : 14
-                                    }px] md:text-[${
-                                        contentFontSize == 1
-                                            ? 14
-                                            : contentFontSize == 2
-                                            ? 15
-                                            : contentFontSize == 3
-                                            ? 16
-                                            : contentFontSize == 4
-                                            ? 17
-                                            : contentFontSize == 5
-                                            ? 18
-                                            : 15
-                                    }]`}
+                                            ? `text-[16px]`
+                                            : contentFontSize == 6
+                                            ? `text-[17px]`
+                                            : contentFontSize == 7
+                                            ? `text-[18px]`
+                                            : contentFontSize == 8
+                                            ? `text-[19px]`
+                                            : contentFontSize == 9
+                                            ? `text-[20px]`
+                                            : contentFontSize == 10
+                                            ? `text-[21px]`
+                                            : `text-[14px]`
+                                    }`}
                                 >
                                     {actor?.description}
                                 </div>
