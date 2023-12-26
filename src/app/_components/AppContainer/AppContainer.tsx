@@ -111,10 +111,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         if (!agent) return
         const count = setInterval(
             () => {
-                //setTime(time - 1)
                 refreshSession()
-                console.log("resume session")
-                console.log(agent)
             },
             1000 * 60 * 5
         )
