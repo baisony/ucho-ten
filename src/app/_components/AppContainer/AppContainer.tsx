@@ -102,6 +102,26 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
+    const refreshSession = async () => {
+        if (!agent) return
+        if (!agent.session) return
+        await agent.resumeSession(agent?.session)
+    }
+    useEffect(() => {
+        if (!agent) return
+        const count = setInterval(
+            () => {
+                //setTime(time - 1)
+                refreshSession()
+                console.log("resume session")
+                console.log(agent)
+            },
+            1000 * 60 * 5
+        )
+
+        return () => clearInterval(count)
+    }, [agent])
+
     useEffect(() => {
         const queryParams = new URLSearchParams(searchParams)
 
