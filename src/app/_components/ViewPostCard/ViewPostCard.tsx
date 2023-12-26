@@ -31,8 +31,8 @@ import {
     faReply,
     faRetweet,
     faStar as faHeartSolid,
-    faVolumeXmark,
     faTrash,
+    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
@@ -74,6 +74,7 @@ import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -1003,13 +1004,14 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     .did}?${nextQueryParams.toString()}`}
                             >
                                 <img
-                                    src={
-                                        postJsonData?.author?.avatar ||
-                                        defaultIcon.src
-                                    }
-                                    //radius={"lg"}
-                                    className={``}
-                                    alt={postJsonData?.author.did}
+                                    {...getImgProps({
+                                        alt: "postJsonData?.author.did",
+                                        height: 30,
+                                        width: 30,
+                                        src:
+                                            postJsonData?.author?.avatar ||
+                                            defaultIcon.src,
+                                    }).props}
                                 />
                             </Link>
                             <Link

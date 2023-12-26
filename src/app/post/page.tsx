@@ -2,6 +2,7 @@
 
 import React, { useCallback, useRef, useState } from "react"
 import { createPostPage } from "./styles"
+import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"
 import {
@@ -60,6 +61,7 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { LANGUAGES } from "../_constants/lanuages"
 import LanguagesSelectionModal from "../_components/LanguageSelectionModal"
 import { useQueryClient } from "@tanstack/react-query"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -616,7 +618,14 @@ export default function Root() {
                                     className={contentLeftAuthorIconImage()}
                                     alt={"author icon"}
                                     onDragStart={handleDragStart}
-                                    src={userProfileDetailed?.avatar || ""}
+                                    {...getImgProps({
+                                        alt: "Avatar",
+                                        height: 30,
+                                        width: 30,
+                                        src:
+                                            userProfileDetailed?.avatar ||
+                                            defaultIcon.src,
+                                    }).props}
                                 />
                             </div>
                         </div>

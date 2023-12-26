@@ -21,7 +21,9 @@ import {
 } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
+    faAt,
     faBookmark as faSolidBookmark,
+    faChain,
     faCode,
     faEllipsis,
     faFlag,
@@ -30,9 +32,7 @@ import {
     faRetweet,
     faStar as faSolidStar,
     faTrash,
-    faAt,
     faUser,
-    faChain,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
@@ -99,6 +99,7 @@ import { Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -887,10 +888,14 @@ const PostPage = (props: PostPageProps) => {
                                     .did}?${nextQueryParams.toString()}`}
                             >
                                 <img
-                                    src={
-                                        postView?.author?.avatar ||
-                                        defaultIcon.src
-                                    }
+                                    {...getImgProps({
+                                        alt: "avatar",
+                                        height: 50,
+                                        width: 50,
+                                        src:
+                                            postView?.author?.avatar ||
+                                            defaultIcon.src,
+                                    }).props}
                                     alt={"avatar"}
                                 />
                             </Link>
@@ -1307,8 +1312,12 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
                 >
                     <img
                         className="w-full h-full z-0 object-cover"
-                        src={image.thumb}
-                        alt={image.alt}
+                        {...getImgProps({
+                            alt: image.alt || "",
+                            height: 300,
+                            width: 280,
+                            src: image.thumb,
+                        }).props}
                         onClick={(e) => {
                             e.stopPropagation()
                             onImageClick(index)
@@ -1350,15 +1359,20 @@ const EmbedMedia = ({
                         className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover`}
                         key={`image-${index}`}
                     >
-                        <img
-                            className="w-full h-full z-0 object-cover"
-                            src={image.thumb}
-                            alt={image.alt}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onImageClick(index)
-                            }}
-                        />
+                        <div className={"w-full h-full relative"}>
+                            <img
+                                className="w-full h-full z-0 object-cover"
+                                {...getImgProps({
+                                    alt: image.alt || "",
+                                    fill: true,
+                                    src: image.thumb,
+                                }).props}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onImageClick(index)
+                                }}
+                            />
+                        </div>
                     </div>
                 ))}
             </ScrollShadow>

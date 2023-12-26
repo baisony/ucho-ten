@@ -45,6 +45,7 @@ import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -593,11 +594,16 @@ const FeedHeaderComponent = ({
         <div className={ProfileContainer()}>
             <div className={ProfileInfoContainer()}>
                 {!isSkeleton ? (
-                    <img
-                        className={ProfileImage()}
-                        src={feedInfo?.avatar || defaultFeedIcon.src}
-                        alt={feedInfo?.name}
-                    />
+                    <div className={ProfileImage()}>
+                        <img
+                            className={ProfileImage()}
+                            {...getImgProps({
+                                alt: "Avatar",
+                                fill: true,
+                                src: feedInfo?.avatar || defaultFeedIcon.src,
+                            }).props}
+                        />
+                    </div>
                 ) : (
                     <div className={ProfileImage()}>
                         <Skeleton className={`h-full w-full rounded-[10px] `} />

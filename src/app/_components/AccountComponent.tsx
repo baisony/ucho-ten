@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
 
 import defaultIcon from "../../../public/images/icon/default_icon.svg"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 interface AccountComponentProps {
     // serverName: string
@@ -39,9 +40,13 @@ const AccountComponent = (props: AccountComponentProps) => {
                         }
                     >
                         <img
-                            src={account.profile?.avatar || defaultIcon.src}
                             className={"h-full w-full"}
-                            alt={"avatar"}
+                            {...getImgProps({
+                                alt: "Avatar",
+                                height: 50,
+                                width: 50,
+                                src: account.profile?.avatar || defaultIcon.src,
+                            }).props}
                         />
                     </div>
                     <div className={"ml-[15px]"}>

@@ -69,6 +69,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination } from "swiper/modules"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -1142,11 +1143,16 @@ const UserProfileComponent = ({
                 <div className={HeaderImageContainer()}>
                     {!isSkeleton ? (
                         !!profile?.banner ? (
-                            <img
-                                className={ProfileHeaderImage()}
-                                src={profile?.banner}
-                                alt={"banner"}
-                            />
+                            <div className={ProfileHeaderImage()}>
+                                <img
+                                    className={ProfileHeaderImage()}
+                                    {...getImgProps({
+                                        alt: "Banner",
+                                        fill: true,
+                                        src: profile.banner,
+                                    }).props}
+                                />
+                            </div>
                         ) : (
                             <div
                                 className={`${ProfileHeaderImage()} bg-white dark:bg-gray-800`}
@@ -1163,7 +1169,12 @@ const UserProfileComponent = ({
                         {!isSkeleton ? (
                             <img
                                 className={ProfileImage()}
-                                src={profile?.avatar || defaultIcon.src}
+                                {...getImgProps({
+                                    alt: "avatar",
+                                    height: 80,
+                                    width: 80,
+                                    src: profile?.avatar || defaultIcon.src,
+                                }).props}
                                 alt={"avatar"}
                             />
                         ) : (

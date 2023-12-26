@@ -64,6 +64,8 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LANGUAGES } from "@/app/_constants/lanuages"
 import LanguagesSelectionModal from "../LanguageSelectionModal"
 import { useQueryClient } from "@tanstack/react-query"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
+import defaultIcon from "../../../../public/images/icon/default_icon.svg"
 
 //export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -717,7 +719,14 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     className={contentLeftAuthorIconImage()}
                                     alt={"author icon"}
                                     onDragStart={handleDragStart}
-                                    src={userProfileDetailedAtom?.avatar}
+                                    {...getImgProps({
+                                        alt: "Avatar",
+                                        height: 30,
+                                        width: 30,
+                                        src:
+                                            userProfileDetailedAtom?.avatar ||
+                                            defaultIcon.src,
+                                    }).props}
                                 />
                             </div>
                         </div>

@@ -1,6 +1,8 @@
 import { ScrollShadow } from "@nextui-org/react"
 import { AppBskyEmbedImages } from "@atproto/api"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
+import React from "react"
 
 interface EmbedImagesProps {
     embedImages: AppBskyEmbedImages.View
@@ -30,15 +32,20 @@ const EmbedImages = ({
                         } bg-cover`}
                         key={`image-${index}`}
                     >
-                        <img
-                            className="w-full h-full z-0 object-cover"
-                            src={image.thumb}
-                            alt={image.alt}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onImageClick(embedImages.images, index)
-                            }}
-                        />
+                        <div className={"w-full h-full relative"}>
+                            <img
+                                className="w-full h-full z-0 object-cover"
+                                {...getImgProps({
+                                    alt: image.alt || "",
+                                    fill: true,
+                                    src: image.thumb,
+                                }).props}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onImageClick(embedImages.images, index)
+                                }}
+                            />
+                        </div>
                     </div>
                 ))}
             </ScrollShadow>

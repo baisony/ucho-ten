@@ -7,6 +7,7 @@ import { Skeleton } from "@nextui-org/react"
 
 import "react-swipeable-list/dist/styles.css"
 import Link from "next/link"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 interface Props {
     className?: string
@@ -95,12 +96,14 @@ export const ViewUserProfileCard = (props: Props) => {
                                         <Skeleton className={skeletonIcon()} />
                                     ) : (
                                         <img
-                                            src={
-                                                json?.avatar || defaultIcon.src
-                                            }
-                                            //radius={"lg"}
-                                            className={``}
-                                            alt={json?.did}
+                                            {...getImgProps({
+                                                alt: json?.did,
+                                                height: 30,
+                                                width: 30,
+                                                src:
+                                                    json?.avatar ||
+                                                    defaultIcon.src,
+                                            }).props}
                                         />
                                     )}
                                 </Link>

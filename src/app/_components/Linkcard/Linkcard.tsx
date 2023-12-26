@@ -2,6 +2,7 @@ import React from "react"
 import { linkcard } from "./styles"
 import "react-circular-progressbar/dist/styles.css"
 import { Spinner } from "@nextui-org/react"
+import { unstable_getImgProps as getImgProps } from "next/dist/shared/lib/image-external"
 
 interface Props {
     children?: React.ReactNode
@@ -56,9 +57,14 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                             {thumb && (
                                 <div className={LinkCardThumbnailContainer()}>
                                     <img
-                                        src={generatedURL || ""}
                                         className={LinkCardThumbnail()}
                                         alt={ogpData?.alt}
+                                        {...getImgProps({
+                                            alt: "Thumbnail",
+                                            height: 100,
+                                            width: 100,
+                                            src: generatedURL || "",
+                                        }).props}
                                     />
                                 </div>
                             )}
