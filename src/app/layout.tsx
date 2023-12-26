@@ -24,7 +24,7 @@ export const metadata: Metadata = {
             "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
         images: [
             {
-                url: "/images/ogp/ucho-ten-ogp.png",
+                url: "https://ucho-ten.net/images/ogp/ucho-ten-ogp.png",
                 alt: "Ucho-ten",
             },
         ],
