@@ -557,6 +557,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
+            style={{
+                overscrollBehaviorY: "none",
+                WebkitOverflowScrolling: "touch",
+            }}
         >
             <div id="burger-outer-container">
                 <BurgerPush
