@@ -1,23 +1,43 @@
 import type { Metadata } from "next"
-// import { Noto_Sans_JP } from "next/font/google"
 import { Providers } from "./_components/Providers/Providers"
 import { AppConatiner } from "./_components/AppContainer/AppContainer"
 import Script from "next/script"
 
 import "./globals.css"
 
-// const noto = Noto_Sans_JP({
-//     weight: ["400", "500", "600", "700", "900"],
-//     subsets: ["latin"],
-//     // variable: "--font-noto-sans-jp",
-// })
-
 export const metadata: Metadata = {
+    manifest: "/manifest.json",
     title: "Ucho-ten Bluesky Client",
+    applicationName: "Ucho-ten",
     description:
         "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
     viewport:
         "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    themeColor: "#000000",
+    openGraph: {
+        type: "website",
+        siteName: "Ucho-ten",
+        title: "Ucho-ten Bluesky Client",
+        url: "https://ucho-ten.net",
+        locale: "ja_JP",
+        description:
+            "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
+        images: [
+            {
+                url: "/images/ogp/ucho-ten-ogp.png",
+                alt: "Ucho-ten",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Ucho-ten Bluesky Client",
+        description:
+            "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
+        images: {
+            url: "/images/ogp/ucho-ten-ogp.png",
+        },
+    },
 }
 
 export default function RootLayout({
@@ -26,32 +46,10 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html
-            lang="en"
-            className={"overflow-hidden"}
-            suppressHydrationWarning={true}
-        >
+        <html lang="ja" className={"overflow-hidden"}>
             <head>
                 <title>Ucho-ten</title>
                 <meta charSet="utf-8" />
-                <meta property="og:type" content="website" />
-                <meta property="og:site_name" content="Ucho-ten" />
-                <meta property="og:title" content="Ucho-ten Bluesky Client" />
-                <meta property="og:url" content="https://ucho-ten.net" />
-                <meta property="og:locale" content="ja_JP" />
-                <meta
-                    name="description"
-                    content="Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。"
-                />
-                <meta
-                    property="og:description"
-                    content="Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。"
-                />
-                <meta
-                    property="og:image"
-                    content="/images/ogp/ucho-ten-ogp.png"
-                />
-                <meta name="twitter:card" content="summarylargeimage" />
                 <link
                     rel="shortcut icon"
                     href="/images/favicon/ucho-ten-logo-black.svg"
@@ -74,7 +72,6 @@ export default function RootLayout({
                     sizes="16x16"
                     href="/images/favicon/favicon-16x16.png"
                 />
-                <link rel="manifest" href="/manifest.json" />
                 <link
                     rel="mask-icon"
                     href="/images/favicon/safari-pinned-tab.svg"
@@ -256,9 +253,7 @@ export default function RootLayout({
                     href="/images/splash/8.3__iPad_Mini_portrait.png"
                 />
                 <meta name="apple-mobile-web-app-title" content="Ucho-ten" />
-                <meta name="application-name" content="Ucho-ten" />
                 <meta name="msapplication-TileColor" content="#b91d47" />
-                <meta name="theme-color" content="#000000" />
                 <meta name="robots" content="noarchive,max-image-preview" />
             </head>
             <body
@@ -268,7 +263,6 @@ export default function RootLayout({
                     overflowY: "auto",
                     WebkitOverflowScrolling: "touch",
                 }}
-                suppressHydrationWarning
             >
                 <Script src="/noflash.js" />
                 <Providers>

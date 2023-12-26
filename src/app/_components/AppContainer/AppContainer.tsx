@@ -102,6 +102,23 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
+    const refreshSession = async () => {
+        if (!agent) return
+        if (!agent.session) return
+        await agent.resumeSession(agent?.session)
+    }
+    useEffect(() => {
+        if (!agent) return
+        const count = setInterval(
+            () => {
+                refreshSession()
+            },
+            1000 * 60 * 5
+        )
+
+        return () => clearInterval(count)
+    }, [agent])
+
     useEffect(() => {
         const queryParams = new URLSearchParams(searchParams)
 
@@ -557,6 +574,10 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
+            style={{
+                overscrollBehaviorY: "none",
+                WebkitOverflowScrolling: "touch",
+            }}
         >
             <div id="burger-outer-container">
                 <BurgerPush
