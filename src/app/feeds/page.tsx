@@ -1,6 +1,6 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { layout } from "./styles"
 import {
@@ -38,13 +38,15 @@ import { useTranslation } from "react-i18next"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("myFeeds")
-
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
 
     const swiperRef = useRef<SwiperCore | null>(null)
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("myFeeds")
+    }, [])
 
     useEffect(() => {
         if (

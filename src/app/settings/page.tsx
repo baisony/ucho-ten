@@ -20,7 +20,13 @@ import {
     TableRow,
     useDisclosure,
 } from "@nextui-org/react"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react"
 import { viewSettingsPage } from "@/app/settings/styles"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
@@ -57,8 +63,6 @@ import { useBookmarks } from "@/app/_atoms/bookmarks"
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("settings")
-
     const { t } = useTranslation()
 
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
@@ -69,6 +73,10 @@ const Page = () => {
     const [nextQueryParams] = useNextQueryParamsAtom()
 
     const swiperRef = useRef<SwiperCore | null>(null)
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("settings")
+    }, [])
 
     useEffect(() => {
         if (

@@ -1,6 +1,13 @@
 "use client"
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
@@ -95,13 +102,15 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    setCurrentMenuType("onlyPost")
-
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
 
     const swiperRef = useRef<SwiperCore | null>(null)
+
+    useLayoutEffect(() => {
+        setCurrentMenuType("onlyPost")
+    }, [])
 
     useEffect(() => {
         if (
