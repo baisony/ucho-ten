@@ -152,12 +152,11 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                                 profile?.avatar ||
                                                 defaultIcon.src
                                             }
-                                            //radius={"lg"}
                                             className={`${
                                                 isEmbedToModal
                                                     ? `z-[2]`
                                                     : `z-[0]`
-                                            } rounded-[7px] w-[30px] h-[30px]`}
+                                            } rounded-full w-full h-full`}
                                             alt={postJson?.author.did}
                                         />
                                     )}
