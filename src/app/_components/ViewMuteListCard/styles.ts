@@ -12,8 +12,8 @@ export const viewFeedCard = tv({
         PostAuthorDisplayName:
             "ml-[9px] hover:cursor-pointer font-[600] text-black dark:text-white",
         PostAuthorHandle:
-            "text-[#909090] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer",
-        PostCreatedAt: "text-[#B8B8B8] font-light absolute right-[17px] ",
+            "text-[#595959] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer",
+        PostCreatedAt: "text-[#595959] font-light absolute right-[17px] ",
         OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
         PostContent:
             "w-[100%-5px] h-full ml-[25px] mr-[17px] text-[14px] md:text-[15px] mb-[6px]",

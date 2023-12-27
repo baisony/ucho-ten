@@ -973,7 +973,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
                     {json?.reason && (
                         <Link
-                            className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer md:hover:underline`}
+                            className={`text-[13px] ml-[40px] text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 handleChangeSaveScrollPosition()
@@ -1009,8 +1009,10 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         postJsonData?.author?.avatar ||
                                         defaultIcon.src
                                     }
-                                    //radius={"lg"}
-                                    className={``}
+                                    style={{
+                                        height: "30px",
+                                        width: "30px",
+                                    }}
                                     alt={postJsonData?.author.did}
                                 />
                             </Link>
