@@ -48,6 +48,10 @@ export default function CreateLoginPage() {
         setCurrentMenuType("login")
     }, [])
 
+    const headerAndSlash = (url: string) => {
+        return url.replace(/https?:\/\//, "").replace(/\/$/, "")
+    }
+
     const handleLogin = async () => {
         if (user.trim() == "" || password.trim() == "") {
             return
@@ -57,32 +61,19 @@ export default function CreateLoginPage() {
         setLoading(true)
 
         try {
-            const agent = new BskyAgent({ service: `https://${pds.current}` })
+            const server = headerAndSlash(pds.current)
+            console.log(server)
+            const agent = new BskyAgent({ service: `https://${server}` })
             const res = await agent.login({
                 identifier: user,
                 password: password,
             })
-            const { data } = res
-            console.log(data)
-            console.log(process.env.NEXT_PUBLIC_PRODUCTION_ENV)
-            if (process.env.NEXT_PUBLIC_PRODUCTION_ENV === "true") {
-                const tester = process.env.NEXT_PUBLIC_TESTER_DID?.split(",")
-                const isMatchingPath = tester?.includes(data?.did)
-                console.log(isMatchingPath)
-                if (!isMatchingPath) {
-                    setIsUserInfoIncorrect(true)
-                    setLoading(false)
-                    setIsLoginFailed(true)
-                    return
-                }
-            }
 
             setLoading(false)
-            console.log(agent)
 
             if (agent.session !== undefined) {
                 const json = {
-                    server: pds,
+                    server: server,
                     session: agent.session,
                 }
 
@@ -95,7 +86,7 @@ export default function CreateLoginPage() {
                 })
 
                 existingAccountsData[agent.session.did] = {
-                    service: pds.current,
+                    service: server,
                     session: agent.session,
                     profile: {
                         did: agent.session.did,
@@ -142,8 +133,9 @@ export default function CreateLoginPage() {
     useEffect(() => {
         const resumesession = async () => {
             try {
+                const server = headerAndSlash(pds.current)
                 const agent = new BskyAgent({
-                    service: `https://${pds.current}`,
+                    service: `https://${server}`,
                 })
                 const storedData = localStorage.getItem("session")
                 if (storedData) {
@@ -207,13 +199,11 @@ export default function CreateLoginPage() {
                                 setIdentifierByAutocomplete(true)
                                 console.log("input by autocomplete")
                             }
-                            console.log(e.target.value)
                             if (e.target.value !== "") {
                                 pds.current = e.target.value
                             } else {
                                 pds.current = "bsky.social"
                             }
-                            console.log(pds.current)
                         }}
                         className={
                             "h-full w-full bg-transparent ml-[12.5px] text-base font-bold outline-none"
