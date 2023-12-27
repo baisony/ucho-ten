@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useLayoutEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { createLoginPage } from "./styles"
 import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -23,7 +23,6 @@ export default function CreateLoginPage() {
     const [accounts, setAccounts] = useAccounts()
     const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
     const [loading, setLoading] = useState(false)
-    const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLoginFailed, setIsLoginFailed] = useState<boolean>(false)
@@ -43,11 +42,11 @@ export default function CreateLoginPage() {
         LoginFormLoginButton,
     } = createLoginPage()
 
+    const pds = useRef<string>("bsky.social")
+
     useLayoutEffect(() => {
         setCurrentMenuType("login")
     }, [])
-
-    const agent = new BskyAgent({ service: `https://${server}` })
 
     const handleLogin = async () => {
         if (user.trim() == "" || password.trim() == "") {
@@ -58,6 +57,7 @@ export default function CreateLoginPage() {
         setLoading(true)
 
         try {
+            const agent = new BskyAgent({ service: `https://${pds.current}` })
             const res = await agent.login({
                 identifier: user,
                 password: password,
@@ -82,7 +82,7 @@ export default function CreateLoginPage() {
 
             if (agent.session !== undefined) {
                 const json = {
-                    server: server,
+                    server: pds,
                     session: agent.session,
                 }
 
@@ -95,7 +95,7 @@ export default function CreateLoginPage() {
                 })
 
                 existingAccountsData[agent.session.did] = {
-                    service: server,
+                    service: pds.current,
                     session: agent.session,
                     profile: {
                         did: agent.session.did,
@@ -142,6 +142,9 @@ export default function CreateLoginPage() {
     useEffect(() => {
         const resumesession = async () => {
             try {
+                const agent = new BskyAgent({
+                    service: `https://${pds.current}`,
+                })
                 const storedData = localStorage.getItem("session")
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
@@ -195,6 +198,7 @@ export default function CreateLoginPage() {
                         icon={faList}
                     />
                     <input
+                        type={"url"}
                         onChange={(e) => {
                             if (isLoginFailed) setIsLoginFailed(false)
                             const isKeyboardInput =
@@ -203,7 +207,13 @@ export default function CreateLoginPage() {
                                 setIdentifierByAutocomplete(true)
                                 console.log("input by autocomplete")
                             }
-                            setServer(e.target.value)
+                            console.log(e.target.value)
+                            if (e.target.value !== "") {
+                                pds.current = e.target.value
+                            } else {
+                                pds.current = "bsky.social"
+                            }
+                            console.log(pds.current)
                         }}
                         className={
                             "h-full w-full bg-transparent ml-[12.5px] text-base font-bold outline-none"
