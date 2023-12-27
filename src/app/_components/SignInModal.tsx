@@ -80,8 +80,13 @@ const SignInModal = (props: SignInModalProps) => {
                 service: `https://${result}`,
             })
 
+            let username = identity
+            if (username.indexOf(".") == -1) {
+                username = `${username}.${result}`
+            }
+
             await agent.login({
-                identifier: identity,
+                identifier: username,
                 password: password,
             })
 

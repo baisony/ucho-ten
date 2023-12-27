@@ -56,26 +56,17 @@ export default function CreateLoginPage() {
 
         setIsLoginFailed(false)
         setLoading(true)
+        let username = user
+
+        if (username.indexOf(".") == -1) {
+            username = `${username}.${server}`
+        }
 
         try {
             const res = await agent.login({
-                identifier: user,
+                identifier: username,
                 password: password,
             })
-            const { data } = res
-            console.log(data)
-            console.log(process.env.NEXT_PUBLIC_PRODUCTION_ENV)
-            if (process.env.NEXT_PUBLIC_PRODUCTION_ENV === "true") {
-                const tester = process.env.NEXT_PUBLIC_TESTER_DID?.split(",")
-                const isMatchingPath = tester?.includes(data?.did)
-                console.log(isMatchingPath)
-                if (!isMatchingPath) {
-                    setIsUserInfoIncorrect(true)
-                    setLoading(false)
-                    setIsLoginFailed(true)
-                    return
-                }
-            }
 
             setLoading(false)
             console.log(agent)
