@@ -1,7 +1,7 @@
 "use client"
 
-import "../../_i18n/config" //i18
-import { ViewHeader } from "@/app/_components/ViewHeader"
+import dynamic from "next/dynamic"
+import "@/app/_i18n/config" //i18
 import React, {
     useCallback,
     useEffect,
@@ -11,16 +11,14 @@ import React, {
     useState,
 } from "react"
 import { layout } from "@/app/styles"
-import { TabBar } from "@/app/_components/TabBar"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import ViewSideBar from "../ViewSideBar/ViewSideBar"
-import { useAgent } from "../../_atoms/agent"
-import { useUserProfileDetailedAtom } from "../../_atoms/userProfileDetail"
+import { useAgent } from "@/app/_atoms/agent"
+import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
-import { useFeedGeneratorsAtom } from "../../_atoms/feedGenerators"
-import { useUserPreferencesAtom } from "../../_atoms/preferences"
-import { useImageGalleryAtom } from "../../_atoms/imageGallery"
+import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
+import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
+import { useImageGalleryAtom } from "@/app/_atoms/imageGallery"
 import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
 import Lightbox, {
     CaptionsRef,
@@ -33,19 +31,31 @@ import { push as BurgerPush } from "react-burger-menu"
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
-import { HeaderMenu, useHeaderMenusByHeaderAtom } from "../../_atoms/headerMenu"
+import { HeaderMenu, useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 import { MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
-import { useNextQueryParamsAtom } from "../../_atoms/nextQueryParams"
-import { isTabQueryParamValue, TabQueryParamValue } from "../../_types/types"
-import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
+import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
+import { isTabQueryParamValue, TabQueryParamValue } from "@/app/_types/types"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useQueryClient } from "@tanstack/react-query"
+import { TabBar } from "@/app/_components/TabBar"
+import { ViewHeader } from "@/app/_components/ViewHeader"
+import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
+
+const ViewSideMenu = dynamic(
+    () =>
+        import("@/app/_components/ViewSideMenu").then(
+            (mod) => mod.ViewSideMenu
+        ),
+    {}
+)
+
+//const ViewSideBar = dynamic(() => import("../ViewSideBar/ViewSideBar"), {})
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()
