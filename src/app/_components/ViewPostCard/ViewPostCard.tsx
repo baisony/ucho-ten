@@ -11,7 +11,6 @@ import {
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedPost,
-    AtUri,
 } from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
@@ -24,31 +23,18 @@ import {
     faStar as faHeartRegular,
 } from "@fortawesome/free-regular-svg-icons"
 import {
-    faArrowUpFromBracket,
     faBookmark as faBookmarkSolid,
-    faFlag,
-    faLanguage,
     faReply,
     faRetweet,
     faStar as faHeartSolid,
-    faTrash,
-    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
-import { PostModal } from "../PostModal"
 import { Linkcard } from "@/app/_components/Linkcard"
 // import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
-import { ReportModal } from "@/app/_components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
-import {
-    Button,
-    Modal,
-    ModalBody,
-    ModalContent,
-    useDisclosure,
-} from "@nextui-org/react"
+import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
@@ -63,6 +49,7 @@ import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import ViewPostCardSkelton from "./ViewPostCardSkelton"
 import EmbedMedia from "./EmbedMedia"
@@ -74,7 +61,26 @@ import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
-import { MobileOptionModal } from "@/app/_components/MobileOptionModal"
+//import { PostModal } from "../PostModal"
+//import { ReportModal } from "@/app/_components/ReportModal"
+
+const PostModal = dynamic(
+    () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
+    { ssr: true }
+)
+
+const ReportModal = dynamic(
+    () =>
+        import("@/app/_components/ReportModal").then((mod) => mod.ReportModal),
+    { ssr: true }
+)
+const MobileOptionModal = dynamic(
+    () =>
+        import("@/app/_components/MobileOptionModal").then(
+            (mod) => mod.MobileOptionModal
+        ),
+    { ssr: true }
+)
 
 export interface ViewPostCardProps {
     isTop: boolean
