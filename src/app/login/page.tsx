@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useLayoutEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { createLoginPage } from "./styles"
 import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -23,7 +23,6 @@ export default function CreateLoginPage() {
     const [accounts, setAccounts] = useAccounts()
     const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
     const [loading, setLoading] = useState(false)
-    const [server, setServer] = useState<string>("bsky.social")
     const [user, setUser] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [isLoginFailed, setIsLoginFailed] = useState<boolean>(false)
@@ -43,11 +42,15 @@ export default function CreateLoginPage() {
         LoginFormLoginButton,
     } = createLoginPage()
 
+    const pds = useRef<string>("bsky.social")
+
     useLayoutEffect(() => {
         setCurrentMenuType("login")
     }, [])
 
-    const agent = new BskyAgent({ service: `https://${server}` })
+    const headerAndSlash = (url: string) => {
+        return url.replace(/https?:\/\//, "").replace(/\/$/, "")
+    }
 
     const handleLogin = async () => {
         if (user.trim() == "" || password.trim() == "") {
@@ -58,27 +61,15 @@ export default function CreateLoginPage() {
         setLoading(true)
 
         try {
+            const server = headerAndSlash(pds.current)
+            console.log(server)
+            const agent = new BskyAgent({ service: `https://${server}` })
             const res = await agent.login({
                 identifier: user,
                 password: password,
             })
-            const { data } = res
-            console.log(data)
-            console.log(process.env.NEXT_PUBLIC_PRODUCTION_ENV)
-            if (process.env.NEXT_PUBLIC_PRODUCTION_ENV === "true") {
-                const tester = process.env.NEXT_PUBLIC_TESTER_DID?.split(",")
-                const isMatchingPath = tester?.includes(data?.did)
-                console.log(isMatchingPath)
-                if (!isMatchingPath) {
-                    setIsUserInfoIncorrect(true)
-                    setLoading(false)
-                    setIsLoginFailed(true)
-                    return
-                }
-            }
 
             setLoading(false)
-            console.log(agent)
 
             if (agent.session !== undefined) {
                 const json = {
@@ -142,6 +133,10 @@ export default function CreateLoginPage() {
     useEffect(() => {
         const resumesession = async () => {
             try {
+                const server = headerAndSlash(pds.current)
+                const agent = new BskyAgent({
+                    service: `https://${server}`,
+                })
                 const storedData = localStorage.getItem("session")
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
@@ -195,6 +190,7 @@ export default function CreateLoginPage() {
                         icon={faList}
                     />
                     <input
+                        type={"url"}
                         onChange={(e) => {
                             if (isLoginFailed) setIsLoginFailed(false)
                             const isKeyboardInput =
@@ -203,7 +199,11 @@ export default function CreateLoginPage() {
                                 setIdentifierByAutocomplete(true)
                                 console.log("input by autocomplete")
                             }
-                            setServer(e.target.value)
+                            if (e.target.value !== "") {
+                                pds.current = e.target.value
+                            } else {
+                                pds.current = "bsky.social"
+                            }
                         }}
                         className={
                             "h-full w-full bg-transparent ml-[12.5px] text-base font-bold outline-none"
