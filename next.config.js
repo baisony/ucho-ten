@@ -5,15 +5,7 @@ const withPWA = require("next-pwa")({
     register: true,
     skipWaiting: true,
 })
-const cacheHeaders = [
-    {
-        key: "Cache-Control",
-        value: "max-age=300", // 300秒キャッシュされる
-    },
-]
 module.exports = withPWA({
     //next.js config
-    reactStrictMode: true,
-    sources: "/*",
-    headers: cacheHeaders,
+    reactStrictMode: false,
 })
