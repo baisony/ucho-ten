@@ -58,11 +58,17 @@ import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
-import { DummyHeader } from "@/app/_components/DummyHeader"
+//import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
+
+const DummyHeader = dynamic(
+    () =>
+        import("@/app/_components/DummyHeader").then((mod) => mod.DummyHeader),
+    { ssr: true }
+)
 
 const PostModal = dynamic(
     () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
@@ -774,44 +780,50 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
             {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
 
-            <Modal
-                isOpen={isOpenReply}
-                onOpenChange={onOpenChangeReply}
-                placement={isMobile ? "top" : "center"}
-                className={"z-[100] max-w-[600px] bg-transparent"}
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <PostModal
-                            type={"Reply"}
-                            postData={postJson}
-                            onClose={onClose}
-                        />
-                    )}
-                </ModalContent>
-            </Modal>
-            <ReportModal
-                isOpen={isOpenReport}
-                onOpenChange={onOpenChangeReport}
-                placement={isMobile ? "top" : "center"}
-                className={"z-[100] max-w-[600px]"}
-                target={"post"}
-                post={postJson}
-                nextQueryParams={nextQueryParams}
-            />
-            <MobileOptionModal
-                isOpen={isOpenOption}
-                onOpenChange={onOpenChangeOption}
-                placement={"bottom"}
-                className={"z-[100] max-w-[600px] text-black dark:text-white"}
-                postView={postView}
-                postJson={postJson}
-                handleMute={handleMute}
-                handleDelete={handleDelete}
-                isMuted={isMuted}
-                onOpenReport={onOpenReport}
-                translateContentText={translateContentText}
-            />
+            {!isSkeleton && (
+                <>
+                    <Modal
+                        isOpen={isOpenReply}
+                        onOpenChange={onOpenChangeReply}
+                        placement={isMobile ? "top" : "center"}
+                        className={"z-[100] max-w-[600px] bg-transparent"}
+                    >
+                        <ModalContent>
+                            {(onClose) => (
+                                <PostModal
+                                    type={"Reply"}
+                                    postData={postJson}
+                                    onClose={onClose}
+                                />
+                            )}
+                        </ModalContent>
+                    </Modal>
+                    <ReportModal
+                        isOpen={isOpenReport}
+                        onOpenChange={onOpenChangeReport}
+                        placement={isMobile ? "top" : "center"}
+                        className={"z-[100] max-w-[600px]"}
+                        target={"post"}
+                        post={postJson}
+                        nextQueryParams={nextQueryParams}
+                    />
+                    <MobileOptionModal
+                        isOpen={isOpenOption}
+                        onOpenChange={onOpenChangeOption}
+                        placement={"bottom"}
+                        className={
+                            "z-[100] max-w-[600px] text-black dark:text-white"
+                        }
+                        postView={postView}
+                        postJson={postJson}
+                        handleMute={handleMute}
+                        handleDelete={handleDelete}
+                        isMuted={isMuted}
+                        onOpenReport={onOpenReport}
+                        translateContentText={translateContentText}
+                    />
+                </>
+            )}
             <main
                 className={`${
                     quoteJson
