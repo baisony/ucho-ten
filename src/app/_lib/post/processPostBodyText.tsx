@@ -33,7 +33,7 @@ export const processPostBodyText = (
         quoteJson || postJson || null
 
     if (!postJsonData?.record && !quoteJson?.value) {
-        return
+        return null
     }
 
     const record = (quoteJson?.value ||
@@ -43,42 +43,52 @@ export const processPostBodyText = (
     const decoder = new TextDecoder()
 
     if (!record?.facets && record?.text) {
-        const post: any[] = []
-        record.text.split("\n").map((line: any, i: number) => {
-            post.push(
-                <p key={i}>
-                    {line}
-                    <br />
-                </p>
-            )
-        })
-        return post
+        return record.text.split("\n").map((line, i) => (
+            <p key={i}>
+                {line}
+                <br />
+            </p>
+        ))
     }
 
     const { text, facets } = record
     const text_bytes = encoder.encode(text)
-    const result: any[] = []
+    const result: React.ReactNode[] = []
 
     let lastOffset = 0
 
+    const addTextChunks = (textChunk: string, key: string) => (
+        <span key={key}>
+            {textChunk}
+            <br />
+        </span>
+    )
+
+    const addLink = (linkElement: React.ReactNode, key: string) => (
+        <span key={key}>
+            <Chip
+                className={chip()}
+                size={"sm"}
+                variant="faded"
+                color="primary"
+            >
+                {linkElement}
+            </Chip>
+        </span>
+    )
+
     ;(facets || []).forEach((facet: any, index: number) => {
         const { byteStart, byteEnd } = facet.index
-
         const facetText = decoder.decode(text_bytes.slice(byteStart, byteEnd))
 
-        // 直前のテキストを追加
+        // Add non-link text
         if (byteStart > lastOffset) {
             const nonLinkText = decoder.decode(
                 text_bytes.slice(lastOffset, byteStart)
             )
             const textChunks = nonLinkText
                 .split("\n")
-                .map((line, index, array) => (
-                    <span key={`text-${byteStart}-${index}`}>
-                        {line}
-                        {index !== array.length - 1 && <br />}
-                    </span>
-                ))
+                .map((line, i) => addTextChunks(line, `text-${byteStart}-${i}`))
             result.push(textChunks)
         }
 
@@ -216,13 +226,9 @@ export const processPostBodyText = (
         const nonLinkText = decoder.decode(text_bytes.slice(lastOffset))
         const textWithLineBreaks = nonLinkText
             .split("\n")
-            .map((line, index) => (
-                <span key={`div-${lastOffset}-${index}`}>
-                    {line}
-                    {index !== nonLinkText.length - 1 && <br />}
-                </span>
-            ))
+            .map((line, i) => addTextChunks(line, `div-${lastOffset}-${i}`))
         result.push(textWithLineBreaks)
     }
-    return result
+
+    return <>{result}</>
 }

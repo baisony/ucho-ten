@@ -981,29 +981,13 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                         {bodyText !== undefined && (
                             <div
                                 style={{ wordBreak: "break-word" }}
-                                className={`${
-                                    contentFontSize == 1
-                                        ? `text-[12px]`
-                                        : contentFontSize == 2
-                                        ? `text-[13px]`
-                                        : contentFontSize == 3
-                                        ? `text-[14px]`
-                                        : contentFontSize == 4
-                                        ? `text-[15px]`
-                                        : contentFontSize == 5
-                                        ? `text-[16px]`
-                                        : contentFontSize == 6
-                                        ? `text-[17px]`
-                                        : contentFontSize == 7
-                                        ? `text-[18px]`
-                                        : contentFontSize == 8
-                                        ? `text-[19px]`
-                                        : contentFontSize == 9
-                                        ? `text-[20px]`
-                                        : contentFontSize == 10
-                                        ? `text-[21px]`
-                                        : `text-[13px]`
-                                } ${isEmbedToPost && `text-[13px]`}`}
+                                className={
+                                    `${isEmbedToPost && `text-[13px]`} ` +
+                                    "text-[" +
+                                    contentFontSize +
+                                    11 +
+                                    "px]"
+                                }
                             >
                                 {!viewTranslatedText && bodyText}
                                 {translatedJsonData !== null &&

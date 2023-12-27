@@ -43,13 +43,10 @@ import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useQueryClient } from "@tanstack/react-query"
-//import { TabBar } from "@/app/_components/TabBar"
+import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
+import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 
-const TabBar = dynamic(
-    () => import("@/app/_components/TabBar").then((mod) => mod.TabBar),
-    {}
-)
 const ViewSideMenu = dynamic(
     () =>
         import("@/app/_components/ViewSideMenu").then(
@@ -58,7 +55,7 @@ const ViewSideMenu = dynamic(
     {}
 )
 
-const ViewSideBar = dynamic(() => import("../ViewSideBar/ViewSideBar"), {})
+//const ViewSideBar = dynamic(() => import("../ViewSideBar/ViewSideBar"), {})
 
 export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()

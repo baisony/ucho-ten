@@ -175,7 +175,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
         <main className={Header({ isMatchingPath })}>
             <div className={top({ isMatchingPath })}>
                 <Button
-                    aria-label={"menu"}
                     className={
                         "absolute left-[0px] p-[20px] text-white lg:hidden"
                     }
@@ -274,7 +273,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             className={"md:h-[24px] h-[20px] cursor-pointer"}
                             src={logoImage}
                             alt={"logo"}
-                            loading={"lazy"}
                         />
                     </Link>
                 )}
@@ -315,7 +313,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                                 className={`${
                                     menuIndex === index
                                         ? "text-white"
-                                        : "text-[#595959]"
+                                        : "text-[#909090]"
                                 } md:text-[15px] text-[13px] flex justify-center items-center ${
                                     isMatchingPath ? `lg:h-[27px]` : `lg:h-full`
                                 } cursor-pointer`}
