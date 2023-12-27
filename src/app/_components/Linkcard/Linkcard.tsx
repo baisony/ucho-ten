@@ -58,7 +58,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                     <img
                                         src={generatedURL || ""}
                                         className={LinkCardThumbnail()}
-                                        alt={ogpData?.alt}
+                                        alt={ogpData?.alt || "thumbnail"}
                                     />
                                 </div>
                             )}
