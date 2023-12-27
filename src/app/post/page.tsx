@@ -81,11 +81,8 @@ export default function Root() {
     const [nextQueryParams] = useNextQueryParamsAtom()
     let defaultLanguage
 
-    if (window) {
-        defaultLanguage = [
-            (window.navigator.languages && window.navigator.languages[0]) ||
-                window.navigator.language,
-        ]
+    if (window && window.navigator.languages && window.navigator.languages[0]) {
+        defaultLanguage = [window.navigator.languages[0]]
     } else {
         defaultLanguage = ["en"]
     }
