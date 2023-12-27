@@ -50,6 +50,9 @@ export default function RootLayout({
             <head>
                 <title>Ucho-ten</title>
                 <meta charSet="utf-8" />
+                <link rel="preconnect" href={"https://bsky.network"} />
+                <link rel="preconnect" href={"https://bsky.social"} />
+                <link rel="preconnect" href={"https://cdn.bsky.app"} />
                 <link
                     rel="shortcut icon"
                     href="/images/favicon/ucho-ten-logo-black.svg"
