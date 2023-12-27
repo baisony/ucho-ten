@@ -583,7 +583,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     return (
         <div
-            className={`bg-cover bg-[url(/images/backgroundImage/light/sky_00421.jpg)] dark:bg-[url(/images/backgroundImage/dark/starry-sky-gf5ade6b4f_1920.jpg)]`}
+            className={`bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]`}
             style={{
                 overscrollBehaviorY: "none",
                 WebkitOverflowScrolling: "touch",
