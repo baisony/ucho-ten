@@ -58,11 +58,17 @@ import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
-import { DummyHeader } from "@/app/_components/DummyHeader"
+//import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
+
+const DummyHeader = dynamic(
+    () =>
+        import("@/app/_components/DummyHeader").then((mod) => mod.DummyHeader),
+    { ssr: true }
+)
 
 const PostModal = dynamic(
     () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
