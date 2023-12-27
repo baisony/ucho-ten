@@ -3,7 +3,7 @@ import { tv } from "@nextui-org/react"
 export const viewPostCard = tv({
     slots: {
         PostCard:
-            "w-full min-w-[350px] border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#292929] bg-white dark:bg-[#16191F] lg:mb-[15px] lg:rounded-[10px]",
+            "w-full min-w-[350px] h-full border-b-[1px] text-black border-[#E8E8E8] dark:text-[#D7D7D7] dark:border-[#292929] bg-white dark:bg-[#16191F] lg:mb-[15px] lg:rounded-[10px]",
         PostCardContainer:
             "pl-[8px] pt-[11px] w-full md:pb-[11px] pb-[16px] pr-[11px] lg:pl-[12px] lg:pr-[12px] lg:pt-[15px] lg:pb-[15px]",
         PostAuthor:
@@ -16,7 +16,7 @@ export const viewPostCard = tv({
             "text-[#595959] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
         postCreatedAt: "text-[#595959] font-light text-[12px]",
         moreButton: "text-[#B8B8B8] font-light text-[12px]",
-        OptionButton: "text-[#B8B8B8] font-light absolute right-[17px]",
+        OptionButton: "text-[#595959] font-light absolute right-[17px]",
         PostContent: "w-[100%-5px] h-full ml-[36px] mr-[0px]",
         PostReactionButtonContainer:
             "h-[20px] mt-[15px] flex items-center justify-between ml-[36px]",

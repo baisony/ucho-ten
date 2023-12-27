@@ -95,7 +95,7 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                             (ogpData?.description || "")}
                                     </div>
                                     <div className={LinkCardSiteName()}>
-                                        <div className="text-gray-400">
+                                        <div className="text-gray-400 w-full">
                                             {
                                                 ogpData?.uri.match(
                                                     /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/

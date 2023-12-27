@@ -885,11 +885,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         postJsonData?.author?.avatar ||
                                         defaultIcon.src
                                     }
-                                    style={{
-                                        height: "30px",
-                                        width: "30px",
-                                    }}
                                     alt={postJsonData?.author.did}
+                                    className={"w-full h-full"}
                                 />
                             </Link>
                             <Link
@@ -981,13 +978,13 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                         {bodyText !== undefined && (
                             <div
                                 style={{ wordBreak: "break-word" }}
-                                className={
-                                    `${isEmbedToPost && `text-[13px]`} ` +
-                                    "text-[" +
-                                    contentFontSize +
-                                    11 +
-                                    "px]"
-                                }
+                                className={`h-full w-full ${
+                                    isEmbedToPost
+                                        ? `text-[13px]`
+                                        : `text-[` +
+                                          Number(contentFontSize + 11) +
+                                          `px]`
+                                }`}
                             >
                                 {!viewTranslatedText && bodyText}
                                 {translatedJsonData !== null &&
