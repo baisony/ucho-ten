@@ -146,18 +146,17 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                     {isSkeleton ? (
                                         <Skeleton className={skeletonIcon()} />
                                     ) : (
-                                        <Image
+                                        <img
                                             src={
                                                 postJson?.author?.avatar ||
                                                 profile?.avatar ||
                                                 defaultIcon.src
                                             }
-                                            //radius={"lg"}
                                             className={`${
                                                 isEmbedToModal
                                                     ? `z-[2]`
                                                     : `z-[0]`
-                                            } rounded-[7px]`}
+                                            } rounded-full w-full h-full`}
                                             alt={postJson?.author.did}
                                         />
                                     )}

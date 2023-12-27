@@ -11,7 +11,6 @@ import {
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedPost,
-    AtUri,
 } from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
@@ -24,31 +23,18 @@ import {
     faStar as faHeartRegular,
 } from "@fortawesome/free-regular-svg-icons"
 import {
-    faArrowUpFromBracket,
     faBookmark as faBookmarkSolid,
-    faFlag,
-    faLanguage,
     faReply,
     faRetweet,
     faStar as faHeartSolid,
-    faTrash,
-    faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
-import { PostModal } from "../PostModal"
 import { Linkcard } from "@/app/_components/Linkcard"
 // import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
-import { ReportModal } from "@/app/_components/ReportModal"
 import "react-circular-progressbar/dist/styles.css"
-import {
-    Button,
-    Modal,
-    ModalBody,
-    ModalContent,
-    useDisclosure,
-} from "@nextui-org/react"
+import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
@@ -63,6 +49,7 @@ import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import ViewPostCardSkelton from "./ViewPostCardSkelton"
 import EmbedMedia from "./EmbedMedia"
@@ -74,6 +61,26 @@ import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
+//import { PostModal } from "../PostModal"
+//import { ReportModal } from "@/app/_components/ReportModal"
+
+const PostModal = dynamic(
+    () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
+    { ssr: true }
+)
+
+const ReportModal = dynamic(
+    () =>
+        import("@/app/_components/ReportModal").then((mod) => mod.ReportModal),
+    { ssr: true }
+)
+const MobileOptionModal = dynamic(
+    () =>
+        import("@/app/_components/MobileOptionModal").then(
+            (mod) => mod.MobileOptionModal
+        ),
+    { ssr: true }
+)
 
 export interface ViewPostCardProps {
     isTop: boolean
@@ -792,156 +799,19 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 post={postJson}
                 nextQueryParams={nextQueryParams}
             />
-            <Modal
+            <MobileOptionModal
                 isOpen={isOpenOption}
                 onOpenChange={onOpenChangeOption}
                 placement={"bottom"}
                 className={"z-[100] max-w-[600px] text-black dark:text-white"}
-                hideCloseButton
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalBody>
-                                <span>
-                                    <div
-                                        className={"mt-[15px] mb-[15px] w-full"}
-                                        onClick={async () => {
-                                            if (!window.navigator.share) {
-                                                alert(
-                                                    t(
-                                                        "alert.cannotShareInBrowser"
-                                                    )
-                                                )
-                                                return
-                                            }
-                                            try {
-                                                const url = new AtUri(
-                                                    postView?.uri || ""
-                                                )
-
-                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/${url.rkey}`
-                                                console.log(url)
-                                                await window.navigator.share({
-                                                    url: bskyURL,
-                                                })
-                                            } catch (e) {}
-                                        }}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faArrowUpFromBracket}
-                                            className={"w-[40px]"}
-                                        />
-                                        {t("pages.postOnlyPage.share")}
-                                    </div>
-                                    <div
-                                        className={"mt-[15px] mb-[15px] w-full"}
-                                        onClick={async () => {
-                                            await translateContentText()
-                                            onClose()
-                                        }}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faLanguage}
-                                            className={"w-[40px]"}
-                                        />
-                                        {t("pages.postOnlyPage.translate")}
-                                    </div>
-                                    {postJson?.author?.did !==
-                                        agent?.session?.did && (
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full text-red-600"
-                                            }
-                                            onClick={() => {
-                                                let confirm
-                                                if (isMuted) {
-                                                    confirm = window?.confirm(
-                                                        t(
-                                                            "components.ViewPostCard.unMuteThisUser?"
-                                                        )
-                                                    )
-                                                } else {
-                                                    confirm = window?.confirm(
-                                                        t(
-                                                            "components.ViewPostCard.muteThisUser?"
-                                                        )
-                                                    )
-                                                }
-                                                if (!confirm) return
-                                                void handleMute()
-                                            }}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faVolumeXmark}
-                                                className={"w-[40px]"}
-                                            />
-                                            {!isMuted ? (
-                                                <span>
-                                                    {" "}
-                                                    {t(
-                                                        "components.ViewPostCard.mute"
-                                                    )}
-                                                </span>
-                                            ) : (
-                                                <span>
-                                                    {" "}
-                                                    {t(
-                                                        "components.ViewPostCard.unmute"
-                                                    )}
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
-                                    {postJson?.author?.did ===
-                                    agent?.session?.did ? (
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full text-red-600"
-                                            }
-                                            onClick={() => {
-                                                const confirm = window?.confirm(
-                                                    t(
-                                                        "components.ViewPostCard.deletePost?"
-                                                    )
-                                                )
-                                                if (!confirm) return
-                                                void handleDelete()
-                                                onClose()
-                                            }}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faTrash}
-                                                className={"w-[40px]"}
-                                            />
-                                            {t(
-                                                "components.ViewPostCard.delete"
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className={
-                                                "mt-[15px] mb-[15px] w-full text-red-600"
-                                            }
-                                            onClick={() => {
-                                                onOpenReport()
-                                            }}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faFlag}
-                                                className={"w-[40px]"}
-                                            />
-                                            {t(
-                                                "components.ViewPostCard.report"
-                                            )}
-                                        </div>
-                                    )}
-                                </span>
-                            </ModalBody>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+                postView={postView}
+                postJson={postJson}
+                handleMute={handleMute}
+                handleDelete={handleDelete}
+                isMuted={isMuted}
+                onOpenReport={onOpenReport}
+                translateContentText={translateContentText}
+            />
             <main
                 className={`${
                     quoteJson
@@ -973,7 +843,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
                     {json?.reason && (
                         <Link
-                            className={`text-[13px] ml-[40px] text-[#909090] text-bold hover:cursor-pointer md:hover:underline`}
+                            className={`text-[13px] ml-[40px] text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 handleChangeSaveScrollPosition()
@@ -1009,9 +879,8 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         postJsonData?.author?.avatar ||
                                         defaultIcon.src
                                     }
-                                    //radius={"lg"}
-                                    className={``}
-                                    alt={postJsonData?.author.did}
+                                    alt={postJsonData?.author.did || ""}
+                                    className={"w-[30px] h-[30px]"}
                                 />
                             </Link>
                             <Link
@@ -1103,29 +972,13 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                         {bodyText !== undefined && (
                             <div
                                 style={{ wordBreak: "break-word" }}
-                                className={`${
-                                    contentFontSize == 1
-                                        ? `text-[12px]`
-                                        : contentFontSize == 2
+                                className={`h-full w-full ${
+                                    isEmbedToPost
                                         ? `text-[13px]`
-                                        : contentFontSize == 3
-                                        ? `text-[14px]`
-                                        : contentFontSize == 4
-                                        ? `text-[15px]`
-                                        : contentFontSize == 5
-                                        ? `text-[16px]`
-                                        : contentFontSize == 6
-                                        ? `text-[17px]`
-                                        : contentFontSize == 7
-                                        ? `text-[18px]`
-                                        : contentFontSize == 8
-                                        ? `text-[19px]`
-                                        : contentFontSize == 9
-                                        ? `text-[20px]`
-                                        : contentFontSize == 10
-                                        ? `text-[21px]`
-                                        : `text-[13px]`
-                                } ${isEmbedToPost && `text-[13px]`}`}
+                                        : `text-[` +
+                                          Number(contentFontSize + 11) +
+                                          `px]`
+                                }`}
                             >
                                 {!viewTranslatedText && bodyText}
                                 {translatedJsonData !== null &&
