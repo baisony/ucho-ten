@@ -72,7 +72,7 @@ export const ViewSideMenu: React.FC<Props> = () => {
                 <div className={"mb-[50px] cursor-pointer"}>
                     <Link href={"/home"}>
                         <img
-                            className={"h-[24px]"}
+                            className={"h-[24px] w-[144px]"}
                             src={logoImage.src}
                             alt={"logo"}
                         />
