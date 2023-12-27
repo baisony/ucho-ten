@@ -44,6 +44,7 @@ const EmbedMedia = ({
                                     e.stopPropagation()
                                     onImageClick(images, index)
                                 }}
+                                loading={"lazy"}
                             />
                         </div>
                     ))}
