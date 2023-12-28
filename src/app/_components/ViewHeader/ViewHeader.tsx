@@ -273,6 +273,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             className={"md:h-[24px] h-[20px] cursor-pointer"}
                             src={logoImage}
                             alt={"logo"}
+                            loading={"eager"}
                         />
                     </Link>
                 )}

@@ -661,7 +661,7 @@ export default function Root() {
                                                 "relative w-1/4 h-full flex"
                                             }
                                         >
-                                            <Image
+                                            <img
                                                 src={URL.createObjectURL(
                                                     image.blob
                                                 )}

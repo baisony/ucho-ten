@@ -47,7 +47,7 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
                         />
                     )}
                     {!isSkeleton && (
-                        <Image
+                        <img
                             className={`h-[35px] w-[35px] z-[0]`}
                             src={feed?.avatar || defaultIcon.src}
                             alt={"avatar image"}
