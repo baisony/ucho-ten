@@ -460,7 +460,7 @@ const FeedPage = ({
 
     return (
         <PullToRefresh onRefresh={handlePullToRefresh} pullingContent={<></>}>
-            <div>
+            <>
                 {hasUpdate && (
                     <div
                         className={
@@ -543,7 +543,7 @@ const FeedPage = ({
                     endReached={loadMore}
                     className={notNulltimeline()}
                 />
-            </div>
+            </>
         </PullToRefresh>
     )
 }
