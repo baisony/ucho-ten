@@ -78,13 +78,14 @@ const Root = () => {
             modules={[Pagination]}
             className="swiper-home"
             style={{ height: "100%" }}
-            touchAngle={30}
+            touchAngle={0}
             touchRatio={0.8}
             initialSlide={menuIndex}
             touchReleaseOnEdges={true}
             touchMoveStopPropagation={true}
             preventInteractionOnTransition={true}
             touchStartPreventDefault={false}
+            edgeSwipeDetection={true}
             onActiveIndexChange={(swiper) => {
                 if (!menuIndexChangedByMenu) {
                     setMenuIndex(swiper.activeIndex)

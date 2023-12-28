@@ -448,13 +448,13 @@ const FeedPage = ({
     }
 
     const handlePullToRefresh = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50000))
-        checkNewTimeline()
-        handleRefresh()
+        await checkNewTimeline()
+        await handleRefresh()
     }
 
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
+        setHasUpdate(false)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
@@ -462,12 +462,13 @@ const FeedPage = ({
     return (
         <PullToRefresh
             onRefresh={handlePullToRefresh}
+            maxPullDownDistance={500}
+            resistance={2}
             refreshingContent={
-                <div
-                    className={
-                        "w-full h-[200px] flex justify-center items-center"
-                    }
-                >
+                <div className={"w-full h-full"}>
+                    <div
+                        className={"lg:h-[50px] md:h-[100px] h-[85px] w-full"}
+                    />
                     <Spinner
                         color="warning"
                         className={
