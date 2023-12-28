@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useLayoutEffect } from "react"
 import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -32,7 +32,7 @@ export const TabBar: React.FC<Props> = () => {
     const { TabBar, Container, Icon } = tabBar()
     const [highlightedTab, setHighLightedTab] = useHighlightedTab()
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         switch (pathname) {
             case "/":
                 setHighLightedTab("h")

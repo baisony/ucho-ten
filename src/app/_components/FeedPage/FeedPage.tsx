@@ -10,7 +10,6 @@ import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { ListFooterSpinner } from "../ListFooterSpinner"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
@@ -19,13 +18,25 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard } from "../ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import dynamic from "next/dynamic"
+
+//import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+const ListFooterNoContent = dynamic(
+    () =>
+        import("../ListFooterNoContent").then((mod) => mod.ListFooterNoContent),
+    { ssr: true }
+)
+//import { ListFooterSpinner } from "../ListFooterSpinner"
+const ListFooterSpinner = dynamic(
+    () => import("../ListFooterSpinner").then((mod) => mod.ListFooterSpinner),
+    { ssr: true }
+)
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
@@ -56,7 +67,7 @@ const FeedPage = ({
     const [agent] = useAgent()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const { notNulltimeline } = tabBarSpaceStyles()
     const [muteWords] = useWordMutes()
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
@@ -459,82 +470,71 @@ const FeedPage = ({
                     </div>
                 </div>
             )}
-            {timeline === null && (
-                <Virtuoso
-                    overscan={200}
-                    increaseViewportBy={200}
-                    totalCount={20}
-                    initialItemCount={20}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index) => (
-                        <ViewPostCard
-                            {...{
-                                isTop: index === 0,
-                                isMobile,
-                                isSkeleton: true,
-                                bodyText: undefined,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    className={nullTimeline()}
-                />
-            )}
-            {timeline !== null && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            scrollRef.current = ref
-                            // setListScrollRefAtom(ref)
-                        }
-                    }}
-                    ref={virtuosoRef}
-                    //@ts-ignore
-                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                    context={{ hasMore }}
-                    increaseViewportBy={200}
-                    overscan={200}
-                    data={timeline}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, item) => (
-                        <ViewPostCard
-                            key={`feed-${item.post.uri}`}
-                            {...{
-                                isTop: index === 0,
-                                isMobile,
-                                isSkeleton: false,
-                                bodyText: processPostBodyText(
+            <Virtuoso
+                scrollerRef={(ref) => {
+                    if (ref instanceof HTMLElement) {
+                        scrollRef.current = ref
+                        // setListScrollRefAtom(ref)
+                    }
+                }}
+                ref={virtuosoRef}
+                //@ts-ignore
+                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                context={{ hasMore }}
+                increaseViewportBy={200}
+                overscan={200}
+                data={timeline ?? undefined}
+                totalCount={timeline ? timeline.length : 20}
+                atTopThreshold={100}
+                atBottomThreshold={100}
+                itemContent={(index, item) => (
+                    <>
+                        {item ? (
+                            <ViewPostCard
+                                key={`feed-${item.post.uri}`}
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        item.post || null
+                                    ),
+                                    postJson: item.post || null,
+                                    json: item,
+                                    now,
                                     nextQueryParams,
-                                    item.post || null
-                                ),
-                                postJson: item.post || null,
-                                json: item,
-                                now,
-                                nextQueryParams,
-                                t,
-                                handleValueChange: handleValueChange,
-                                handleSaveScrollPosition:
-                                    handleSaveScrollPosition,
-                                isViaUFeed: isViaUFeed,
-                            }}
-                        />
-                    )}
-                    components={{
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        Footer: !isEndOfFeed
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadMore}
-                    // onScroll={(e) => disableScrollIfNeeded(e)}
-                    //className="overflow-y-auto"
-                    className={notNulltimeline()}
-                />
-            )}
+                                    t,
+                                    handleValueChange: handleValueChange,
+                                    handleSaveScrollPosition:
+                                        handleSaveScrollPosition,
+                                    isViaUFeed: isViaUFeed,
+                                }}
+                            />
+                        ) : (
+                            <ViewPostCard
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: true,
+                                    bodyText: undefined,
+                                    nextQueryParams,
+                                    t,
+                                }}
+                            />
+                        )}
+                    </>
+                )}
+                components={{
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    Footer: !isEndOfFeed
+                        ? ListFooterSpinner
+                        : ListFooterNoContent,
+                }}
+                endReached={loadMore}
+                className={notNulltimeline()}
+            />
         </>
     )
 }

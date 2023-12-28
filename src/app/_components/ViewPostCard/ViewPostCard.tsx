@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
@@ -32,8 +32,6 @@ import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { Linkcard } from "@/app/_components/Linkcard"
-// import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
-import "react-circular-progressbar/dist/styles.css"
 import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
@@ -43,7 +41,6 @@ import {
     useImageGalleryAtom,
 } from "@/app/_atoms/imageGallery"
 
-import "react-swipeable-list/dist/styles.css"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
@@ -56,13 +53,21 @@ import EmbedMedia from "./EmbedMedia"
 import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
-import MoreDropDownMenu from "./MoreDropDownMenu"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
+//import MoreDropDownMenu from "./MoreDropDownMenu"
+
+const MoreDropDownMenu = dynamic(
+    () =>
+        import("@/app/_components/ViewPostCard/MoreDropDownMenu").then(
+            (mod) => mod.default
+        ),
+    { ssr: true }
+)
 
 const PostModal = dynamic(
     () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
@@ -121,7 +126,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         handleSaveScrollPosition,
         isSearchScreen,
         isViaUFeed,
-        isDisplayMode,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -168,12 +172,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     const [userPreference] = useUserPreferencesAtom()
     const [translateTo] = useTranslationLanguage()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
-    const [warningReason, setWarningReason] = useState<string>("")
-    const [, setHandleButtonClick] = useState(false)
+    const warningReason = useRef<string>("")
     const [bookmarks, setBookmarks] = useBookmarks()
     const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [contentFontSize] = useContentFontSize()
-    const [isTranslated, setIsTranslated] = useState<boolean>(false)
+    const isTranslated = useRef<boolean>(false)
     const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(false)
     const [translateError, setTranslateError] = useState<boolean>(false)
     const [translatedJsonData, setTranslatedJsonData] = useState<any>(null)
@@ -565,7 +568,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                         const action = userPreference.contentLabels?.[key]
                         if (action === "warn") {
                             setContentWarning(true)
-                            setWarningReason(warningLabel)
+                            warningReason.current = warningLabel
                         } else if (action === "hide") {
                             handleInputChange("delete", postJson?.uri || "", "")
                         }
@@ -702,7 +705,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             return
         }
 
-        setIsTranslated(true)
+        isTranslated.current = true
         setViewTranslatedText(true)
         const res = await fetch(
             `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
@@ -773,7 +776,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
             {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
-
             <Modal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}
@@ -880,7 +882,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                         defaultIcon.src
                                     }
                                     alt={postJsonData?.author.did || ""}
-                                    className={"w-[30px] h-[30px]"}
+                                    className={`${
+                                        !isEmbedToPost
+                                            ? `w-[30px] h-[30px]`
+                                            : `w-[18px] h-[18px]`
+                                    }`}
                                 />
                             </Link>
                             <Link
@@ -1002,7 +1008,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             radius={"full"}
                                             onClick={async (e) => {
                                                 e.stopPropagation()
-                                                if (!isTranslated) {
+                                                if (!isTranslated.current) {
                                                     await translateContentText()
                                                 }
                                                 if (viewTranslatedText) {
@@ -1043,7 +1049,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             >
                                 <div className={"ml-[20px]"}>
                                     {t("components.ViewPostCard.warning")}:{" "}
-                                    {warningReason}
+                                    {warningReason.current}
                                 </div>
                                 <Button
                                     variant={"light"}
@@ -1152,9 +1158,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                                     ?.replyDisabled
                                                             )
                                                                 return
-                                                            setHandleButtonClick(
-                                                                true
-                                                            )
                                                             await handleReply()
                                                         }}
                                                     />
@@ -1176,9 +1179,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                         icon={faRetweet}
                                                         onClick={async (e) => {
                                                             e.stopPropagation()
-                                                            setHandleButtonClick(
-                                                                true
-                                                            )
                                                             await handleRepost()
                                                         }}
                                                     />
@@ -1199,9 +1199,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                     }
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
-                                                        setHandleButtonClick(
-                                                            true
-                                                        )
                                                         await handleLike()
                                                     }}
                                                 />

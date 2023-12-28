@@ -430,79 +430,70 @@ export default function FeedPage() {
                     </div>
                 </div>
             )}
-            {timeline === null && (
-                <Virtuoso
-                    overscan={200}
-                    increaseViewportBy={200}
-                    totalCount={20}
-                    initialItemCount={20}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index) => (
-                        <ViewPostCard
-                            {...{
-                                isTop: index === 0,
-                                isMobile,
-                                isSkeleton: true,
-                                bodyText: undefined,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    className={nullTimeline()}
-                />
-            )}
-            {timeline !== null && (
-                <Virtuoso
-                    scrollerRef={(ref) => {
-                        if (ref instanceof HTMLElement) {
-                            scrollRef.current = ref
-                            // setListScrollRefAtom(ref)
-                        }
-                    }}
-                    ref={virtuosoRef}
-                    //@ts-ignore
-                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                    context={{ hasMore }}
-                    increaseViewportBy={200}
-                    overscan={200}
-                    data={timeline}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, post) => (
-                        <ViewPostCard
-                            key={`feed-${post.uri}`}
-                            {...{
-                                isTop: index === 0,
-                                isMobile,
-                                isSkeleton: false,
-                                bodyText: processPostBodyText(
+            <Virtuoso
+                scrollerRef={(ref) => {
+                    if (ref instanceof HTMLElement) {
+                        scrollRef.current = ref
+                        // setListScrollRefAtom(ref)
+                    }
+                }}
+                ref={virtuosoRef}
+                //@ts-ignore
+                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                context={{ hasMore }}
+                increaseViewportBy={200}
+                overscan={200}
+                data={timeline ?? undefined}
+                totalCount={timeline ? timeline.length : 20}
+                atTopThreshold={100}
+                atBottomThreshold={100}
+                itemContent={(index, post) => (
+                    <>
+                        {post ? (
+                            <ViewPostCard
+                                key={`feed-${post.uri}`}
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        post || null
+                                    ),
+                                    postJson: post,
                                     nextQueryParams,
-                                    post || null
-                                ),
-                                postJson: post,
-                                nextQueryParams,
-                                t,
-                                handleValueChange: handleValueChange,
-                                handleSaveScrollPosition:
-                                    handleSaveScrollPosition,
-                            }}
-                        />
-                    )}
-                    components={{
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        Footer: !isEndOfFeed
-                            ? ListFooterSpinner
-                            : ListFooterNoContent,
-                    }}
-                    endReached={loadMore}
-                    // onScroll={(e) => disableScrollIfNeeded(e)}
-                    //className="overflow-y-auto"
-                    className={notNulltimeline()}
-                />
-            )}
+                                    t,
+                                    handleValueChange: handleValueChange,
+                                    handleSaveScrollPosition:
+                                        handleSaveScrollPosition,
+                                }}
+                            />
+                        ) : (
+                            <ViewPostCard
+                                {...{
+                                    isTop: index === 0,
+                                    isMobile,
+                                    isSkeleton: true,
+                                    bodyText: undefined,
+                                    nextQueryParams,
+                                    t,
+                                }}
+                            />
+                        )}
+                    </>
+                )}
+                components={{
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    Footer: !isEndOfFeed
+                        ? ListFooterSpinner
+                        : ListFooterNoContent,
+                }}
+                endReached={loadMore}
+                // onScroll={(e) => disableScrollIfNeeded(e)}
+                //className="overflow-y-auto"
+                className={notNulltimeline()}
+            />
         </>
     )
 }
