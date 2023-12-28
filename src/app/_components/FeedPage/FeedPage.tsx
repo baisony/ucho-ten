@@ -25,7 +25,7 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
-
+import { PullToRefreshify } from "react-pull-to-refreshify"
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
     () =>
@@ -37,6 +37,8 @@ const ListFooterSpinner = dynamic(
     () => import("../ListFooterSpinner").then((mod) => mod.ListFooterSpinner),
     { ssr: true }
 )
+
+import "./styles.css"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
@@ -451,91 +453,143 @@ const FeedPage = ({
         setLoadMoreFeed(false)
     }
 
-    return (
-        <>
-            {hasUpdate && (
-                <div
-                    className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
-                    }
-                >
-                    <div
-                        className={
-                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
-                        }
-                        onClick={handleRefresh}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
-                        {t("button.newPosts")}
+    function renderText(pullStatus, percent) {
+        switch (pullStatus) {
+            case "pulling":
+                return (
+                    <div>
+                        {`Pull down `}
+                        <span style={{ color: "green" }}>{`${percent.toFixed(
+                            0
+                        )}%`}</span>
                     </div>
-                </div>
-            )}
-            <Virtuoso
-                scrollerRef={(ref) => {
-                    if (ref instanceof HTMLElement) {
-                        scrollRef.current = ref
-                        // setListScrollRefAtom(ref)
-                    }
-                }}
-                ref={virtuosoRef}
-                //@ts-ignore
-                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                context={{ hasMore }}
-                increaseViewportBy={200}
-                overscan={200}
-                data={timeline ?? undefined}
-                totalCount={timeline ? timeline.length : 20}
-                atTopThreshold={100}
-                atBottomThreshold={100}
-                itemContent={(index, item) => (
+                )
+
+            case "canRelease":
+                return "Release"
+
+            case "refreshing":
+                return "Loading..."
+
+            case "complete":
+                return "Refresh succeed"
+
+            default:
+                return ""
+        }
+    }
+
+    const [refreshing, setRefreshing] = useState(false)
+
+    return (
+        <div className={"max-w-[600px] w-full h-full"}>
+            <>
+                <>
+                    {hasUpdate && (
+                        <div
+                            className={
+                                "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
+                            }
+                        >
+                            <div
+                                className={
+                                    "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
+                                }
+                                onClick={handleRefresh}
+                            >
+                                <FontAwesomeIcon icon={faArrowsRotate} />{" "}
+                                {t("button.newPosts")}
+                            </div>
+                        </div>
+                    )}
                     <>
-                        {item ? (
-                            <ViewPostCard
-                                key={`feed-${item.post.uri}`}
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
-                                        nextQueryParams,
-                                        item.post || null
-                                    ),
-                                    postJson: item.post || null,
-                                    json: item,
-                                    now,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                    isViaUFeed: isViaUFeed,
-                                }}
-                            />
-                        ) : (
-                            <ViewPostCard
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: true,
-                                    bodyText: undefined,
-                                    nextQueryParams,
-                                    t,
-                                }}
-                            />
-                        )}
+                        <Virtuoso
+                            scrollerRef={(ref) => {
+                                if (ref instanceof HTMLElement) {
+                                    scrollRef.current = ref
+                                    // setListScrollRefAtom(ref)
+                                }
+                            }}
+                            ref={virtuosoRef}
+                            //@ts-ignore
+                            restoreStateFrom={
+                                scrollPositions[`${pageName}-${feedKey}`]
+                            }
+                            context={{ hasMore }}
+                            increaseViewportBy={200}
+                            overscan={200}
+                            data={timeline ?? undefined}
+                            totalCount={timeline ? timeline.length : 20}
+                            atTopThreshold={100}
+                            atBottomThreshold={100}
+                            itemContent={(index, item) => (
+                                <>
+                                    {item ? (
+                                        <PullToRefreshify
+                                            refreshing={
+                                                refreshing && index === 0
+                                            }
+                                            onRefresh={async () => {
+                                                setRefreshing(true)
+                                                await checkNewTimeline()
+                                                await handleRefresh()
+                                                setRefreshing(false)
+                                            }}
+                                            renderText={renderText}
+                                            className={"w-full h-full"}
+                                        >
+                                            <ViewPostCard
+                                                key={`feed-${item.post.uri}`}
+                                                {...{
+                                                    isTop: index === 0,
+                                                    isMobile,
+                                                    isSkeleton: false,
+                                                    bodyText:
+                                                        processPostBodyText(
+                                                            nextQueryParams,
+                                                            item.post || null
+                                                        ),
+                                                    postJson: item.post || null,
+                                                    json: item,
+                                                    now,
+                                                    nextQueryParams,
+                                                    t,
+                                                    handleValueChange:
+                                                        handleValueChange,
+                                                    handleSaveScrollPosition:
+                                                        handleSaveScrollPosition,
+                                                    isViaUFeed: isViaUFeed,
+                                                }}
+                                            />
+                                        </PullToRefreshify>
+                                    ) : (
+                                        <ViewPostCard
+                                            {...{
+                                                isTop: index === 0,
+                                                isMobile,
+                                                isSkeleton: true,
+                                                bodyText: undefined,
+                                                nextQueryParams,
+                                                t,
+                                            }}
+                                        />
+                                    )}
+                                </>
+                            )}
+                            components={{
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-ignore
+                                Footer: !isEndOfFeed
+                                    ? ListFooterSpinner
+                                    : ListFooterNoContent,
+                            }}
+                            endReached={loadMore}
+                            className={`virtuoso-css ${notNulltimeline()}`}
+                        />
                     </>
-                )}
-                components={{
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    Footer: !isEndOfFeed
-                        ? ListFooterSpinner
-                        : ListFooterNoContent,
-                }}
-                endReached={loadMore}
-                className={notNulltimeline()}
-            />
-        </>
+                </>
+            </>
+        </div>
     )
 }
 
