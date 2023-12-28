@@ -26,6 +26,7 @@ import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
 import PullToRefresh from "react-simple-pull-to-refresh"
+import { Spinner } from "@nextui-org/react"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -447,7 +448,7 @@ const FeedPage = ({
     }
 
     const handlePullToRefresh = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 5000))
+        await new Promise((resolve) => setTimeout(resolve, 50000))
         checkNewTimeline()
         handleRefresh()
     }
@@ -459,7 +460,23 @@ const FeedPage = ({
     }
 
     return (
-        <PullToRefresh onRefresh={handlePullToRefresh} pullingContent={<></>}>
+        <PullToRefresh
+            onRefresh={handlePullToRefresh}
+            refreshingContent={
+                <div
+                    className={
+                        "w-full h-[200px] flex justify-center items-center"
+                    }
+                >
+                    <Spinner
+                        color="warning"
+                        className={
+                            "flex justify-center items-center w-full h-full"
+                        }
+                    />
+                </div>
+            }
+        >
             <>
                 {hasUpdate && (
                     <div
