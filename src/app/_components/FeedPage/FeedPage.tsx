@@ -502,7 +502,17 @@ const FeedPage = ({
                             </div>
                         </div>
                     )}
-                    <>
+                    <PullToRefreshify
+                        refreshing={refreshing}
+                        onRefresh={async () => {
+                            setRefreshing(true)
+                            await checkNewTimeline()
+                            await handleRefresh()
+                            setRefreshing(false)
+                        }}
+                        renderText={renderText}
+                        className={"w-full h-full"}
+                    >
                         <Virtuoso
                             scrollerRef={(ref) => {
                                 if (ref instanceof HTMLElement) {
@@ -525,19 +535,7 @@ const FeedPage = ({
                             itemContent={(index, item) => (
                                 <>
                                     {item ? (
-                                        <PullToRefreshify
-                                            refreshing={
-                                                refreshing && index === 0
-                                            }
-                                            onRefresh={async () => {
-                                                setRefreshing(true)
-                                                await checkNewTimeline()
-                                                await handleRefresh()
-                                                setRefreshing(false)
-                                            }}
-                                            renderText={renderText}
-                                            className={"w-full h-full"}
-                                        >
+                                        <>
                                             <ViewPostCard
                                                 key={`feed-${item.post.uri}`}
                                                 {...{
@@ -561,7 +559,7 @@ const FeedPage = ({
                                                     isViaUFeed: isViaUFeed,
                                                 }}
                                             />
-                                        </PullToRefreshify>
+                                        </>
                                     ) : (
                                         <ViewPostCard
                                             {...{
@@ -585,8 +583,11 @@ const FeedPage = ({
                             }}
                             endReached={loadMore}
                             className={`virtuoso-css ${notNulltimeline()}`}
+                            style={{
+                                overscrollBehaviorY: "none",
+                            }}
                         />
-                    </>
+                    </PullToRefreshify>
                 </>
             </>
         </div>
