@@ -25,8 +25,7 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
-import PullToRefresh from "react-simple-pull-to-refresh"
-import { Spinner } from "@nextui-org/react"
+import { PullToRefreshify } from "react-pull-to-refreshify"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -39,6 +38,8 @@ const ListFooterSpinner = dynamic(
     () => import("../ListFooterSpinner").then((mod) => mod.ListFooterSpinner),
     { ssr: true }
 )
+
+import "./styles.css"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
@@ -454,122 +455,149 @@ const FeedPage = ({
 
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
-        setHasUpdate(false)
+        //setHasUpdate(false)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
 
-    return (
-        <>
-            {hasUpdate && (
-                <div
-                    className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
-                    }
-                >
-                    <div
-                        className={
-                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
-                        }
-                        onClick={handleRefresh}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
-                        {t("button.newPosts")}
+    function renderText(pullStatus: any, percent: any) {
+        switch (pullStatus) {
+            case "pulling":
+                return (
+                    <div>
+                        {`Pull down `}
+                        <span style={{ color: "green" }}>{`${percent.toFixed(
+                            0
+                        )}%`}</span>
                     </div>
-                </div>
-            )}
-            <PullToRefresh
-                onRefresh={handlePullToRefresh}
-                maxPullDownDistance={500}
-                resistance={2}
-                refreshingContent={
-                    <div className={"w-full h-full"}>
+                )
+
+            case "canRelease":
+                return "Release"
+
+            case "refreshing":
+                return "Loading..."
+
+            case "complete":
+                return "Refresh succeed"
+
+            default:
+                return ""
+        }
+    }
+
+    const [refreshing, setRefreshing] = useState(false)
+
+    return (
+        <div className={"max-w-[600px] w-full h-full"}>
+            <>
+                <>
+                    {hasUpdate && (
                         <div
                             className={
-                                "lg:h-[50px] md:h-[100px] h-[85px] w-full"
+                                "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
                             }
-                        />
-                        <Spinner
-                            color="warning"
-                            className={
-                                "flex justify-center items-center w-full h-full"
-                            }
-                        />
-                    </div>
-                }
-            >
-                <>
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                                // setListScrollRefAtom(ref)
-                            }
+                        >
+                            <div
+                                className={
+                                    "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
+                                }
+                                onClick={handleRefresh}
+                            >
+                                <FontAwesomeIcon icon={faArrowsRotate} />{" "}
+                                {t("button.newPosts")}
+                            </div>
+                        </div>
+                    )}
+                    <PullToRefreshify
+                        refreshing={refreshing}
+                        onRefresh={async () => {
+                            setRefreshing(true)
+                            await checkNewTimeline()
+                            await handleRefresh()
+                            setRefreshing(false)
                         }}
-                        ref={virtuosoRef}
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`${pageName}-${feedKey}`]
-                        }
-                        context={{ hasMore }}
-                        increaseViewportBy={200}
-                        overscan={200}
-                        data={timeline ?? undefined}
-                        totalCount={timeline ? timeline.length : 20}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, item) => (
-                            <>
-                                {item ? (
-                                    <ViewPostCard
-                                        key={`feed-${item.post.uri}`}
-                                        {...{
-                                            isTop: index === 0,
-                                            isMobile,
-                                            isSkeleton: false,
-                                            bodyText: processPostBodyText(
+                        renderText={renderText}
+                        className={"w-full h-full"}
+                    >
+                        <Virtuoso
+                            scrollerRef={(ref) => {
+                                if (ref instanceof HTMLElement) {
+                                    scrollRef.current = ref
+                                    // setListScrollRefAtom(ref)
+                                }
+                            }}
+                            ref={virtuosoRef}
+                            restoreStateFrom={
+                                //@ts-ignore
+                                scrollPositions[`${pageName}-${feedKey}`]
+                            }
+                            context={{ hasMore }}
+                            increaseViewportBy={200}
+                            overscan={200}
+                            data={timeline ?? undefined}
+                            totalCount={timeline ? timeline.length : 20}
+                            atTopThreshold={100}
+                            atBottomThreshold={100}
+                            itemContent={(index, item) => (
+                                <>
+                                    {item ? (
+                                        <>
+                                            <ViewPostCard
+                                                key={`feed-${item.post.uri}`}
+                                                {...{
+                                                    isTop: index === 0,
+                                                    isMobile,
+                                                    isSkeleton: false,
+                                                    bodyText:
+                                                        processPostBodyText(
+                                                            nextQueryParams,
+                                                            item.post || null
+                                                        ),
+                                                    postJson: item.post || null,
+                                                    json: item,
+                                                    now,
+                                                    nextQueryParams,
+                                                    t,
+                                                    handleValueChange:
+                                                        handleValueChange,
+                                                    handleSaveScrollPosition:
+                                                        handleSaveScrollPosition,
+                                                    isViaUFeed: isViaUFeed,
+                                                }}
+                                            />
+                                        </>
+                                    ) : (
+                                        <ViewPostCard
+                                            {...{
+                                                isTop: index === 0,
+                                                isMobile,
+                                                isSkeleton: true,
+                                                bodyText: undefined,
                                                 nextQueryParams,
-                                                item.post || null
-                                            ),
-                                            postJson: item.post || null,
-                                            json: item,
-                                            now,
-                                            nextQueryParams,
-                                            t,
-                                            handleValueChange:
-                                                handleValueChange,
-                                            handleSaveScrollPosition:
-                                                handleSaveScrollPosition,
-                                            isViaUFeed: isViaUFeed,
-                                        }}
-                                    />
-                                ) : (
-                                    <ViewPostCard
-                                        {...{
-                                            isTop: index === 0,
-                                            isMobile,
-                                            isSkeleton: true,
-                                            bodyText: undefined,
-                                            nextQueryParams,
-                                            t,
-                                        }}
-                                    />
-                                )}
-                            </>
-                        )}
-                        components={{
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            Footer: !isEndOfFeed
-                                ? ListFooterSpinner
-                                : ListFooterNoContent,
-                        }}
-                        endReached={loadMore}
-                        className={notNulltimeline()}
-                    />
+                                                t,
+                                            }}
+                                        />
+                                    )}
+                                </>
+                            )}
+                            components={{
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-ignore
+                                Footer: !isEndOfFeed
+                                    ? ListFooterSpinner
+                                    : ListFooterNoContent,
+                            }}
+                            endReached={loadMore}
+                            className={`virtuoso-css ${notNulltimeline()}`}
+                            style={{
+                                overscrollBehaviorY: "none",
+                            }}
+                        />
+                    </PullToRefreshify>
                 </>
-            </PullToRefresh>
-        </>
+            </>
+        </div>
     )
 }
 

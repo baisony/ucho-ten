@@ -119,9 +119,9 @@ dependencies:
   react-infinite-scroller:
     specifier: ^1.2.6
     version: 1.2.6(react@18.2.0)
-  react-simple-pull-to-refresh:
-    specifier: ^1.3.3
-    version: 1.3.3(react-dom@18.2.0)(react@18.2.0)
+  react-pull-to-refreshify:
+    specifier: ^0.1.0
+    version: 0.1.0
   react-slick:
     specifier: ^0.29.0
     version: 0.29.0(react-dom@18.2.0)(react@18.2.0)
@@ -7092,6 +7092,10 @@ packages:
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+    dev: false
+
+  /react-pull-to-refreshify@0.1.0:
+    resolution: {integrity: sha512-qBhJrKjy/T5OtVnMeidhJ4NlptYXzWhdowHP5t0oCYRxJYPVKnjurxqq1vUOeFRjz/8uSdT/m7y5m34J37+WPw==}
     dev: false
 
   /react-remove-scroll-bar@2.3.4(@types/react@18.2.22)(react@18.2.0):

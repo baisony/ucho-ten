@@ -79,7 +79,7 @@ const Root = () => {
             className="swiper-home"
             style={{ height: "100%" }}
             touchAngle={330}
-            touchRatio={0.8}
+            touchRatio={1}
             initialSlide={menuIndex}
             touchReleaseOnEdges={true}
             touchMoveStopPropagation={true}
