@@ -78,8 +78,8 @@ const Root = () => {
             modules={[Pagination]}
             className="swiper-home"
             style={{ height: "100%" }}
-            touchAngle={30}
-            touchRatio={0.8}
+            touchAngle={330}
+            touchRatio={1}
             initialSlide={menuIndex}
             touchReleaseOnEdges={true}
             touchMoveStopPropagation={true}
