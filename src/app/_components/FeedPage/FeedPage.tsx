@@ -455,7 +455,7 @@ const FeedPage = ({
 
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
-        setHasUpdate(false)
+        //setHasUpdate(false)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
