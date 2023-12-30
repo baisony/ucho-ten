@@ -480,8 +480,9 @@ const FeedPage = ({
             )}
             <PullToRefresh
                 onRefresh={handlePullToRefresh}
+                //pullDownThreshold={200}
                 maxPullDownDistance={500}
-                resistance={2}
+                resistance={3}
                 refreshingContent={
                     <div className={"w-full h-full"}>
                         <div
