@@ -26,6 +26,7 @@ import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
 import { PullToRefreshify } from "react-pull-to-refreshify"
+
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
     () =>
@@ -447,8 +448,14 @@ const FeedPage = ({
         })
     }
 
+    const handlePullToRefresh = async () => {
+        await checkNewTimeline()
+        await handleRefresh()
+    }
+
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
+        setHasUpdate(false)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }

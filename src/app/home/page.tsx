@@ -85,6 +85,7 @@ const Root = () => {
             touchMoveStopPropagation={true}
             preventInteractionOnTransition={true}
             touchStartPreventDefault={false}
+            edgeSwipeDetection={true}
             onActiveIndexChange={(swiper) => {
                 if (!menuIndexChangedByMenu) {
                     setMenuIndex(swiper.activeIndex)
