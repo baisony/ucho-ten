@@ -453,7 +453,7 @@ const FeedPage = ({
         setLoadMoreFeed(false)
     }
 
-    function renderText(pullStatus, percent) {
+    function renderText(pullStatus: any, percent: any) {
         switch (pullStatus) {
             case "pulling":
                 return (
@@ -521,8 +521,8 @@ const FeedPage = ({
                                 }
                             }}
                             ref={virtuosoRef}
-                            //@ts-ignore
                             restoreStateFrom={
+                                //@ts-ignore
                                 scrollPositions[`${pageName}-${feedKey}`]
                             }
                             context={{ hasMore }}
