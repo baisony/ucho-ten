@@ -27,6 +27,7 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
 import PullToRefresh from "react-simple-pull-to-refresh"
 import { Spinner } from "@nextui-org/react"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -547,14 +548,9 @@ const FeedPage = ({
                                         }}
                                     />
                                 ) : (
-                                    <ViewPostCard
+                                    <ViewPostCardSkelton
                                         {...{
                                             isTop: index === 0,
-                                            isMobile,
-                                            isSkeleton: true,
-                                            bodyText: undefined,
-                                            nextQueryParams,
-                                            t,
                                         }}
                                     />
                                 )}

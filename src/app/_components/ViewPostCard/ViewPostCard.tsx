@@ -10,7 +10,6 @@ import {
     AppBskyEmbedImages,
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
-    AppBskyFeedPost,
 } from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
@@ -48,7 +47,6 @@ import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
-import ViewPostCardSkelton from "./ViewPostCardSkelton"
 import EmbedMedia from "./EmbedMedia"
 import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
@@ -57,6 +55,8 @@ import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
+import { translateText } from "@/app/_lib/post/translate"
+import { syncContents } from "@/app/_lib/sync/syncBookmark"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
 //import MoreDropDownMenu from "./MoreDropDownMenu"
@@ -201,25 +201,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const syncBookmarks = async (bookmarklist: Bookmark[]) => {
         if (!agent) return
-        const syncData = {
-            bookmarks: bookmarklist,
-            muteWords: muteWords,
-        }
-        try {
-            const syncData_string = JSON.stringify(syncData)
-            const data = localStorage.getItem("session")
-            if (!data) return
-            const res = await fetch(`/api/setSettings/${data}`, {
-                method: "POST",
-                body: syncData_string,
-            })
-            //console.log(await res)
-            if (res.status !== 200) {
-                console.log("sync error")
-            }
-        } catch (e) {
-            console.log(e)
-        }
+        await syncContents(bookmarklist, muteWords)
     }
 
     const handleBookmark = async (uri: string) => {
@@ -673,10 +655,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         void handleDelete()
     }
 
-    if (isSkeleton === true) {
-        return <ViewPostCardSkelton {...{ isTop }} />
-    }
-
     const handleInputChange = (
         reaction: string,
         postUri: string,
@@ -696,50 +674,14 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const handleChangeSaveScrollPosition = () => {
         if (!handleSaveScrollPosition) return
-        console.log("hoge")
         handleSaveScrollPosition()
     }
 
     const translateContentText = async () => {
-        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
-            return
-        }
-
         isTranslated.current = true
         setViewTranslatedText(true)
-        const res = await fetch(
-            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
-                translateTo[0] ? translateTo[0] : `auto`
-            }&dt=t&q=` +
-                encodeURIComponent(
-                    (postView?.record as AppBskyFeedPost.Record)?.text
-                )
-        )
-        if (res.status === 200) {
-            const json = await res.json()
-            if (json[0] !== undefined) {
-                const combinedText = json[0].reduce(
-                    (acc: string, item: any[]) => {
-                        if (item[0]) {
-                            return acc + item[0]
-                        }
-                        return acc
-                    },
-                    ""
-                )
-                console.log(combinedText)
-                console.log(postJson)
-                const translatedJson = JSON.parse(JSON.stringify(postJson))
-                if (translatedJson && translatedJson.record) {
-                    translatedJson.record["text"] = combinedText
-                }
-                console.log(translatedJson)
-                //setTranslatedText(combinedText)
-                setTranslatedJsonData(translatedJson)
-            }
-        } else {
-            setTranslateError(true)
-        }
+        const res = await translateText(translateTo, postJson, postView)
+        setTranslatedJsonData(res)
     }
 
     const handleLongPress = () => {
@@ -747,31 +689,28 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         onOpenOption()
     }
 
-    const handleTouchStart = useCallback(
-        (e: React.MouseEvent<HTMLDivElement>) => {
-            const timer = setTimeout(() => {
-                handleLongPress()
-            }, 500)
-            document.addEventListener("touchend", () => {
-                //setLongPressActive(false)
-                //setIsExpanded(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("touchmove", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("touchcancel", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("contextmenu", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-        },
-        []
-    )
+    const handleTouchStart = useCallback(() => {
+        const timer = setTimeout(() => {
+            handleLongPress()
+        }, 500)
+        document.addEventListener("touchend", () => {
+            //setLongPressActive(false)
+            //setIsExpanded(false)
+            clearTimeout(timer)
+        })
+        document.addEventListener("touchmove", () => {
+            //setLongPressActive(false)
+            clearTimeout(timer)
+        })
+        document.addEventListener("touchcancel", () => {
+            //setLongPressActive(false)
+            clearTimeout(timer)
+        })
+        document.addEventListener("contextmenu", () => {
+            //setLongPressActive(false)
+            clearTimeout(timer)
+        })
+    }, [])
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
@@ -887,6 +826,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             ? `w-[30px] h-[30px]`
                                             : `w-[18px] h-[18px]`
                                     }`}
+                                    decoding={"async"}
+                                    loading={"eager"}
+                                    fetchPriority={"high"}
                                 />
                             </Link>
                             <Link
