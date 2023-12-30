@@ -450,6 +450,7 @@ const FeedPage = ({
     const handlePullToRefresh = async () => {
         await checkNewTimeline()
         await handleRefresh()
+        //await new Promise((resolve) => setTimeout(resolve, 100000))
     }
 
     if (data !== undefined && !isEndOfFeed) {
@@ -498,6 +499,7 @@ const FeedPage = ({
                         />
                     </div>
                 }
+                pullingContent={<></>}
             >
                 <>
                     <Virtuoso
@@ -566,7 +568,12 @@ const FeedPage = ({
                                 : ListFooterNoContent,
                         }}
                         endReached={loadMore}
-                        className={notNulltimeline()}
+                        className={`${notNulltimeline()} overflow-hidden`}
+                        style={{
+                            overscrollBehaviorY: "none",
+                            //overflowY: "auto",
+                            WebkitOverflowScrolling: "touch",
+                        }}
                     />
                 </>
             </PullToRefresh>
