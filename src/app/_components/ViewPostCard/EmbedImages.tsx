@@ -38,6 +38,7 @@ const EmbedImages = ({
                                 e.stopPropagation()
                                 onImageClick(embedImages.images, index)
                             }}
+                            decoding={"async"}
                         />
                     </div>
                 ))}
