@@ -26,6 +26,7 @@ import dynamic from "next/dynamic"
 
 import { SwipeRefreshList } from "react-swipe-down-refresh"
 import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
+import "./SwipeRefreshListStyle.css"
 
 //import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
