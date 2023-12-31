@@ -23,9 +23,6 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
-import PullToRefresh from "react-simple-pull-to-refresh"
-import { Spinner } from "@nextui-org/react"
-import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 import { SwipeRefreshList } from "react-swipe-down-refresh"
 import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
@@ -97,6 +94,7 @@ const FeedPage = ({
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const [isScrolling, setIsScrolling] = useState<boolean>(false)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -470,13 +468,6 @@ const FeedPage = ({
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
-
-    const handlePullToRefresh = async () => {
-        await checkNewTimeline()
-        await handleRefresh()
-    }
-
-    const [isScrolling, setIsScrolling] = useState<boolean>(false)
 
     return (
         <SwipeRefreshList
