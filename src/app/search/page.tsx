@@ -902,7 +902,7 @@ const UserCell = ({
                         />
                     )}
                     {!skeleton && (
-                        <Image
+                        <img
                             className={`h-[35px] w-[35px] z-[0]`}
                             src={actor?.avatar || defaultIcon.src}
                             alt={"avatar image"}

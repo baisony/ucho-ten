@@ -7,6 +7,8 @@ import { isMobile } from "react-device-detect"
 import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
 import Link from "next/link"
 import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
+import Image from "next/image"
+import logoImage from "@/../public/images/logo/ucho-ten.svg"
 
 export default function CreateLoginPage() {
     const router = useRouter()
@@ -172,10 +174,13 @@ export default function CreateLoginPage() {
                 >
                     {isSetAccount === false && (
                         <div className="">
-                            <img
-                                src={"/images/logo/ucho-ten.svg"}
+                            <Image
+                                src={logoImage}
                                 className="h-[40px] md:h-[50px] w-full mb-[250px]"
                                 alt="Logo"
+                                height={50}
+                                width={320}
+                                loading={"eager"}
                             />
                             <div
                                 className={

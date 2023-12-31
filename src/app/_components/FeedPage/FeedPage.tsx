@@ -23,6 +23,9 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
+import PullToRefresh from "react-simple-pull-to-refresh"
+import { Spinner } from "@nextui-org/react"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 import { SwipeRefreshList } from "react-swipe-down-refresh"
 import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
@@ -455,8 +458,15 @@ const FeedPage = ({
         })
     }
 
+    const handlePullToRefresh = async () => {
+        await checkNewTimeline()
+        await handleRefresh()
+        //await new Promise((resolve) => setTimeout(resolve, 100000))
+    }
+
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
+        setHasUpdate(false)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }

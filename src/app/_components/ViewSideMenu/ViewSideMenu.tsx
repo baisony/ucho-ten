@@ -3,11 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
     faCircleInfo,
+    faCloud,
     faFlag,
     faGear,
     faHome,
     faInbox,
-    faCloud,
     faMagnifyingGlass,
     faPenToSquare,
     faRightFromBracket,
@@ -38,6 +38,7 @@ import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useHighlightedTab } from "@/app/_atoms/hightlightedTab"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { viewSideMenuStyle } from "@/app/_components/ViewSideMenu/styles"
+import Image from "next/image"
 
 interface Props {
     className?: string
@@ -71,10 +72,13 @@ export const ViewSideMenu: React.FC<Props> = () => {
             >
                 <div className={"mb-[50px] cursor-pointer"}>
                     <Link href={"/home"}>
-                        <img
+                        <Image
                             className={"h-[24px] w-[144px]"}
                             src={logoImage.src}
                             alt={"logo"}
+                            height={24}
+                            width={144}
+                            loading={"eager"}
                         />
                     </Link>
                 </div>

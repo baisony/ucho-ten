@@ -768,7 +768,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                 "relative w-1/4 h-full flex"
                                             }
                                         >
-                                            <Image
+                                            <img
                                                 src={URL.createObjectURL(
                                                     image.blob
                                                 )}

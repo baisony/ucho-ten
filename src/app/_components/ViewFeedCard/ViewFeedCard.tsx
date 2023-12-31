@@ -55,7 +55,7 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                             {isSkeleton ? (
                                 <Skeleton className={skeletonIcon()} />
                             ) : (
-                                <Image
+                                <img
                                     src={feed?.avatar || defaultFeedIcon.src}
                                     //radius={"lg"}
                                     className={` z-[0] rounded-[7px]`}
