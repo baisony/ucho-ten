@@ -88,7 +88,7 @@ const MobileOptionModal = dynamic(
 )
 
 export interface ViewPostCardProps {
-    isTop: boolean
+    isTop?: boolean
     isSkeleton?: boolean
     isMobile?: boolean
     isDragActive?: boolean
@@ -110,7 +110,6 @@ export interface ViewPostCardProps {
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
     const {
-        isTop,
         isMobile,
         isSkeleton,
         postJson,
@@ -674,7 +673,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }
 
     if (isSkeleton === true) {
-        return <ViewPostCardSkelton {...{ isTop }} />
+        return <ViewPostCardSkelton />
     }
 
     const handleInputChange = (
@@ -775,7 +774,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
             <Modal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}

@@ -29,6 +29,7 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { Notification } from "@atproto/api/dist/client/types/app/bsky/notification/listNotifications"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
@@ -453,7 +454,6 @@ export default function FeedPage() {
                             <ViewPostCard
                                 key={`feed-${post.uri}`}
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: false,
                                     bodyText: processPostBodyText(
@@ -471,7 +471,6 @@ export default function FeedPage() {
                         ) : (
                             <ViewPostCard
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: true,
                                     bodyText: undefined,
@@ -488,6 +487,7 @@ export default function FeedPage() {
                     Footer: !isEndOfFeed
                         ? ListFooterSpinner
                         : ListFooterNoContent,
+                    Header: () => <DummyHeader />,
                 }}
                 endReached={loadMore}
                 // onScroll={(e) => disableScrollIfNeeded(e)}

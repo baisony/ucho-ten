@@ -7,8 +7,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
@@ -25,6 +23,17 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
+
+import { SwipeRefreshList } from "react-swipe-down-refresh"
+import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
+
+//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+
+const FontAwesomeIcon = dynamic(() =>
+    import("@fortawesome/react-fontawesome").then((mod) => mod.FontAwesomeIcon)
+)
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -456,8 +465,17 @@ const FeedPage = ({
         await handleRefresh()
     }
 
+    const [isScrolling, setIsScrolling] = useState<boolean>(false)
+
     return (
-        <>
+        <SwipeRefreshList
+            onRefresh={async () => {
+                await handlePullToRefresh()
+            }}
+            className={"swiperRefresh h-full w-full"}
+            threshold={150}
+            disabled={isScrolling}
+        >
             {hasUpdate && (
                 <div
                     className={
@@ -483,6 +501,7 @@ const FeedPage = ({
                     }
                 }}
                 ref={virtuosoRef}
+                isScrolling={setIsScrolling}
                 //@ts-ignore
                 restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
                 context={{ hasMore }}
@@ -498,7 +517,6 @@ const FeedPage = ({
                             <ViewPostCard
                                 key={`feed-${item.post.uri}`}
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: false,
                                     bodyText: processPostBodyText(
@@ -519,7 +537,6 @@ const FeedPage = ({
                         ) : (
                             <ViewPostCard
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: true,
                                     bodyText: undefined,
@@ -536,11 +553,12 @@ const FeedPage = ({
                     Footer: !isEndOfFeed
                         ? ListFooterSpinner
                         : ListFooterNoContent,
+                    Header: () => <DummyHeader />,
                 }}
                 endReached={loadMore}
                 className={notNulltimeline()}
             />
-        </>
+        </SwipeRefreshList>
     )
 }
 
