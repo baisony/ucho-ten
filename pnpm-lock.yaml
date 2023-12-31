@@ -125,6 +125,9 @@ dependencies:
   react-string-replace:
     specifier: ^1.1.1
     version: 1.1.1
+  react-swipe-down-refresh:
+    specifier: ^0.1.1
+    version: 0.1.1(react@18.2.0)
   react-swipeable-list:
     specifier: ^1.9.1
     version: 1.9.1
@@ -7161,6 +7164,14 @@ packages:
       invariant: 2.2.4
       react: 18.2.0
       tslib: 2.6.2
+    dev: false
+
+  /react-swipe-down-refresh@0.1.1(react@18.2.0):
+    resolution: {integrity: sha512-MP2YLEbDSYvsaCGrTpjeI28z4uEDiyJMafnsV4zRTdglJDFZXyNJ831YZrIfaOmKgiptmsSEm7J/vOwIql34XQ==}
+    peerDependencies:
+      react: ^16.8.0
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-swipeable-list@1.9.1:

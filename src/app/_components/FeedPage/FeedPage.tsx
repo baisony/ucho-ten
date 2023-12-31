@@ -451,6 +451,11 @@ const FeedPage = ({
         setLoadMoreFeed(false)
     }
 
+    const handlePullToRefresh = async () => {
+        await checkNewTimeline()
+        await handleRefresh()
+    }
+
     return (
         <>
             {hasUpdate && (
