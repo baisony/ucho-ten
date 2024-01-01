@@ -25,16 +25,12 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
 
 import { SwipeRefreshList } from "react-swipe-down-refresh"
-import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
+//import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
 import "./SwipeRefreshListStyle.css"
 
-//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-
-const FontAwesomeIcon = dynamic(() =>
-    import("@fortawesome/react-fontawesome").then((mod) => mod.FontAwesomeIcon)
-)
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
