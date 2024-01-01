@@ -102,7 +102,6 @@ export interface ViewPostCardProps {
     t: any
     handleValueChange?: (value: any) => void
     handleSaveScrollPosition?: () => void
-    isSearchScreen?: boolean
     isViaUFeed?: boolean
     isDisplayMode?: boolean
 }
@@ -122,7 +121,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         t,
         handleValueChange,
         handleSaveScrollPosition,
-        isSearchScreen,
         isViaUFeed,
     } = props
 

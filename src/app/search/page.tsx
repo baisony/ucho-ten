@@ -651,13 +651,12 @@ export default function Root() {
                                 bodyText: undefined,
                                 nextQueryParams,
                                 t,
-                                isSearchScreen: true,
                             }}
                         />
                     )}
                     className={nullTimeline()}
                     components={{
-                        Header: () => <DummyHeader />,
+                        Header: () => <DummyHeader isSearchScreen={true} />,
                     }}
                 />
             )}
@@ -701,7 +700,6 @@ export default function Root() {
                                     handleValueChange: handleValueChange,
                                     handleSaveScrollPosition:
                                         handleSaveScrollPosition,
-                                    isSearchScreen: true,
                                 }}
                             />
                         )}
@@ -711,7 +709,7 @@ export default function Root() {
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
                                 : ListFooterNoContent,
-                            Header: () => <DummyHeader />,
+                            Header: () => <DummyHeader isSearchScreen={true} />,
                         }}
                         endReached={loadPostsMore}
                         className={notNulltimeline()}
@@ -731,13 +729,12 @@ export default function Root() {
                             {...{
                                 actor: null,
                                 skeleton: true,
-                                isSearchScreen: true,
                             }}
                         />
                     )}
                     className={nullTimeline()}
                     components={{
-                        Header: () => <DummyHeader />,
+                        Header: () => <DummyHeader isSearchScreen={true} />,
                     }}
                 />
             )}
@@ -777,7 +774,6 @@ export default function Root() {
                                             }?${nextQueryParams.toString()}`
                                         )
                                     },
-                                    isSearchScreen: true,
                                 }}
                             />
                         )}
@@ -787,7 +783,7 @@ export default function Root() {
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
                                 : ListFooterNoContent,
-                            Header: () => <DummyHeader />,
+                            Header: () => <DummyHeader isSearchScreen={true} />,
                         }}
                         endReached={loadUsersMore}
                         className={notNulltimeline()}
@@ -806,13 +802,12 @@ export default function Root() {
                             {...{
                                 actor: null,
                                 skeleton: true,
-                                isSearchScreen: true,
                             }}
                         />
                     )}
                     className={nullTimeline()}
                     components={{
-                        Header: () => <DummyHeader />,
+                        Header: () => <DummyHeader isSearchScreen={true} />,
                     }}
                 />
             )}
@@ -849,7 +844,6 @@ export default function Root() {
                                     now,
                                     nextQueryParams,
                                     t,
-                                    isSearchScreen: true,
                                     handleSaveScrollPosition:
                                         handleSaveScrollPosition,
                                 }}
@@ -861,7 +855,7 @@ export default function Root() {
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
                                 : ListFooterNoContent,
-                            Header: () => <DummyHeader />,
+                            Header: () => <DummyHeader isSearchScreen={true} />,
                         }}
                         endReached={loadFeedsMore}
                         className={notNulltimeline()}
@@ -876,15 +870,9 @@ interface UserCellProps {
     onClick?: () => void
     skeleton?: boolean
     //index?: number
-    isSearchScreen?: boolean
 }
 
-const UserCell = ({
-    actor,
-    onClick,
-    skeleton,
-    isSearchScreen,
-}: UserCellProps) => {
+const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
     const { userCard } = layout()
     const [contentFontSize] = useContentFontSize()
 
