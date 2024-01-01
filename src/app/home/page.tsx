@@ -105,27 +105,29 @@ const Root = () => {
         >
             {menus.home.map((menu, index) => {
                 return (
-                    <SwiperSlide key={`swiperslide-home-${index}`}>
-                        <div
-                            id={`swiperIndex-div-${index}`}
-                            key={index}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <FeedPage
-                                {...{
-                                    isActive: index === menuIndex,
-                                    isNextActive: index === menuIndex + 1,
-                                    feedKey: menu.info,
-                                    pageName: "home",
-                                    disableSlideVerticalScroll,
-                                    now,
+                    <>
+                        <SwiperSlide key={`swiperslide-home-${index}`}>
+                            <div
+                                id={`swiperIndex-div-${index}`}
+                                key={index}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
                                 }}
-                            />
-                        </div>
-                    </SwiperSlide>
+                            >
+                                <FeedPage
+                                    {...{
+                                        isActive: index === menuIndex,
+                                        isNextActive: index === menuIndex + 1,
+                                        feedKey: menu.info,
+                                        pageName: "home",
+                                        disableSlideVerticalScroll,
+                                        now,
+                                    }}
+                                />
+                            </div>
+                        </SwiperSlide>
+                    </>
                 )
             })}
         </Swiper>

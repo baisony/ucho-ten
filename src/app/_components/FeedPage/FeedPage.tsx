@@ -7,8 +7,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
@@ -25,9 +23,18 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
-import PullToRefresh from "react-simple-pull-to-refresh"
-import { Spinner } from "@nextui-org/react"
-import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+
+import { SwipeRefreshList } from "react-swipe-down-refresh"
+import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
+import "./SwipeRefreshListStyle.css"
+
+//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+
+const FontAwesomeIcon = dynamic(() =>
+    import("@fortawesome/react-fontawesome").then((mod) => mod.FontAwesomeIcon)
+)
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -87,6 +94,7 @@ const FeedPage = ({
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const [isScrolling, setIsScrolling] = useState<boolean>(false)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -455,14 +463,19 @@ const FeedPage = ({
     }
 
     if (data !== undefined && !isEndOfFeed) {
-        // console.log(`useQuery: data.cursor: ${data.cursor}`)
-        setHasUpdate(false)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
 
     return (
-        <>
+        <SwipeRefreshList
+            onRefresh={async () => {
+                await handlePullToRefresh()
+            }}
+            className={"swiperRefresh h-full w-full"}
+            threshold={150}
+            disabled={isScrolling}
+        >
             {hasUpdate && (
                 <div
                     className={
@@ -480,100 +493,72 @@ const FeedPage = ({
                     </div>
                 </div>
             )}
-            <PullToRefresh
-                onRefresh={handlePullToRefresh}
-                //pullDownThreshold={200}
-                maxPullDownDistance={500}
-                resistance={3}
-                refreshingContent={
-                    <div className={"w-full h-full"}>
-                        <div
-                            className={
-                                "lg:h-[50px] md:h-[100px] h-[85px] w-full"
-                            }
-                        />
-                        <Spinner
-                            color="warning"
-                            className={
-                                "flex justify-center items-center w-full h-full"
-                            }
-                        />
-                    </div>
-                }
-                pullingContent={<></>}
-            >
-                <>
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                                // setListScrollRefAtom(ref)
-                            }
-                        }}
-                        ref={virtuosoRef}
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`${pageName}-${feedKey}`]
-                        }
-                        context={{ hasMore }}
-                        increaseViewportBy={200}
-                        overscan={200}
-                        data={timeline ?? undefined}
-                        totalCount={timeline ? timeline.length : 20}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, item) => (
-                            <>
-                                {item ? (
-                                    <ViewPostCard
-                                        key={`feed-${item.post.uri}`}
-                                        {...{
-                                            isTop: index === 0,
-                                            isMobile,
-                                            isSkeleton: false,
-                                            bodyText: processPostBodyText(
-                                                nextQueryParams,
-                                                item.post || null
-                                            ),
-                                            postJson: item.post || null,
-                                            json: item,
-                                            now,
-                                            nextQueryParams,
-                                            t,
-                                            handleValueChange:
-                                                handleValueChange,
-                                            handleSaveScrollPosition:
-                                                handleSaveScrollPosition,
-                                            isViaUFeed: isViaUFeed,
-                                        }}
-                                    />
-                                ) : (
-                                    <ViewPostCardSkelton
-                                        {...{
-                                            isTop: index === 0,
-                                        }}
-                                    />
-                                )}
-                            </>
+            <Virtuoso
+                scrollerRef={(ref) => {
+                    if (ref instanceof HTMLElement) {
+                        scrollRef.current = ref
+                        // setListScrollRefAtom(ref)
+                    }
+                }}
+                ref={virtuosoRef}
+                isScrolling={setIsScrolling}
+                //@ts-ignore
+                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                context={{ hasMore }}
+                increaseViewportBy={200}
+                overscan={200}
+                data={timeline ?? undefined}
+                totalCount={timeline ? timeline.length : 20}
+                atTopThreshold={100}
+                atBottomThreshold={100}
+                itemContent={(index, item) => (
+                    <>
+                        {item ? (
+                            <ViewPostCard
+                                key={`feed-${item.post.uri}`}
+                                {...{
+                                    isMobile,
+                                    isSkeleton: false,
+                                    bodyText: processPostBodyText(
+                                        nextQueryParams,
+                                        item.post || null
+                                    ),
+                                    postJson: item.post || null,
+                                    json: item,
+                                    now,
+                                    nextQueryParams,
+                                    t,
+                                    handleValueChange: handleValueChange,
+                                    handleSaveScrollPosition:
+                                        handleSaveScrollPosition,
+                                    isViaUFeed: isViaUFeed,
+                                }}
+                            />
+                        ) : (
+                            <ViewPostCard
+                                {...{
+                                    isMobile,
+                                    isSkeleton: true,
+                                    bodyText: undefined,
+                                    nextQueryParams,
+                                    t,
+                                }}
+                            />
                         )}
-                        components={{
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            Footer: !isEndOfFeed
-                                ? ListFooterSpinner
-                                : ListFooterNoContent,
-                        }}
-                        endReached={loadMore}
-                        className={`${notNulltimeline()} overflow-hidden`}
-                        style={{
-                            overscrollBehaviorY: "none",
-                            //overflowY: "auto",
-                            WebkitOverflowScrolling: "touch",
-                        }}
-                    />
-                </>
-            </PullToRefresh>
-        </>
+                    </>
+                )}
+                components={{
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    Footer: !isEndOfFeed
+                        ? ListFooterSpinner
+                        : ListFooterNoContent,
+                    Header: () => <DummyHeader />,
+                }}
+                endReached={loadMore}
+                className={notNulltimeline()}
+            />
+        </SwipeRefreshList>
     )
 }
 

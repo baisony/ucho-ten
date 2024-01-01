@@ -57,6 +57,7 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { translateText } from "@/app/_lib/post/translate"
 import { syncContents } from "@/app/_lib/sync/syncBookmark"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
 //import MoreDropDownMenu from "./MoreDropDownMenu"
@@ -88,7 +89,7 @@ const MobileOptionModal = dynamic(
 )
 
 export interface ViewPostCardProps {
-    isTop: boolean
+    isTop?: boolean
     isSkeleton?: boolean
     isMobile?: boolean
     isDragActive?: boolean
@@ -110,7 +111,6 @@ export interface ViewPostCardProps {
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
     const {
-        isTop,
         isMobile,
         isSkeleton,
         postJson,
@@ -655,6 +655,10 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         void handleDelete()
     }
 
+    if (isSkeleton === true) {
+        return <ViewPostCardSkelton />
+    }
+
     const handleInputChange = (
         reaction: string,
         postUri: string,
@@ -714,7 +718,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
             <Modal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}

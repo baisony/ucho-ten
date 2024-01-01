@@ -119,15 +119,15 @@ dependencies:
   react-infinite-scroller:
     specifier: ^1.2.6
     version: 1.2.6(react@18.2.0)
-  react-simple-pull-to-refresh:
-    specifier: ^1.3.3
-    version: 1.3.3(react-dom@18.2.0)(react@18.2.0)
   react-slick:
     specifier: ^0.29.0
     version: 0.29.0(react-dom@18.2.0)(react@18.2.0)
   react-string-replace:
     specifier: ^1.1.1
     version: 1.1.1
+  react-swipe-down-refresh:
+    specifier: ^0.1.1
+    version: 0.1.1(react@18.2.0)
   react-swipeable-list:
     specifier: ^1.9.1
     version: 1.9.1
@@ -7129,16 +7129,6 @@ packages:
       use-sidecar: 1.1.2(@types/react@18.2.22)(react@18.2.0)
     dev: false
 
-  /react-simple-pull-to-refresh@1.3.3(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-6qXsa5RtNVmKJhLWvDLIX8UK51HFtCEGjdqQGf+M1Qjrcc4qH4fki97sgVpGEFBRwbY7DiVDA5N5p97kF16DTw==}
-    peerDependencies:
-      react: ^16.10.2 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.10.2 || ^17.0.0 || ^18.0.0
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
   /react-slick@0.29.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-TGdOKE+ZkJHHeC4aaoH85m8RnFyWqdqRfAGkhd6dirmATXMZWAxOpTLmw2Ll/jPTQ3eEG7ercFr/sbzdeYCJXA==}
     peerDependencies:
@@ -7174,6 +7164,14 @@ packages:
       invariant: 2.2.4
       react: 18.2.0
       tslib: 2.6.2
+    dev: false
+
+  /react-swipe-down-refresh@0.1.1(react@18.2.0):
+    resolution: {integrity: sha512-MP2YLEbDSYvsaCGrTpjeI28z4uEDiyJMafnsV4zRTdglJDFZXyNJ831YZrIfaOmKgiptmsSEm7J/vOwIql34XQ==}
+    peerDependencies:
+      react: ^16.8.0
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-swipeable-list@1.9.1:
