@@ -394,7 +394,6 @@ export default function Root() {
         if (timeline) {
             const timelineData: CustomFeedCellProps[] = timeline.map((post) => {
                 const postProps: ViewPostCardProps = {
-                    isTop: false,
                     isMobile,
                     bodyText: processPostBodyText(nextQueryParams, post.post),
                     postJson: post.post,
@@ -416,7 +415,6 @@ export default function Root() {
                 length: 20,
             }).map(() => {
                 const postProps: ViewPostCardProps = {
-                    isTop: false,
                     isSkeleton: true,
                     isMobile,
                     bodyText: undefined,

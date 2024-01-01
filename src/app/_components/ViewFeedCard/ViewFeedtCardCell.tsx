@@ -8,7 +8,6 @@ import { AtUri } from "@atproto/api"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewFeedCardCellProps {
-    isTop: boolean
     className?: string
     isSkeleton?: boolean
     now?: Date
@@ -21,12 +20,10 @@ export interface ViewFeedCardCellProps {
 
 export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
     const { userCard } = layout()
-    const { isTop, isSkeleton, feed, nextQueryParams } = props
+    const { isSkeleton, feed, nextQueryParams } = props
     const feedURI = new AtUri(feed.uri)
     return (
         <>
-            {isTop && <DummyHeader isSearchScreen={props.isSearchScreen} />}
-
             <Link
                 className={`${userCard()}`}
                 style={{ cursor: isSkeleton ? "default" : "pointer" }}

@@ -682,7 +682,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 >
                     <div className={"w-full"}>
                         <ViewPostCard
-                            isTop={false}
                             bodyText={processPostBodyText(
                                 nextQueryParams,
                                 postData

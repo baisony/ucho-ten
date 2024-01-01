@@ -172,13 +172,7 @@ const FeedPage = ({
                 // console.log(`check new ${feedKey}`, filteredData)
                 // console.log(`timeline ${feedKey}`, timeline)
 
-                setNewTimeline((currentTimeline) => {
-                    if (currentTimeline !== null) {
-                        return [...currentTimeline, ...muteWordFilter]
-                    } else {
-                        return [...muteWordFilter]
-                    }
-                })
+                setNewTimeline(muteWordFilter)
 
                 if (muteWordFilter.length > 0) {
                     console.log(
@@ -469,6 +463,57 @@ const FeedPage = ({
         setLoadMoreFeed(false)
     }
 
+    const lazyCheckNewTimeline = async () => {
+        if (!agent) return
+
+        try {
+            let response: AppBskyFeedGetTimeline.Response
+
+            if (feedKey === "following") {
+                response = await agent.getTimeline({
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            } else {
+                response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            }
+
+            const { data } = response
+
+            if (data) {
+                const { feed } = data
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(feed, userProfileDetailed, agent)
+                        : feed
+
+                const muteWordFilter = filterPosts(filteredData)
+
+                const mergedTimeline = mergePosts(muteWordFilter, timeline)
+
+                if (!mergedTimeline[0]?.post) return
+                //@ts-ignore
+                setTimeline(mergedTimeline)
+                setNewTimeline([])
+                setHasUpdate(false)
+
+                if (mergedTimeline.length > 0) {
+                    latestCID.current = (mergedTimeline[0].post as PostView).cid
+                }
+
+                await queryClient.refetchQueries({
+                    queryKey: ["getFeed", feedKey],
+                })
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     return (
         <>
             {hasUpdate && (
@@ -490,7 +535,11 @@ const FeedPage = ({
             )}
             <SwipeRefreshList
                 onRefresh={async () => {
-                    await handlePullToRefresh()
+                    if (newTimeline.length == 0) {
+                        await handleRefresh()
+                    } else {
+                        await lazyCheckNewTimeline()
+                    }
                 }}
                 className={"swiperRefresh h-full w-full"}
                 threshold={150}

@@ -52,7 +52,6 @@ import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
-import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { translateText } from "@/app/_lib/post/translate"
@@ -89,7 +88,6 @@ const MobileOptionModal = dynamic(
 )
 
 export interface ViewPostCardProps {
-    isTop?: boolean
     isSkeleton?: boolean
     isMobile?: boolean
     isDragActive?: boolean
@@ -1034,7 +1032,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             !embedRecordBlocked &&
                             !contentWarning && (
                                 <ViewPostCard
-                                    isTop={false}
                                     bodyText={processPostBodyText(
                                         nextQueryParams,
                                         null,

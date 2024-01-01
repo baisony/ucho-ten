@@ -489,7 +489,6 @@ const PostPage = (props: PostPageProps) => {
             const timelineData: UserProfilePageCellProps[] = timeline.map(
                 (post) => {
                     const postProps: ViewPostCardProps = {
-                        isTop: false,
                         isMobile,
                         bodyText: processPostBodyText(
                             nextQueryParams,
@@ -515,7 +514,6 @@ const PostPage = (props: PostPageProps) => {
                 length: 20,
             }).map(() => {
                 const postProps: ViewPostCardProps = {
-                    isTop: false,
                     isSkeleton: true,
                     isMobile,
                     bodyText: undefined,

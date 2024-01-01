@@ -413,7 +413,6 @@ const SettingsGeneralPage = ({
                         style={{ pointerEvents: "none" }}
                     >
                         <ViewPostCard
-                            isTop={false}
                             t={t}
                             bodyText={processPostBodyText(
                                 nextQueryParams,

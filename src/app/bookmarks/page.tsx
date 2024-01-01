@@ -12,6 +12,7 @@ import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -178,7 +179,6 @@ export default function Root() {
                             <ViewPostCard
                                 key={`bookmark-${data.uri}`}
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: false,
                                     bodyText: processPostBodyText(
@@ -194,6 +194,9 @@ export default function Root() {
                                 }}
                             />
                         )}
+                        components={{
+                            Header: () => <DummyHeader />,
+                        }}
                         //endReached={loadMore}
                         className={nullTimeline()}
                     />

@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Image, Skeleton } from "@nextui-org/react"
+import { Skeleton } from "@nextui-org/react"
 import type {
     GeneratorView,
     PostView,
@@ -646,7 +646,6 @@ export default function Root() {
                     itemContent={(index) => (
                         <ViewPostCard
                             {...{
-                                isTop: index === 0,
                                 isMobile,
                                 isSkeleton: true,
                                 bodyText: undefined,
@@ -657,6 +656,9 @@ export default function Root() {
                         />
                     )}
                     className={nullTimeline()}
+                    components={{
+                        Header: () => <DummyHeader />,
+                    }}
                 />
             )}
 
@@ -686,7 +688,6 @@ export default function Root() {
                             <ViewPostCard
                                 key={data.uri}
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: false,
                                     bodyText: processPostBodyText(
@@ -710,6 +711,7 @@ export default function Root() {
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
                                 : ListFooterNoContent,
+                            Header: () => <DummyHeader />,
                         }}
                         endReached={loadPostsMore}
                         className={notNulltimeline()}
@@ -727,7 +729,6 @@ export default function Root() {
                     itemContent={(index) => (
                         <UserCell
                             {...{
-                                isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
                                 isSearchScreen: true,
@@ -735,6 +736,9 @@ export default function Root() {
                         />
                     )}
                     className={nullTimeline()}
+                    components={{
+                        Header: () => <DummyHeader />,
+                    }}
                 />
             )}
 
@@ -764,7 +768,6 @@ export default function Root() {
                             <UserCell
                                 key={data.did}
                                 {...{
-                                    isTop: index === 0,
                                     actor: data,
                                     onClick: () => {
                                         handleSaveScrollPosition()
@@ -784,6 +787,7 @@ export default function Root() {
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
                                 : ListFooterNoContent,
+                            Header: () => <DummyHeader />,
                         }}
                         endReached={loadUsersMore}
                         className={notNulltimeline()}
@@ -800,7 +804,6 @@ export default function Root() {
                     itemContent={(index) => (
                         <UserCell
                             {...{
-                                isTop: index === 0,
                                 actor: null,
                                 skeleton: true,
                                 isSearchScreen: true,
@@ -808,6 +811,9 @@ export default function Root() {
                         />
                     )}
                     className={nullTimeline()}
+                    components={{
+                        Header: () => <DummyHeader />,
+                    }}
                 />
             )}
 
@@ -837,7 +843,6 @@ export default function Root() {
                             <ViewFeedCardCell
                                 key={data.uri}
                                 {...{
-                                    isTop: index === 0,
                                     isMobile,
                                     isSkeleton: false,
                                     feed: data || null,
@@ -856,6 +861,7 @@ export default function Root() {
                             Footer: !isEndOfContent
                                 ? ListFooterSpinner
                                 : ListFooterNoContent,
+                            Header: () => <DummyHeader />,
                         }}
                         endReached={loadFeedsMore}
                         className={notNulltimeline()}
@@ -866,7 +872,6 @@ export default function Root() {
 }
 
 interface UserCellProps {
-    isTop: boolean
     actor: ProfileView | null
     onClick?: () => void
     skeleton?: boolean
@@ -875,7 +880,6 @@ interface UserCellProps {
 }
 
 const UserCell = ({
-    isTop,
     actor,
     onClick,
     skeleton,
@@ -886,7 +890,6 @@ const UserCell = ({
 
     return (
         <>
-            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
             <div
                 onClick={onClick}
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
