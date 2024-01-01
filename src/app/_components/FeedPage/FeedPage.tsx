@@ -468,14 +468,7 @@ const FeedPage = ({
     }
 
     return (
-        <SwipeRefreshList
-            onRefresh={async () => {
-                await handlePullToRefresh()
-            }}
-            className={"swiperRefresh h-full w-full"}
-            threshold={150}
-            disabled={isScrolling}
-        >
+        <>
             {hasUpdate && (
                 <div
                     className={
@@ -493,72 +486,81 @@ const FeedPage = ({
                     </div>
                 </div>
             )}
-            <Virtuoso
-                scrollerRef={(ref) => {
-                    if (ref instanceof HTMLElement) {
-                        scrollRef.current = ref
-                        // setListScrollRefAtom(ref)
-                    }
+            <SwipeRefreshList
+                onRefresh={async () => {
+                    await handlePullToRefresh()
                 }}
-                ref={virtuosoRef}
-                isScrolling={setIsScrolling}
-                //@ts-ignore
-                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                context={{ hasMore }}
-                increaseViewportBy={200}
-                overscan={200}
-                data={timeline ?? undefined}
-                totalCount={timeline ? timeline.length : 20}
-                atTopThreshold={100}
-                atBottomThreshold={100}
-                itemContent={(index, item) => (
-                    <>
-                        {item ? (
-                            <ViewPostCard
-                                key={`feed-${item.post.uri}`}
-                                {...{
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
+                className={"swiperRefresh h-full w-full"}
+                threshold={150}
+                disabled={isScrolling}
+            >
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                            // setListScrollRefAtom(ref)
+                        }
+                    }}
+                    ref={virtuosoRef}
+                    isScrolling={setIsScrolling}
+                    //@ts-ignore
+                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                    context={{ hasMore }}
+                    increaseViewportBy={200}
+                    overscan={200}
+                    data={timeline ?? undefined}
+                    totalCount={timeline ? timeline.length : 20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <>
+                            {item ? (
+                                <ViewPostCard
+                                    key={`feed-${item.post.uri}`}
+                                    {...{
+                                        isMobile,
+                                        isSkeleton: false,
+                                        bodyText: processPostBodyText(
+                                            nextQueryParams,
+                                            item.post || null
+                                        ),
+                                        postJson: item.post || null,
+                                        json: item,
+                                        now,
                                         nextQueryParams,
-                                        item.post || null
-                                    ),
-                                    postJson: item.post || null,
-                                    json: item,
-                                    now,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                    isViaUFeed: isViaUFeed,
-                                }}
-                            />
-                        ) : (
-                            <ViewPostCard
-                                {...{
-                                    isMobile,
-                                    isSkeleton: true,
-                                    bodyText: undefined,
-                                    nextQueryParams,
-                                    t,
-                                }}
-                            />
-                        )}
-                    </>
-                )}
-                components={{
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    Footer: !isEndOfFeed
-                        ? ListFooterSpinner
-                        : ListFooterNoContent,
-                    Header: () => <DummyHeader />,
-                }}
-                endReached={loadMore}
-                className={notNulltimeline()}
-            />
-        </SwipeRefreshList>
+                                        t,
+                                        handleValueChange: handleValueChange,
+                                        handleSaveScrollPosition:
+                                            handleSaveScrollPosition,
+                                        isViaUFeed: isViaUFeed,
+                                    }}
+                                />
+                            ) : (
+                                <ViewPostCard
+                                    {...{
+                                        isMobile,
+                                        isSkeleton: true,
+                                        bodyText: undefined,
+                                        nextQueryParams,
+                                        t,
+                                    }}
+                                />
+                            )}
+                        </>
+                    )}
+                    components={{
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        Footer: !isEndOfFeed
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
+                        Header: () => <DummyHeader />,
+                    }}
+                    endReached={loadMore}
+                    className={notNulltimeline()}
+                />
+            </SwipeRefreshList>
+        </>
     )
 }
 
