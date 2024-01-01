@@ -172,7 +172,13 @@ const FeedPage = ({
                 // console.log(`check new ${feedKey}`, filteredData)
                 // console.log(`timeline ${feedKey}`, timeline)
 
-                setNewTimeline(muteWordFilter)
+                setNewTimeline((currentTimeline) => {
+                    if (currentTimeline !== null) {
+                        return [...currentTimeline, ...muteWordFilter]
+                    } else {
+                        return [...muteWordFilter]
+                    }
+                })
 
                 if (muteWordFilter.length > 0) {
                     console.log(
