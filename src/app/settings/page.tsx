@@ -906,8 +906,8 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                         )}
                     </ModalContent>
                 </Modal>
-                <div className="text-black dark:text-white">
-                    <div className={"md:h-[100px] lg:h-[50px] h-[85px]"} />
+                <div className="text-black dark:text-white w-full h-full">
+                    <DummyHeader />
                     <div className={"font-bold flex "}>
                         <div>{t("pages.mute.title")}</div>
                         <div className={"ml-[15px]"}>

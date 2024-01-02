@@ -558,7 +558,7 @@ export default function Root() {
             md:relative md:flex md:justify-center md:items-center
         `}
             >
-                <div className={backgroundColor()}></div>
+                <div className={backgroundColor()} />
                 {isOpen && window.prompt("Please enter link", "Harry Potter")}
                 <div className={PostModal()}>
                     <div className={header()}>

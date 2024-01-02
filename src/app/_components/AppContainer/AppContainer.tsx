@@ -611,9 +611,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             style={{
                 overscrollBehaviorY: "none",
                 WebkitOverflowScrolling: "touch",
+                overscrollBehavior: "none",
+                overflow: "hidden",
+                height: "100%",
+                width: "100%",
+                //背景をスクロールさせない
+                position: "fixed",
             }}
         >
-            <div id="burger-outer-container">
+            <div id="burger-outer-container" className={"h-[100vh] w-full"}>
                 <BurgerPush
                     className={"backdrop-blur-[5px]"}
                     outerContainerId="burger-outer-container"
@@ -667,13 +673,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     />
                                 )}
                                 <div
-                                    className={`pt-[0px] h-[calc(100%-50px-env(safe-area-inset-bottom))] ${
-                                        isLoginPath && `h-full`
+                                    className={`pt-[0px] ${
+                                        isLoginPath
+                                            ? `h-full`
+                                            : `h-[calc(100%-50px-env(safe-area-inset-bottom))]`
                                     } lg:h-full relative`}
                                 >
                                     {shouldFillPageBackground &&
                                         statusCode !== 404 && (
-                                            <div className="absolute top-0 left-0 flex justify-center w-full h-full lg:hidden">
+                                            <div className="absolute top-[env(safe-area-inset-top)] left-0 flex justify-center w-full h-full lg:hidden">
                                                 <div
                                                     className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
                                                         isSearchScreen

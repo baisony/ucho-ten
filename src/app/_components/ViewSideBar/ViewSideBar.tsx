@@ -90,7 +90,8 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     } = viewSideBar()
 
     return (
-        <div>
+        <>
+            <div className={"w-full h-[env(safe-area-inset-top)]"} />
             <main
                 className={background()}
                 onClick={(e) => {
@@ -297,7 +298,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     signInModalDisclosure.onOpen()
                 }}
             />
-        </div>
+        </>
     )
 }
 

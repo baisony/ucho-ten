@@ -19,7 +19,7 @@ export const postModal = tv({
         contentLeft:
             "w-[48px] h-[calc(100%-10px)] flex select-none justify-center",
         contentLeftAuthorIcon:
-            "w-[28px] h-[28px] bg-black rounded-[10px] overflow-hidden cursor-pointer z-[1]",
+            "w-[28px] h-[28px] bg-black rounded-full overflow-hidden cursor-pointer z-[1]",
         contentLeftAuthorIconImage: "w-full h-full drag-none",
         contentRight: "w-[calc(100%-54px)] relative h-[calc(100%-10px)] ",
         contentRightTextArea:

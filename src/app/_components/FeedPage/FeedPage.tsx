@@ -91,7 +91,7 @@ const FeedPage = ({
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
-    const [isScrolling, setIsScrolling] = useState<boolean>(false)
+    const isScrolling = useRef<boolean>(false)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -129,7 +129,6 @@ const FeedPage = ({
                         return false
                     }
                 } else {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     return post.post.record?.text.includes(muteWord.word)
                 }
@@ -514,7 +513,7 @@ const FeedPage = ({
             {hasUpdate && (
                 <div
                     className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
+                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[calc(100px+env(safe-area-inset-top))] lg:top-[70px]"
                     }
                 >
                     <div
@@ -530,15 +529,11 @@ const FeedPage = ({
             )}
             <SwipeRefreshList
                 onRefresh={async () => {
-                    if (newTimeline.length == 0) {
-                        await handleRefresh()
-                    } else {
-                        await lazyCheckNewTimeline()
-                    }
+                    await lazyCheckNewTimeline()
                 }}
                 className={"swiperRefresh h-full w-full"}
                 threshold={150}
-                disabled={isScrolling}
+                disabled={isScrolling.current}
             >
                 <Virtuoso
                     scrollerRef={(ref) => {
@@ -548,7 +543,9 @@ const FeedPage = ({
                         }
                     }}
                     ref={virtuosoRef}
-                    isScrolling={setIsScrolling}
+                    isScrolling={(e) => {
+                        isScrolling.current = e
+                    }}
                     //@ts-ignore
                     restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
                     context={{ hasMore }}
@@ -597,7 +594,7 @@ const FeedPage = ({
                     components={{
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
-                        Footer: !isEndOfFeed
+                        Footer: isEndOfFeed
                             ? ListFooterSpinner
                             : ListFooterNoContent,
                         Header: () => <DummyHeader />,

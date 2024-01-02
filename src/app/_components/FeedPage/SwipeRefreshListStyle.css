@@ -10,7 +10,7 @@
     width: 30px;
     height: 30px;
     position: absolute;
-    top: 85px;
+    top: calc(85px + env(safe-area-inset-top));
     border-radius: 50%;
     background: var(--sdr-progress-background, #fff);
     left: 50%;
