@@ -83,7 +83,7 @@ export default function RootLayout({
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta
                     name="apple-mobile-web-app-status-bar-style"
-                    content="black"
+                    content="black-translucent"
                 />
                 <link
                     rel="apple-touch-startup-image"
@@ -262,10 +262,13 @@ export default function RootLayout({
             <body
                 // className={`${noto.className}`}
                 style={{
-                    overscrollBehaviorY: "none",
-                    overflowY: "auto",
+                    overscrollBehavior: "none",
                     WebkitOverflowScrolling: "touch",
+                    height: "100vh",
+                    margin: 0,
+                    width: "100%",
                 }}
+                className={"bg-white dark:bg-black"}
             >
                 <Script src="/noflash.js" />
                 <Providers>

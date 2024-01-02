@@ -30,6 +30,8 @@ import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { Notification } from "@atproto/api/dist/client/types/app/bsky/notification/listNotifications"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { SwipeRefreshList } from "react-swipe-down-refresh"
+import "@/app/_components/FeedPage/SwipeRefreshListStyle.css"
 
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
@@ -64,6 +66,7 @@ export default function FeedPage() {
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = "Inbox"
     const pageName = "Inbox"
+    const isScrolling = useRef<boolean>(false)
 
     useLayoutEffect(() => {
         setCurrentMenuType("inbox")
@@ -412,8 +415,49 @@ export default function FeedPage() {
         }
     }, [])
 
+    const lazyCheckNewTimeline = async () => {
+        if (agent === null) return
+        try {
+            const { data } = await agent.countUnreadNotifications()
+            const { count } = data
+            console.log(count)
+            if (count == 0) return
+
+            const notifData = await agent.listNotifications({
+                cursor: "",
+            })
+
+            if (data) {
+                const { notifications } = notifData.data
+
+                const replies = notifications.filter((notification) => {
+                    return (
+                        !notification.isRead &&
+                        (notification.reason === "reply" ||
+                            notification.reason === "mention")
+                    )
+                })
+            }
+            const mergedTimeline = mergePosts(newTimeline, timeline)
+            //@ts-ignore
+            setTimeline(mergedTimeline)
+            setNewTimeline([])
+            setHasUpdate(false)
+
+            if (mergedTimeline.length > 0) {
+                latestCID.current = (mergedTimeline[0] as PostView).cid
+            }
+            void handleUpdateSeen()
+            await queryClient.refetchQueries({
+                queryKey: ["getNotification", feedKey],
+            })
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     return (
-        <>
+        <main className={"h-full w-full"}>
             {hasUpdate && (
                 <div
                     className={
@@ -431,69 +475,81 @@ export default function FeedPage() {
                     </div>
                 </div>
             )}
-            <Virtuoso
-                scrollerRef={(ref) => {
-                    if (ref instanceof HTMLElement) {
-                        scrollRef.current = ref
-                        // setListScrollRefAtom(ref)
-                    }
+            <SwipeRefreshList
+                onRefresh={async () => {
+                    await lazyCheckNewTimeline()
                 }}
-                ref={virtuosoRef}
-                //@ts-ignore
-                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                context={{ hasMore }}
-                increaseViewportBy={200}
-                overscan={200}
-                data={timeline ?? undefined}
-                totalCount={timeline ? timeline.length : 20}
-                atTopThreshold={100}
-                atBottomThreshold={100}
-                itemContent={(index, post) => (
-                    <>
-                        {post ? (
-                            <ViewPostCard
-                                key={`feed-${post.uri}`}
-                                {...{
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
+                className={"swiperRefresh h-full w-full"}
+                threshold={150}
+                disabled={isScrolling.current}
+            >
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                            // setListScrollRefAtom(ref)
+                        }
+                    }}
+                    ref={virtuosoRef}
+                    //@ts-ignore
+                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                    context={{ hasMore }}
+                    isScrolling={(e) => {
+                        isScrolling.current = e
+                    }}
+                    increaseViewportBy={200}
+                    overscan={200}
+                    data={timeline ?? undefined}
+                    totalCount={timeline ? timeline.length : 20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, post) => (
+                        <>
+                            {post ? (
+                                <ViewPostCard
+                                    key={`feed-${post.uri}`}
+                                    {...{
+                                        isMobile,
+                                        isSkeleton: false,
+                                        bodyText: processPostBodyText(
+                                            nextQueryParams,
+                                            post || null
+                                        ),
+                                        postJson: post,
                                         nextQueryParams,
-                                        post || null
-                                    ),
-                                    postJson: post,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                }}
-                            />
-                        ) : (
-                            <ViewPostCard
-                                {...{
-                                    isMobile,
-                                    isSkeleton: true,
-                                    bodyText: undefined,
-                                    nextQueryParams,
-                                    t,
-                                }}
-                            />
-                        )}
-                    </>
-                )}
-                components={{
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    Footer: !isEndOfFeed
-                        ? ListFooterSpinner
-                        : ListFooterNoContent,
-                    Header: () => <DummyHeader />,
-                }}
-                endReached={loadMore}
-                // onScroll={(e) => disableScrollIfNeeded(e)}
-                //className="overflow-y-auto"
-                className={notNulltimeline()}
-            />
-        </>
+                                        t,
+                                        handleValueChange: handleValueChange,
+                                        handleSaveScrollPosition:
+                                            handleSaveScrollPosition,
+                                    }}
+                                />
+                            ) : (
+                                <ViewPostCard
+                                    {...{
+                                        isMobile,
+                                        isSkeleton: true,
+                                        bodyText: undefined,
+                                        nextQueryParams,
+                                        t,
+                                    }}
+                                />
+                            )}
+                        </>
+                    )}
+                    components={{
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        Footer: !isEndOfFeed
+                            ? ListFooterSpinner
+                            : ListFooterNoContent,
+                        Header: () => <DummyHeader />,
+                    }}
+                    endReached={loadMore}
+                    // onScroll={(e) => disableScrollIfNeeded(e)}
+                    //className="overflow-y-auto"
+                    className={notNulltimeline()}
+                />
+            </SwipeRefreshList>
+        </main>
     )
 }
