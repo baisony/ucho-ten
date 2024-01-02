@@ -158,6 +158,9 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                                     : `z-[0]`
                                             } rounded-full w-full h-full`}
                                             alt={postJson?.author.did}
+                                            decoding={"async"}
+                                            loading={"lazy"}
+                                            fetchPriority={"low"}
                                         />
                                     )}
                                 </Link>

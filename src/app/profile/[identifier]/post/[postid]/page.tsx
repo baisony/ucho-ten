@@ -891,6 +891,9 @@ const PostPage = (props: PostPageProps) => {
                                         defaultIcon.src
                                     }
                                     alt={"avatar"}
+                                    decoding={"async"}
+                                    loading={"eager"}
+                                    fetchPriority={"high"}
                                 />
                             </Link>
                             <div>
@@ -1310,6 +1313,9 @@ const EmbedImages = ({ embedImages, onImageClick }: EmbedImagesProps) => {
                             e.stopPropagation()
                             onImageClick(index)
                         }}
+                        decoding={"async"}
+                        loading={"eager"}
+                        fetchPriority={"high"}
                     />
                 </div>
             ))}
@@ -1355,6 +1361,9 @@ const EmbedMedia = ({
                                 e.stopPropagation()
                                 onImageClick(index)
                             }}
+                            decoding={"async"}
+                            loading={"eager"}
+                            fetchPriority={"high"}
                         />
                     </div>
                 ))}

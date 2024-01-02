@@ -39,6 +39,8 @@ const EmbedImages = ({
                                 onImageClick(embedImages.images, index)
                             }}
                             decoding={"async"}
+                            loading={"eager"}
+                            fetchPriority={"high"}
                         />
                     </div>
                 ))}

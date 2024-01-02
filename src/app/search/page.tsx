@@ -897,6 +897,9 @@ const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
                             className={`h-[35px] w-[35px] z-[0]`}
                             src={actor?.avatar || defaultIcon.src}
                             alt={"avatar image"}
+                            decoding={"async"}
+                            loading={"eager"}
+                            fetchPriority={"high"}
                         />
                     )}
                 </div>

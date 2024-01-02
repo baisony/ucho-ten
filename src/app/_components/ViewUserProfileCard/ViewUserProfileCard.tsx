@@ -101,6 +101,9 @@ export const ViewUserProfileCard = (props: Props) => {
                                             //radius={"lg"}
                                             className={``}
                                             alt={json?.did}
+                                            decoding={"async"}
+                                            loading={"eager"}
+                                            fetchPriority={"high"}
                                         />
                                     )}
                                 </Link>

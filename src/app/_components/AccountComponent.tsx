@@ -42,6 +42,9 @@ const AccountComponent = (props: AccountComponentProps) => {
                             src={account.profile?.avatar || defaultIcon.src}
                             className={"h-full w-full"}
                             alt={"avatar"}
+                            decoding={"async"}
+                            loading={"eager"}
+                            fetchPriority={"high"}
                         />
                     </div>
                     <div className={"ml-[15px]"}>
