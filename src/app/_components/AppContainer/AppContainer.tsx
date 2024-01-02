@@ -114,8 +114,32 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
 
     const refreshSession = async () => {
         if (!agent) return
-        if (!agent.session) return
-        await agent.resumeSession(agent?.session)
+        if (!agent?.session) return
+        console.log(agent?.session)
+        //await agent.resumeSession(agent?.session)
+
+        try {
+            const url = new URL(agent?.service)
+            const req = {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${agent?.session.refreshJwt}`,
+                },
+            }
+            const res = await fetch(
+                `${url}xrpc/com.atproto.server.refreshSession`,
+                req
+            )
+            const json = await res.json()
+            //console.log(await json)
+
+            const prevSession = agent
+            if (!prevSession?.session || prevSession?.session === null) return
+            prevSession.session.accessJwt = json.accessJwt
+            prevSession.session.refreshJwt = json.refreshJwt
+            //console.log(prevSession.session)
+            setAgent(prevSession)
+        } catch (e) {}
     }
     useEffect(() => {
         if (!agent) return

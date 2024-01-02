@@ -145,6 +145,7 @@ export const processPostBodyText = (
                                                 ? faCircleQuestion
                                                 : faCircleXmark
                                         }
+                                        className={"w-[14px] h-[14px]"}
                                     />
                                 </Tooltip>
                             }
@@ -198,7 +199,12 @@ export const processPostBodyText = (
                     <span key={`link-${index}-${byteStart}`}>
                         <Chip
                             size={"sm"}
-                            startContent={<FontAwesomeIcon icon={faHashtag} />}
+                            startContent={
+                                <FontAwesomeIcon
+                                    icon={faHashtag}
+                                    className={"w-[13px] h-[13px]"}
+                                />
+                            }
                             variant="faded"
                             color="primary"
                         >
