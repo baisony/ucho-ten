@@ -9,7 +9,6 @@ import {
     faChevronLeft,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
-import "react-circular-progressbar/dist/styles.css"
 import { Button } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Swiper, SwiperSlide } from "swiper/react"

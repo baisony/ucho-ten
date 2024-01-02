@@ -1,8 +1,6 @@
 import React from "react"
 import { viewPostCard } from "./styles"
-import "react-circular-progressbar/dist/styles.css"
 import { Skeleton } from "@nextui-org/react"
-import "react-swipeable-list/dist/styles.css"
 
 export interface ViewPostCardSkeltonProps {
     isTop?: boolean

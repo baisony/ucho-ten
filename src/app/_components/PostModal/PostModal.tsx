@@ -29,7 +29,6 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
-    Image,
     Modal,
     ModalBody,
     ModalContent,

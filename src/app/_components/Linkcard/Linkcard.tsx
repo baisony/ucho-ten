@@ -1,6 +1,5 @@
 import React from "react"
 import { linkcard } from "./styles"
-import "react-circular-progressbar/dist/styles.css"
 import { Spinner } from "@nextui-org/react"
 
 interface Props {

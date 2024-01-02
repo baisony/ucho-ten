@@ -11,8 +11,8 @@ import {
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
-import { useDropzone } from "react-dropzone"
 import "react-circular-progressbar/dist/styles.css"
+import { useDropzone } from "react-dropzone"
 import data from "@emoji-mart/data"
 import Picker from "@emoji-mart/react"
 import {
@@ -22,7 +22,6 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
-    Image,
     Modal,
     ModalBody,
     ModalContent,

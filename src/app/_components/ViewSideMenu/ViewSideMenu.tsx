@@ -15,7 +15,6 @@ import {
     faUser,
     faUsers,
 } from "@fortawesome/free-solid-svg-icons"
-import "react-circular-progressbar/dist/styles.css"
 import {
     Badge,
     Dropdown,
