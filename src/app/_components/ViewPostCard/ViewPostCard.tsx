@@ -1072,6 +1072,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             if (!postUri) return
                                             void handleBookmark(postUri)
                                         }}
+                                        className={"h-[16px] w-[12px]"}
                                     />
                                 </div>
                             </div>
@@ -1100,6 +1101,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                                 return
                                                             await handleReply()
                                                         }}
+                                                        className={
+                                                            "h-full w-full"
+                                                        }
                                                     />
                                                 </div>
                                             )}
@@ -1121,6 +1125,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                             e.stopPropagation()
                                                             await handleRepost()
                                                         }}
+                                                        className={
+                                                            "h-full w-full"
+                                                        }
                                                     />
                                                 </div>
                                             )}
@@ -1141,6 +1148,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                         e.stopPropagation()
                                                         await handleLike()
                                                     }}
+                                                    className={"h-full w-full"}
                                                 />
                                             </div>
                                         </div>
