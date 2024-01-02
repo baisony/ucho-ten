@@ -453,12 +453,6 @@ const FeedPage = ({
         })
     }
 
-    const handlePullToRefresh = async () => {
-        await checkNewTimeline()
-        await handleRefresh()
-        //await new Promise((resolve) => setTimeout(resolve, 100000))
-    }
-
     if (data !== undefined && !isEndOfFeed) {
         handleFetchResponse(data)
         setLoadMoreFeed(false)

@@ -31,7 +31,7 @@ import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { Linkcard } from "@/app/_components/Linkcard"
-import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
+import { Button, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
@@ -69,8 +69,8 @@ const MoreDropDownMenu = dynamic(
     { ssr: true }
 )
 
-const PostModal = dynamic(
-    () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
+const ReplyModal = dynamic(
+    () => import("@/app/_components/ReplyModal").then((mod) => mod.ReplyModal),
     { ssr: true }
 )
 
@@ -211,7 +211,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
 
         const index = bookmarks.findIndex(
-            (bookmark: any) => bookmark.uri === uri
+            (bookmark: Bookmark) => bookmark.uri === uri
         )
         console.log(index)
 
@@ -714,22 +714,11 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            <Modal
+            <ReplyModal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}
-                placement={isMobile ? "top" : "center"}
-                className={"z-[100] max-w-[600px] bg-transparent"}
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <PostModal
-                            type={"Reply"}
-                            postData={postJson}
-                            onClose={onClose}
-                        />
-                    )}
-                </ModalContent>
-            </Modal>
+                post={postJson}
+            />
             <ReportModal
                 isOpen={isOpenReport}
                 onOpenChange={onOpenChangeReport}
@@ -775,9 +764,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 }}
                 onTouchStart={(e) => {
                     e.stopPropagation()
-                    // @ts-ignore
-                    handleTouchStart(e)
-                    //console.log(e)
+                    handleTouchStart()
                 }}
             >
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
@@ -940,7 +927,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             </div>
                                         </>
                                     )}
-                                {/*@ts-ignore*/}
                                 {viewTranslatedText && (
                                     <>
                                         <Button
