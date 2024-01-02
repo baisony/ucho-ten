@@ -60,9 +60,6 @@ export const ViewFeedCard: React.FC<Props> = (props: Props) => {
                                     //radius={"lg"}
                                     className={` z-[0] rounded-[7px]`}
                                     alt={feed.did}
-                                    decoding={"async"}
-                                    loading={"lazy"}
-                                    fetchPriority={"low"}
                                 />
                             )}
                         </span>

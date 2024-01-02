@@ -247,9 +247,6 @@ const MyFeedsPage = () => {
                                                 defaultFeedIcon.src
                                             }
                                             alt={"avatar"}
-                                            decoding={"async"}
-                                            loading={"eager"}
-                                            fetchPriority={"high"}
                                         />
                                     </div>
                                     <div className={"ml-[12px]"}>

@@ -59,9 +59,6 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
                                         src={generatedURL || ""}
                                         className={LinkCardThumbnail()}
                                         alt={ogpData?.alt || "thumbnail"}
-                                        decoding={"async"}
-                                        loading={"lazy"}
-                                        fetchPriority={"low"}
                                     />
                                 </div>
                             )}

@@ -116,9 +116,6 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             className={"h-[64px] w-[64px] rounded-full"}
                             src={userProfileDetailed?.avatar || defaultIcon.src}
                             alt={"avatar"}
-                            decoding={"async"}
-                            loading={"lazy"}
-                            fetchPriority={"high"}
                         />
                     </div>
                     <div className={"ml-[12px] w-[204px]"}>

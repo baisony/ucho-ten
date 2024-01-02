@@ -558,9 +558,6 @@ const FeedHeaderComponent = ({
                             className={ProfileImage()}
                             src={feedInfo.view?.avatar || defaultFeedIcon.src}
                             alt={"profile"}
-                            decoding={"async"}
-                            loading={"lazy"}
-                            fetchPriority={"low"}
                         />
                     ) : (
                         <div className={ProfileImage()}>

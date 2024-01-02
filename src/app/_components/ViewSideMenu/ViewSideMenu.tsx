@@ -196,9 +196,6 @@ export const ViewSideMenu: React.FC<Props> = () => {
                                     "h-[20px] w-[20px] rounded-full overflow-hidden mr-[10px]"
                                 }
                                 alt={"avatar"}
-                                decoding={"async"}
-                                loading={"eager"}
-                                fetchPriority={"high"}
                             />
                             <div
                                 className={

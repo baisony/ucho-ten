@@ -1144,9 +1144,6 @@ const UserProfileComponent = ({
                                 className={ProfileHeaderImage()}
                                 src={profile?.banner}
                                 alt={"banner"}
-                                decoding={"async"}
-                                loading={"eager"}
-                                fetchPriority={"high"}
                             />
                         ) : (
                             <div
@@ -1166,9 +1163,6 @@ const UserProfileComponent = ({
                                 className={ProfileImage()}
                                 src={profile?.avatar || defaultIcon.src}
                                 alt={"avatar"}
-                                decoding={"async"}
-                                loading={"eager"}
-                                fetchPriority={"high"}
                             />
                         ) : (
                             <div className={ProfileImage()}>
