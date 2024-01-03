@@ -676,7 +676,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     className={`pt-[0px] ${
                                         isLoginPath
                                             ? `h-full`
-                                            : `h-[calc(100%-50px-env(safe-area-inset-bottom))]`
+                                            : `h-[calc(100dvh-50px-env(safe-area-inset-bottom))]`
                                     } lg:h-full relative`}
                                 >
                                     {shouldFillPageBackground &&
