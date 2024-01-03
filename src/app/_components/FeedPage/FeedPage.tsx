@@ -166,11 +166,8 @@ const FeedPage = ({
                     feedKey === "following"
                         ? filterDisplayPosts(feed, userProfileDetailed, agent)
                         : feed
-
+                //@ts-ignore
                 const muteWordFilter = filterPosts(filteredData)
-
-                // console.log(`check new ${feedKey}`, filteredData)
-                // console.log(`timeline ${feedKey}`, timeline)
 
                 setNewTimeline(muteWordFilter)
 
@@ -257,7 +254,7 @@ const FeedPage = ({
                 feedKey === "following"
                     ? filterDisplayPosts(posts, userProfileDetailed, agent)
                     : posts
-
+            //@ts-ignore
             const muteWordFilter = filterPosts(filteredData)
 
             console.log("filteredData", filteredData)
@@ -484,7 +481,7 @@ const FeedPage = ({
                     feedKey === "following"
                         ? filterDisplayPosts(feed, userProfileDetailed, agent)
                         : feed
-
+                //@ts-ignore
                 const muteWordFilter = filterPosts(filteredData)
 
                 const mergedTimeline = mergePosts(muteWordFilter, timeline)

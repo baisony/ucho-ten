@@ -84,8 +84,6 @@ const Root = () => {
             resistance={false}
             longSwipes={false}
             initialSlide={menuIndex}
-            //touchReleaseOnEdges={true}
-            //touchMoveStopPropagation={true}
             touchStartForcePreventDefault={true}
             preventInteractionOnTransition={true}
             touchStartPreventDefault={false}

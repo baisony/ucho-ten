@@ -606,19 +606,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [appearanceColor, agent, pathName])
 
     return (
-        <div
-            className={`bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]`}
-            style={{
-                overscrollBehaviorY: "none",
-                WebkitOverflowScrolling: "touch",
-                overscrollBehavior: "none",
-                overflow: "hidden",
-                height: "100%",
-                width: "100%",
-                //背景をスクロールさせない
-                position: "fixed",
-            }}
-        >
+        <div className={"w-full h-full"}>
             <div id="burger-outer-container" className={"h-[100vh] w-full"}>
                 <BurgerPush
                     className={"backdrop-blur-[5px]"}
@@ -676,7 +664,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     className={`pt-[0px] ${
                                         isLoginPath
                                             ? `h-full`
-                                            : `h-[calc(100%-50px-env(safe-area-inset-bottom))]`
+                                            : `h-[calc(100dvh-50px-env(safe-area-inset-bottom))]`
                                     } lg:h-full relative`}
                                 >
                                     {shouldFillPageBackground &&
