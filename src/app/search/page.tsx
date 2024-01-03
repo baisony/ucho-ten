@@ -1,91 +1,57 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
-import { isMobile } from "react-device-detect"
+import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Skeleton } from "@nextui-org/react"
-import type {
-    GeneratorView,
-    PostView,
-} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import type { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { layout } from "@/app/search/styles"
+import { useTranslation } from "react-i18next"
+import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import {
     menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndexChangedByMenu,
 } from "../_atoms/headerMenu"
-import { useTranslation } from "react-i18next"
-import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "../_components/ListFooterSpinner"
 import { useAtom } from "jotai"
-import defaultIcon from "@/../public/images/icon/default_icon.svg"
-import { useSearchInfoAtom } from "../_atoms/searchInfo"
-import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination } from "swiper/modules"
+
+import "swiper/css"
+import "swiper/css/pagination"
+import { isMobile } from "react-device-detect"
+import { layout } from "@/app/search/styles"
 import Link from "next/link"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
-import { ViewPostCard } from "../_components/ViewPostCard"
-import { processPostBodyText } from "../_lib/post/processPostBodyText"
-import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
-import { DummyHeader } from "@/app/_components/DummyHeader"
-import { useScrollPositions } from "@/app/_atoms/scrollPosition"
-import { useContentFontSize } from "@/app/_atoms/contentFontSize"
+import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import SearchPostPage from "@/app/search/posts"
+import SearchActorPage from "@/app/search/actors"
+import SearchFeedPage from "@/app/search/feeds"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+import { useQueryClient } from "@tanstack/react-query"
 
-export default function Root() {
-    const router = useRouter()
+const Page = () => {
     const pathname = usePathname()
+    const router = useRouter()
     const searchParams = useSearchParams()
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    const [, setCurrentMenuType] = useCurrentMenuType()
-    const [agent] = useAgent()
-    const [currentMenuType] = useCurrentMenuType()
-    const [menus] = useHeaderMenusByHeaderAtom()
     const [searchInfo, setSearchInfo] = useSearchInfoAtom()
-    const [nextQueryParams] = useNextQueryParamsAtom()
-    const [tappedTabbarButton] = useTappedTabbarButtonAtom()
-
-    const [loading, setLoading] = useState(false)
-    const [hasMorePostsResult, setHasMorePostsResult] = useState<boolean>(false)
-    const [hasMoreUsersResult, setHasMoreUsersResult] = useState<boolean>(false)
-    const [hasMoreFeedsResult, setHasMoreFeedsResult] = useState<boolean>(false)
-    const [searchPostsResult, setSearchPostsResult] = useState<
-        PostView[] | null
-    >(null)
-    const [searchUsersResult, setSearchUsersResult] = useState<
-        ProfileView[] | null
-    >(null)
-    const [searchFeedsResult, setSearchFeedsResult] = useState<
-        GeneratorView[] | null
-    >(null)
     const [searchText, setSearchText] = useState("")
     const [searchTarget, setSearchTarget] = useState("")
-    const [now, setNow] = useState<Date>(new Date())
-
-    const numOfResult = useRef<number>(0)
-    const cursor = useRef<string>("")
-
-    const { searchSupportCard } = layout()
+    const [userPreferences] = useUserPreferencesAtom()
+    const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     const { t } = useTranslation()
+    const { searchSupportCard } = layout()
+    const [menus] = useHeaderMenusByHeaderAtom()
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
 
-    const shouldScrollToTop = useRef<boolean>(false)
-    const scrollRef = useRef<HTMLElement | null>(null)
-    const [isEndOfContent, setIsEndOfContent] = useState(false)
-    const virtuosoRef = useRef(null)
-    const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const [agent] = useAgent()
+    const [nextQueryParams] = useNextQueryParamsAtom()
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setNow(new Date())
-        }, 60 * 1000)
-
-        return () => {
-            clearInterval(intervalId)
-        }
-    }, [])
+    const swiperRef = useRef<SwiperCore | null>(null)
+    const queryClient = useQueryClient()
 
     useEffect(() => {
         switch (searchTarget) {
@@ -148,7 +114,7 @@ export default function Root() {
         setSearchTarget(searchInfo.target)
         setSearchText(searchInfo.searchWord)
 
-        cursor.current = ""
+        //cursor.current = ""
 
         const queryParams = new URLSearchParams(nextQueryParams)
 
@@ -159,18 +125,8 @@ export default function Root() {
         router.replace(`/search?${queryParams.toString()}`)
 
         console.log("start search")
-        startSearch()
+        //startSearch()
     }, [pathname])
-
-    useEffect(() => {
-        if (shouldScrollToTop.current) {
-            if (shouldScrollToTop.current && scrollRef.current) {
-                scrollRef.current.scrollTop = 0
-
-                shouldScrollToTop.current = false
-            }
-        }
-    }, [searchPostsResult, searchUsersResult, searchFeedsResult])
 
     useEffect(() => {
         if (tappedTabbarButton === "search") {
@@ -191,281 +147,21 @@ export default function Root() {
 
             return newSearchInfo
         })
-    }, [
-        searchPostsResult,
-        searchUsersResult,
-        searchFeedsResult,
-        cursor.current,
-        searchTarget,
-        searchText,
-    ])
-
-    const fetchSearchPostsResult = async () => {
-        console.log("cursor.current", cursor.current)
-        if (!agent) {
-            return
-        }
-        console.log(searchText, searchTarget)
-
-        if (searchText === "") {
-            return
-        }
-
-        try {
-            console.log("")
-            const res = await fetch(
-                `https://search.bsky.social/search/posts?q=${encodeURIComponent(
-                    searchText
-                )}&offset=${numOfResult.current}`
-            )
-            console.log("")
-
-            const json = await res.json()
-
-            numOfResult.current += json.length
-
-            if (json.length === 0) {
-                setIsEndOfContent(true)
-            }
-
-            const outputArray = json.map(
-                (item: any) =>
-                    `at://${item.user.did as string}/${item.tid as string}`
-            )
-
-            if (outputArray.length === 0) {
-                setLoading(false)
-                setHasMorePostsResult(false)
-                return
-            }
-
-            const maxBatchSize = 25 // 1つのリクエストに許容される最大数
-            const batches = []
-
-            for (let i = 0; i < outputArray.length; i += maxBatchSize) {
-                const batch = outputArray.slice(i, i + maxBatchSize)
-                batches.push(batch)
-            }
-
-            const results: PostView[] = []
-
-            for (const batch of batches) {
-                const { data } = await agent?.getPosts({ uris: batch })
-                const { posts } = data
-                const filteredPosts = posts.filter((post) => {
-                    return (
-                        !post?.author?.viewer?.muted &&
-                        !post?.author?.viewer?.blocking &&
-                        !post?.author?.viewer?.blockedBy
-                    )
-                })
-
-                results.push(...filteredPosts)
-            }
-
-            setSearchPostsResult((currentSearchResults) => {
-                if (currentSearchResults !== null) {
-                    return [...currentSearchResults, ...results]
-                } else {
-                    return [...results]
-                }
-            })
-
-            if (results.length > 0) {
-                setHasMorePostsResult(true)
-            } else {
-                setHasMorePostsResult(false)
-            }
-        } catch (error) {
-            setHasMorePostsResult(false)
-            console.error("Error fetching data:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const fetchSearchUsersResult = async () => {
-        setHasMoreUsersResult(false)
-
-        if (!agent) {
-            return
-        }
-
-        try {
-            const { data } = await agent.searchActors({
-                term: searchText,
-                cursor: cursor.current,
-            })
-
-            if (
-                data.actors.length === 0 &&
-                (cursor.current === data.cursor || !data.cursor)
-            ) {
-                setIsEndOfContent(true)
-            }
-
-            setSearchUsersResult((currentSearchResults) => {
-                if (currentSearchResults !== null) {
-                    return [...currentSearchResults, ...data.actors]
-                } else {
-                    return [...data.actors]
-                }
-            })
-
-            if (data.cursor) {
-                cursor.current = data.cursor
-                setHasMoreUsersResult(true)
-            } else {
-                cursor.current = ""
-                setHasMoreUsersResult(false)
-            }
-        } catch (e) {
-            setHasMoreUsersResult(false)
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const fetchSearchFeedsResult = async () => {
-        console.log("hoge")
-        setHasMoreFeedsResult(false)
-
-        if (!agent) {
-            return
-        }
-
-        try {
-            const { data } =
-                await agent.app.bsky.unspecced.getPopularFeedGenerators({
-                    cursor: cursor.current,
-                    query: searchText,
-                })
-
-            if (
-                data.feeds.length === 0 &&
-                (cursor.current === data.cursor || !data.cursor)
-            ) {
-                setIsEndOfContent(true)
-            }
-
-            setSearchFeedsResult((currentSearchResults) => {
-                if (currentSearchResults !== null) {
-                    return [...currentSearchResults, ...data.feeds]
-                } else {
-                    return [...data.feeds]
-                }
-            })
-
-            if (data.cursor) {
-                cursor.current = data.cursor
-                setHasMoreFeedsResult(true)
-            } else {
-                cursor.current = ""
-                setHasMoreFeedsResult(false)
-            }
-        } catch (e) {
-            setHasMoreFeedsResult(false)
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const loadPostsMore = async () => {
-        if (hasMorePostsResult) {
-            await fetchSearchPostsResult()
-        }
-    }
-
-    const loadUsersMore = async () => {
-        if (hasMoreUsersResult) {
-            await fetchSearchUsersResult()
-        }
-    }
-
-    const loadFeedsMore = async () => {
-        if (hasMoreFeedsResult) {
-            await fetchSearchFeedsResult()
-        }
-    }
-
-    const resetAll = () => {
-        console.log("resetall")
-        setCurrentMenuType("searchTop")
-        setSearchTarget("")
-
-        numOfResult.current = 0
-        cursor.current = ""
-
-        setSearchPostsResult(null)
-        setSearchUsersResult(null)
-        setSearchFeedsResult(null)
-
-        setHasMorePostsResult(false)
-        setHasMoreUsersResult(false)
-        setHasMoreFeedsResult(false)
-
-        setSearchTarget("")
-        setSearchText("")
-
-        setSearchInfo({
-            target: "",
-            searchWord: "",
-        })
-    }
-
-    const startSearch = () => {
-        console.log(searchTarget, searchText)
-        switch (searchTarget) {
-            case "posts":
-                console.log("here start search posts")
-                shouldScrollToTop.current = true
-                setLoading(true)
-                setHasMorePostsResult(false)
-                setSearchPostsResult(null)
-                cursor.current = ""
-                numOfResult.current = 0
-                void fetchSearchPostsResult()
-                break
-            case "users":
-                console.log("here start search users")
-                shouldScrollToTop.current = true
-                setLoading(true)
-                setHasMoreUsersResult(false)
-                setSearchUsersResult(null)
-                cursor.current = ""
-                numOfResult.current = 0
-                void fetchSearchUsersResult()
-                break
-            case "feeds":
-                console.log("here start search feeds")
-                shouldScrollToTop.current = true
-                setLoading(true)
-                setHasMoreFeedsResult(false)
-                setSearchFeedsResult(null)
-                cursor.current = ""
-                numOfResult.current = 0
-                void fetchSearchFeedsResult()
-                break
-        }
-    }
+    }, [searchTarget, searchText])
 
     useEffect(() => {
         console.log(searchText, searchTarget)
 
         if (searchText === "") {
-            setLoading(false)
+            //setLoading(false)
             return
         }
 
         console.log("start search")
-        startSearch()
+        //startSearch()
     }, [agent, searchText, searchTarget])
 
     useEffect(() => {
-        console.log(menuIndex)
-        console.log(searchParams.get("target"))
         if (currentMenuType !== "search") {
             return
         }
@@ -489,114 +185,48 @@ export default function Root() {
         })
     }, [menuIndex])
 
+    useEffect(() => {
+        if (
+            currentMenuType === "search" &&
+            swiperRef.current &&
+            menuIndex !== swiperRef.current.activeIndex
+        ) {
+            swiperRef.current.slideTo(menuIndex)
+        }
+    }, [currentMenuType, menuIndex, swiperRef.current])
+
+    const resetAll = () => {
+        console.log("resetall")
+        setCurrentMenuType("searchTop")
+        setSearchTarget("")
+        setSearchText("")
+        queryClient.resetQueries({ queryKey: ["getSearch"] })
+
+        setSearchInfo({
+            target: "",
+            searchWord: "",
+        })
+    }
+
+    const reSearch = (text: string) => {
+        setSearchTarget("posts")
+        setSearchText(text)
+        queryClient.resetQueries({ queryKey: ["getSearch"] })
+
+        setSearchInfo({
+            target: searchTarget,
+            searchWord: text,
+        })
+    }
     const findFeeds = () => {
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", "フィード bsky.app")
         queryParams.set("target", "posts")
         return `/search?${queryParams.toString()}` as string
     }
-
-    const handleValueChange = (newValue: any) => {
-        console.log(newValue)
-        console.log(searchPostsResult)
-        if (!searchPostsResult) return
-        const foundObject = searchPostsResult.findIndex(
-            (item) => item.uri === newValue.postUri
-        )
-
-        if (foundObject !== -1) {
-            console.log(searchPostsResult[foundObject])
-            switch (newValue.reaction) {
-                case "like":
-                    setSearchPostsResult((prevData) => {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-ignore
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.like =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unlike":
-                    setSearchPostsResult((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.like = undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "repost":
-                    setSearchPostsResult((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.repost =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unrepost":
-                    setSearchPostsResult((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].viewer
-                        ) {
-                            updatedData[foundObject].viewer.repost = undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "delete":
-                    setSearchPostsResult((prevData) => {
-                        const updatedData = [...prevData]
-                        updatedData.splice(foundObject, 1)
-                        return updatedData
-                    })
-            }
-            console.log(searchPostsResult)
-        } else {
-            console.log(
-                "指定されたURIを持つオブジェクトは見つかりませんでした。"
-            )
-        }
-    }
-
-    const handleSaveScrollPosition = () => {
-        console.log(`save: ${searchText} ${searchTarget}`)
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`search-${searchTarget}-${searchText}`]
-                    ?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`search-${searchTarget}-${searchText}`] =
-                    state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
-
     return (
         <>
-            {searchText === "" && (
+            {searchText === "" ? (
                 <div className={"w-full h-full text-white"}>
                     <div className={"absolute bottom-0  w-full"}>
                         {t("pages.search.FindPerson")}
@@ -633,346 +263,96 @@ export default function Root() {
                         </Link>
                     </div>
                 </div>
-            )}
-
-            {loading && searchTarget === "posts" && (
-                <Virtuoso
-                    overscan={100}
-                    increaseViewportBy={200}
-                    totalCount={20}
-                    initialItemCount={20}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index) => (
-                        <ViewPostCard
-                            {...{
-                                isMobile,
-                                isSkeleton: true,
-                                bodyText: undefined,
-                                nextQueryParams,
-                                t,
-                            }}
-                        />
-                    )}
-                    className={nullTimeline()}
-                    components={{
-                        Header: () => <DummyHeader isSearchScreen={true} />,
+            ) : (
+                <Swiper
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper
                     }}
-                />
-            )}
-
-            {!loading &&
-                searchTarget === "posts" &&
-                searchText &&
-                searchPostsResult && (
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                            }
-                        }}
-                        ref={virtuosoRef}
-                        //@ts-ignore
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`search-posts-${searchText}`]
+                    cssMode={isMobile}
+                    pagination={{ type: "custom", clickable: false }}
+                    hidden={true} // ??
+                    modules={[Pagination]}
+                    className="swiper-home"
+                    style={{ height: "100%" }}
+                    touchEventsTarget={"container"}
+                    touchRatio={1}
+                    threshold={1}
+                    resistance={false}
+                    longSwipes={false}
+                    initialSlide={menuIndex}
+                    touchStartForcePreventDefault={true}
+                    preventInteractionOnTransition={true}
+                    touchStartPreventDefault={false}
+                    edgeSwipeDetection={true}
+                    onActiveIndexChange={(swiper) => {
+                        if (!menuIndexChangedByMenu) {
+                            setMenuIndex(swiper.activeIndex)
                         }
-                        context={{ hasMore: hasMorePostsResult }}
-                        overscan={200}
-                        increaseViewportBy={200}
-                        data={searchPostsResult}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, data) => (
-                            <ViewPostCard
-                                key={data.uri}
-                                {...{
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
-                                        nextQueryParams,
-                                        data || null
-                                    ),
-                                    postJson: data || null,
-                                    now,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                }}
-                            />
-                        )}
-                        components={{
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            Footer: !isEndOfContent
-                                ? ListFooterSpinner
-                                : ListFooterNoContent,
-                            Header: () => <DummyHeader isSearchScreen={true} />,
-                        }}
-                        endReached={loadPostsMore}
-                        className={notNulltimeline()}
-                    />
-                )}
-
-            {loading && searchTarget === "users" && (
-                <Virtuoso
-                    overscan={100}
-                    increaseViewportBy={200}
-                    totalCount={20}
-                    initialItemCount={20}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index) => (
-                        <UserCell
-                            {...{
-                                actor: null,
-                                skeleton: true,
-                            }}
-                        />
-                    )}
-                    className={nullTimeline()}
-                    components={{
-                        Header: () => <DummyHeader isSearchScreen={true} />,
+                        if (tappedTabbarButton !== null) {
+                            setTappedTabbarButton(null)
+                        }
                     }}
-                />
-            )}
-
-            {!loading &&
-                searchTarget === "users" &&
-                searchText &&
-                searchUsersResult !== null && (
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                            }
-                        }}
-                        ref={virtuosoRef}
-                        //@ts-ignore
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`search-users-${searchText}`]
-                        }
-                        context={{ hasMore: hasMoreFeedsResult }}
-                        overscan={200}
-                        increaseViewportBy={200}
-                        data={searchUsersResult}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, data) => (
-                            <UserCell
-                                key={data.did}
-                                {...{
-                                    actor: data,
-                                    onClick: () => {
-                                        handleSaveScrollPosition()
-                                        router.push(
-                                            `/profile/${
-                                                data.did
-                                            }?${nextQueryParams.toString()}`
-                                        )
-                                    },
-                                }}
-                            />
-                        )}
-                        components={{
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            Footer: !isEndOfContent
-                                ? ListFooterSpinner
-                                : ListFooterNoContent,
-                            Header: () => <DummyHeader isSearchScreen={true} />,
-                        }}
-                        endReached={loadUsersMore}
-                        className={notNulltimeline()}
-                    />
-                )}
-            {loading && searchTarget === "feeds" && (
-                <Virtuoso
-                    overscan={100}
-                    increaseViewportBy={200}
-                    totalCount={20}
-                    initialItemCount={20}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index) => (
-                        <UserCell
-                            {...{
-                                actor: null,
-                                skeleton: true,
-                            }}
-                        />
-                    )}
-                    className={nullTimeline()}
-                    components={{
-                        Header: () => <DummyHeader isSearchScreen={true} />,
+                    onTouchStart={() => {
+                        setMenuIndexChangedByMenu(false)
                     }}
-                />
-            )}
-
-            {!loading &&
-                searchTarget === "feeds" &&
-                searchText &&
-                searchFeedsResult !== null && (
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                            }
-                        }}
-                        ref={virtuosoRef}
-                        //@ts-ignore
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`search-feeds-${searchText}`]
-                        }
-                        context={{ hasMore: hasMoreUsersResult }}
-                        overscan={200}
-                        increaseViewportBy={200}
-                        data={searchFeedsResult}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, data) => (
-                            <ViewFeedCardCell
-                                key={data.uri}
-                                {...{
-                                    isMobile,
-                                    isSkeleton: false,
-                                    feed: data || null,
-                                    now,
-                                    nextQueryParams,
-                                    t,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                }}
-                            />
-                        )}
-                        components={{
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            Footer: !isEndOfContent
-                                ? ListFooterSpinner
-                                : ListFooterNoContent,
-                            Header: () => <DummyHeader isSearchScreen={true} />,
-                        }}
-                        endReached={loadFeedsMore}
-                        className={notNulltimeline()}
-                    />
-                )}
-        </>
-    )
-}
-
-interface UserCellProps {
-    actor: ProfileView | null
-    onClick?: () => void
-    skeleton?: boolean
-    //index?: number
-}
-
-const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
-    const { userCard } = layout()
-    const [contentFontSize] = useContentFontSize()
-
-    return (
-        <>
-            <div
-                onClick={onClick}
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                className={`${userCard()}`}
-                style={{ cursor: skeleton ? "default" : "pointer" }}
-            >
-                <div className={"h-[35px] w-[35px] rounded-[10px] ml-[10px]"}>
-                    {skeleton && (
-                        <Skeleton
-                            className={`h-full w-full`}
-                            style={{ borderRadius: "10px" }}
-                        />
-                    )}
-                    {!skeleton && (
-                        <img
-                            className={`h-[35px] w-[35px] z-[0]`}
-                            src={actor?.avatar || defaultIcon.src}
-                            alt={"avatar image"}
-                        />
-                    )}
-                </div>
-                <div
-                    className={
-                        "h-[75px] w-[calc(100%-50px)] pl-[10px] items-center justify-center flex"
-                    }
                 >
-                    <div className={"w-full"}>
-                        <div className={"w-full"}>
-                            <div className={"text-[15px]"}>
-                                {skeleton && (
-                                    <Skeleton
-                                        className={`h-[15px] w-[100px]`}
-                                        style={{ borderRadius: "10px" }}
-                                    />
-                                )}
-                                {!skeleton && actor?.displayName}
-                            </div>
-                            <div className={" text-[13px] text-gray-500"}>
-                                {skeleton && (
-                                    <Skeleton
-                                        className={`h-[13px] w-[200px] mt-[10px] mb-[10px]`}
-                                        style={{ borderRadius: "10px" }}
-                                    />
-                                )}
-                                {!skeleton && `@${actor?.handle}`}
-                            </div>
-                        </div>
+                    <SwiperSlide key={`swiperslide-home-0`}>
                         <div
-                            className={"w-full text-[13px]"}
+                            id={`swiperIndex-div-${0}`}
+                            key={0}
                             style={{
-                                whiteSpace: "nowrap",
-                                textOverflow: "ellipsis",
-                                overflow: "hidden",
+                                overflowY: "auto",
+                                height: "100%",
                             }}
                         >
-                            {skeleton && (
-                                <Skeleton
-                                    className={`h-[13px] w-full mt-[10px] mb-[10px]`}
-                                    style={{ borderRadius: "10px" }}
-                                />
-                            )}
-                            {!skeleton && (
-                                <div
-                                    className={`${
-                                        contentFontSize == 1
-                                            ? `text-[12px]`
-                                            : contentFontSize == 2
-                                            ? `text-[13px]`
-                                            : contentFontSize == 3
-                                            ? `text-[14px]`
-                                            : contentFontSize == 4
-                                            ? `text-[15px]`
-                                            : contentFontSize == 5
-                                            ? `text-[16px]`
-                                            : contentFontSize == 6
-                                            ? `text-[17px]`
-                                            : contentFontSize == 7
-                                            ? `text-[18px]`
-                                            : contentFontSize == 8
-                                            ? `text-[19px]`
-                                            : contentFontSize == 9
-                                            ? `text-[20px]`
-                                            : contentFontSize == 10
-                                            ? `text-[21px]`
-                                            : `text-[14px]`
-                                    }`}
-                                >
-                                    {actor?.description}
-                                </div>
-                            )}
+                            <SearchPostPage
+                                {...{
+                                    isActive: menuIndex === 0,
+                                    t,
+                                    nextQueryParams,
+                                    agent,
+                                    searchText,
+                                }}
+                            />
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </SwiperSlide>
+                    <SwiperSlide key={`swiperslide-home-1`}>
+                        <div
+                            id={`swiperIndex-div-0`}
+                            key={0}
+                            style={{
+                                overflowY: "auto",
+                                height: "100%",
+                            }}
+                        >
+                            <SearchActorPage
+                                {...{
+                                    t,
+                                    agent,
+                                    isActive: menuIndex === 1,
+                                    nextQueryParams,
+                                    searchText,
+                                    userPreferences,
+                                }}
+                            />
+                        </div>
+                    </SwiperSlide>
+                    <SwiperSlide>
+                        <SearchFeedPage
+                            {...{
+                                t,
+                                agent,
+                                isActive: menuIndex === 2,
+                                nextQueryParams,
+                                searchText,
+                                userPreferences,
+                            }}
+                        />
+                    </SwiperSlide>
+                </Swiper>
+            )}
         </>
     )
 }
+
+export default Page
