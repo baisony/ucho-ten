@@ -17,6 +17,7 @@ import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
+import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 
 SwiperCore.use([Virtual])
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
@@ -125,6 +126,11 @@ const Root = () => {
                                 />
                             </div>
                         </SwiperSlide>
+                        {menus.home.length === 1 && (
+                            <SwiperSlide>
+                                <SwiperEmptySlide />
+                            </SwiperSlide>
+                        )}
                     </>
                 )
             })}
