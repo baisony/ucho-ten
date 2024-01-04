@@ -141,6 +141,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             prevSession.session.refreshJwt = json.refreshJwt
             //console.log(prevSession.session)
             setAgent(prevSession)
+            localStorage.setItem("session", JSON.stringify(prevSession))
         } catch (e) {}
     }
     useEffect(() => {
