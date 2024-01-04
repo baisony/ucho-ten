@@ -84,14 +84,8 @@ export default function FeedPage() {
 
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-    const [currentMenuType] = useCurrentMenuType()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
 
     const [now, setNow] = useState<Date>(new Date())
-    const [disableSlideVerticalScroll] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
 
@@ -254,10 +248,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.like =
+                            updatedData[foundObject].viewer.like =
                                 newValue.reactionUri
                         }
                         return updatedData
@@ -268,11 +261,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.like =
-                                undefined
+                            updatedData[foundObject].viewer.like = undefined
                         }
                         return updatedData
                     })
@@ -282,10 +273,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.repost =
+                            updatedData[foundObject].viewer.repost =
                                 newValue.reactionUri
                         }
                         return updatedData
@@ -296,11 +286,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                undefined
+                            updatedData[foundObject].viewer.repost = undefined
                         }
                         return updatedData
                     })
