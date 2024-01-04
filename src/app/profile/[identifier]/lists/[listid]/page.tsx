@@ -34,7 +34,6 @@ import { Virtuoso } from "react-virtuoso"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
 import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
-import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import {
@@ -45,6 +44,23 @@ import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination, Virtual } from "swiper/modules"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+    useMenuIndexChangedByMenu,
+} from "@/app/_atoms/headerMenu"
+
+import "swiper/css"
+import "swiper/css/pagination"
+import { useAtom } from "jotai"
+import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
+import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+
+SwiperCore.use([Virtual])
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -71,6 +87,18 @@ export default function Root() {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menus] = useHeaderMenusByHeaderAtom()
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+    const [currentMenuType] = useCurrentMenuType()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
+
+    const [disableSlideVerticalScroll] = useState<boolean>(false)
+
+    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("list")
@@ -487,39 +515,85 @@ export default function Root() {
     }, [feedInfo, timeline, isSubscribed])
 
     return (
-        <Virtuoso
-            scrollerRef={(ref) => {
-                if (ref instanceof HTMLElement) {
-                    scrollRef.current = ref
-                }
+        <Swiper
+            onSwiper={(swiper) => {
+                swiperRef.current = swiper
             }}
-            ref={virtuosoRef}
-            //@ts-ignore
-            restoreStateFrom={scrollPositions[`list-${atUri}`]}
-            context={{ hasMore }}
-            overscan={200}
-            increaseViewportBy={200}
-            data={dataWithDummy}
-            atTopThreshold={100}
-            atBottomThreshold={100}
-            itemContent={(_, item) => (
-                <CustomFeedCell
-                    key={
-                        `feedInfo-${item?.feedProps?.feedInfo?.uri}` ||
-                        `actor-${item?.profileProps?.json?.did}` ||
-                        `actor-${item?.postProps?.postJson?.uri}`
-                    }
-                    {...item}
-                />
-            )}
-            components={{
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
-            }}
-            endReached={loadMore}
-            className={nullTimeline()}
-        />
+            cssMode={isMobile}
+            pagination={{ type: "custom", clickable: false }}
+            hidden={true} // ??
+            modules={[Pagination]}
+            className="swiper-home"
+            style={{ height: "100%" }}
+            touchEventsTarget={"container"}
+            touchRatio={1}
+            threshold={1}
+            resistance={false}
+            longSwipes={false}
+            initialSlide={menuIndex}
+            touchStartForcePreventDefault={true}
+            preventInteractionOnTransition={true}
+            touchStartPreventDefault={false}
+            edgeSwipeDetection={true}
+        >
+            {menus.feed.map((menu, index) => {
+                return (
+                    <>
+                        <SwiperSlide key={`swiperslide-home-${index}`}>
+                            <div
+                                id={`swiperIndex-div-${index}`}
+                                key={index}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
+                                }}
+                            >
+                                <Virtuoso
+                                    scrollerRef={(ref) => {
+                                        if (ref instanceof HTMLElement) {
+                                            scrollRef.current = ref
+                                        }
+                                    }}
+                                    ref={virtuosoRef}
+                                    restoreStateFrom={
+                                        //@ts-ignore
+                                        scrollPositions[`list-${atUri}`]
+                                    }
+                                    context={{ hasMore }}
+                                    overscan={200}
+                                    increaseViewportBy={200}
+                                    data={dataWithDummy}
+                                    atTopThreshold={100}
+                                    atBottomThreshold={100}
+                                    itemContent={(_, item) => (
+                                        <CustomFeedCell
+                                            key={
+                                                `feedInfo-${item?.feedProps?.feedInfo?.uri}` ||
+                                                `actor-${item?.profileProps?.json?.did}` ||
+                                                `actor-${item?.postProps?.postJson?.uri}`
+                                            }
+                                            {...item}
+                                        />
+                                    )}
+                                    components={{
+                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                        // @ts-ignore
+                                        Footer: !isEndOfFeed
+                                            ? ListFooterSpinner
+                                            : ListFooterNoContent,
+                                    }}
+                                    endReached={loadMore}
+                                    className={nullTimeline()}
+                                />
+                            </div>
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <SwiperEmptySlide />
+                        </SwiperSlide>
+                    </>
+                )
+            })}
+        </Swiper>
     )
 }
 

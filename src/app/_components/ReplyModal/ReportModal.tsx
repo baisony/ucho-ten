@@ -27,7 +27,7 @@ export const ReplyModal = (props: ReportModalProps) => {
             isOpen={isOpen}
             onOpenChange={onOpenChange}
             placement={isMobile ? "top" : "center"}
-            className={"z-[100] max-w-[600px] bg-transparent"}
+            className={`z-[100] max-w-[600px] bg-transparent`}
         >
             <ModalContent>
                 {(onClose) => (

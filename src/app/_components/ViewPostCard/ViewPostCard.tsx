@@ -723,7 +723,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 isOpen={isOpenReport}
                 onOpenChange={onOpenChangeReport}
                 placement={isMobile ? "top" : "center"}
-                className={"z-[100] max-w-[600px]"}
+                className={`z-[100] max-w-[600px] ${
+                    isMobile && `mt-[env(safe-area-inset-top)]`
+                }`}
                 target={"post"}
                 post={postJson}
                 nextQueryParams={nextQueryParams}

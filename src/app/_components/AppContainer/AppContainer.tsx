@@ -46,6 +46,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
+import "./lightbox.css"
 
 const ViewSideMenu = dynamic(
     () =>
@@ -79,10 +80,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
-    const [unreadNotification, setUnreadNotification] =
-        useUnreadNotificationAtom()
+    const [, setUnreadNotification] = useUnreadNotificationAtom()
 
-    const [translateTo, setTranslateTo] = useTranslationLanguage()
+    const [translateTo] = useTranslationLanguage()
 
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
@@ -112,11 +112,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
+    const headerAndSlash = (url: string) => {
+        return url.replace(/https?:\/\//, "").replace(/\/$/, "")
+    }
+
     const refreshSession = async () => {
         if (!agent) return
         if (!agent?.session) return
         console.log(agent?.session)
-        //await agent.resumeSession(agent?.session)
 
         try {
             const url = new URL(agent?.service)
@@ -131,14 +134,17 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 req
             )
             const json = await res.json()
-            //console.log(await json)
 
             const prevSession = agent
-            if (!prevSession?.session || prevSession?.session === null) return
+            if (!prevSession?.session) return
             prevSession.session.accessJwt = json.accessJwt
             prevSession.session.refreshJwt = json.refreshJwt
-            //console.log(prevSession.session)
+            const sessionJson = {
+                server: headerAndSlash(agent?.service.toString()),
+                session: agent.session,
+            }
             setAgent(prevSession)
+            localStorage.setItem("session", JSON.stringify(sessionJson))
         } catch (e) {}
     }
     useEffect(() => {
@@ -606,8 +612,20 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     }, [appearanceColor, agent, pathName])
 
     return (
-        <div className={"w-full h-full"}>
-            <div id="burger-outer-container" className={"h-[100vh] w-full"}>
+        <div
+            className={`bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]`}
+            style={{
+                overscrollBehaviorY: "none",
+                WebkitOverflowScrolling: "touch",
+                overscrollBehavior: "none",
+                overflow: "hidden",
+                height: "100%",
+                width: "100%",
+                //背景をスクロールさせない
+                position: "fixed",
+            }}
+        >
+            <div id="burger-outer-container" className={"h-full w-full"}>
                 <BurgerPush
                     className={"backdrop-blur-[5px]"}
                     outerContainerId="burger-outer-container"

@@ -260,11 +260,14 @@ export default function RootLayout({
                 <meta name="robots" content="noarchive,max-image-preview" />
             </head>
             <body
-                // className={`${noto.className}`}
-                className={
-                    "bg-white dark:bg-black bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]"
-                }
-                style={{ backgroundAttachment: "fixed" }}
+                style={{
+                    overscrollBehavior: "none",
+                    WebkitOverflowScrolling: "touch",
+                    height: "100vh",
+                    margin: 0,
+                    width: "100%",
+                }}
+                className={"bg-white dark:bg-black"}
             >
                 <Script src="/noflash.js" />
                 <Providers>

@@ -1,0 +1,3 @@
+.yarl__toolbar,.yarl__counter{
+    padding-top: env(safe-area-inset-top);
+}

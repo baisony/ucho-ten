@@ -16,6 +16,7 @@ import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"
 import { useTranslation } from "react-i18next"
 import { reportModalStyle } from "@/app/_components/ReportModal/styles"
+import { isMobile } from "react-device-detect"
 
 /**
  * SetttingsModal props.
@@ -136,7 +137,9 @@ export const ReportModal = (props: ReportModalProps) => {
             placement={placement}
             onOpenChange={onOpenChange}
             hideCloseButton
-            className={appearanceTextColor()}
+            className={`${appearanceTextColor()} ${
+                isMobile && `mt-[env(safe-area-inset-top)]`
+            }`}
         >
             <ModalContent>
                 {(onClose) => (

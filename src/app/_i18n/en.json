@@ -94,6 +94,9 @@
     "bookmarks": {
       "title": "Bookmarks",
       "noContent": "Not found bookmarks"
+    },
+    "swiperEmptySlide": {
+      "text": "sorry. This page is set up to address a bug. please swipe to left page."
     }
   },
   "components": {
