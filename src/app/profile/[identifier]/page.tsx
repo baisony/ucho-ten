@@ -409,6 +409,7 @@ const PostPage = (props: PostPageProps) => {
                     break
                 case "unrepost":
                     setTimeline((prevData) => {
+                        //@ts-ignore
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
@@ -874,7 +875,9 @@ const UserProfileComponent = ({
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
-                className={`z-[100] max-w-[600px] ${appearanceTextColor()}`}
+                className={`z-[100] max-w-[600px] ${appearanceTextColor()} ${
+                    isMobile && `mt-[env(safe-area-inset-top)]`
+                }`}
                 isDismissable={isUploading}
                 hideCloseButton
             >
