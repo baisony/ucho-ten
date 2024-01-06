@@ -183,7 +183,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <FontAwesomeIcon
                             icon={faUser}
                             className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        />
                         <div>{t("components.ViewSideMenu.profile")}</div>
                     </Link>
                     <Link
@@ -196,7 +196,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <FontAwesomeIcon
                             icon={faGear}
                             className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        />
                         <div>{t("components.ViewSideBar.preferences")}</div>
                     </Link>
                     <a
@@ -214,7 +214,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <FontAwesomeIcon
                             icon={faFlag}
                             className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        />
                         <div>{t("components.ViewSideBar.bugReport")}</div>
                     </a>
                 </div>
@@ -242,7 +242,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <FontAwesomeIcon
                             icon={faUsers}
                             className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        />
                         <div>{t("components.ViewSideBar.SwitchAccount")}</div>
                     </div>
                     <div
@@ -268,7 +268,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <FontAwesomeIcon
                             icon={faRightFromBracket}
                             className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        />
                         <div>{t("components.ViewSideBar.logout")}</div>
                     </div>
                 </div>

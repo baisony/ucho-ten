@@ -48,13 +48,14 @@ import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import "./lightbox.css"
 
-const ViewSideMenu = dynamic(
+import { ViewSideMenu } from "@/app/_components/ViewSideMenu"
+/*const ViewSideMenu = dynamic(
     () =>
         import("@/app/_components/ViewSideMenu").then(
             (mod) => mod.ViewSideMenu
         ),
     {}
-)
+)*/
 
 //const ViewSideBar = dynamic(() => import("../ViewSideBar/ViewSideBar"), {})
 
