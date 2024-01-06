@@ -13,7 +13,7 @@ import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
 const handleHideRepost = (
     item: FeedViewPost | PostView,
-    hideRepost: boolean
+    hideRepost: boolean | undefined
 ) => {
     return !(item?.reason && hideRepost)
 }
@@ -37,7 +37,7 @@ export const filterDisplayPosts = (
     posts: FeedViewPost[] | PostView[],
     sessionUser: AppBskyActorDefs.ProfileViewDetailed | null,
     agent: BskyAgent | null,
-    hideRepost: boolean
+    hideRepost?: boolean
 ): FeedViewPost[] | PostView[] => {
     const seenUris = new Set<string>()
     //@ts-ignore
