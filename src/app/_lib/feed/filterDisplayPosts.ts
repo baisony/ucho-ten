@@ -15,7 +15,7 @@ const handleHideRepost = (
     item: FeedViewPost | PostView,
     hideRepost: boolean | undefined
 ) => {
-    return !(item?.reason && hideRepost)
+    return item?.reason && hideRepost
 }
 
 const handleFrontMention = (post: PostView) => {
@@ -26,11 +26,11 @@ const handleFrontMention = (post: PostView) => {
         //@ts-ignore
         post.record.facets.map((facet: any) => {
             if (facet.index.byteStart == 0) {
-                return false
+                return true
             }
         })
     }
-    return true
+    return false
 }
 
 export const filterDisplayPosts = (
@@ -50,8 +50,8 @@ export const filterDisplayPosts = (
         let displayPost: boolean | null = null
 
         if (
-            !handleHideRepost(item, hideRepost) ||
-            !handleFrontMention(postData)
+            handleHideRepost(item, hideRepost) ||
+            handleFrontMention(postData)
         ) {
             return false
         }
