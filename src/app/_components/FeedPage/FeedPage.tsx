@@ -118,23 +118,17 @@ const FeedPage = ({
 
     const filterPosts = (posts: FeedViewPost[]) => {
         return posts.filter((post) => {
-            const shouldInclude = muteWords.some((muteWord) => {
-                if (post.post?.embed?.record) {
-                    const embedRecord = post.post.embed.record
-                    if (muteWord.isActive) {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        return embedRecord?.value?.text.includes(muteWord.word)
-                    } else {
-                        return false
-                    }
-                } else {
-                    // @ts-ignore
-                    return post.post.record?.text.includes(muteWord.word)
+            return !muteWords.some((muteWord) => {
+                if (muteWord.isActive) {
+                    const textToCheck =
+                        //@ts-ignore
+                        post.post?.embed?.record?.value?.text ||
+                        //@ts-ignore
+                        post.post?.record?.text
+                    return textToCheck?.includes(muteWord.word)
                 }
+                return false
             })
-
-            return !shouldInclude
         })
     }
 
@@ -357,82 +351,48 @@ const FeedPage = ({
 
     const handleValueChange = (newValue: any) => {
         if (!timeline) return
-        const foundObject = timeline.findIndex(
-            (item) => item.post.uri === newValue.postUri
-        )
-        console.log(newValue.postUri)
-        console.log(foundObject)
 
-        if (foundObject !== -1) {
-            // console.log(timeline[foundObject])
-            switch (newValue.reaction) {
-                case "like":
-                    setTimeline((prevData) => {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-ignore
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.like =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unlike":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.like =
-                                undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "repost":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unrepost":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "delete":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        updatedData.splice(foundObject, 1)
-                        return updatedData
-                    })
-                //timeline.splice(foundObject, 1)
-            }
-            // console.log(timeline)
+        const foundObjectIndex = timeline.findIndex(
+            (item) => item.post && item.post.uri === newValue.postUri
+        )
+
+        if (foundObjectIndex !== -1) {
+            setTimeline((prevData) => {
+                if (!prevData) return prevData
+
+                const updatedData = [...prevData]
+
+                const foundObject = updatedData[foundObjectIndex]
+                if (
+                    foundObject &&
+                    foundObject.post &&
+                    foundObject.post.viewer
+                ) {
+                    switch (newValue.reaction) {
+                        case "like":
+                        case "unlike":
+                            foundObject.post.viewer.like =
+                                newValue.reaction === "like"
+                                    ? newValue.reactionUri
+                                    : undefined
+                            break
+                        case "repost":
+                        case "unrepost":
+                            foundObject.post.viewer.repost =
+                                newValue.reaction === "repost"
+                                    ? newValue.reactionUri
+                                    : undefined
+                            break
+                        case "delete":
+                            updatedData.splice(foundObjectIndex, 1)
+                            break
+                        default:
+                            break
+                    }
+                }
+
+                return updatedData
+            })
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"
