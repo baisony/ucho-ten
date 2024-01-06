@@ -11,10 +11,33 @@ import {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
+const handleHideRepost = (
+    item: FeedViewPost | PostView,
+    hideRepost: boolean
+) => {
+    return !(item?.reason && hideRepost)
+}
+
+const handleFrontMention = (post: PostView) => {
+    if (
+        ((post.record as PostView)?.text as string)?.startsWith("@") &&
+        (post.record as PostView)?.facets
+    ) {
+        //@ts-ignore
+        post.record.facets.map((facet: any) => {
+            if (facet.index.byteStart == 0) {
+                return false
+            }
+        })
+    }
+    return true
+}
+
 export const filterDisplayPosts = (
     posts: FeedViewPost[] | PostView[],
     sessionUser: AppBskyActorDefs.ProfileViewDetailed | null,
-    agent: BskyAgent | null
+    agent: BskyAgent | null,
+    hideRepost: boolean
 ): FeedViewPost[] | PostView[] => {
     const seenUris = new Set<string>()
     //@ts-ignore
@@ -26,19 +49,9 @@ export const filterDisplayPosts = (
 
         let displayPost: boolean | null = null
 
-        if (
-            //@ts-ignore
-            (postData.record as PostView)?.text?.startsWith("@") &&
-            (postData.record as PostView)?.facets
-        ) {
-            //@ts-ignore
-            postData.record.facets.map((facet: any) => {
-                if (facet.index.byteStart == 0) {
-                    displayPost = false
-                    return
-                }
-            })
-        }
+        if (!handleHideRepost(item, hideRepost)) return false
+
+        if (!handleFrontMention(postData)) return false
 
         if (
             (item?.post as PostView)?.record &&
