@@ -58,7 +58,6 @@ import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { translateText } from "@/app/_lib/post/translate"
 import { syncContents } from "@/app/_lib/sync/syncBookmark"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
-import { ViewerState } from "@atproto/api/src/client/types/app/bsky/actor/defs"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
 //import MoreDropDownMenu from "./MoreDropDownMenu"
@@ -446,7 +445,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }, [userPreference, postJson, quoteJson])
 
     useLayoutEffect(() => {
-        const shouldDeletePost = (viewer: ViewerState) =>
+        const shouldDeletePost = (viewer: any) =>
             viewer?.blockedBy || viewer?.muted || viewer?.blocking
 
         if (
