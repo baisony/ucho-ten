@@ -302,9 +302,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                     : null
             const embed = quoteEmbed || postView?.embed || null
 
-            if (!embed?.$type) {
-                return null
-            }
+            if (!embed?.$type) return null
+
+            if ((embed?.record as PostView)?.$type === type) return embed as any
 
             return embed.$type === type ? (embed as any) : null
         }
@@ -672,14 +672,14 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     handleChangeSaveScrollPosition()
                                 }}
                                 href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
+                                    ?.did}?${nextQueryParams.toString()}`}
                             >
                                 <img
                                     src={
                                         postJsonData?.author?.avatar ||
                                         defaultIcon.src
                                     }
-                                    alt={postJsonData?.author.did || ""}
+                                    alt={postJsonData?.author?.did || ""}
                                     className={`${
                                         !isEmbedToPost
                                             ? `w-[30px] h-[30px]`
@@ -696,7 +696,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     handleChangeSaveScrollPosition()
                                 }}
                                 href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
+                                    ?.did}?${nextQueryParams.toString()}`}
                             >
                                 <span
                                     className={`${PostAuthorDisplayName()} md:hover:underline`}
@@ -717,7 +717,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             handleChangeSaveScrollPosition()
                                         }}
                                         href={`/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                            ?.did}?${nextQueryParams.toString()}`}
                                     >
                                         <span
                                             className={`${PostAuthorHandle()} md:hover:underline`}

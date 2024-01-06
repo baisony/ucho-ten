@@ -238,7 +238,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                 />
                 <div className={Footer()}>
                     <Link
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             openSideBar(false)
                         }}
@@ -253,7 +253,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <div>{t("components.ViewSideBar.about")}</div>
                     </Link>
                     <div
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             openSideBar(false)
                             accountSwitchModalDisclosure.onOpen()
@@ -268,7 +268,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         <div>{t("components.ViewSideBar.SwitchAccount")}</div>
                     </div>
                     <div
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             if (isMobile) {
                                 const res = window.confirm(
