@@ -63,6 +63,7 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LANGUAGES } from "@/app/_constants/lanuages"
 import LanguagesSelectionModal from "../LanguageSelectionModal"
 import { useQueryClient } from "@tanstack/react-query"
+import { usePostLanguage } from "@/app/_atoms/postLanguage"
 
 //export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -93,17 +94,28 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     // const reg =
     //     /^[\u0009-\u000d\u001c-\u0020\u11a3-\u11a7\u1680\u180e\u2000-\u200f\u202f\u205f\u2060\u3000\u3164\ufeff\u034f\u2028\u2029\u202a-\u202e\u2061-\u2063]*$/
-    let defaultLanguages: string[]
 
-    if (window && window.navigator.languages && window.navigator.languages[0]) {
-        defaultLanguages = [window.navigator.languages[0]]
-    } else {
-        defaultLanguages = ["en"]
-    }
+    const [PostLanguage, setPostLanguage] = usePostLanguage()
 
-    const [postContentLanguages, setPostContentLanguages] = useState(
-        new Set<string>(defaultLanguages)
-    )
+    useEffect(() => {
+        if (
+            Array.from(PostLanguage).length === 0 &&
+            !localStorage.getItem("postLanguage")
+        ) {
+            let defaultLanguage
+
+            if (
+                window &&
+                window.navigator.languages &&
+                window.navigator.languages[0]
+            ) {
+                defaultLanguage = [window.navigator.languages[0]]
+            } else {
+                defaultLanguage = ["en"]
+            }
+            setPostLanguage(defaultLanguage)
+        }
+    }, [PostLanguage])
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
     const [contentImages, setContentImages] = useState<AttachmentImage[]>([])
@@ -227,7 +239,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 Omit<AppBskyFeedPost.Record, "createdAt"> = {
                 text: rt.text.trimStart().trimEnd(),
                 facets: rt.facets,
-                langs: Array.from(postContentLanguages),
+                langs: Array.from(PostLanguage),
             }
 
             if (type === "Reply") {
@@ -531,23 +543,26 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }
 
-    const handleOnEmojiOpenChange = (isOpen: boolean) => {
-        if (isOpen) {
-            currentCursorPostion.current =
-                textareaRef.current?.selectionStart || 0
-        } else {
-            setTimeout(() => {
-                if (textareaRef.current) {
-                    textareaRef.current.setSelectionRange(
-                        currentCursorPostion.current,
-                        currentCursorPostion.current
-                    )
+    useEffect(() => {
+        if (
+            Array.from(PostLanguage).length === 1 &&
+            Array.from(PostLanguage)[0] === "" &&
+            !localStorage.getItem("postLanguage")
+        ) {
+            let defaultLanguage
 
-                    textareaRef.current?.focus()
-                }
-            }, 500)
+            if (
+                window &&
+                window.navigator.languages &&
+                window.navigator.languages[0]
+            ) {
+                defaultLanguage = [window.navigator.languages[0]]
+            } else {
+                defaultLanguage = ["en"]
+            }
+            setPostLanguage(defaultLanguage)
         }
-    }
+    }, [PostLanguage])
 
     useEffect(() => {
         if (!window) return
@@ -570,7 +585,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const handleLanguagesSelectionChange = (keys: Selection) => {
         if (Array.from(keys).length < 4) {
-            setPostContentLanguages(keys as Set<string>)
+            setPostLanguage(Array.from(keys) as string[])
         }
     }
 
@@ -582,7 +597,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
                 onSelectionChange={handleLanguagesSelectionChange}
-                postContentLanguages={postContentLanguages}
+                PostLanguage={PostLanguage}
             />
 
             <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
@@ -936,7 +951,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 onOpenLangs()
                             }}
                         >{`${t("modal.post.lang")}:${Array.from(
-                            postContentLanguages
+                            PostLanguage
                         ).join(",")}`}</div>
                         <div
                             className={`${footerTooltipStyle()} hidden md:flex`}
@@ -948,20 +963,20 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             >
                                 <DropdownTrigger>
                                     {`${t("modal.post.lang")}:${Array.from(
-                                        postContentLanguages
+                                        PostLanguage
                                     ).join(",")}`}
                                 </DropdownTrigger>
                                 <DropdownMenu
                                     disallowEmptySelection
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
-                                    selectedKeys={postContentLanguages}
-                                    defaultSelectedKeys={postContentLanguages}
+                                    selectedKeys={PostLanguage}
+                                    defaultSelectedKeys={PostLanguage}
                                     onSelectionChange={(e) => {
-                                        console.log(postContentLanguages)
+                                        console.log(PostLanguage)
                                         if (Array.from(e).length < 4) {
-                                            setPostContentLanguages(
-                                                e as Set<string>
+                                            setPostLanguage(
+                                                Array.from(e) as string[]
                                             )
                                         }
                                     }}
@@ -994,7 +1009,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     disallowEmptySelection
                                     aria-label="Multiple selection actions"
                                     selectionMode="multiple"
-                                    selectedKeys={postContentLanguages}
+                                    selectedKeys={PostLanguage}
                                     onSelectionChange={(e) => {
                                         if (Array.from(e).length < 4) {
                                             //setPostContentLanguage(e as Set<string>);
