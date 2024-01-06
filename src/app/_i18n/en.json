@@ -51,6 +51,8 @@
       "light": "Light",
       "system": "System",
       "auto": "Auto",
+      "timeline": "Timeline",
+      "hideRepost": "Hide Repost",
       "appearance": "Appearance",
       "size": "Size",
       "fontSize": "Font size",

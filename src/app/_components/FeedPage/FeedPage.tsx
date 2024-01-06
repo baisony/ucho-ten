@@ -32,6 +32,7 @@ import "./styles.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useHideRepost } from "@/app/_atoms/hideRepost"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -76,6 +77,7 @@ const FeedPage = ({
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [muteWords] = useWordMutes()
+    const [hideRepost] = useHideRepost()
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
@@ -101,8 +103,6 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        //console.log(shouldScrollToTop.current, scrollRef.current)
-
         if (shouldScrollToTop.current && scrollRef.current) {
             scrollRef.current.scrollTop = 0
 
@@ -164,7 +164,12 @@ const FeedPage = ({
                 const { feed } = data
                 const filteredData =
                     feedKey === "following"
-                        ? filterDisplayPosts(feed, userProfileDetailed, agent)
+                        ? filterDisplayPosts(
+                              feed,
+                              userProfileDetailed,
+                              agent,
+                              hideRepost
+                          )
                         : feed
                 //@ts-ignore
                 const muteWordFilter = filterPosts(filteredData)
@@ -252,7 +257,12 @@ const FeedPage = ({
 
             const filteredData =
                 feedKey === "following"
-                    ? filterDisplayPosts(posts, userProfileDetailed, agent)
+                    ? filterDisplayPosts(
+                          posts,
+                          userProfileDetailed,
+                          agent,
+                          hideRepost
+                      )
                     : posts
             //@ts-ignore
             const muteWordFilter = filterPosts(filteredData)
@@ -479,7 +489,12 @@ const FeedPage = ({
                 const { feed } = data
                 const filteredData =
                     feedKey === "following"
-                        ? filterDisplayPosts(feed, userProfileDetailed, agent)
+                        ? filterDisplayPosts(
+                              feed,
+                              userProfileDetailed,
+                              agent,
+                              hideRepost
+                          )
                         : feed
                 //@ts-ignore
                 const muteWordFilter = filterPosts(filteredData)
