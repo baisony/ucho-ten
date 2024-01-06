@@ -49,9 +49,12 @@ export const filterDisplayPosts = (
 
         let displayPost: boolean | null = null
 
-        if (!handleHideRepost(item, hideRepost)) return false
-
-        if (!handleFrontMention(postData)) return false
+        if (
+            !handleHideRepost(item, hideRepost) ||
+            !handleFrontMention(postData)
+        ) {
+            return false
+        }
 
         if (
             (item?.post as PostView)?.record &&
