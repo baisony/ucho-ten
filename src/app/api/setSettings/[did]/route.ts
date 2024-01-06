@@ -12,6 +12,9 @@ export async function POST(
     const data = JSON.parse(params.did)
     const agent = new BskyAgent({ service: `https://${data.server}` })
     const resumeResult = await agent.resumeSession(data.session)
+    if (!resumeResult.success) {
+        return new Response("resume session error", { status: 400 })
+    }
     if (dbUrl === undefined || dbUrl == "") {
         return new Response("dbUrl is empty", { status: 400 })
     }
