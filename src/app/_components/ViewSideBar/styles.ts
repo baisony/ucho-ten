@@ -2,23 +2,23 @@ import { tv } from "@nextui-org/react"
 
 export const viewSideBar = tv({
     slots: {
-        background: "text-black dark:text-white", //overflow-x-hidden w-full", //overflow-x-hidden w-full", //w-full h-full select-none absolute",
+        background: "w-full h-full text-[#f2f2f2] dark:text-white relative",
         AuthorIconContainer:
-            "md:h-[100px] h-[85px] border-b-[1px] border-[#E3E3E3] pl-[18px] flex items-center cursor-pointer text-black dark:text-[#D7D7D7]",
+            "h-full border-b-[1px] text-[#f2f2f2] dark:text-[#D7D7D7]",
         AuthorDisplayName:
-            "font-black font-[16px] text-black dark:text-white w-full overflow-hidden overflow-ellipsis whitespace-nowrap",
+            "font-black font-[16px] text-[#f2f2f2] dark:text-white w-full overflow-hidden overflow-ellipsis whitespace-nowrap",
         AuthorHandle:
-            "text-[#767676] dark:text-[#D7D7D7] w-full overflow-hidden overflow-ellipsis whitespace-nowrap",
-        Content:
-            "md:h-[calc(100%-100px-200px)] h-[calc(100%-85px-200px)] pl-[18px] pt-[24px] pb-[24px] ",
+            "text-[#c2c2c2] dark:text-[#D7D7D7] w-full overflow-hidden overflow-ellipsis whitespace-nowrap",
+        Content: " pl-[18px] pt-[24px] pb-[24px] ",
+        NavBarContainer: "w-[50px] flex items-center mr-[10px]",
         NavBarIcon:
-            "h-[20px] w-[20px] mr-[17px] text-black dark:text-[#D7D7D7]",
+            "text-[#f2f2f2] dark:text-[#D7D7D7] text-[20px] flex items-center justify-center h-[20px] w-full",
         NavBarItem:
-            "h-[28px] mb-[15px] flex items-center font-medium cursor-pointer text-black dark:text-[#D7D7D7]",
-        Footer: "h-[200px] pl-[18px] pt-[24px] border-t-[1px] border-[#E3E3E3] pb-[75px]  ",
+            " mb-[17px] flex items-center font-medium cursor-pointer text-[#f2f2f2] dark:text-[#D7D7D7] h-full w-full font-bold",
+        Footer: " pl-[18px] pt-[24px] pb-[75px]  ",
         isBarOpen: "",
         modal: "",
-        appearanceTextColor: "text-black dark:text-white",
+        appearanceTextColor: "text-[#f2f2f2] dark:text-white",
     },
     variants: {
         isBarOpen: {
