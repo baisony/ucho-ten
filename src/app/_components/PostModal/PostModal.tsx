@@ -543,26 +543,23 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         }
     }
 
-    useEffect(() => {
-        if (
-            Array.from(PostLanguage).length === 1 &&
-            Array.from(PostLanguage)[0] === "" &&
-            !localStorage.getItem("postLanguage")
-        ) {
-            let defaultLanguage
+    const handleOnEmojiOpenChange = (isOpen: boolean) => {
+        if (isOpen) {
+            currentCursorPostion.current =
+                textareaRef.current?.selectionStart || 0
+        } else {
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.setSelectionRange(
+                        currentCursorPostion.current,
+                        currentCursorPostion.current
+                    )
 
-            if (
-                window &&
-                window.navigator.languages &&
-                window.navigator.languages[0]
-            ) {
-                defaultLanguage = [window.navigator.languages[0]]
-            } else {
-                defaultLanguage = ["en"]
-            }
-            setPostLanguage(defaultLanguage)
+                    textareaRef.current?.focus()
+                }
+            }, 500)
         }
-    }, [PostLanguage])
+    }
 
     useEffect(() => {
         if (!window) return
