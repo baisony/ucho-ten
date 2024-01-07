@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "net.ucho_ten.twa",
+    "sha256_cert_fingerprints": ["ED:94:EA:3C:CD:0F:10:2C:23:00:B2:6A:8A:D1:66:7E:A1:3C:3E:BD:65:DB:91:E5:67:86:38:2F:D9:94:44:74"] }
+}]
