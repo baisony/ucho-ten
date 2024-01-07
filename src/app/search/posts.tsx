@@ -3,7 +3,7 @@ import { layout } from "@/app/search/styles"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import {
@@ -21,6 +21,7 @@ import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { useSearchParams } from "next/navigation"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -467,15 +468,7 @@ const SearchPostPage = ({
                                 }}
                             />
                         ) : (
-                            <ViewPostCard
-                                {...{
-                                    isMobile,
-                                    isSkeleton: true,
-                                    bodyText: undefined,
-                                    nextQueryParams,
-                                    t,
-                                }}
-                            />
+                            <ViewPostCardSkelton />
                         )}
                     </>
                 )}

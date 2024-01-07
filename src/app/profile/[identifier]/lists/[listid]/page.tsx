@@ -1,12 +1,6 @@
 "use client"
 
-import React, {
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { ListItemView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { usePathname } from "next/navigation"
@@ -59,6 +53,7 @@ import "swiper/css/pagination"
 import { useAtom } from "jotai"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 SwiperCore.use([Virtual])
 
@@ -620,6 +615,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     }
 
     if (postProps) {
+        if (postProps.isSkeleton) return <ViewPostCardSkelton />
         return <ViewPostCard {...postProps} />
     }
 }

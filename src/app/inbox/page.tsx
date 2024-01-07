@@ -2,7 +2,7 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -37,14 +37,13 @@ import {
     menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
 } from "../_atoms/headerMenu"
-import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 
 import "swiper/css"
 import "swiper/css/pagination"
 import { useAtom } from "jotai"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 SwiperCore.use([Virtual])
 
@@ -479,17 +478,7 @@ export default function FeedPage() {
                                                             }}
                                                         />
                                                     ) : (
-                                                        <ViewPostCard
-                                                            {...{
-                                                                isMobile,
-                                                                isSkeleton:
-                                                                    true,
-                                                                bodyText:
-                                                                    undefined,
-                                                                nextQueryParams,
-                                                                t,
-                                                            }}
-                                                        />
+                                                        <ViewPostCardSkelton />
                                                     )}
                                                 </>
                                             )}

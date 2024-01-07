@@ -57,7 +57,6 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { translateText } from "@/app/_lib/post/translate"
 import { syncContents } from "@/app/_lib/sync/syncBookmark"
-import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
 //import MoreDropDownMenu from "./MoreDropDownMenu"
@@ -110,7 +109,6 @@ export interface ViewPostCardProps {
 export const ViewPostCard = (props: ViewPostCardProps) => {
     const {
         isMobile,
-        isSkeleton,
         postJson,
         quoteJson,
         json,
@@ -505,10 +503,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const handleMenuClickDelete = () => {
         void handleDelete()
-    }
-
-    if (isSkeleton === true) {
-        return <ViewPostCardSkelton />
     }
 
     const handleInputChange = (

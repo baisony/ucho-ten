@@ -1,7 +1,7 @@
 "use client"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -14,8 +14,6 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-
-SwiperCore.use([Virtual])
 import { Pagination, Virtual } from "swiper/modules"
 import {
     menuIndexAtom,
@@ -29,6 +27,9 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { useAtom } from "jotai"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+
+SwiperCore.use([Virtual])
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -230,29 +231,42 @@ export default function Root() {
                                             }
                                             overscan={200}
                                             increaseViewportBy={200}
-                                            data={timeline}
+                                            data={timeline ?? undefined}
+                                            totalCount={
+                                                timeline ? timeline.length : 20
+                                            }
                                             atTopThreshold={100}
                                             atBottomThreshold={100}
                                             itemContent={(index, data) => (
-                                                <ViewPostCard
-                                                    key={`bookmark-${data.uri}`}
-                                                    {...{
-                                                        isMobile,
-                                                        isSkeleton: false,
-                                                        bodyText:
-                                                            processPostBodyText(
+                                                <>
+                                                    {data ? (
+                                                        <ViewPostCard
+                                                            key={`bookmark-${data.uri}`}
+                                                            {...{
+                                                                isMobile,
+                                                                isSkeleton:
+                                                                    false,
+                                                                bodyText:
+                                                                    processPostBodyText(
+                                                                        nextQueryParams,
+                                                                        data ||
+                                                                            null
+                                                                    ),
+                                                                postJson:
+                                                                    data ||
+                                                                    null,
                                                                 nextQueryParams,
-                                                                data || null
-                                                            ),
-                                                        postJson: data || null,
-                                                        nextQueryParams,
-                                                        t,
-                                                        handleValueChange:
-                                                            handleValueChange,
-                                                        handleSaveScrollPosition:
-                                                            handleSaveScrollPosition,
-                                                    }}
-                                                />
+                                                                t,
+                                                                handleValueChange:
+                                                                    handleValueChange,
+                                                                handleSaveScrollPosition:
+                                                                    handleSaveScrollPosition,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <ViewPostCardSkelton />
+                                                    )}
+                                                </>
                                             )}
                                             components={{
                                                 Header: () => <DummyHeader />,

@@ -1,6 +1,6 @@
 "use client"
 
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -69,6 +69,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination } from "swiper/modules"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -598,6 +599,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     }
 
     if (postProps) {
+        if (postProps.isSkeleton) return <ViewPostCardSkelton />
         return <ViewPostCard {...postProps} />
     }
 }

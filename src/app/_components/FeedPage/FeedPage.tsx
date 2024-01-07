@@ -33,6 +33,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useHideRepost } from "@/app/_atoms/hideRepost"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -551,15 +552,7 @@ const FeedPage = ({
                                     }}
                                 />
                             ) : (
-                                <ViewPostCard
-                                    {...{
-                                        isMobile,
-                                        isSkeleton: true,
-                                        bodyText: undefined,
-                                        nextQueryParams,
-                                        t,
-                                    }}
-                                />
+                                <ViewPostCardSkelton />
                             )}
                         </>
                     )}
