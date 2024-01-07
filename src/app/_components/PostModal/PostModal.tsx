@@ -99,7 +99,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     useEffect(() => {
         if (
-            Array.from(PostLanguage).length === 0 &&
+            Array.from(PostLanguage).length === 1 &&
+            Array.from(PostLanguage)[0] === "" &&
             !localStorage.getItem("postLanguage")
         ) {
             let defaultLanguage
