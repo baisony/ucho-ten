@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next"
+import type { Metadata } from "next"
 import { Providers } from "./_components/Providers/Providers"
 import { AppConatiner } from "./_components/AppContainer/AppContainer"
 import Script from "next/script"
@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     applicationName: "Ucho-ten",
     description:
         "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
+    viewport:
+        "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    themeColor: "#000000",
     openGraph: {
         type: "website",
         siteName: "Ucho-ten",
@@ -36,16 +39,6 @@ export const metadata: Metadata = {
         },
     },
 }
-
-const viewport: Viewport = {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    viewportFit: "cover",
-    themeColor: "#000000",
-}
-
-export { viewport }
 
 export default function RootLayout({
     children,

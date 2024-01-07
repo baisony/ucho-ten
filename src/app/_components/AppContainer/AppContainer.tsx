@@ -9,7 +9,6 @@ import React, {
     useMemo,
     useRef,
     useState,
-    Suspense,
 } from "react"
 import { layout } from "@/app/styles"
 import { isMobile } from "react-device-detect"
@@ -501,13 +500,13 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                         const element = document.querySelector(
                             "meta[name=theme-color]"
                         )!
-                        element?.setAttribute("content", "#000000")
+                        element.setAttribute("content", "#000000")
                     } else {
                         document.documentElement.classList.remove("dark")
                         const element = document.querySelector(
                             "meta[name=theme-color]"
                         )!
-                        element?.setAttribute("content", "#FFFFFF")
+                        element.setAttribute("content", "#FFFFFF")
                     }
                 }
             }
@@ -609,7 +608,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         // theme-colorの設定
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
-        element?.setAttribute("content", themeColor)
+        element.setAttribute("content", themeColor)
     }, [appearanceColor, agent, pathName])
 
     return (
@@ -698,7 +697,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                                 />
                                             </div>
                                         )}
-                                    <Suspense>{children}</Suspense>
+                                    {children}
                                 </div>
                                 {showTabBar && !isLoginPath && <TabBar />}
                             </div>
