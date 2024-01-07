@@ -570,13 +570,6 @@ export default function Root() {
                                             {...item}
                                         />
                                     )}
-                                    components={{
-                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                        // @ts-ignore
-                                        Footer: !isEndOfFeed
-                                            ? ListFooterSpinner
-                                            : ListFooterNoContent,
-                                    }}
                                     endReached={loadMore}
                                     className={nullTimeline()}
                                 />

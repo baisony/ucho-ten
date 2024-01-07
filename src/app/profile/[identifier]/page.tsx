@@ -569,11 +569,6 @@ const PostPage = (props: PostPageProps) => {
                     {...item}
                 />
             )}
-            components={{
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
-            }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
             className={nullTimeline()}
