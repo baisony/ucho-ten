@@ -62,10 +62,20 @@ export const createPostPage = tv({
     variants: {
         uploadImageAvailable: {
             true: {
+                contentRightContainer: "h-[calc(100%-105px)]",
                 contentRightTextArea: "min-h-[calc(100%-105px)]",
             },
             false: {
+                contentRightContainer: "h-full",
                 contentRightTextArea: "min-h-full",
+            },
+        },
+        urlCardAvailable: {
+            true: {
+                contentRightContainer: "h-[calc(100%-100px)]",
+            },
+            false: {
+                contentRightContainer: "h-full",
             },
         },
         isDragActive: {

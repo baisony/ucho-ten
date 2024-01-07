@@ -125,10 +125,10 @@ export const processPostBodyText = (
                                         deletehttp(facet.features[0].uri)
                                             ? "リンク偽装の心配はありません。" // TODO: i18n
                                             : facet.features[0].uri.includes(
-                                                    facetText.replace("...", "")
-                                                )
-                                              ? "URL短縮の可能性があります。" // TODO: i18n
-                                              : "リンク偽装の可能性があります。" // TODO: i18n
+                                                  facetText.replace("...", "")
+                                              )
+                                            ? "URL短縮の可能性があります。" // TODO: i18n
+                                            : "リンク偽装の可能性があります。" // TODO: i18n
                                     }
                                 >
                                     <FontAwesomeIcon
@@ -137,13 +137,13 @@ export const processPostBodyText = (
                                             deletehttp(facet.features[0].uri)
                                                 ? faCheckCircle
                                                 : facet.features[0].uri.includes(
-                                                        facetText.replace(
-                                                            "...",
-                                                            ""
-                                                        )
-                                                    )
-                                                  ? faCircleQuestion
-                                                  : faCircleXmark
+                                                      facetText.replace(
+                                                          "...",
+                                                          ""
+                                                      )
+                                                  )
+                                                ? faCircleQuestion
+                                                : faCircleXmark
                                         }
                                         className={"w-[14px] h-[14px]"}
                                     />
@@ -155,10 +155,10 @@ export const processPostBodyText = (
                                 deletehttp(facet.features[0].uri)
                                     ? "success"
                                     : facet.features[0].uri.includes(
-                                            facetText.replace("...", "")
-                                        )
-                                      ? "default"
-                                      : "danger"
+                                          facetText.replace("...", "")
+                                      )
+                                    ? "default"
+                                    : "danger"
                             }
                         >
                             {facet.features[0].uri.startsWith(
