@@ -29,6 +29,9 @@ import Lightbox, {
 
 import { push as BurgerPush } from "react-burger-menu"
 
+import "yet-another-react-lightbox/styles.css"
+import "yet-another-react-lightbox/plugins/captions.css"
+import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 import { MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
@@ -44,9 +47,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
-import "yet-another-react-lightbox/styles.css"
-import "yet-another-react-lightbox/plugins/captions.css"
-import "yet-another-react-lightbox/plugins/counter.css"
 import "./lightbox.css"
 
 const ViewSideMenu = dynamic(

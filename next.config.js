@@ -1,14 +1,18 @@
 /** @type {import('next').NextConfig} */
-const { withPlugins } = require("next-compose-plugins")
 
 const withPWA = require("next-pwa")({
     dest: "public",
     register: true,
     skipWaiting: true,
 })
-
-const plugins = [withPWA()]
-const nextConfig = {
+module.exports = withPWA({
+    //next.js config
     reactStrictMode: false,
-}
-module.exports = withPlugins(plugins, nextConfig)
+    plugins: [
+        {
+            tailwindcss: {},
+            autoprefixer: {},
+            cssnano: {},
+        },
+    ],
+})

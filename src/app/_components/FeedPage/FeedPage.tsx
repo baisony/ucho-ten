@@ -4,7 +4,7 @@ import {
     FeedViewPost,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { Suspense, useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -26,12 +26,13 @@ import dynamic from "next/dynamic"
 
 import { SwipeRefreshList } from "react-swipe-down-refresh"
 //import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
+import "./SwipeRefreshListStyle.css"
+import "./styles.css"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useHideRepost } from "@/app/_atoms/hideRepost"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
-import "./SwipeRefreshListStyle.css"
-//import "./styles.css"
+
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
     () =>
@@ -510,7 +511,7 @@ const FeedPage = ({
                     atTopThreshold={100}
                     atBottomThreshold={100}
                     itemContent={(index, item) => (
-                        <Suspense fallback={<ViewPostCardSkelton />}>
+                        <>
                             {item ? (
                                 <ViewPostCard
                                     key={`feed-${item.post.uri}`}
@@ -535,7 +536,7 @@ const FeedPage = ({
                             ) : (
                                 <ViewPostCardSkelton />
                             )}
-                        </Suspense>
+                        </>
                     )}
                     components={{
                         Header: () => <DummyHeader />,

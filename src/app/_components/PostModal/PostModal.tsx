@@ -725,7 +725,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     alt={"author icon"}
                                     onDragStart={handleDragStart}
                                     src={userProfileDetailedAtom?.avatar}
-                                    loading={"eager"}
                                 />
                             </div>
                         </div>

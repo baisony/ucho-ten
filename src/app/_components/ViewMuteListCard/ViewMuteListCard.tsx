@@ -57,7 +57,6 @@ export const ViewMuteListCard: React.FC<Props> = (props: Props) => {
                                     src={list?.avatar || defaultFeedIcon.src}
                                     className={` z-[0] rounded-[7px]`}
                                     alt={list?.uri}
-                                    loading={"eager"}
                                 />
                             )}
                         </span>

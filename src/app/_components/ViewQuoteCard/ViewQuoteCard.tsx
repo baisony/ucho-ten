@@ -275,9 +275,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
                                                                             index
                                                                         )
                                                                     }}
-                                                                    decoding={
-                                                                        "sync"
-                                                                    }
                                                                 />
                                                             </div>
                                                         )

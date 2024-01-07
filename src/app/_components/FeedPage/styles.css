@@ -3,11 +3,3 @@ div[data-test-id="virtuoso-item-list"] {
     width: 100%;
     min-width: 100%;
 }
-div[data-test-id="virtuoso-item-list"] > div {
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 15px;
-}
-div[data-test-id="virtuoso-item-list"] > div > div{
-    width: 100%;
-}

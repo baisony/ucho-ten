@@ -127,8 +127,6 @@ export const TabBar: React.FC<Props> = () => {
                         alt={"tab"}
                         height={25}
                         width={25}
-                        loading={"eager"}
-                        fetchPriority={"high"}
                     />
                 </div>
                 <div className={`w-[25px] h-[25px] dark:hidden`}>
@@ -141,8 +139,6 @@ export const TabBar: React.FC<Props> = () => {
                         alt={"tab"}
                         height={25}
                         width={25}
-                        loading={"eager"}
-                        fetchPriority={"high"}
                     />
                 </div>
             </div>
