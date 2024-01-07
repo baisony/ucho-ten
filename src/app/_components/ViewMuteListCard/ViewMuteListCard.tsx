@@ -1,4 +1,3 @@
-import React from "react"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"

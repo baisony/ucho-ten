@@ -1,5 +1,5 @@
 import { Modal, ModalContent } from "@nextui-org/react"
-import React from "react"
+
 import { isMobile } from "react-device-detect"
 import { PostModal } from "../PostModal/PostModal"
 

@@ -1,4 +1,3 @@
-import React from "react"
 import "react-swipeable-list/dist/styles.css"
 import { viewNotFoundCard } from "@/app/_components/ViewNotFoundCard/styles"
 

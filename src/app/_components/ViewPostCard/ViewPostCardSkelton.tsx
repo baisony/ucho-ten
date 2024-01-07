@@ -1,4 +1,3 @@
-import React from "react"
 import { viewPostCard } from "./styles"
 import { Skeleton } from "@nextui-org/react"
 

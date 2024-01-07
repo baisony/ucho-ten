@@ -1,4 +1,3 @@
-import React from "react"
 import { linkcard } from "./styles"
 import { Spinner } from "@nextui-org/react"
 

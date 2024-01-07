@@ -1,7 +1,7 @@
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Skeleton } from "@nextui-org/react"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
-import React from "react"
+
 import { layout } from "@/app/search/styles"
 import Link from "next/link"
 import { AtUri } from "@atproto/api"
