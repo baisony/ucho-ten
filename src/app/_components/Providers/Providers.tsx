@@ -2,11 +2,11 @@
 
 import { NextUIProvider } from "@nextui-org/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import * as React from "react"
+import { ReactNode, useState } from "react"
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental"
 
-export function Providers({ children }: { children: React.ReactNode }) {
-    const [queryClient] = React.useState(
+export function Providers({ children }: { children: ReactNode }) {
+    const [queryClient] = useState(
         () =>
             new QueryClient({
                 defaultOptions: {

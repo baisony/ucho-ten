@@ -7,41 +7,61 @@ import {
 import {
     FeedViewPost,
     PostView,
+    ReplyRef,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
+const handleHideRepost = (
+    item: FeedViewPost | PostView,
+    hideRepost: boolean | undefined
+) => {
+    return item?.reason && hideRepost
+}
+
+const handleFrontMention = (post: PostView) => {
+    if (
+        ((post.record as PostView)?.text as string)?.startsWith("@") &&
+        (post.record as PostView)?.facets
+    ) {
+        //@ts-ignore
+        post.record.facets.map((facet: any) => {
+            if (facet.index.byteStart == 0) {
+                return true
+            }
+        })
+    }
+    return false
+}
+
 export const filterDisplayPosts = (
-    posts: FeedViewPost[],
+    posts: FeedViewPost[] | PostView[],
     sessionUser: AppBskyActorDefs.ProfileViewDetailed | null,
-    agent: BskyAgent | null
-): FeedViewPost[] => {
+    agent: BskyAgent | null,
+    hideRepost?: boolean
+): FeedViewPost[] | PostView[] => {
     const seenUris = new Set<string>()
+    //@ts-ignore
     return posts.filter((item) => {
-        const uri = item.post.uri
-        const authorDID = item.post.author?.did
+        //@ts-ignore
+        const postData: PostView = item.post ?? item
+        const uri = postData.uri
+        const authorDID = postData.author?.did
 
         let displayPost: boolean | null = null
 
         if (
-            //@ts-ignore
-            (item.post.record as PostView)?.text?.startsWith("@") &&
-            (item.post.record as PostView)?.facets
+            handleHideRepost(item, hideRepost) ||
+            handleFrontMention(postData)
         ) {
-            //@ts-ignore
-            item.post.record.facets.map((facet: any) => {
-                if (facet.index.byteStart == 0) {
-                    displayPost = false
-                    return
-                }
-            })
+            return false
         }
 
         if (
-            item?.post?.record &&
-            (item.post.record as PostView)?.reply &&
+            (item?.post as PostView)?.record &&
+            (postData.record as PostView)?.reply &&
             !item.reply
         ) {
-            const replyParent = ((item.post.record as PostView).reply as any)
+            const replyParent = ((postData.record as PostView).reply as any)
                 ?.parent
 
             if (replyParent && !item.reply) {
@@ -69,9 +89,11 @@ export const filterDisplayPosts = (
             }
         }
 
-        if (item.reply && !item.reply.isFakeArray) {
-            const rootDID = (item.reply.root as PostView).author.did
-            const parentDID = (item.reply.parent as PostView).author.did
+        if (item?.reply && !(item?.reply as ReplyRef)?.isFakeArray) {
+            const rootDID = ((item.reply as ReplyRef).root as PostView).author
+                .did
+            const parentDID = ((item.reply as ReplyRef).parent as PostView)
+                .author.did
 
             if (item.reason) {
                 // repost
@@ -85,7 +107,7 @@ export const filterDisplayPosts = (
             } else displayPost = authorDID === sessionUser?.did
         }
 
-        const record = item.post.record as AppBskyFeedPost.Record
+        const record = postData.record as AppBskyFeedPost.Record
 
         if (record.reply) {
             const rootDID = getDIDfromAtURI(record.reply.root.uri)
@@ -94,15 +116,7 @@ export const filterDisplayPosts = (
             if (authorDID === rootDID && authorDID === parentDID) {
                 // self reply
                 displayPost = true
-            } else if (parentDID === sessionUser?.did) {
-                // reply to my post
-                displayPost = true
-            } else if (authorDID === sessionUser?.did) {
-                // my reply
-                displayPost = true
-            } else {
-                displayPost = false
-            }
+            } else displayPost = parentDID === sessionUser?.did
         }
 
         if (!seenUris.has(uri)) {

@@ -1,14 +1,12 @@
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { Image, Skeleton } from "@nextui-org/react"
-import defaultIcon from "../../../../public/images/icon/default_icon.svg"
-import React from "react"
+import { Skeleton } from "@nextui-org/react"
+import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
+
 import { layout } from "@/app/search/styles"
 import Link from "next/link"
 import { AtUri } from "@atproto/api"
-import { DummyHeader } from "@/app/_components/DummyHeader"
 
 export interface ViewFeedCardCellProps {
-    isTop: boolean
     className?: string
     isSkeleton?: boolean
     now?: Date
@@ -21,12 +19,10 @@ export interface ViewFeedCardCellProps {
 
 export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
     const { userCard } = layout()
-    const { isTop, isSkeleton, feed, nextQueryParams } = props
+    const { isSkeleton, feed, nextQueryParams } = props
     const feedURI = new AtUri(feed.uri)
     return (
         <>
-            {isTop && <DummyHeader isSearchScreen={props.isSearchScreen} />}
-
             <Link
                 className={`${userCard()}`}
                 style={{ cursor: isSkeleton ? "default" : "pointer" }}
@@ -47,9 +43,9 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
                         />
                     )}
                     {!isSkeleton && (
-                        <Image
+                        <img
                             className={`h-[35px] w-[35px] z-[0]`}
-                            src={feed?.avatar || defaultIcon.src}
+                            src={feed?.avatar || defaultFeedIcon.src}
                             alt={"avatar image"}
                         />
                     )}

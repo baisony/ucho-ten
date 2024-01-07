@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { viewSideBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -13,7 +13,6 @@ import {
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
-import "react-circular-progressbar/dist/styles.css"
 import { useDisclosure } from "@nextui-org/react"
 import { useRouter } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
@@ -87,17 +86,19 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
         AuthorHandle,
         NavBarIcon,
         NavBarItem,
+        NavBarContainer,
         // appearanceTextColor,
     } = viewSideBar()
 
     return (
-        <div>
+        <>
             <main
                 className={background()}
                 onClick={(e) => {
                     e.stopPropagation()
                 }}
             >
+                <div className={"w-full h-[env(safe-area-inset-top)]"} />
                 <Link
                     className={AuthorIconContainer()}
                     onClick={() => {
@@ -109,16 +110,19 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                 >
                     <div
                         className={
-                            "h-[64px] w-[64px] rounded-[10px] overflow-hidden"
+                            "h-[64px] w-[64px] rounded-full overflow-hidden ml-[35px] mt-[15px]"
                         }
                     >
                         <img
                             className={"h-[64px] w-[64px] rounded-full"}
                             src={userProfileDetailed?.avatar || defaultIcon.src}
                             alt={"avatar"}
+                            decoding={"async"}
+                            loading={"eager"}
+                            fetchPriority={"high"}
                         />
                     </div>
-                    <div className={"ml-[12px] w-[204px]"}>
+                    <div className={"ml-[35px]"}>
                         <div className={AuthorDisplayName()}>
                             {userProfileDetailed?.displayName ||
                                 userProfileDetailed?.handle}
@@ -136,10 +140,12 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         }}
                         href={`/bookmarks?${nextQueryParams.toString()}`}
                     >
-                        <FontAwesomeIcon
-                            icon={faBookmark}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faBookmark}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.bookmark")}</div>
                     </Link>
                     <Link
@@ -149,10 +155,12 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         }}
                         href={`/settings#mute?${nextQueryParams.toString()}`}
                     >
-                        <FontAwesomeIcon
-                            icon={faVolumeXmark}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faVolumeXmark}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.mute")}</div>
                     </Link>
                     <Link
@@ -162,10 +170,12 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         }}
                         href={`/feeds?${nextQueryParams.toString()}`}
                     >
-                        <FontAwesomeIcon
-                            icon={faRss}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faRss}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.feeds")}</div>
                     </Link>
                     <Link
@@ -177,10 +187,12 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         href={`/profile/${agent?.session
                             ?.did}?${nextQueryParams.toString()}`}
                     >
-                        <FontAwesomeIcon
-                            icon={faUser}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faUser}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideMenu.profile")}</div>
                     </Link>
                     <Link
@@ -190,10 +202,12 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         }}
                         href={`/settings?${nextQueryParams.toString()}`}
                     >
-                        <FontAwesomeIcon
-                            icon={faGear}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faGear}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.preferences")}</div>
                     </Link>
                     <a
@@ -208,42 +222,53 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             openSideBar(false)
                         }}
                     >
-                        <FontAwesomeIcon
-                            icon={faFlag}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faFlag}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.bugReport")}</div>
                     </a>
                 </div>
+                <div
+                    className={
+                        "ml-[35px] mr-[35px] border-t-[1px] border-[#E3E3E3]"
+                    }
+                />
                 <div className={Footer()}>
                     <Link
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             openSideBar(false)
                         }}
                         href={`/about?${nextQueryParams.toString()}`}
                     >
-                        <FontAwesomeIcon
-                            icon={faCircleQuestion}
-                            className={NavBarIcon()}
-                        />
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faCircleQuestion}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.about")}</div>
                     </Link>
                     <div
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             openSideBar(false)
                             accountSwitchModalDisclosure.onOpen()
                         }}
                     >
-                        <FontAwesomeIcon
-                            icon={faUsers}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faUsers}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.SwitchAccount")}</div>
                     </div>
                     <div
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             if (isMobile) {
                                 const res = window.confirm(
@@ -262,12 +287,22 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             }
                         }}
                     >
-                        <FontAwesomeIcon
-                            icon={faRightFromBracket}
-                            className={NavBarIcon()}
-                        ></FontAwesomeIcon>
+                        <div className={NavBarContainer()}>
+                            <FontAwesomeIcon
+                                icon={faRightFromBracket}
+                                className={NavBarIcon()}
+                            />
+                        </div>
                         <div>{t("components.ViewSideBar.logout")}</div>
                     </div>
+                </div>
+                <div
+                    className={
+                        "ml-[35px] absolute bottom-[calc(20px+env(safe-area-inset-bottom))] text-[#f2f2f2] dark:text-[#D7D7D7] text-xs"
+                    }
+                >
+                    <div className={"versionNumber"}>version: 1.0.2</div>
+                    <div className={"codeName"}>code name: Nirvana</div>
                 </div>
             </main>
 
@@ -295,7 +330,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     signInModalDisclosure.onOpen()
                 }}
             />
-        </div>
+        </>
     )
 }
 

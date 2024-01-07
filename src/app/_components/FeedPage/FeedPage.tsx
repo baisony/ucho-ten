@@ -7,8 +7,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
@@ -25,6 +23,15 @@ import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import dynamic from "next/dynamic"
+
+import { SwipeRefreshList } from "react-swipe-down-refresh"
+//import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
+import "./SwipeRefreshListStyle.css"
+import "./styles.css"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useHideRepost } from "@/app/_atoms/hideRepost"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -69,6 +76,7 @@ const FeedPage = ({
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [muteWords] = useWordMutes()
+    const [hideRepost] = useHideRepost()
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
@@ -84,6 +92,7 @@ const FeedPage = ({
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const isScrolling = useRef<boolean>(false)
 
     const getFeedKeys = {
         all: ["getFeed"] as const,
@@ -93,8 +102,6 @@ const FeedPage = ({
     }
 
     useEffect(() => {
-        //console.log(shouldScrollToTop.current, scrollRef.current)
-
         if (shouldScrollToTop.current && scrollRef.current) {
             scrollRef.current.scrollTop = 0
 
@@ -110,24 +117,17 @@ const FeedPage = ({
 
     const filterPosts = (posts: FeedViewPost[]) => {
         return posts.filter((post) => {
-            const shouldInclude = muteWords.some((muteWord) => {
-                if (post.post?.embed?.record) {
-                    const embedRecord = post.post.embed.record
-                    if (muteWord.isActive) {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        return embedRecord?.value?.text.includes(muteWord.word)
-                    } else {
-                        return false
-                    }
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    return post.post.record?.text.includes(muteWord.word)
+            return !muteWords.some((muteWord) => {
+                if (muteWord.isActive) {
+                    const textToCheck =
+                        //@ts-ignore
+                        post.post?.embed?.record?.value?.text ||
+                        //@ts-ignore
+                        post.post?.record?.text
+                    return textToCheck?.includes(muteWord.word)
                 }
+                return false
             })
-
-            return !shouldInclude
         })
     }
 
@@ -157,13 +157,15 @@ const FeedPage = ({
                 const { feed } = data
                 const filteredData =
                     feedKey === "following"
-                        ? filterDisplayPosts(feed, userProfileDetailed, agent)
+                        ? filterDisplayPosts(
+                              feed,
+                              userProfileDetailed,
+                              agent,
+                              hideRepost
+                          )
                         : feed
-
+                //@ts-ignore
                 const muteWordFilter = filterPosts(filteredData)
-
-                // console.log(`check new ${feedKey}`, filteredData)
-                // console.log(`timeline ${feedKey}`, timeline)
 
                 setNewTimeline(muteWordFilter)
 
@@ -248,9 +250,14 @@ const FeedPage = ({
 
             const filteredData =
                 feedKey === "following"
-                    ? filterDisplayPosts(posts, userProfileDetailed, agent)
+                    ? filterDisplayPosts(
+                          posts,
+                          userProfileDetailed,
+                          agent,
+                          hideRepost
+                      )
                     : posts
-
+            //@ts-ignore
             const muteWordFilter = filterPosts(filteredData)
 
             console.log("filteredData", filteredData)
@@ -343,82 +350,48 @@ const FeedPage = ({
 
     const handleValueChange = (newValue: any) => {
         if (!timeline) return
-        const foundObject = timeline.findIndex(
-            (item) => item.post.uri === newValue.postUri
-        )
-        console.log(newValue.postUri)
-        console.log(foundObject)
 
-        if (foundObject !== -1) {
-            // console.log(timeline[foundObject])
-            switch (newValue.reaction) {
-                case "like":
-                    setTimeline((prevData) => {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-ignore
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.like =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unlike":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.like =
-                                undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "repost":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unrepost":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "delete":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        updatedData.splice(foundObject, 1)
-                        return updatedData
-                    })
-                //timeline.splice(foundObject, 1)
-            }
-            // console.log(timeline)
+        const foundObjectIndex = timeline.findIndex(
+            (item) => item.post && item.post.uri === newValue.postUri
+        )
+
+        if (foundObjectIndex !== -1) {
+            setTimeline((prevData) => {
+                if (!prevData) return prevData
+
+                const updatedData = [...prevData]
+
+                const foundObject = updatedData[foundObjectIndex]
+                if (
+                    foundObject &&
+                    foundObject.post &&
+                    foundObject.post.viewer
+                ) {
+                    switch (newValue.reaction) {
+                        case "like":
+                        case "unlike":
+                            foundObject.post.viewer.like =
+                                newValue.reaction === "like"
+                                    ? newValue.reactionUri
+                                    : undefined
+                            break
+                        case "repost":
+                        case "unrepost":
+                            foundObject.post.viewer.repost =
+                                newValue.reaction === "repost"
+                                    ? newValue.reactionUri
+                                    : undefined
+                            break
+                        case "delete":
+                            updatedData.splice(foundObjectIndex, 1)
+                            break
+                        default:
+                            break
+                    }
+                }
+
+                return updatedData
+            })
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"
@@ -446,95 +419,132 @@ const FeedPage = ({
     }
 
     if (data !== undefined && !isEndOfFeed) {
-        // console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
     }
 
+    const lazyCheckNewTimeline = async () => {
+        if (!agent) return
+
+        try {
+            let response: AppBskyFeedGetTimeline.Response
+
+            if (feedKey === "following") {
+                response = await agent.getTimeline({
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            } else {
+                response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            }
+
+            const { data } = response
+
+            if (data) {
+                const { feed } = data
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(
+                              feed,
+                              userProfileDetailed,
+                              agent,
+                              hideRepost
+                          )
+                        : feed
+                //@ts-ignore
+                const muteWordFilter = filterPosts(filteredData)
+
+                const mergedTimeline = mergePosts(muteWordFilter, timeline)
+
+                if (!mergedTimeline[0]?.post) return
+                //@ts-ignore
+                setTimeline(mergedTimeline)
+                setNewTimeline([])
+                setHasUpdate(false)
+
+                if (mergedTimeline.length > 0) {
+                    latestCID.current = (mergedTimeline[0].post as PostView).cid
+                }
+
+                await queryClient.refetchQueries({
+                    queryKey: ["getFeed", feedKey],
+                })
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     return (
         <>
-            {hasUpdate && (
-                <div
-                    className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
-                    }
-                >
-                    <div
-                        className={
-                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
+            {hasUpdate && <RefreshButton handleRefresh={handleRefresh} />}
+            <SwipeRefreshList
+                onRefresh={async () => {
+                    await lazyCheckNewTimeline()
+                }}
+                className={"swiperRefresh h-full w-full"}
+                threshold={150}
+                disabled={isScrolling.current}
+            >
+                <Virtuoso
+                    scrollerRef={(ref) => {
+                        if (ref instanceof HTMLElement) {
+                            scrollRef.current = ref
+                            // setListScrollRefAtom(ref)
                         }
-                        onClick={handleRefresh}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
-                        {t("button.newPosts")}
-                    </div>
-                </div>
-            )}
-            <Virtuoso
-                scrollerRef={(ref) => {
-                    if (ref instanceof HTMLElement) {
-                        scrollRef.current = ref
-                        // setListScrollRefAtom(ref)
-                    }
-                }}
-                ref={virtuosoRef}
-                //@ts-ignore
-                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                context={{ hasMore }}
-                increaseViewportBy={200}
-                overscan={200}
-                data={timeline ?? undefined}
-                totalCount={timeline ? timeline.length : 20}
-                atTopThreshold={100}
-                atBottomThreshold={100}
-                itemContent={(index, item) => (
-                    <>
-                        {item ? (
-                            <ViewPostCard
-                                key={`feed-${item.post.uri}`}
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
+                    }}
+                    ref={virtuosoRef}
+                    isScrolling={(e) => {
+                        isScrolling.current = e
+                    }}
+                    //@ts-ignore
+                    restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
+                    context={{ hasMore }}
+                    increaseViewportBy={200}
+                    overscan={200}
+                    data={timeline ?? undefined}
+                    totalCount={timeline ? timeline.length : 20}
+                    atTopThreshold={100}
+                    atBottomThreshold={100}
+                    itemContent={(index, item) => (
+                        <>
+                            {item ? (
+                                <ViewPostCard
+                                    key={`feed-${item.post.uri}`}
+                                    {...{
+                                        isMobile,
+                                        isSkeleton: false,
+                                        bodyText: processPostBodyText(
+                                            nextQueryParams,
+                                            item.post || null
+                                        ),
+                                        postJson: item.post || null,
+                                        json: item,
+                                        now,
                                         nextQueryParams,
-                                        item.post || null
-                                    ),
-                                    postJson: item.post || null,
-                                    json: item,
-                                    now,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                    isViaUFeed: isViaUFeed,
-                                }}
-                            />
-                        ) : (
-                            <ViewPostCard
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: true,
-                                    bodyText: undefined,
-                                    nextQueryParams,
-                                    t,
-                                }}
-                            />
-                        )}
-                    </>
-                )}
-                components={{
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    Footer: !isEndOfFeed
-                        ? ListFooterSpinner
-                        : ListFooterNoContent,
-                }}
-                endReached={loadMore}
-                className={notNulltimeline()}
-            />
+                                        t,
+                                        handleValueChange: handleValueChange,
+                                        handleSaveScrollPosition:
+                                            handleSaveScrollPosition,
+                                        isViaUFeed: isViaUFeed,
+                                    }}
+                                />
+                            ) : (
+                                <ViewPostCardSkelton />
+                            )}
+                        </>
+                    )}
+                    components={{
+                        Header: () => <DummyHeader />,
+                    }}
+                    endReached={loadMore}
+                    className={notNulltimeline()}
+                />
+            </SwipeRefreshList>
         </>
     )
 }

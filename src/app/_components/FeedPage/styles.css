@@ -1,0 +1,5 @@
+div[data-test-id="virtuoso-item-list"] {
+    height: 100%;
+    width: 100%;
+    min-width: 100%;
+}

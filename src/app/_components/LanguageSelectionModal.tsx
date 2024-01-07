@@ -12,20 +12,22 @@ import {
     Selection,
     ModalHeader,
 } from "@nextui-org/react"
+import { faCheck } from "@fortawesome/free-solid-svg-icons"
 import { LANGUAGES } from "../_constants/lanuages"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 interface LanguagesSelectionModalProps {
     isOpen: boolean
     onOpenChange: (isOpen: boolean) => void
     onSelectionChange: (keys: Selection) => any
-    postContentLanguages: Set<string>
+    PostLanguage: string[]
 }
 
 const LanguagesSelectionModal = ({
     isOpen,
     onOpenChange,
     onSelectionChange,
-    postContentLanguages,
+    PostLanguage,
 }: LanguagesSelectionModalProps) => {
     return (
         <Modal
@@ -45,9 +47,9 @@ const LanguagesSelectionModal = ({
                                     hideHeader
                                     //color={selectedColor}
                                     disallowEmptySelection
-                                    selectionMode="multiple"
-                                    selectedKeys={postContentLanguages}
-                                    defaultSelectedKeys={postContentLanguages}
+                                    selectionMode="single"
+                                    selectedKeys={PostLanguage}
+                                    defaultSelectedKeys={PostLanguage}
                                     onSelectionChange={onSelectionChange}
                                     aria-label="Language table"
                                 >
@@ -66,7 +68,15 @@ const LanguagesSelectionModal = ({
                                                     </TableCell>
                                                     <TableCell> </TableCell>
                                                     <TableCell> </TableCell>
-                                                    <TableCell> </TableCell>
+                                                    <TableCell>
+                                                        {PostLanguage.includes(
+                                                            item.code
+                                                        ) && (
+                                                            <FontAwesomeIcon
+                                                                icon={faCheck}
+                                                            />
+                                                        )}
+                                                    </TableCell>
                                                 </TableRow>
                                             )
                                         })}

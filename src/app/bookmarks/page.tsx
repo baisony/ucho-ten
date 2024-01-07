@@ -1,17 +1,35 @@
 "use client"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
-import { useCurrentMenuType } from "../_atoms/headerMenu"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { isMobile } from "react-device-detect"
 import { Virtuoso } from "react-virtuoso"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination, Virtual } from "swiper/modules"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+    useMenuIndexChangedByMenu,
+} from "../_atoms/headerMenu"
+import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
+
+import "swiper/css"
+import "swiper/css/pagination"
+import { useAtom } from "jotai"
+import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+
+SwiperCore.use([Virtual])
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
@@ -24,6 +42,19 @@ export default function Root() {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menus] = useHeaderMenusByHeaderAtom()
+    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
+        useMenuIndexChangedByMenu()
+    const [currentMenuType] = useCurrentMenuType()
+    const [tappedTabbarButton, setTappedTabbarButton] =
+        useTappedTabbarButtonAtom()
+
+    const [now, setNow] = useState<Date>(new Date())
+    const [disableSlideVerticalScroll] = useState<boolean>(false)
+
+    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("bookmarks")
@@ -157,57 +188,111 @@ export default function Root() {
 
     return (
         <>
-            <div className={"h-full w-full z-[100]"}>
-                {timeline.length !== 0 && (
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                //scrollRef.current = ref
-                            }
-                        }}
-                        //context={{ hasMore }}
-                        ref={virtuosoRef}
-                        //@ts-ignore
-                        restoreStateFrom={scrollPositions[`bookmark`]}
-                        overscan={200}
-                        increaseViewportBy={200}
-                        data={timeline}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, data) => (
-                            <ViewPostCard
-                                key={`bookmark-${data.uri}`}
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
-                                        nextQueryParams,
-                                        data || null
-                                    ),
-                                    postJson: data || null,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
-                                }}
-                            />
-                        )}
-                        //endReached={loadMore}
-                        className={nullTimeline()}
-                    />
-                )}
-                {timeline.length === 0 && (
-                    <div
-                        className={
-                            "w-full h-full flex items-center justify-center text-black dark:text-white"
-                        }
-                    >
-                        {t("pages.bookmarks.noContent")}
-                    </div>
-                )}
-            </div>
+            <Swiper
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper
+                }}
+                cssMode={isMobile}
+                pagination={{ type: "custom", clickable: false }}
+                hidden={true} // ??
+                modules={[Pagination]}
+                className="swiper-home"
+                style={{ height: "100%" }}
+                touchEventsTarget={"container"}
+                touchRatio={1}
+                threshold={1}
+                resistance={false}
+                longSwipes={false}
+                initialSlide={menuIndex}
+                touchStartForcePreventDefault={true}
+                preventInteractionOnTransition={true}
+                touchStartPreventDefault={false}
+                edgeSwipeDetection={true}
+            >
+                {menus.inbox.map((menu, index) => {
+                    return (
+                        <>
+                            <SwiperSlide key={`swiperslide-home-${index}`}>
+                                <div className={"h-full w-full z-[100]"}>
+                                    {timeline.length !== 0 && (
+                                        <Virtuoso
+                                            scrollerRef={(ref) => {
+                                                if (
+                                                    ref instanceof HTMLElement
+                                                ) {
+                                                    //scrollRef.current = ref
+                                                }
+                                            }}
+                                            //context={{ hasMore }}
+                                            ref={virtuosoRef}
+                                            restoreStateFrom={
+                                                //@ts-ignore
+                                                scrollPositions[`bookmark`]
+                                            }
+                                            overscan={200}
+                                            increaseViewportBy={200}
+                                            data={timeline ?? undefined}
+                                            totalCount={
+                                                timeline ? timeline.length : 20
+                                            }
+                                            atTopThreshold={100}
+                                            atBottomThreshold={100}
+                                            itemContent={(index, data) => (
+                                                <>
+                                                    {data ? (
+                                                        <ViewPostCard
+                                                            key={`bookmark-${data.uri}`}
+                                                            {...{
+                                                                isMobile,
+                                                                isSkeleton:
+                                                                    false,
+                                                                bodyText:
+                                                                    processPostBodyText(
+                                                                        nextQueryParams,
+                                                                        data ||
+                                                                            null
+                                                                    ),
+                                                                postJson:
+                                                                    data ||
+                                                                    null,
+                                                                nextQueryParams,
+                                                                t,
+                                                                handleValueChange:
+                                                                    handleValueChange,
+                                                                handleSaveScrollPosition:
+                                                                    handleSaveScrollPosition,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <ViewPostCardSkelton />
+                                                    )}
+                                                </>
+                                            )}
+                                            components={{
+                                                Header: () => <DummyHeader />,
+                                            }}
+                                            //endReached={loadMore}
+                                            className={nullTimeline()}
+                                        />
+                                    )}
+                                    {timeline.length === 0 && (
+                                        <div
+                                            className={
+                                                "w-full h-full flex items-center justify-center text-black dark:text-white"
+                                            }
+                                        >
+                                            {t("pages.bookmarks.noContent")}
+                                        </div>
+                                    )}
+                                </div>
+                            </SwiperSlide>
+                            <SwiperSlide>
+                                <SwiperEmptySlide />
+                            </SwiperSlide>
+                        </>
+                    )
+                })}
+            </Swiper>
         </>
     )
 }

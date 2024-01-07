@@ -1,9 +1,7 @@
-import React, { useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { Linkcard } from "../Linkcard"
-import "react-circular-progressbar/dist/styles.css"
-import { Image, ScrollShadow, Skeleton } from "@nextui-org/react"
-import "react-swipeable-list/dist/styles.css"
+import { ScrollShadow, Skeleton } from "@nextui-org/react"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
     ImageGalleryObject,

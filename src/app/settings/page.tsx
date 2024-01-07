@@ -20,7 +20,7 @@ import {
     TableRow,
     useDisclosure,
 } from "@nextui-org/react"
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -61,6 +61,7 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
+import { useHideRepost } from "@/app/_atoms/hideRepost"
 
 const Page = () => {
     const [userPreferences] = useUserPreferencesAtom()
@@ -145,6 +146,7 @@ const SettingsGeneralPage = ({
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [contentFontSize, setContentFontSize] = useContentFontSize()
+    const [hideRepost, setHideRepost] = useHideRepost()
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -188,7 +190,39 @@ const SettingsGeneralPage = ({
                     "w-full pt-[5px] pb-[7px] text-black dark:text-white"
                 }
             >
-                <div className={"font-[600]"}>
+                <div
+                    className={
+                        "font-[600] sm:text-black lg:text-white dark:text-white"
+                    }
+                >
+                    {t("pages.settings.timeline")}
+                </div>
+                <Table hideHeader className={"w-full"}>
+                    <TableHeader>
+                        <TableColumn> </TableColumn>
+                        <TableColumn> </TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                {t("pages.settings.hideRepost")}
+                            </TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
+                                <Switch
+                                    isSelected={hideRepost}
+                                    onValueChange={setHideRepost}
+                                />
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+                <div
+                    className={
+                        "font-[600] sm:text-black lg:text-white dark:text-white"
+                    }
+                >
                     {t("pages.settings.appearance")}
                 </div>
                 <Table hideHeader className={"w-full"}>
@@ -201,7 +235,9 @@ const SettingsGeneralPage = ({
                     <TableBody>
                         <TableRow>
                             <TableCell>{t("pages.settings.theme")}</TableCell>
-                            <TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
                                 <ButtonGroup>
                                     <Button
                                         isDisabled={
@@ -255,7 +291,9 @@ const SettingsGeneralPage = ({
                             <TableCell>
                                 {t("pages.settings.displayLanguage")}
                             </TableCell>
-                            <TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
                                 <Select
                                     size={"sm"}
                                     label={t("pages.settings.selectLanguage")}
@@ -288,7 +326,9 @@ const SettingsGeneralPage = ({
                             <TableCell>
                                 {t("pages.settings.translateTo")}
                             </TableCell>
-                            <TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
                                 <Select
                                     size={"sm"}
                                     label={t("pages.settings.selectLanguage")}
@@ -318,7 +358,9 @@ const SettingsGeneralPage = ({
                             <TableCell>
                                 {t("pages.settings.contentFontSize")}
                             </TableCell>
-                            <TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
                                 <Select
                                     size={"sm"}
                                     label={t("pages.settings.size")}
@@ -413,7 +455,6 @@ const SettingsGeneralPage = ({
                         style={{ pointerEvents: "none" }}
                     >
                         <ViewPostCard
-                            isTop={false}
                             t={t}
                             bodyText={processPostBodyText(
                                 nextQueryParams,
@@ -907,8 +948,8 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                         )}
                     </ModalContent>
                 </Modal>
-                <div className="text-black dark:text-white">
-                    <div className={"md:h-[100px] lg:h-[50px] h-[85px]"} />
+                <div className="text-black dark:text-white w-full h-full">
+                    <DummyHeader />
                     <div className={"font-bold flex "}>
                         <div>{t("pages.mute.title")}</div>
                         <div className={"ml-[15px]"}>

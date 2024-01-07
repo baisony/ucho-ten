@@ -1,6 +1,6 @@
 "use client"
 
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -30,6 +30,7 @@ import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 SwiperCore.use([Virtual])
 
@@ -162,8 +163,8 @@ const Root = () => {
                             {menu.info === "random-bookmark" &&
                                 bookmarks.length > 0 && (
                                     <>
+                                        <DummyHeader />
                                         <ViewPostCard
-                                            isTop={true}
                                             bodyText={processPostBodyText(
                                                 nextQueryParams,
                                                 randomPost

@@ -46,6 +46,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
+import "./lightbox.css"
 
 const ViewSideMenu = dynamic(
     () =>
@@ -79,10 +80,9 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
-    const [unreadNotification, setUnreadNotification] =
-        useUnreadNotificationAtom()
+    const [, setUnreadNotification] = useUnreadNotificationAtom()
 
-    const [translateTo, setTranslateTo] = useTranslationLanguage()
+    const [translateTo] = useTranslationLanguage()
 
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
@@ -112,10 +112,40 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
+    const headerAndSlash = (url: string) => {
+        return url.replace(/https?:\/\//, "").replace(/\/$/, "")
+    }
+
     const refreshSession = async () => {
         if (!agent) return
-        if (!agent.session) return
-        await agent.resumeSession(agent?.session)
+        if (!agent?.session) return
+        console.log(agent?.session)
+
+        try {
+            const url = new URL(agent?.service)
+            const req = {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${agent?.session.refreshJwt}`,
+                },
+            }
+            const res = await fetch(
+                `${url}xrpc/com.atproto.server.refreshSession`,
+                req
+            )
+            const json = await res.json()
+
+            const prevSession = agent
+            if (!prevSession?.session) return
+            prevSession.session.accessJwt = json.accessJwt
+            prevSession.session.refreshJwt = json.refreshJwt
+            const sessionJson = {
+                server: headerAndSlash(agent?.service.toString()),
+                session: agent.session,
+            }
+            setAgent(prevSession)
+            localStorage.setItem("session", JSON.stringify(sessionJson))
+        } catch (e) {}
     }
     useEffect(() => {
         if (!agent) return
@@ -587,9 +617,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             style={{
                 overscrollBehaviorY: "none",
                 WebkitOverflowScrolling: "touch",
+                overscrollBehavior: "none",
+                overflow: "hidden",
+                height: "100%",
+                width: "100%",
+                //背景をスクロールさせない
+                position: "fixed",
             }}
         >
-            <div id="burger-outer-container">
+            <div id="burger-outer-container" className={"h-full w-full"}>
                 <BurgerPush
                     className={"backdrop-blur-[5px]"}
                     outerContainerId="burger-outer-container"
@@ -643,13 +679,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                     />
                                 )}
                                 <div
-                                    className={`pt-[0px] h-[calc(100%-50px-env(safe-area-inset-bottom))] ${
-                                        isLoginPath && `h-full`
+                                    className={`pt-[0px] ${
+                                        isLoginPath
+                                            ? `h-full`
+                                            : `h-[calc(100dvh-50px-env(safe-area-inset-bottom))]`
                                     } lg:h-full relative`}
                                 >
                                     {shouldFillPageBackground &&
                                         statusCode !== 404 && (
-                                            <div className="absolute top-0 left-0 flex justify-center w-full h-full lg:hidden">
+                                            <div className="absolute top-[env(safe-area-inset-top)] left-0 flex justify-center w-full h-full lg:hidden">
                                                 <div
                                                     className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
                                                         isSearchScreen

@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    useLayoutEffect,
+} from "react"
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
     GeneratorView,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import {
-    AppBskyEmbedExternal,
-    AppBskyEmbedImages,
-    AppBskyEmbedRecord,
-    AppBskyEmbedRecordWithMedia,
-    AppBskyFeedPost,
-} from "@atproto/api"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -32,7 +32,7 @@ import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
 import { Linkcard } from "@/app/_components/Linkcard"
-import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react"
+import { Button, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
 import {
@@ -48,15 +48,15 @@ import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
-import ViewPostCardSkelton from "./ViewPostCardSkelton"
 import EmbedMedia from "./EmbedMedia"
 import EmbedImages from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
-import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
+import { translateText } from "@/app/_lib/post/translate"
+import { syncContents } from "@/app/_lib/sync/syncBookmark"
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
 //import MoreDropDownMenu from "./MoreDropDownMenu"
@@ -69,8 +69,8 @@ const MoreDropDownMenu = dynamic(
     { ssr: true }
 )
 
-const PostModal = dynamic(
-    () => import("@/app/_components/PostModal").then((mod) => mod.PostModal),
+const ReplyModal = dynamic(
+    () => import("@/app/_components/ReplyModal").then((mod) => mod.ReplyModal),
     { ssr: true }
 )
 
@@ -88,7 +88,6 @@ const MobileOptionModal = dynamic(
 )
 
 export interface ViewPostCardProps {
-    isTop: boolean
     isSkeleton?: boolean
     isMobile?: boolean
     isDragActive?: boolean
@@ -103,16 +102,13 @@ export interface ViewPostCardProps {
     t: any
     handleValueChange?: (value: any) => void
     handleSaveScrollPosition?: () => void
-    isSearchScreen?: boolean
     isViaUFeed?: boolean
     isDisplayMode?: boolean
 }
 
 export const ViewPostCard = (props: ViewPostCardProps) => {
     const {
-        isTop,
         isMobile,
-        isSkeleton,
         postJson,
         quoteJson,
         json,
@@ -124,7 +120,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         t,
         handleValueChange,
         handleSaveScrollPosition,
-        isSearchScreen,
         isViaUFeed,
     } = props
 
@@ -181,45 +176,36 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     const [translateError, setTranslateError] = useState<boolean>(false)
     const [translatedJsonData, setTranslatedJsonData] = useState<any>(null)
     const [isMuted, setIsMuted] = useState<boolean>(!!postJson?.viewer?.muted)
+    const createDisclosure = () => {
+        const disclosure = useDisclosure()
+        return {
+            isOpen: disclosure.isOpen,
+            onOpen: disclosure.onOpen,
+            onOpenChange: disclosure.onOpenChange,
+        }
+    }
+
     const {
         isOpen: isOpenOption,
         onOpen: onOpenOption,
         onOpenChange: onOpenChangeOption,
-    } = useDisclosure()
+    } = createDisclosure()
 
     const {
         isOpen: isOpenReply,
         onOpen: onOpenReply,
         onOpenChange: onOpenChangeReply,
-    } = useDisclosure()
+    } = createDisclosure()
 
     const {
         isOpen: isOpenReport,
         onOpen: onOpenReport,
         onOpenChange: onOpenChangeReport,
-    } = useDisclosure()
+    } = createDisclosure()
 
     const syncBookmarks = async (bookmarklist: Bookmark[]) => {
         if (!agent) return
-        const syncData = {
-            bookmarks: bookmarklist,
-            muteWords: muteWords,
-        }
-        try {
-            const syncData_string = JSON.stringify(syncData)
-            const data = localStorage.getItem("session")
-            if (!data) return
-            const res = await fetch(`/api/setSettings/${data}`, {
-                method: "POST",
-                body: syncData_string,
-            })
-            //console.log(await res)
-            if (res.status !== 200) {
-                console.log("sync error")
-            }
-        } catch (e) {
-            console.log(e)
-        }
+        await syncContents(bookmarklist, muteWords)
     }
 
     const handleBookmark = async (uri: string) => {
@@ -233,7 +219,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         }
 
         const index = bookmarks.findIndex(
-            (bookmark: any) => bookmark.uri === uri
+            (bookmark: Bookmark) => bookmark.uri === uri
         )
         console.log(index)
 
@@ -283,9 +269,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }
 
     const handleLike = async () => {
-        if (loading) {
-            return
-        }
+        if (loading) return
 
         setLoading(true)
 
@@ -308,177 +292,59 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         setLoading(false)
     }
 
-    const embedImages = useMemo((): AppBskyEmbedImages.View | null => {
-        const quoteEmbed =
-            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
-                ? quoteJson?.embeds[0]
-                : null
-        const embed = quoteEmbed || postView?.embed || null
+    const useEmbed = useMemo(() => {
+        const extractEmbedOfType = (type: any) => {
+            const quoteEmbed =
+                quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
+                    ? quoteJson?.embeds[0]
+                    : null
+            const embed = quoteEmbed || postView?.embed || null
 
-        if (!embed?.$type) {
-            return null
+            if (!embed?.$type) return null
+
+            if ((embed?.record as PostView)?.$type === type) return embed as any
+
+            return embed.$type === type ? (embed as any) : null
         }
 
-        if (embed.$type === "app.bsky.embed.images#view") {
-            return embed as AppBskyEmbedImages.View
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedMedia = useMemo((): AppBskyEmbedRecordWithMedia.View | null => {
-        const quoteEmbed =
-            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
-                ? quoteJson?.embeds[0]
-                : null
-        const embed = quoteEmbed || postView?.embed || null
-
-        if (!embed?.$type) {
-            return null
-        }
-
-        if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
-            return embed as AppBskyEmbedRecordWithMedia.View
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedExternal = useMemo((): AppBskyEmbedExternal.View | null => {
-        const quoteEmbed =
-            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
-                ? quoteJson?.embeds[0]
-                : null
-        const embed = quoteEmbed || postView?.embed || null
-
-        if (!embed?.$type) {
-            return null
-        }
-
-        if (embed.$type === "app.bsky.embed.external#view") {
-            return embed as AppBskyEmbedExternal.View
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
-        if (!postView?.embed?.$type) {
-            return null
-        }
-
-        const embedType = postView.embed.$type
-
-        if (embedType === "app.bsky.embed.record#view") {
-            return postView.embed as AppBskyEmbedRecord.View
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedRecordBlocked = useMemo((): AppBskyEmbedRecord.View | null => {
-        if (!postView?.embed?.$type) {
-            return null
-        }
-
-        const embedType = postView.embed.$type
-
-        if (
-            embedType === "app.bsky.embed.record#view" &&
-            (postView?.embed?.record as AppBskyEmbedRecord.View)?.$type ===
+        return {
+            embedImages: extractEmbedOfType("app.bsky.embed.images#view"),
+            embedMedia: extractEmbedOfType(
+                "app.bsky.embed.recordWithMedia#view"
+            ),
+            embedExternal: extractEmbedOfType("app.bsky.embed.external#view"),
+            embedRecord: extractEmbedOfType("app.bsky.embed.record#view"),
+            embedRecordBlocked: extractEmbedOfType(
                 "app.bsky.embed.record#viewBlocked"
-        ) {
-            return postView.embed as AppBskyEmbedRecord.View
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedRecordViewRecord = useMemo((): ViewRecord | null => {
-        const quoteEmbed =
-            quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
-                ? quoteJson?.embeds[0]
-                : null
-        const embed = quoteEmbed || postView?.embed || null
-
-        if (!embed?.$type) {
-            return null
-        }
-
-        if (embed.$type === "app.bsky.embed.record#view") {
-            return embed.record as ViewRecord
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedFeed = useMemo((): GeneratorView | null => {
-        if (
-            !postView?.embed?.$type &&
-            !(postView?.embed?.record as GeneratorView)?.$type
-        ) {
-            return null
-        }
-
-        const embedType = postView?.embed?.$type
-
-        if (
-            embedType === "app.bsky.embed.record#view" &&
-            (postView?.embed?.record as GeneratorView)?.$type ===
-                "app.bsky.feed.defs#generatorView"
-        ) {
-            return postView?.embed?.record as GeneratorView
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const embedMuteList = useMemo((): ListView | null => {
-        if (
-            !postView?.embed?.$type &&
-            !(postView?.embed?.record as GeneratorView)?.$type
-        ) {
-            return null
-        }
-
-        const embedType = postView?.embed?.$type
-
-        if (
-            embedType === "app.bsky.embed.record#view" &&
-            (postView?.embed?.record as GeneratorView)?.$type ===
-                "app.bsky.graph.defs#listView"
-        ) {
-            return postView?.embed?.record as ListView
-        } else {
-            return null
-        }
-    }, [postJson, quoteJson])
-
-    const notfoundEmbedRecord = useMemo((): AppBskyEmbedRecord.View | null => {
-        if (
-            !postView?.embed?.$type &&
-            !(postView?.embed?.record as GeneratorView)?.$type
-        ) {
-            return null
-        }
-
-        const embedType = postView?.embed?.$type
-
-        if (
-            embedType === "app.bsky.embed.record#view" &&
-            (postView?.embed?.record as GeneratorView)?.$type ===
+            ),
+            embedRecordViewRecord: extractEmbedOfType(
+                "app.bsky.embed.record#view"
+            )?.record as ViewRecord,
+            embedFeed: extractEmbedOfType("app.bsky.feed.defs#generatorView")
+                ?.record as GeneratorView,
+            embedMuteList: extractEmbedOfType("app.bsky.graph.defs#listView")
+                ?.record as ListView,
+            notfoundEmbedRecord: extractEmbedOfType(
                 "app.bsky.embed.record#viewNotFound"
-        ) {
-            return postView?.embed?.record as AppBskyEmbedRecord.View
-        } else {
-            return null
+            ),
         }
     }, [postJson, quoteJson])
+
+    // Usage
+    const {
+        embedImages,
+        embedMedia,
+        embedExternal,
+        embedRecord,
+        embedRecordBlocked,
+        embedRecordViewRecord,
+        embedFeed,
+        embedMuteList,
+        notfoundEmbedRecord,
+    } = useEmbed
 
     const handleDelete = async () => {
-        if (loading) return
-        if (!agent) return
-        if (!postJson) return
+        if (loading || !agent || !postJson) return
         try {
             setLoading(true)
             await agent.deletePost(postJson?.uri)
@@ -491,13 +357,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
     }
 
     const handleMute = async () => {
-        if (loading) {
-            return
-        }
-
-        if (postView === null) {
-            return
-        }
+        if (loading || !postView) return
 
         setLoading(true)
 
@@ -582,44 +442,21 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         })
     }, [userPreference, postJson, quoteJson])
 
-    useEffect(() => {
-        if (!embedRecord && !embedMedia) {
-            return
-        }
+    useLayoutEffect(() => {
+        const shouldDeletePost = (viewer: any) =>
+            viewer?.blockedBy || viewer?.muted || viewer?.blocking
 
-        if (embedRecord) {
-            if (
-                !embedRecordViewRecord?.author ||
-                !embedRecordViewRecord?.author.viewer
-            ) {
-                return
-            }
-            if (
-                embedRecordViewRecord.author.viewer?.blockedBy ||
-                embedRecordViewRecord.author.viewer?.muted ||
-                embedRecordViewRecord.author.viewer?.blocking
-            ) {
-                handleInputChange("delete", postJsonData?.uri || "", "")
-            }
-        } else if (embedMedia) {
-            console.log(embedMedia)
-            console.log(postView)
-            if (
-                !embedMedia.record.record.author ||
-                !(embedMedia.record.record.author as ProfileViewBasic).viewer
-            ) {
-                return
-            }
-            if (
-                (embedMedia.record.record.author as ProfileViewBasic).viewer
-                    ?.blockedBy ||
-                (embedMedia.record.record.author as ProfileViewBasic).viewer
-                    ?.muted ||
-                (embedMedia.record.record.author as ProfileViewBasic).viewer
-                    ?.blocking
-            ) {
-                handleInputChange("delete", postJsonData?.uri || "", "")
-            }
+        if (
+            (embedRecord &&
+                embedRecordViewRecord?.author?.viewer &&
+                shouldDeletePost(embedRecordViewRecord.author.viewer)) ||
+            (embedMedia &&
+                embedMedia.record.record.author?.viewer &&
+                shouldDeletePost(
+                    embedMedia.record.record?.author.viewer as ProfileViewBasic
+                ))
+        ) {
+            handleInputChange("delete", postJsonData?.uri || "", "")
         }
     }, [])
 
@@ -633,36 +470,31 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
         setIsBookmarked(isBookmarked)
     }, [postJson, quoteJson, json, bookmarks])
 
-    const handleMenuClickCopyURL = () => {
-        if (!postJsonData) {
-            return
-        }
+    const handleCopy = (object: string) => {
+        void navigator.clipboard.writeText(object)
+    }
 
+    const handleMenuClickCopyURL = () => {
+        if (!postJsonData) return
         const urlToCopy = `https://bsky.app/profile/${
             postJsonData.author.did
         }/post/${postJsonData.uri.match(/\/(\w+)$/)?.[1] || ""}`
 
-        void navigator.clipboard.writeText(urlToCopy)
+        handleCopy(urlToCopy)
     }
 
     const handleMenuClickCopyATURI = () => {
-        if (!postJsonData) {
-            return
-        }
-
-        void navigator.clipboard.writeText(postJsonData.uri)
+        if (!postJsonData) return
+        handleCopy(postJsonData.uri)
     }
 
     const handleMenuClickCopyDID = () => {
-        if (!postJsonData) {
-            return
-        }
-
-        void navigator.clipboard.writeText(postJsonData.author.did)
+        if (!postJsonData) return
+        handleCopy(postJsonData.author.did)
     }
 
     const handleMenuClickCopyJSON = () => {
-        void navigator.clipboard.writeText(JSON.stringify(postJson))
+        handleCopy(JSON.stringify(postJson))
     }
 
     const handleMenuClickReport = () => {
@@ -671,10 +503,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const handleMenuClickDelete = () => {
         void handleDelete()
-    }
-
-    if (isSkeleton === true) {
-        return <ViewPostCardSkelton {...{ isTop }} />
     }
 
     const handleInputChange = (
@@ -696,107 +524,73 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
 
     const handleChangeSaveScrollPosition = () => {
         if (!handleSaveScrollPosition) return
-        console.log("hoge")
         handleSaveScrollPosition()
     }
 
     const translateContentText = async () => {
-        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
-            return
-        }
-
         isTranslated.current = true
         setViewTranslatedText(true)
-        const res = await fetch(
-            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
-                translateTo[0] ? translateTo[0] : `auto`
-            }&dt=t&q=` +
-                encodeURIComponent(
-                    (postView?.record as AppBskyFeedPost.Record)?.text
-                )
-        )
-        if (res.status === 200) {
-            const json = await res.json()
-            if (json[0] !== undefined) {
-                const combinedText = json[0].reduce(
-                    (acc: string, item: any[]) => {
-                        if (item[0]) {
-                            return acc + item[0]
-                        }
-                        return acc
-                    },
-                    ""
-                )
-                console.log(combinedText)
-                console.log(postJson)
-                const translatedJson = JSON.parse(JSON.stringify(postJson))
-                if (translatedJson && translatedJson.record) {
-                    translatedJson.record["text"] = combinedText
-                }
-                console.log(translatedJson)
-                //setTranslatedText(combinedText)
-                setTranslatedJsonData(translatedJson)
-            }
-        } else {
-            setTranslateError(true)
-        }
+        const res = await translateText(translateTo, postJson, postView)
+        setTranslatedJsonData(res)
     }
+
+    const longPressTimerRef = useRef<number | null>(null)
 
     const handleLongPress = () => {
         console.log(props)
         onOpenOption()
     }
 
-    const handleTouchStart = useCallback(
-        (e: React.MouseEvent<HTMLDivElement>) => {
-            const timer = setTimeout(() => {
-                handleLongPress()
-            }, 500)
-            document.addEventListener("touchend", () => {
-                //setLongPressActive(false)
-                //setIsExpanded(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("touchmove", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("touchcancel", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-            document.addEventListener("contextmenu", () => {
-                //setLongPressActive(false)
-                clearTimeout(timer)
-            })
-        },
-        []
-    )
+    const handleTouchStart = useCallback(() => {
+        longPressTimerRef.current = window.setTimeout(() => {
+            handleLongPress()
+        }, 500)
+
+        const clearTimer = () => {
+            if (longPressTimerRef.current !== null) {
+                clearTimeout(longPressTimerRef.current)
+                longPressTimerRef.current = null
+            }
+        }
+
+        document.addEventListener("touchend", clearTimer)
+        document.addEventListener("touchmove", clearTimer)
+        document.addEventListener("touchcancel", clearTimer)
+        document.addEventListener("contextmenu", clearTimer)
+
+        return () => {
+            // Clean up event listeners when the component unmounts
+            document.removeEventListener("touchend", clearTimer)
+            document.removeEventListener("touchmove", clearTimer)
+            document.removeEventListener("touchcancel", clearTimer)
+            document.removeEventListener("contextmenu", clearTimer)
+        }
+    }, [onOpenOption])
+
+    useEffect(() => {
+        return () => {
+            // Clean up the timer when the component unmounts
+            if (longPressTimerRef.current !== null) {
+                clearTimeout(longPressTimerRef.current)
+                longPressTimerRef.current = null
+            }
+        }
+    }, [])
 
     return (
         <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
-            {isTop && <DummyHeader isSearchScreen={isSearchScreen} />}
-            <Modal
+            <ReplyModal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}
-                placement={isMobile ? "top" : "center"}
-                className={"z-[100] max-w-[600px] bg-transparent"}
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <PostModal
-                            type={"Reply"}
-                            postData={postJson}
-                            onClose={onClose}
-                        />
-                    )}
-                </ModalContent>
-            </Modal>
+                post={postJson}
+            />
             <ReportModal
                 isOpen={isOpenReport}
                 onOpenChange={onOpenChangeReport}
                 placement={isMobile ? "top" : "center"}
-                className={"z-[100] max-w-[600px]"}
+                className={`z-[100] max-w-[600px] ${
+                    isMobile && `mt-[env(safe-area-inset-top)]`
+                }`}
                 target={"post"}
                 post={postJson}
                 nextQueryParams={nextQueryParams}
@@ -837,9 +631,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                 }}
                 onTouchStart={(e) => {
                     e.stopPropagation()
-                    // @ts-ignore
-                    handleTouchStart(e)
-                    //console.log(e)
+                    handleTouchStart()
                 }}
             >
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
@@ -874,19 +666,22 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     handleChangeSaveScrollPosition()
                                 }}
                                 href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
+                                    ?.did}?${nextQueryParams.toString()}`}
                             >
                                 <img
                                     src={
                                         postJsonData?.author?.avatar ||
                                         defaultIcon.src
                                     }
-                                    alt={postJsonData?.author.did || ""}
+                                    alt={postJsonData?.author?.did || ""}
                                     className={`${
                                         !isEmbedToPost
                                             ? `w-[30px] h-[30px]`
                                             : `w-[18px] h-[18px]`
                                     }`}
+                                    decoding={"async"}
+                                    loading={"eager"}
+                                    fetchPriority={"high"}
                                 />
                             </Link>
                             <Link
@@ -895,7 +690,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                     handleChangeSaveScrollPosition()
                                 }}
                                 href={`/profile/${postJsonData?.author
-                                    .did}?${nextQueryParams.toString()}`}
+                                    ?.did}?${nextQueryParams.toString()}`}
                             >
                                 <span
                                     className={`${PostAuthorDisplayName()} md:hover:underline`}
@@ -916,7 +711,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             handleChangeSaveScrollPosition()
                                         }}
                                         href={`/profile/${postJsonData?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                            ?.did}?${nextQueryParams.toString()}`}
                                     >
                                         <span
                                             className={`${PostAuthorHandle()} md:hover:underline`}
@@ -999,7 +794,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             </div>
                                         </>
                                     )}
-                                {/*@ts-ignore*/}
                                 {viewTranslatedText && (
                                     <>
                                         <Button
@@ -1089,7 +883,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                             !embedRecordBlocked &&
                             !contentWarning && (
                                 <ViewPostCard
-                                    isTop={false}
                                     bodyText={processPostBodyText(
                                         nextQueryParams,
                                         null,
@@ -1132,6 +925,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                             if (!postUri) return
                                             void handleBookmark(postUri)
                                         }}
+                                        className={"h-[16px] w-[12px]"}
                                     />
                                 </div>
                             </div>
@@ -1160,6 +954,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                                 return
                                                             await handleReply()
                                                         }}
+                                                        className={
+                                                            "h-full w-full"
+                                                        }
                                                     />
                                                 </div>
                                             )}
@@ -1181,6 +978,9 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                             e.stopPropagation()
                                                             await handleRepost()
                                                         }}
+                                                        className={
+                                                            "h-full w-full"
+                                                        }
                                                     />
                                                 </div>
                                             )}
@@ -1201,6 +1001,7 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
                                                         e.stopPropagation()
                                                         await handleLike()
                                                     }}
+                                                    className={"h-full w-full"}
                                                 />
                                             </div>
                                         </div>

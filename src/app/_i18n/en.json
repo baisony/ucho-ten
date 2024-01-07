@@ -51,6 +51,8 @@
       "light": "Light",
       "system": "System",
       "auto": "Auto",
+      "timeline": "Timeline",
+      "hideRepost": "Hide Repost",
       "appearance": "Appearance",
       "size": "Size",
       "fontSize": "Font size",
@@ -94,6 +96,9 @@
     "bookmarks": {
       "title": "Bookmarks",
       "noContent": "Not found bookmarks"
+    },
+    "swiperEmptySlide": {
+      "text": "sorry. This page is set up to address a bug. please swipe to left page."
     }
   },
   "components": {

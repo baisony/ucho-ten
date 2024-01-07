@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -17,6 +17,7 @@ import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 import "swiper/css"
 import "swiper/css/pagination"
 import { isMobile } from "react-device-detect"
+import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 
 SwiperCore.use([Virtual])
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
@@ -78,13 +79,16 @@ const Root = () => {
             modules={[Pagination]}
             className="swiper-home"
             style={{ height: "100%" }}
-            touchAngle={30}
-            touchRatio={0.8}
+            touchEventsTarget={"container"}
+            touchRatio={1}
+            threshold={1}
+            resistance={false}
+            longSwipes={false}
             initialSlide={menuIndex}
-            touchReleaseOnEdges={true}
-            touchMoveStopPropagation={true}
+            touchStartForcePreventDefault={true}
             preventInteractionOnTransition={true}
             touchStartPreventDefault={false}
+            edgeSwipeDetection={true}
             onActiveIndexChange={(swiper) => {
                 if (!menuIndexChangedByMenu) {
                     setMenuIndex(swiper.activeIndex)
@@ -100,27 +104,34 @@ const Root = () => {
         >
             {menus.home.map((menu, index) => {
                 return (
-                    <SwiperSlide key={`swiperslide-home-${index}`}>
-                        <div
-                            id={`swiperIndex-div-${index}`}
-                            key={index}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <FeedPage
-                                {...{
-                                    isActive: index === menuIndex,
-                                    isNextActive: index === menuIndex + 1,
-                                    feedKey: menu.info,
-                                    pageName: "home",
-                                    disableSlideVerticalScroll,
-                                    now,
+                    <>
+                        <SwiperSlide key={`swiperslide-home-${index}`}>
+                            <div
+                                id={`swiperIndex-div-${index}`}
+                                key={index}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
                                 }}
-                            />
-                        </div>
-                    </SwiperSlide>
+                            >
+                                <FeedPage
+                                    {...{
+                                        isActive: index === menuIndex,
+                                        isNextActive: index === menuIndex + 1,
+                                        feedKey: menu.info,
+                                        pageName: "home",
+                                        disableSlideVerticalScroll,
+                                        now,
+                                    }}
+                                />
+                            </div>
+                        </SwiperSlide>
+                        {menus.home.length === 1 && (
+                            <SwiperSlide>
+                                <SwiperEmptySlide />
+                            </SwiperSlide>
+                        )}
+                    </>
                 )
             })}
         </Swiper>

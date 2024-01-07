@@ -1,6 +1,6 @@
 "use client"
 
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -330,7 +330,6 @@ const PostPage = (props: PostPageProps) => {
                 <>
                     {nestedViewPostCards}
                     <ViewPostCard
-                        isTop={false}
                         bodyText={processPostBodyText(
                             nextQueryParams,
                             post.parent.post
@@ -1145,7 +1144,6 @@ const PostPage = (props: PostPageProps) => {
                             !embedRecordBlocked &&
                             !contentWarning && (
                                 <ViewPostCard
-                                    isTop={false}
                                     bodyText={processPostBodyText(
                                         nextQueryParams,
                                         null,
@@ -1256,7 +1254,6 @@ const PostPage = (props: PostPageProps) => {
                             }
                             return (
                                 <ViewPostCard
-                                    isTop={false}
                                     key={index}
                                     bodyText={processPostBodyText(
                                         nextQueryParams,

@@ -8,7 +8,7 @@ import {
     faTrash,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
-import React from "react"
+
 import { useTranslation } from "react-i18next"
 import { useAgent } from "@/app/_atoms/agent"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"

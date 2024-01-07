@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { createPostPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"
@@ -11,8 +11,8 @@ import {
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
-import { useDropzone } from "react-dropzone"
 import "react-circular-progressbar/dist/styles.css"
+import { useDropzone } from "react-dropzone"
 import data from "@emoji-mart/data"
 import Picker from "@emoji-mart/react"
 import {
@@ -22,7 +22,6 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
-    Image,
     Modal,
     ModalBody,
     ModalContent,
@@ -60,6 +59,7 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { LANGUAGES } from "../_constants/lanuages"
 import LanguagesSelectionModal from "../_components/LanguageSelectionModal"
 import { useQueryClient } from "@tanstack/react-query"
+import { usePostLanguage } from "@/app/_atoms/postLanguage"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -79,17 +79,29 @@ export default function Root() {
     const [agent] = useAgent()
     const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    let defaultLanguage
 
-    if (window && window.navigator.languages && window.navigator.languages[0]) {
-        defaultLanguage = [window.navigator.languages[0]]
-    } else {
-        defaultLanguage = ["en"]
-    }
+    const [PostLanguage, setPostLanguage] = usePostLanguage()
 
-    const [postContentLanguages, setPostContentLanguages] = useState(
-        new Set<string>(defaultLanguage)
-    )
+    useEffect(() => {
+        if (
+            Array.from(PostLanguage).length === 1 &&
+            Array.from(PostLanguage)[0] === "" &&
+            !localStorage.getItem("postLanguage")
+        ) {
+            let defaultLanguage
+
+            if (
+                window &&
+                window.navigator.languages &&
+                window.navigator.languages[0]
+            ) {
+                defaultLanguage = [window.navigator.languages[0]]
+            } else {
+                defaultLanguage = ["en"]
+            }
+            setPostLanguage(defaultLanguage)
+        }
+    }, [PostLanguage])
 
     const inputId = Math.random().toString(32).substring(2)
     const [contentText, setContentText] = useState(postParam ? postParam : "")
@@ -212,7 +224,7 @@ export default function Root() {
                 Omit<AppBskyFeedPost.Record, "createdAt"> = {
                 text: rt.text.trimStart().trimEnd(),
                 facets: rt.facets,
-                langs: Array.from(postContentLanguages),
+                langs: PostLanguage,
             }
 
             if (blobRefs.length > 0) {
@@ -499,7 +511,7 @@ export default function Root() {
 
     const handleLanguagesSelectionChange = (keys: Selection) => {
         if (Array.from(keys).length < 4) {
-            setPostContentLanguages(keys as Set<string>)
+            setPostLanguage(Array.from(keys) as string[])
         }
     }
 
@@ -509,7 +521,7 @@ export default function Root() {
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
                 onSelectionChange={handleLanguagesSelectionChange}
-                postContentLanguages={postContentLanguages}
+                PostLanguage={PostLanguage}
             />
 
             <Modal isOpen={isOpenALT} onOpenChange={onOpenChangeALT}>
@@ -559,7 +571,7 @@ export default function Root() {
             md:relative md:flex md:justify-center md:items-center
         `}
             >
-                <div className={backgroundColor()}></div>
+                <div className={backgroundColor()} />
                 {isOpen && window.prompt("Please enter link", "Harry Potter")}
                 <div className={PostModal()}>
                     <div className={header()}>
@@ -661,7 +673,7 @@ export default function Root() {
                                                 "relative w-1/4 h-full flex"
                                             }
                                         >
-                                            <Image
+                                            <img
                                                 src={URL.createObjectURL(
                                                     image.blob
                                                 )}
@@ -830,7 +842,7 @@ export default function Root() {
                                     onOpenLangs()
                                 }}
                             >{`${t("modal.post.lang")}:${Array.from(
-                                postContentLanguages
+                                PostLanguage
                             ).join(",")}`}</div>
                             <div
                                 className={`${footerTooltipStyle()} hidden md:flex`}
@@ -842,21 +854,20 @@ export default function Root() {
                                 >
                                     <DropdownTrigger>
                                         {`${t("modal.post.lang")}:${Array.from(
-                                            postContentLanguages
-                                        ).join(",")}`}
+                                            PostLanguage
+                                        )}`}
                                     </DropdownTrigger>
                                     <DropdownMenu
                                         disallowEmptySelection
                                         aria-label="Multiple selection actions"
-                                        selectionMode="multiple"
-                                        selectedKeys={postContentLanguages}
-                                        defaultSelectedKeys={
-                                            postContentLanguages
-                                        }
+                                        selectionMode="single"
+                                        selectedKeys={PostLanguage}
+                                        defaultSelectedKeys={PostLanguage}
                                         onSelectionChange={(e) => {
+                                            console.log(Array.from(e))
                                             if (Array.from(e).length < 4) {
-                                                setPostContentLanguages(
-                                                    e as Set<string>
+                                                setPostLanguage(
+                                                    Array.from(e) as string[]
                                                 )
                                             }
                                         }}
@@ -885,9 +896,10 @@ export default function Root() {
                                     <DropdownMenu
                                         disallowEmptySelection
                                         aria-label="Multiple selection actions"
-                                        selectionMode="multiple"
-                                        selectedKeys={postContentLanguages}
+                                        selectionMode="single"
+                                        selectedKeys={PostLanguage}
                                         onSelectionChange={(e) => {
+                                            console.log(e)
                                             if (Array.from(e).length < 4) {
                                                 //setPostContentLanguage(e as Set<string>);
                                             }

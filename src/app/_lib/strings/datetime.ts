@@ -1,9 +1,6 @@
 const NOW = 5
 const MINUTE = 60
 const HOUR = MINUTE * 60
-// const DAY = HOUR * 24
-// const MONTH = DAY * 28
-// const YEAR = DAY * 365
 
 export function formattedSimpleDate(
     dateStr: string,

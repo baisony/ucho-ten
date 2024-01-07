@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewUserProfileCardStyle } from "./styles"
-import "react-circular-progressbar/dist/styles.css"
 import { Skeleton } from "@nextui-org/react"
 
-import "react-swipeable-list/dist/styles.css"
 import Link from "next/link"
 
 interface Props {

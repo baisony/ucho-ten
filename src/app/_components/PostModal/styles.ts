@@ -6,7 +6,7 @@ export const postModal = tv({
         backgroundColor: "w-full h-full bg-[#000000] bg-opacity-10 absolute",
 
         PostModal:
-            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#16191F] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
+            "text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#16191F] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[600px] h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px] mt-[env(safe-area-inset-top)]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:
@@ -19,7 +19,7 @@ export const postModal = tv({
         contentLeft:
             "w-[48px] h-[calc(100%-10px)] flex select-none justify-center",
         contentLeftAuthorIcon:
-            "w-[28px] h-[28px] bg-black rounded-[10px] overflow-hidden cursor-pointer z-[1]",
+            "w-[28px] h-[28px] bg-black rounded-full overflow-hidden cursor-pointer z-[1]",
         contentLeftAuthorIconImage: "w-full h-full drag-none",
         contentRight: "w-[calc(100%-54px)] relative h-[calc(100%-10px)] ",
         contentRightTextArea:

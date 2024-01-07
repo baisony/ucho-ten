@@ -1,6 +1,6 @@
 "use client"
 
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -69,6 +69,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination } from "swiper/modules"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -409,6 +410,7 @@ const PostPage = (props: PostPageProps) => {
                     break
                 case "unrepost":
                     setTimeline((prevData) => {
+                        //@ts-ignore
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
@@ -489,7 +491,6 @@ const PostPage = (props: PostPageProps) => {
             const timelineData: UserProfilePageCellProps[] = timeline.map(
                 (post) => {
                     const postProps: ViewPostCardProps = {
-                        isTop: false,
                         isMobile,
                         bodyText: processPostBodyText(
                             nextQueryParams,
@@ -515,7 +516,6 @@ const PostPage = (props: PostPageProps) => {
                 length: 20,
             }).map(() => {
                 const postProps: ViewPostCardProps = {
-                    isTop: false,
                     isSkeleton: true,
                     isMobile,
                     bodyText: undefined,
@@ -569,11 +569,6 @@ const PostPage = (props: PostPageProps) => {
                     {...item}
                 />
             )}
-            components={{
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                Footer: !isEndOfFeed ? ListFooterSpinner : ListFooterNoContent,
-            }}
             endReached={loadMore}
             // onScroll={(e) => disableScrollIfNeeded(e)}
             className={nullTimeline()}
@@ -599,6 +594,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     }
 
     if (postProps) {
+        if (postProps.isSkeleton) return <ViewPostCardSkelton />
         return <ViewPostCard {...postProps} />
     }
 }
@@ -876,7 +872,9 @@ const UserProfileComponent = ({
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 placement={isMobile ? "top" : "center"}
-                className={`z-[100] max-w-[600px] ${appearanceTextColor()}`}
+                className={`z-[100] max-w-[600px] ${appearanceTextColor()} ${
+                    isMobile && `mt-[env(safe-area-inset-top)]`
+                }`}
                 isDismissable={isUploading}
                 hideCloseButton
             >

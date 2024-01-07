@@ -1,6 +1,4 @@
-import React from "react"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
-import "react-circular-progressbar/dist/styles.css"
 import { Skeleton } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { viewFeedCard } from "@/app/_components/ViewFeedCard/styles"

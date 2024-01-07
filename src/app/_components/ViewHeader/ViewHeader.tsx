@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -9,7 +9,6 @@ import {
     faChevronLeft,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
-import "react-circular-progressbar/dist/styles.css"
 import { Button } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Swiper, SwiperSlide } from "swiper/react"
@@ -273,6 +272,7 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
                             className={"md:h-[24px] h-[20px] cursor-pointer"}
                             src={logoImage}
                             alt={"logo"}
+                            loading={"eager"}
                         />
                     </Link>
                 )}

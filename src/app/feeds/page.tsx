@@ -1,6 +1,6 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { layout } from "./styles"
 import {
@@ -35,6 +35,8 @@ import { isMobile } from "react-device-detect"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Virtuoso } from "react-virtuoso"
 import { useTranslation } from "react-i18next"
+import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
+import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -222,9 +224,6 @@ const MyFeedsPage = () => {
                     atBottomThreshold={100}
                     itemContent={(index, data) => (
                         <>
-                            {index === 0 && (
-                                <DummyHeader isSearchScreen={false} />
-                            )}
                             <Link
                                 className={FeedCard()}
                                 key={index}
@@ -317,6 +316,9 @@ const MyFeedsPage = () => {
                             </Link>
                         </>
                     )}
+                    components={{
+                        Header: () => <DummyHeader />,
+                    }}
                 />
             )}
         </div>

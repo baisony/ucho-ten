@@ -10,8 +10,6 @@ import {
     useState,
 } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { useTranslation } from "react-i18next"
@@ -27,8 +25,27 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
-import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { Notification } from "@atproto/api/dist/client/types/app/bsky/notification/listNotifications"
+import { DummyHeader } from "@/app/_components/DummyHeader"
+import { SwipeRefreshList } from "react-swipe-down-refresh"
+import "@/app/_components/FeedPage/SwipeRefreshListStyle.css"
+
+import { Swiper, SwiperSlide } from "swiper/react"
+import SwiperCore from "swiper/core"
+import { Pagination, Virtual } from "swiper/modules"
+import {
+    menuIndexAtom,
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+} from "../_atoms/headerMenu"
+
+import "swiper/css"
+import "swiper/css/pagination"
+import { useAtom } from "jotai"
+import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
+import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+
+SwiperCore.use([Virtual])
 
 const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
 
@@ -47,7 +64,6 @@ export default function FeedPage() {
         useUnreadNotificationAtom()
     const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<PostView[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
     const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
@@ -63,6 +79,14 @@ export default function FeedPage() {
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = "Inbox"
     const pageName = "Inbox"
+    const isScrolling = useRef<boolean>(false)
+
+    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menus] = useHeaderMenusByHeaderAtom()
+
+    const [now, setNow] = useState<Date>(new Date())
+
+    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("inbox")
@@ -89,106 +113,16 @@ export default function FeedPage() {
         }
     }, [hasMore])
 
-    const checkNewTimeline = async () => {
-        if (!agent) return
-        shouldCheckUpdate.current = false
-
-        try {
-            const { data } = await agent.countUnreadNotifications()
-            const { count } = data
-            console.log(count)
-            if (count == 0) return
-
-            const notifData = await agent.listNotifications({
-                cursor: "",
-            })
-
-            if (data) {
-                const { notifications } = notifData.data
-
-                const replies = notifications.filter((notification) => {
-                    return (
-                        !notification.isRead &&
-                        (notification.reason === "reply" ||
-                            notification.reason === "mention")
-                    )
-                })
-
-                setNewTimeline(replies)
-
-                if (replies.length > 0) {
-                    console.log(
-                        "new and old cid",
-                        feedKey,
-                        replies[0].cid,
-                        latestCID.current
-                    )
-                    if (
-                        replies[0].cid !== latestCID.current &&
-                        latestCID.current !== ""
-                    ) {
-                        setHasUpdate(true)
-                    } else {
-                        setHasUpdate(false)
-                    }
-                }
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
-    useEffect(() => {
-        if (!agent) return
-
-        if (!shouldCheckUpdate.current) {
-            shouldCheckUpdate.current = true
-            //void initialLoad()
-            void checkNewTimeline()
-            //console.log("useEffect set setTimeout", feedKey)
-            const timeoutId = setInterval(() => {
-                console.log("fetch", feedKey)
-
-                void checkNewTimeline()
-            }, CHECK_FEED_UPDATE_INTERVAL)
-
-            return () => {
-                console.log(`useEffect unmounted ${feedKey}`)
-                clearInterval(timeoutId)
-            }
-        }
-    }, [agent])
-
     const queryClient = useQueryClient()
 
     const handleUpdateSeen = async () => {
         if (!agent) return
         try {
             await agent.updateSeenNotifications()
+            setUnreadNotification(0)
         } catch (e) {
             console.log(e)
         }
-    }
-
-    const handleRefresh = async () => {
-        if (!agent) return
-        shouldScrollToTop.current = true
-
-        const mergedTimeline = mergePosts(newTimeline, timeline)
-        //@ts-ignore
-        setTimeline(mergedTimeline)
-        setNewTimeline([])
-        setHasUpdate(false)
-
-        if (mergedTimeline.length > 0) {
-            latestCID.current = (mergedTimeline[0] as PostView).cid
-        }
-        void handleUpdateSeen()
-        await queryClient.refetchQueries({
-            queryKey: ["getNotification", feedKey],
-        })
-
-        shouldCheckUpdate.current = true
     }
 
     const handleFetchResponse = (response: FeedResponseObject) => {
@@ -313,10 +247,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.like =
+                            updatedData[foundObject].viewer.like =
                                 newValue.reactionUri
                         }
                         return updatedData
@@ -327,11 +260,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.like =
-                                undefined
+                            updatedData[foundObject].viewer.like = undefined
                         }
                         return updatedData
                     })
@@ -341,10 +272,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.repost =
+                            updatedData[foundObject].viewer.repost =
                                 newValue.reactionUri
                         }
                         return updatedData
@@ -355,11 +285,9 @@ export default function FeedPage() {
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
+                            updatedData[foundObject].viewer
                         ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                undefined
+                            updatedData[foundObject].viewer.repost = undefined
                         }
                         return updatedData
                     })
@@ -411,89 +339,167 @@ export default function FeedPage() {
         }
     }, [])
 
+    const lazyCheckNewTimeline = async () => {
+        if (agent === null) return
+        try {
+            const { data } = await agent.countUnreadNotifications()
+            const { count } = data
+            console.log(count)
+            if (count == 0) return
+
+            const notifData = await agent.listNotifications({
+                cursor: "",
+            })
+
+            let replies: Notification[] = []
+            if (data) {
+                const { notifications } = notifData.data
+
+                replies = notifications.filter((notification) => {
+                    return (
+                        !notification.isRead &&
+                        (notification.reason === "reply" ||
+                            notification.reason === "mention")
+                    )
+                })
+            }
+            const mergedTimeline = mergePosts(replies, timeline)
+            //@ts-ignore
+            setTimeline(mergedTimeline)
+            setHasUpdate(false)
+
+            if (mergedTimeline.length > 0) {
+                latestCID.current = (mergedTimeline[0] as PostView).cid
+            }
+            void handleUpdateSeen()
+            await queryClient.refetchQueries({
+                queryKey: ["getNotification", feedKey],
+            })
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     return (
-        <>
-            {hasUpdate && (
-                <div
-                    className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[100px] lg:top-[70px]"
-                    }
-                >
-                    <div
-                        className={
-                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
-                        }
-                        onClick={handleRefresh}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
-                        {t("button.newPosts")}
-                    </div>
-                </div>
-            )}
-            <Virtuoso
-                scrollerRef={(ref) => {
-                    if (ref instanceof HTMLElement) {
-                        scrollRef.current = ref
-                        // setListScrollRefAtom(ref)
-                    }
-                }}
-                ref={virtuosoRef}
-                //@ts-ignore
-                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
-                context={{ hasMore }}
-                increaseViewportBy={200}
-                overscan={200}
-                data={timeline ?? undefined}
-                totalCount={timeline ? timeline.length : 20}
-                atTopThreshold={100}
-                atBottomThreshold={100}
-                itemContent={(index, post) => (
+        <Swiper
+            onSwiper={(swiper) => {
+                swiperRef.current = swiper
+            }}
+            cssMode={isMobile}
+            pagination={{ type: "custom", clickable: false }}
+            hidden={true} // ??
+            modules={[Pagination]}
+            className="swiper-home"
+            style={{ height: "100%" }}
+            touchEventsTarget={"container"}
+            touchRatio={1}
+            threshold={1}
+            resistance={false}
+            longSwipes={false}
+            initialSlide={menuIndex}
+            touchStartForcePreventDefault={true}
+            preventInteractionOnTransition={true}
+            touchStartPreventDefault={false}
+            edgeSwipeDetection={true}
+        >
+            {menus.inbox.map((menu, index) => {
+                return (
                     <>
-                        {post ? (
-                            <ViewPostCard
-                                key={`feed-${post.uri}`}
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: false,
-                                    bodyText: processPostBodyText(
-                                        nextQueryParams,
-                                        post || null
-                                    ),
-                                    postJson: post,
-                                    nextQueryParams,
-                                    t,
-                                    handleValueChange: handleValueChange,
-                                    handleSaveScrollPosition:
-                                        handleSaveScrollPosition,
+                        <SwiperSlide key={`swiperslide-home-${index}`}>
+                            <div
+                                id={`swiperIndex-div-${index}`}
+                                key={index}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
                                 }}
-                            />
-                        ) : (
-                            <ViewPostCard
-                                {...{
-                                    isTop: index === 0,
-                                    isMobile,
-                                    isSkeleton: true,
-                                    bodyText: undefined,
-                                    nextQueryParams,
-                                    t,
-                                }}
-                            />
-                        )}
+                            >
+                                <main className={"h-full w-full"}>
+                                    <SwipeRefreshList
+                                        onRefresh={async () => {
+                                            await lazyCheckNewTimeline()
+                                        }}
+                                        className={
+                                            "swiperRefresh h-full w-full"
+                                        }
+                                        threshold={150}
+                                        disabled={isScrolling.current}
+                                    >
+                                        <Virtuoso
+                                            scrollerRef={(ref) => {
+                                                if (
+                                                    ref instanceof HTMLElement
+                                                ) {
+                                                    scrollRef.current = ref
+                                                    // setListScrollRefAtom(ref)
+                                                }
+                                            }}
+                                            ref={virtuosoRef}
+                                            restoreStateFrom={
+                                                scrollPositions[
+                                                    //@ts-ignore
+                                                    `${pageName}-${feedKey}`
+                                                ]
+                                            }
+                                            context={{ hasMore }}
+                                            isScrolling={(e) => {
+                                                isScrolling.current = e
+                                            }}
+                                            increaseViewportBy={200}
+                                            overscan={200}
+                                            data={timeline ?? undefined}
+                                            totalCount={
+                                                timeline ? timeline.length : 20
+                                            }
+                                            atTopThreshold={100}
+                                            atBottomThreshold={100}
+                                            itemContent={(index, post) => (
+                                                <>
+                                                    {post ? (
+                                                        <ViewPostCard
+                                                            key={`feed-${post.uri}`}
+                                                            {...{
+                                                                isMobile,
+                                                                isSkeleton:
+                                                                    false,
+                                                                bodyText:
+                                                                    processPostBodyText(
+                                                                        nextQueryParams,
+                                                                        post ||
+                                                                            null
+                                                                    ),
+                                                                postJson: post,
+                                                                nextQueryParams,
+                                                                t,
+                                                                handleValueChange:
+                                                                    handleValueChange,
+                                                                handleSaveScrollPosition:
+                                                                    handleSaveScrollPosition,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <ViewPostCardSkelton />
+                                                    )}
+                                                </>
+                                            )}
+                                            components={{
+                                                Header: () => <DummyHeader />,
+                                            }}
+                                            endReached={loadMore}
+                                            // onScroll={(e) => disableScrollIfNeeded(e)}
+                                            //className="overflow-y-auto"
+                                            className={notNulltimeline()}
+                                        />
+                                    </SwipeRefreshList>
+                                </main>
+                            </div>
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <SwiperEmptySlide />
+                        </SwiperSlide>
                     </>
-                )}
-                components={{
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    Footer: !isEndOfFeed
-                        ? ListFooterSpinner
-                        : ListFooterNoContent,
-                }}
-                endReached={loadMore}
-                // onScroll={(e) => disableScrollIfNeeded(e)}
-                //className="overflow-y-auto"
-                className={notNulltimeline()}
-            />
-        </>
+                )
+            })}
+        </Swiper>
     )
 }

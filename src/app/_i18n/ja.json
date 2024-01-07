@@ -50,6 +50,8 @@
       "light": "ライト",
       "system": "自動",
       "auto": "自動",
+      "timeline": "Timeline",
+      "hideRepost": "Hide Repost",
       "appearance": "外観",
       "size": "サイズ",
       "fontSize": "フォントサイズ",
@@ -93,6 +95,9 @@
     "bookmarks": {
       "title": "ブックマーク",
       "noContent": "保存済みのブックマークはありません"
+    },
+    "swiperEmptySlide": {
+      "text": "このページを追加するとバグが発生しないので、一時的に設置しています。戻るには左にスワイプしてください。"
     }
   },
   "components": {
