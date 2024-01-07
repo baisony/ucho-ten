@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
 import { useTranslation } from "react-i18next"

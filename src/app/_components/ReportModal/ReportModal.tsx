@@ -10,7 +10,7 @@ import {
     Spinner,
     Textarea,
 } from "@nextui-org/react"
-import React, { useState } from "react"
+import { useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"

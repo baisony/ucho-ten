@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { Linkcard } from "../Linkcard"
 import { ScrollShadow, Skeleton } from "@nextui-org/react"

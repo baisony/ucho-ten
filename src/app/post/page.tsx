@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { createPostPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"

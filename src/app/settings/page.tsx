@@ -20,7 +20,7 @@ import {
     TableRow,
     useDisclosure,
 } from "@nextui-org/react"
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,

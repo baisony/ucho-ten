@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"

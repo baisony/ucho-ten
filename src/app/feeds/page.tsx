@@ -1,6 +1,6 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { layout } from "./styles"
 import {

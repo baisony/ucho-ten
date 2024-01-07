@@ -5,7 +5,7 @@ import {
     BlobRef,
     RichText,
 } from "@atproto/api"
-import React, {
+import {
     useCallback,
     useEffect,
     useLayoutEffect,

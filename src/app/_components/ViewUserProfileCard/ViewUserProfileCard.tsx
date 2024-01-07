@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewUserProfileCardStyle } from "./styles"

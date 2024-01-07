@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { BskyAgent } from "@atproto/api"
 import { Button, Spinner } from "@nextui-org/react"
 import { useRouter, useSearchParams } from "next/navigation"

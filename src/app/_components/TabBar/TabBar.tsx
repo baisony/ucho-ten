@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react"
+import { useLayoutEffect } from "react"
 import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {

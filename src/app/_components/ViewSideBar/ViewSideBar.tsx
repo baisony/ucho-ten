@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { viewSideBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {

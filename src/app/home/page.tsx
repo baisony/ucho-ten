@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
 import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"

@@ -1,6 +1,6 @@
 import { layout } from "@/app/search/styles"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import {
     QueryFunctionContext,
