@@ -37,7 +37,11 @@ const EmbedMedia = ({
                             key={`image-${index}`}
                         >
                             <img
-                                className="w-full h-full z-0 object-cover"
+                                className={`${
+                                    images.length !== 1
+                                        ? `w-[280px]`
+                                        : "w-full max-w-[500px]"
+                                } h-[300px] z-0 object-cover`}
                                 src={image.thumb}
                                 alt={image.alt}
                                 onClick={(e) => {
