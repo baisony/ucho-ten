@@ -84,7 +84,7 @@ const MoreDropDownMenu = ({
                                 onClickCopyATURI()
                             }}
                         >
-                            {t("components.ViewPostCard.copyATURI")}
+                            {t("pages.postOnlyPage.copyATURI")}
                         </DropdownItem>
                         <DropdownItem
                             key="3"
@@ -93,7 +93,7 @@ const MoreDropDownMenu = ({
                                 onClickCopyDID()
                             }}
                         >
-                            {t("components.ViewPostCard.copyDID")}
+                            {t("pages.postOnlyPage.copyDID")}
                         </DropdownItem>
                         <DropdownItem
                             key="4"
