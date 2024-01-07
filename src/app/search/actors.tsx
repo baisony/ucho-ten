@@ -10,8 +10,6 @@ import {
     useQueryClient,
 } from "@tanstack/react-query"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -445,24 +443,25 @@ const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
                                         contentFontSize == 1
                                             ? `text-[12px]`
                                             : contentFontSize == 2
-                                            ? `text-[13px]`
-                                            : contentFontSize == 3
-                                            ? `text-[14px]`
-                                            : contentFontSize == 4
-                                            ? `text-[15px]`
-                                            : contentFontSize == 5
-                                            ? `text-[16px]`
-                                            : contentFontSize == 6
-                                            ? `text-[17px]`
-                                            : contentFontSize == 7
-                                            ? `text-[18px]`
-                                            : contentFontSize == 8
-                                            ? `text-[19px]`
-                                            : contentFontSize == 9
-                                            ? `text-[20px]`
-                                            : contentFontSize == 10
-                                            ? `text-[21px]`
-                                            : `text-[14px]`
+                                              ? `text-[13px]`
+                                              : contentFontSize == 3
+                                                ? `text-[14px]`
+                                                : contentFontSize == 4
+                                                  ? `text-[15px]`
+                                                  : contentFontSize == 5
+                                                    ? `text-[16px]`
+                                                    : contentFontSize == 6
+                                                      ? `text-[17px]`
+                                                      : contentFontSize == 7
+                                                        ? `text-[18px]`
+                                                        : contentFontSize == 8
+                                                          ? `text-[19px]`
+                                                          : contentFontSize == 9
+                                                            ? `text-[20px]`
+                                                            : contentFontSize ==
+                                                                10
+                                                              ? `text-[21px]`
+                                                              : `text-[14px]`
                                     }`}
                                 >
                                     {actor?.description}

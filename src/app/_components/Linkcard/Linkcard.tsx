@@ -26,8 +26,8 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
         ? thumb?.startsWith("http")
             ? thumb
             : uri && thumb?.startsWith("/")
-            ? `${uri.replace(/\/$/, "")}${thumb}`
-            : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
+              ? `${uri.replace(/\/$/, "")}${thumb}`
+              : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
         : null
     return (
         <div className={"w-full"}>

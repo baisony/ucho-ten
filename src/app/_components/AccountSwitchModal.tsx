@@ -172,17 +172,17 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
                                                             account.profile.did
                                                             ? "current"
                                                             : authenticationRequired &&
-                                                              selectedAccount !==
-                                                                  null &&
-                                                              account.profile
-                                                                  .did ===
-                                                                  selectedAccount
-                                                                      .profile
-                                                                      .did
-                                                            ? "loginRequired"
-                                                            : isAccountSwitching
-                                                            ? "switching"
-                                                            : null
+                                                                selectedAccount !==
+                                                                    null &&
+                                                                account.profile
+                                                                    .did ===
+                                                                    selectedAccount
+                                                                        .profile
+                                                                        .did
+                                                              ? "loginRequired"
+                                                              : isAccountSwitching
+                                                                ? "switching"
+                                                                : null
                                                     }
                                                     onClickNeedLogin={
                                                         handleClickNeedLogin

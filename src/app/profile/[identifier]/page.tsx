@@ -51,9 +51,7 @@ import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import {
     menuIndexAtom,
     useCurrentMenuType,
@@ -1362,10 +1360,10 @@ const UserProfileComponent = ({
                             {isProfileMine
                                 ? t("pages.profile.editProfile")
                                 : isFollowing
-                                ? !onHoverButton
-                                    ? t("button.following")
-                                    : t("button.unfollow")
-                                : t("button.follow")}
+                                  ? !onHoverButton
+                                      ? t("button.following")
+                                      : t("button.unfollow")
+                                  : t("button.follow")}
                         </Button>
                     </div>
                     <div className={ProfileDisplayName()}>

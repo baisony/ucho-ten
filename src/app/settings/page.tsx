@@ -559,18 +559,22 @@ const SettingsContentFilteringPage = ({
                             {key === "nsfw"
                                 ? t("pages.contentfiltering.nsfw")
                                 : key === "nudity"
-                                ? t("pages.contentfiltering.otherNudity")
-                                : key === "spam"
-                                ? t("pages.contentfiltering.spam")
-                                : key === "gore"
-                                ? t("pages.contentfiltering.violence")
-                                : key === "hate"
-                                ? t("pages.contentfiltering.hate")
-                                : key === "impersonation"
-                                ? t("pages.contentfiltering.impersonation")
-                                : key === "suggestive"
-                                ? t("pages.contentfiltering.sexuallySuggestive")
-                                : key}
+                                  ? t("pages.contentfiltering.otherNudity")
+                                  : key === "spam"
+                                    ? t("pages.contentfiltering.spam")
+                                    : key === "gore"
+                                      ? t("pages.contentfiltering.violence")
+                                      : key === "hate"
+                                        ? t("pages.contentfiltering.hate")
+                                        : key === "impersonation"
+                                          ? t(
+                                                "pages.contentfiltering.impersonation"
+                                            )
+                                          : key === "suggestive"
+                                            ? t(
+                                                  "pages.contentfiltering.sexuallySuggestive"
+                                              )
+                                            : key}
                         </div>
                         <div className={""}>
                             <ButtonGroup
@@ -876,7 +880,7 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                                     onChange={(e) =>
                                                         console.log(e)
                                                     }
-                                                    defaultValue={
+                                                    defaultSelectedKeys={
                                                         inputMuteCategory
                                                     }
                                                     labelPlacement={
@@ -976,8 +980,8 @@ const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             {muteWord.end === null
                                                 ? t("pages.mute.forever")
                                                 : muteWord.end < getNowTime()
-                                                ? getEndTime()
-                                                : t("pages.mute.expired")}
+                                                  ? getEndTime()
+                                                  : t("pages.mute.expired")}
                                         </div>
                                         <div className={"w-[14px] ml-[10px]"}>
                                             <FontAwesomeIcon
