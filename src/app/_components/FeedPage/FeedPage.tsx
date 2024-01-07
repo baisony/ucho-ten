@@ -28,12 +28,10 @@ import { SwipeRefreshList } from "react-swipe-down-refresh"
 //import "react-swipe-down-refresh/lib/react-swipe-down-refresh.css"
 import "./SwipeRefreshListStyle.css"
 import "./styles.css"
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useHideRepost } from "@/app/_atoms/hideRepost"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
 
 //import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 const ListFooterNoContent = dynamic(
@@ -483,23 +481,7 @@ const FeedPage = ({
 
     return (
         <>
-            {hasUpdate && (
-                <div
-                    className={
-                        "absolute flex justify-center z-[10] left-16 right-16 md:top-[120px] top-[calc(100px+env(safe-area-inset-top))] lg:top-[70px]"
-                    }
-                >
-                    <div
-                        className={
-                            "text-white bg-blue-500/50 backdrop-blur-[15px] rounded-full cursor-pointer pl-[10px] pr-[10px] pt-[5px] pb-[5px] text-[14px]"
-                        }
-                        onClick={handleRefresh}
-                    >
-                        <FontAwesomeIcon icon={faArrowsRotate} />{" "}
-                        {t("button.newPosts")}
-                    </div>
-                </div>
-            )}
+            {hasUpdate && <RefreshButton handleRefresh={handleRefresh} />}
             <SwipeRefreshList
                 onRefresh={async () => {
                     await lazyCheckNewTimeline()
