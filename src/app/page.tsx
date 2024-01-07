@@ -181,6 +181,7 @@ export default function CreateLoginPage() {
                                 height={50}
                                 width={320}
                                 loading={"eager"}
+                                fetchPriority={"high"}
                             />
                             <div
                                 className={

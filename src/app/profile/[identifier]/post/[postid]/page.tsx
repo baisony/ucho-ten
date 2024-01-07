@@ -891,6 +891,7 @@ const PostPage = (props: PostPageProps) => {
                                         defaultIcon.src
                                     }
                                     alt={"avatar"}
+                                    loading={"eager"}
                                 />
                             </Link>
                             <div>

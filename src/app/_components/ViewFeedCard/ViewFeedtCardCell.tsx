@@ -47,6 +47,7 @@ export const ViewFeedCardCell = (props: ViewFeedCardCellProps) => {
                             className={`h-[35px] w-[35px] z-[0]`}
                             src={feed?.avatar || defaultFeedIcon.src}
                             alt={"avatar image"}
+                            loading={"eager"}
                         />
                     )}
                 </div>

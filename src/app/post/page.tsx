@@ -626,6 +626,7 @@ export default function Root() {
                                     alt={"author icon"}
                                     onDragStart={handleDragStart}
                                     src={userProfileDetailed?.avatar || ""}
+                                    loading={"eager"}
                                 />
                             </div>
                         </div>

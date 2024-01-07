@@ -23,8 +23,20 @@ const PageNotFound = () => {
                     router.back()
                 }}
             >
-                <Image src={fortyfour} alt="404" />
-                <Image src={zazen} alt="404" height={150} className="mt-5" />
+                <Image
+                    src={fortyfour}
+                    alt="404"
+                    loading={"eager"}
+                    fetchPriority={"high"}
+                />
+                <Image
+                    src={zazen}
+                    alt="404"
+                    height={150}
+                    className="mt-5"
+                    loading={"eager"}
+                    fetchPriority={"high"}
+                />
                 <div>Go back</div>
             </div>
         </div>
