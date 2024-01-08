@@ -7,7 +7,6 @@ import React, {
     useEffect,
     useLayoutEffect,
     useMemo,
-    useRef,
     useState,
 } from "react"
 import { layout } from "@/app/styles"
@@ -19,18 +18,10 @@ import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useImageGalleryAtom } from "@/app/_atoms/imageGallery"
-import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
-import Lightbox, {
-    CaptionsRef,
-    Slide,
-    ZoomRef,
-} from "yet-another-react-lightbox"
+import { Slide } from "yet-another-react-lightbox"
 
 import { push as BurgerPush } from "react-burger-menu"
 
-import "yet-another-react-lightbox/styles.css"
-import "yet-another-react-lightbox/plugins/captions.css"
-import "yet-another-react-lightbox/plugins/counter.css"
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 import { MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
@@ -46,7 +37,15 @@ import { useQueryClient } from "@tanstack/react-query"
 import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
-import "./lightbox.css"
+import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
+//import { ViewLightbox } from "@/app/_components/ViewLightbox"
+const ViewLightbox = dynamic(
+    () =>
+        import("@/app/_components/ViewLightbox").then(
+            (mod) => mod.ViewLightbox
+        ),
+    {}
+)
 
 const ViewSideMenu = dynamic(
     () =>
@@ -75,7 +74,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [muteWords, setMuteWords] = useWordMutes()
     const [, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
-    const [imageGallery, setImageGallery] = useImageGalleryAtom()
+    const [imageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
@@ -92,9 +91,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
-
-    const zoomRef = useRef<ZoomRef>(null)
-    const captionsRef = useRef<CaptionsRef>(null)
 
     const { background } = layout()
 
@@ -238,7 +234,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         }
     }, [router, pathName])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (agent?.hasSession === true) {
             return
         }
@@ -387,12 +383,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             return false
         } else return !pathName.startsWith("/post")
     }, [pathName, searchParams])
-
-    useEffect(() => {
-        if (!translateTo) return
-        if (translateTo[0] !== "") return
-        //setTranslateTo([])
-    }, [translateTo])
 
     useEffect(() => {
         if (!agent) return
@@ -687,76 +677,19 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 >
                                     {shouldFillPageBackground &&
                                         statusCode !== 404 && (
-                                            <div className="absolute top-[env(safe-area-inset-top)] left-0 flex justify-center w-full h-full lg:hidden">
-                                                <div
-                                                    className={`bg-white dark:bg-[#16191F] w-full max-w-[600px] ${
-                                                        isSearchScreen
-                                                            ? `lg:mt-[100px]`
-                                                            : `lg:mt-[50px]`
-                                                    } md:mt-[100px] mt-[85px] lg:h-[calc(100%-50px)] md:h-[calc(100%-100px)] h-[calc(100%-85px)]`}
-                                                />
-                                            </div>
+                                            <ViewFillPageBackground />
                                         )}
                                     {children}
                                 </div>
                                 {showTabBar && !isLoginPath && <TabBar />}
                             </div>
                             {imageSlides && imageSlideIndex !== null && (
-                                <div
-                                    onClick={(e) => {
-                                        const clickedElement =
-                                            e.target as HTMLDivElement
-
-                                        console.log(e.target)
-                                        if (
-                                            clickedElement.classList.contains(
-                                                "yarl__fullsize"
-                                            ) ||
-                                            clickedElement.classList.contains(
-                                                "yarl__flex_center"
-                                            )
-                                        ) {
-                                            setImageGallery(null)
-                                            setImageSlides(null)
-                                            setImageSlideIndex(null)
-                                        }
-                                    }}
-                                >
-                                    <Lightbox
-                                        open={true}
-                                        index={imageSlideIndex}
-                                        plugins={[Zoom, Captions, Counter]}
-                                        zoom={{
-                                            ref: zoomRef,
-                                            scrollToZoom: true,
-                                        }}
-                                        captions={{
-                                            ref: captionsRef,
-                                            showToggle: true,
-                                            descriptionMaxLines: 2,
-                                            descriptionTextAlign: "start",
-                                        }}
-                                        close={() => {
-                                            setImageGallery(null)
-                                            setImageSlides(null)
-                                            setImageSlideIndex(null)
-                                        }}
-                                        slides={imageSlides}
-                                        carousel={{
-                                            finite: imageSlides.length <= 5,
-                                        }}
-                                        render={{
-                                            buttonPrev:
-                                                imageSlides.length <= 1
-                                                    ? () => null
-                                                    : undefined,
-                                            buttonNext:
-                                                imageSlides.length <= 1
-                                                    ? () => null
-                                                    : undefined,
-                                        }}
-                                    />
-                                </div>
+                                <ViewLightbox
+                                    imageSlides={imageSlides}
+                                    imageSlideIndex={imageSlideIndex}
+                                    setImageSlides={setImageSlides}
+                                    setImageSlideIndex={setImageSlideIndex}
+                                />
                             )}
                         </div>
                         <div

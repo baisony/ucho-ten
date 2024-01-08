@@ -242,13 +242,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         }
     }, [])
 
-    const handleReply = useCallback(async () => {
+    const handleReply = async () => {
         //setIsPostModalOpen(true)
         console.log("open")
         onOpenReply()
-    }, [])
+    }
 
-    const handleRepost = useCallback(async () => {
+    const handleRepost = async () => {
         if (loading) return
         setLoading(true)
         if (isReposted && postView?.viewer?.repost) {
@@ -267,9 +267,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
             handleInputChange("repost", postJsonData?.uri || "", res?.uri || "")
         }
         setLoading(false)
-    }, [])
+    }
 
-    const handleLike = useCallback(async () => {
+    const handleLike = async () => {
         if (loading) return
 
         setLoading(true)
@@ -291,7 +291,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         }
 
         setLoading(false)
-    }, [])
+    }
 
     const useEmbed = useMemo(() => {
         const extractEmbedOfType = (type: any) => {
@@ -344,7 +344,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         notfoundEmbedRecord,
     } = useEmbed
 
-    const handleDelete = useCallback(async () => {
+    const handleDelete = async () => {
         if (loading || !agent || !postJson) return
         try {
             setLoading(true)
@@ -355,9 +355,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }
 
-    const handleMute = useCallback(async () => {
+    const handleMute = async () => {
         if (loading || !postView) return
 
         setLoading(true)
@@ -371,7 +371,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         }
 
         setLoading(false)
-    }, [])
+    }
 
     const handleImageClick = useCallback(
         (images: ViewImage[], index: number) => {

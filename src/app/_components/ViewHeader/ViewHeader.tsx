@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -41,7 +41,7 @@ interface Props {
     setSearchText?: any
 }
 
-export const ViewHeader: React.FC<Props> = (props: Props) => {
+export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     const router = useRouter()
     const pathname = usePathname()
     const specificPaths = ["/search"]
@@ -322,6 +322,6 @@ export const ViewHeader: React.FC<Props> = (props: Props) => {
             </Swiper>
         </main>
     )
-}
+})
 
 export default ViewHeader
