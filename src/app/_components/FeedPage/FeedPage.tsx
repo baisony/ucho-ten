@@ -31,7 +31,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
 
 const FEED_FETCH_LIMIT: number = 30
-const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
+const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
 
 export interface FeedPageProps {
     isActive: boolean

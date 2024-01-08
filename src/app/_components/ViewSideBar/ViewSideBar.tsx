@@ -301,7 +301,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         "ml-[35px] absolute bottom-[calc(20px+env(safe-area-inset-bottom))] text-[#f2f2f2] dark:text-[#D7D7D7] text-xs"
                     }
                 >
-                    <div className={"versionNumber"}>version: 1.0.2</div>
+                    <div className={"versionNumber"}>version: 1.0.3</div>
                     <div className={"codeName"}>code name: Nirvana</div>
                 </div>
             </main>
