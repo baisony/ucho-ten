@@ -83,7 +83,7 @@ export const SwiperPage = (props: SwiperPageProps) => {
                 {menus[page].map((menu: HeaderMenu, index: number) => {
                     return (
                         <>
-                            <SwiperSlide key={`swiperslide-home-${index}`}>
+                            <SwiperSlide key={index}>
                                 <div
                                     id={`swiperIndex-div-${index}`}
                                     key={index}
@@ -107,7 +107,7 @@ export const SwiperPage = (props: SwiperPageProps) => {
                             </SwiperSlide>
                             {/*//@ts-ignore*/}
                             {menus[page].length === 1 && (
-                                <SwiperSlide>
+                                <SwiperSlide key={1}>
                                     <SwiperEmptySlide />
                                 </SwiperSlide>
                             )}

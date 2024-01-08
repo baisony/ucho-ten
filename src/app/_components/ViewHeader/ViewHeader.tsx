@@ -36,11 +36,8 @@ interface Props {
     className?: string
     isMobile?: boolean
     open?: boolean
-    //tab: string //"home" | "search" | "inbox" | "post"
-    //page: string // "profile" | "home" | "post" | "search"
     isNextPage?: boolean
     setSideBarOpen?: any
-    //selectedTab: string
     setSearchText?: any
 }
 
