@@ -13,11 +13,6 @@ export const viewHeader = tv({
         bottom: "lg:h-[27px] md:h-[27px] h-[30px] font-bold align-center overflow-x-scroll overflow-y-hidden flex justify-center items-center",
     },
     variants: {
-        page: {},
-        isNextPage: {
-            true: {},
-            false: {},
-        },
         isMatchingPath: {
             false: {
                 Header: "lg:h-[50px]",
