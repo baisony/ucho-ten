@@ -4,6 +4,7 @@ import { AppConatiner } from "./_components/AppContainer/AppContainer"
 import Script from "next/script"
 
 import "./globals.css"
+import { OneSignalInitial } from "@/app/_lib/pushNotif/OneSignalInitial"
 
 export const metadata: Metadata = {
     manifest: "/manifest.json",
@@ -271,6 +272,7 @@ export default function RootLayout({
             >
                 <Script src="/noflash.js" />
                 <Providers>
+                    <OneSignalInitial />
                     <AppConatiner>{children}</AppConatiner>
                 </Providers>
             </body>

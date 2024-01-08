@@ -216,6 +216,12 @@ const SettingsGeneralPage = ({
                                 />
                             </TableCell>
                         </TableRow>
+                        <TableRow>
+                            <TableCell>push notif</TableCell>
+                            <TableCell>
+                                <div className="onesignal-customlink-container" />
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
                 <div
