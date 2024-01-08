@@ -204,12 +204,12 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         onOpenChange: onOpenChangeReport,
     } = createDisclosure()
 
-    const syncBookmarks = useCallback(async (bookmarklist: Bookmark[]) => {
+    const syncBookmarks = async (bookmarklist: Bookmark[]) => {
         if (!agent) return
         await syncContents(bookmarklist, muteWords)
-    }, [])
+    }
 
-    const handleBookmark = useCallback(async (uri: string) => {
+    const handleBookmark = async (uri: string) => {
         const createdAt = new Date().getTime()
         const json: Bookmark = {
             uri: uri,
@@ -240,7 +240,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
             void syncBookmarks([...bookmarks, json])
             setIsBookmarked(true)
         }
-    }, [])
+    }
 
     const handleReply = async () => {
         //setIsPostModalOpen(true)
