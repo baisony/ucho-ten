@@ -18,31 +18,22 @@ import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import {
-    menuIndexAtom,
-    useCurrentMenuType,
-    useMenuIndexChangedByMenu,
-} from "../_atoms/headerMenu"
+import { menuIndexAtom, useCurrentMenuType } from "../_atoms/headerMenu"
 
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
 import { useAtom } from "jotai"
-import { isMobile } from "react-device-detect"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Virtuoso } from "react-virtuoso"
 import { useTranslation } from "react-i18next"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
+    const [menuIndex] = useAtom(menuIndexAtom)
 
     const swiperRef = useRef<SwiperCore | null>(null)
 
@@ -62,36 +53,14 @@ const Page = () => {
 
     return (
         <>
-            <Swiper
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper
-                }}
-                cssMode={isMobile}
-                pagination={{ type: "custom", clickable: false }}
-                modules={[Pagination]}
-                className="swiper-my-feeds"
-                style={{ height: "100%" }}
-                touchAngle={30}
-                touchRatio={0.8}
-                touchReleaseOnEdges={true}
-                touchMoveStopPropagation={true}
-                preventInteractionOnTransition={true}
-                onActiveIndexChange={(swiper) => {
-                    if (!menuIndexChangedByMenu) {
-                        setMenuIndex(swiper.activeIndex)
-                    }
-                }}
-                onTouchStart={() => {
-                    setMenuIndexChangedByMenu(false)
-                }}
-            >
+            <SwiperContainer props={{ page: "feeds" }}>
                 <SwiperSlide>
                     <MyFeedsPage />
                 </SwiperSlide>
                 <SwiperSlide>
                     <div className="w-full h-full"></div>
                 </SwiperSlide>
-            </Swiper>
+            </SwiperContainer>
         </>
     )
 }

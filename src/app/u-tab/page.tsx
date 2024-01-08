@@ -8,9 +8,9 @@ import {
     useState,
 } from "react"
 import { useAtom } from "jotai"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination, Virtual } from "swiper/modules"
+import { Virtual } from "swiper/modules"
 import FeedPage from "../_components/FeedPage/FeedPage"
 import {
     menuIndexAtom,
@@ -31,6 +31,7 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 SwiperCore.use([Virtual])
 
@@ -43,11 +44,9 @@ const Root = () => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
+    const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
+    const [tappedTabbarButton] = useTappedTabbarButtonAtom()
     const [now, setNow] = useState<Date>(new Date())
     const [disableSlideVerticalScroll] = useState<boolean>(false)
 
@@ -106,35 +105,7 @@ const Root = () => {
     }, [agent, menuIndex])
 
     return (
-        <Swiper
-            onSwiper={(swiper) => {
-                swiperRef.current = swiper
-            }}
-            cssMode={isMobile}
-            pagination={{ type: "custom", clickable: false }}
-            hidden={true} // ??
-            modules={[Pagination]}
-            className="swiper-home"
-            style={{ height: "100%" }}
-            touchAngle={30}
-            touchRatio={0.8}
-            initialSlide={menuIndex}
-            touchReleaseOnEdges={true}
-            touchMoveStopPropagation={true}
-            preventInteractionOnTransition={true}
-            onActiveIndexChange={(swiper) => {
-                if (!menuIndexChangedByMenu) {
-                    setMenuIndex(swiper.activeIndex)
-                }
-
-                if (tappedTabbarButton !== null) {
-                    setTappedTabbarButton(null)
-                }
-            }}
-            onTouchStart={() => {
-                setMenuIndexChangedByMenu(false)
-            }}
-        >
+        <SwiperContainer props={{ page: "utab" }}>
             {menus.utab.map((menu, index) => {
                 console.log(menu)
                 return (
@@ -180,7 +151,7 @@ const Root = () => {
                     </SwiperSlide>
                 )
             })}
-        </Swiper>
+        </SwiperContainer>
     )
 }
 

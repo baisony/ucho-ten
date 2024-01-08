@@ -9,16 +9,13 @@ import {
     menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
 } from "../_atoms/headerMenu"
 import { useAtom } from "jotai"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { isMobile } from "react-device-detect"
 import { layout } from "@/app/search/styles"
 import Link from "next/link"
 import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
@@ -28,6 +25,7 @@ import SearchActorPage from "@/app/search/actors"
 import SearchFeedPage from "@/app/search/feeds"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { useQueryClient } from "@tanstack/react-query"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 const Page = () => {
     const pathname = usePathname()
@@ -42,10 +40,7 @@ const Page = () => {
     const { searchSupportCard } = layout()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
+    const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
@@ -208,16 +203,6 @@ const Page = () => {
         })
     }
 
-    const reSearch = (text: string) => {
-        setSearchTarget("posts")
-        setSearchText(text)
-        queryClient.resetQueries({ queryKey: ["getSearch"] })
-
-        setSearchInfo({
-            target: searchTarget,
-            searchWord: text,
-        })
-    }
     const findFeeds = () => {
         const queryParams = new URLSearchParams(nextQueryParams)
         queryParams.set("word", "フィード bsky.app")
@@ -264,38 +249,7 @@ const Page = () => {
                     </div>
                 </div>
             ) : (
-                <Swiper
-                    onSwiper={(swiper) => {
-                        swiperRef.current = swiper
-                    }}
-                    cssMode={isMobile}
-                    pagination={{ type: "custom", clickable: false }}
-                    hidden={true} // ??
-                    modules={[Pagination]}
-                    className="swiper-home"
-                    style={{ height: "100%" }}
-                    touchEventsTarget={"container"}
-                    touchRatio={1}
-                    threshold={1}
-                    resistance={false}
-                    longSwipes={false}
-                    initialSlide={menuIndex}
-                    touchStartForcePreventDefault={true}
-                    preventInteractionOnTransition={true}
-                    touchStartPreventDefault={false}
-                    edgeSwipeDetection={true}
-                    onActiveIndexChange={(swiper) => {
-                        if (!menuIndexChangedByMenu) {
-                            setMenuIndex(swiper.activeIndex)
-                        }
-                        if (tappedTabbarButton !== null) {
-                            setTappedTabbarButton(null)
-                        }
-                    }}
-                    onTouchStart={() => {
-                        setMenuIndexChangedByMenu(false)
-                    }}
-                >
+                <SwiperContainer props={{ page: "search" }}>
                     <SwiperSlide key={`swiperslide-home-0`}>
                         <div
                             id={`swiperIndex-div-${0}`}
@@ -349,7 +303,7 @@ const Page = () => {
                             }}
                         />
                     </SwiperSlide>
-                </Swiper>
+                </SwiperContainer>
             )}
         </>
     )
