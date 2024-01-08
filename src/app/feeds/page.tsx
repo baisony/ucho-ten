@@ -53,7 +53,7 @@ const Page = () => {
 
     return (
         <>
-            <SwiperContainer props={{ page: "feeds" }}>
+            <SwiperContainer props={{ page: "feed" }}>
                 <SwiperSlide>
                     <MyFeedsPage />
                 </SwiperSlide>
