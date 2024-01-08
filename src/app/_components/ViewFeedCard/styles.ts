@@ -41,11 +41,4 @@ export const viewFeedCard = tv({
         LinkCardDescription: "text-xs mt-1",
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
     },
-    variants: {
-        isEmbedToModal: {
-            true: {
-                PostModal: "bg-transparent",
-            },
-        },
-    },
 })

@@ -23,10 +23,4 @@ export const viewProfilePage = tv({
         PostContainer: "w-full h-full",
         appearanceTextColor: "text-black dark:text-white",
     },
-    variants: {
-        hover: {
-            true: {},
-            false: {},
-        },
-    },
 })

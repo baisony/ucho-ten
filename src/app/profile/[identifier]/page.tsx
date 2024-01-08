@@ -1362,10 +1362,10 @@ const UserProfileComponent = ({
                             {isProfileMine
                                 ? t("pages.profile.editProfile")
                                 : isFollowing
-                                ? !onHoverButton
-                                    ? t("button.following")
-                                    : t("button.unfollow")
-                                : t("button.follow")}
+                                  ? !onHoverButton
+                                      ? t("button.following")
+                                      : t("button.unfollow")
+                                  : t("button.follow")}
                         </Button>
                     </div>
                     <div className={ProfileDisplayName()}>
