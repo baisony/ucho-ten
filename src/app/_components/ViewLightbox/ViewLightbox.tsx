@@ -1,45 +1,59 @@
-import React, { memo, useRef } from "react"
+import React, { memo, useEffect, useRef, useState } from "react"
 import "yet-another-react-lightbox/styles.css"
 import "yet-another-react-lightbox/plugins/captions.css"
 import "yet-another-react-lightbox/plugins/counter.css"
 import { Captions, Counter, Zoom } from "yet-another-react-lightbox/plugins"
-import Lightbox, { CaptionsRef, ZoomRef } from "yet-another-react-lightbox"
+import Lightbox, {
+    CaptionsRef,
+    Slide,
+    ZoomRef,
+} from "yet-another-react-lightbox"
 import "@/app/_components/AppContainer/lightbox.css"
 import { useImageGalleryAtom } from "@/app/_atoms/imageGallery"
 
-interface Interface {
-    imageSlides: any
-    setImageSlides: any
-    imageSlideIndex: any
-    setImageSlideIndex: any
-}
+export const ViewLightbox = memo(() => {
+    const [imageSlides, setImageSlides] = useState<Slide[] | undefined>(
+        undefined
+    )
+    const [imageSlideIndex, setImageSlideIndex] = useState<number | undefined>(
+        undefined
+    )
+    const [imageGallery, setImageGallery] = useImageGalleryAtom()
+    const zoomRef = useRef<ZoomRef>(null)
+    const captionsRef = useRef<CaptionsRef>(null)
 
-export const ViewLightbox = memo(
-    ({
-        imageSlides,
-        setImageSlides,
-        imageSlideIndex,
-        setImageSlideIndex,
-    }: Interface) => {
-        const [, setImageGallery] = useImageGalleryAtom()
-        const zoomRef = useRef<ZoomRef>(null)
-        const captionsRef = useRef<CaptionsRef>(null)
-        return (
-            <div
-                onClick={(e) => {
-                    const clickedElement = e.target as HTMLDivElement
+    useEffect(() => {
+        if (imageGallery && imageGallery.images.length > 0) {
+            const slides: Slide[] = []
 
-                    console.log(e.target)
-                    if (
-                        clickedElement.classList.contains("yarl__fullsize") ||
-                        clickedElement.classList.contains("yarl__flex_center")
-                    ) {
-                        setImageGallery(null)
-                        setImageSlides(null)
-                        setImageSlideIndex(null)
-                    }
-                }}
-            >
+            for (const image of imageGallery.images) {
+                slides.push({
+                    src: image.fullsize,
+                    description: image.alt,
+                })
+            }
+
+            setImageSlideIndex(imageGallery.index)
+            setImageSlides(slides)
+        }
+    }, [imageGallery])
+    return (
+        <div
+            onClick={(e) => {
+                const clickedElement = e.target as HTMLDivElement
+
+                console.log(e.target)
+                if (
+                    clickedElement.classList.contains("yarl__fullsize") ||
+                    clickedElement.classList.contains("yarl__flex_center")
+                ) {
+                    setImageGallery(null)
+                    setImageSlides(undefined)
+                    setImageSlideIndex(undefined)
+                }
+            }}
+        >
+            {imageSlides && imageSlideIndex !== null && (
                 <Lightbox
                     open={true}
                     index={imageSlideIndex}
@@ -56,8 +70,8 @@ export const ViewLightbox = memo(
                     }}
                     close={() => {
                         setImageGallery(null)
-                        setImageSlides(null)
-                        setImageSlideIndex(null)
+                        setImageSlides(undefined)
+                        setImageSlideIndex(undefined)
                     }}
                     slides={imageSlides}
                     carousel={{
@@ -70,9 +84,9 @@ export const ViewLightbox = memo(
                             imageSlides.length <= 1 ? () => null : undefined,
                     }}
                 />
-            </div>
-        )
-    }
-)
+            )}
+        </div>
+    )
+})
 
 export default ViewLightbox
