@@ -21,7 +21,9 @@ import {
 } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
+    faAt,
     faBookmark as faSolidBookmark,
+    faChain,
     faCode,
     faEllipsis,
     faFlag,
@@ -30,9 +32,7 @@ import {
     faRetweet,
     faStar as faSolidStar,
     faTrash,
-    faAt,
     faUser,
-    faChain,
     faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
@@ -83,29 +83,22 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import {
-    menuIndexAtom,
-    useCurrentMenuType,
-    useMenuIndexChangedByMenu,
-} from "@/app/_atoms/headerMenu"
+import { menuIndexAtom, useCurrentMenuType } from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { useAtom } from "jotai"
 
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination } from "swiper/modules"
 
 import "swiper/css"
 import "swiper/css/pagination"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-
+    const [menuIndex] = useAtom(menuIndexAtom)
     const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
@@ -124,36 +117,14 @@ const Page = () => {
 
     return (
         <>
-            <Swiper
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper
-                }}
-                cssMode={isMobile}
-                pagination={{ type: "custom", clickable: false }}
-                modules={[Pagination]}
-                className="swiper-only-post"
-                style={{ height: "100%" }}
-                touchAngle={30}
-                touchRatio={0.8}
-                touchReleaseOnEdges={true}
-                touchMoveStopPropagation={true}
-                preventInteractionOnTransition={true}
-                onActiveIndexChange={(swiper) => {
-                    if (!menuIndexChangedByMenu) {
-                        setMenuIndex(swiper.activeIndex)
-                    }
-                }}
-                onTouchStart={() => {
-                    setMenuIndexChangedByMenu(false)
-                }}
-            >
+            <SwiperContainer props={{ page: "onlyPost" }}>
                 <SwiperSlide>
                     <PostPage tab={"authors"} />
                 </SwiperSlide>
                 <SwiperSlide>
                     <PostPage tab={"others"} />
                 </SwiperSlide>
-            </Swiper>
+            </SwiperContainer>
         </>
     )
 }

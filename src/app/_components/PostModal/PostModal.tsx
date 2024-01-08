@@ -485,8 +485,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             const generatedURL = thumb?.startsWith("http")
                 ? thumb
                 : uri && thumb?.startsWith("/")
-                ? `${uri.replace(/\/$/, "")}${thumb}`
-                : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
+                  ? `${uri.replace(/\/$/, "")}${thumb}`
+                  : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
             const json = {
                 title: ogp?.ogTitle,
                 description: ogp?.ogDescription,

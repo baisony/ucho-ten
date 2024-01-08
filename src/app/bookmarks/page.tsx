@@ -12,49 +12,35 @@ import { Virtuoso } from "react-virtuoso"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination, Virtual } from "swiper/modules"
+import { Virtual } from "swiper/modules"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
 } from "../_atoms/headerMenu"
-import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { useAtom } from "jotai"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 SwiperCore.use([Virtual])
 
 export default function Root() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     const { t } = useTranslation()
-    const { nullTimeline, notNulltimeline } = tabBarSpaceStyles()
+    const { nullTimeline } = tabBarSpaceStyles()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [bookmarks, setBookmarks] = useBookmarks()
+    const [bookmarks] = useBookmarks()
     const [timeline, setTimeline] = useState<PostView[]>([])
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
 
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-    const [currentMenuType] = useCurrentMenuType()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
-
-    const [now, setNow] = useState<Date>(new Date())
-    const [disableSlideVerticalScroll] = useState<boolean>(false)
-
-    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("bookmarks")
@@ -77,7 +63,6 @@ export default function Root() {
         //console.log(batches)
         const results = []
         for (const batch of batches) {
-            //@ts-ignore
             const { data } = await agent?.getPosts({ uris: batch })
             const { posts } = data
             results.push(...posts)
@@ -151,7 +136,7 @@ export default function Root() {
                 case "delete":
                     setTimeline((prevData) => {
                         const updatedData = [...prevData]
-                        const removedItem = updatedData.splice(foundObject, 1)
+                        updatedData.splice(foundObject, 1)
                         return updatedData
                     })
                 //timeline.splice(foundObject, 1)
@@ -183,32 +168,12 @@ export default function Root() {
     }
 
     useEffect(() => {
-        fetchBookmarks()
+        void fetchBookmarks()
     }, [agent])
 
     return (
         <>
-            <Swiper
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper
-                }}
-                cssMode={isMobile}
-                pagination={{ type: "custom", clickable: false }}
-                hidden={true} // ??
-                modules={[Pagination]}
-                className="swiper-home"
-                style={{ height: "100%" }}
-                touchEventsTarget={"container"}
-                touchRatio={1}
-                threshold={1}
-                resistance={false}
-                longSwipes={false}
-                initialSlide={menuIndex}
-                touchStartForcePreventDefault={true}
-                preventInteractionOnTransition={true}
-                touchStartPreventDefault={false}
-                edgeSwipeDetection={true}
-            >
+            <SwiperContainer props={{ page: "bookmarks" }}>
                 {menus.inbox.map((menu, index) => {
                     return (
                         <>
@@ -292,7 +257,7 @@ export default function Root() {
                         </>
                     )
                 })}
-            </Swiper>
+            </SwiperContainer>
         </>
     )
 }

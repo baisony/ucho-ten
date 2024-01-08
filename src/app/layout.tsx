@@ -7,16 +7,13 @@ import "./globals.css"
 
 export const metadata: Metadata = {
     manifest: "/manifest.json",
-    title: "Ucho-ten Bluesky Client",
+    title: "Ucho-ten",
     applicationName: "Ucho-ten",
     description:
         "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
-    viewport:
-        "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
-    themeColor: "#000000",
     openGraph: {
         type: "website",
-        siteName: "Ucho-ten",
+        siteName: "Ucho-ten Bluesky Client",
         title: "Ucho-ten Bluesky Client",
         url: "https://ucho-ten.net",
         locale: "ja_JP",
@@ -39,6 +36,16 @@ export const metadata: Metadata = {
         },
     },
 }
+
+const viewport = {
+    themeColor: "#000000",
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    viewportFit: "cover",
+}
+
+export { viewport }
 
 export default function RootLayout({
     children,

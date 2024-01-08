@@ -25,9 +25,7 @@ import {
     ViewUserProfileCardCellProps,
 } from "@/app/_components/ViewUserProfileCard/ViewUserProfileCardCell"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import { AtUri } from "@atproto/api"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import {
@@ -38,22 +36,19 @@ import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination, Virtual } from "swiper/modules"
+import { Virtual } from "swiper/modules"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { useAtom } from "jotai"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
-import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 SwiperCore.use([Virtual])
 
@@ -83,17 +78,7 @@ export default function Root() {
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
 
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-    const [currentMenuType] = useCurrentMenuType()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
-
-    const [disableSlideVerticalScroll] = useState<boolean>(false)
-
-    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("list")
@@ -510,27 +495,7 @@ export default function Root() {
     }, [feedInfo, timeline, isSubscribed])
 
     return (
-        <Swiper
-            onSwiper={(swiper) => {
-                swiperRef.current = swiper
-            }}
-            cssMode={isMobile}
-            pagination={{ type: "custom", clickable: false }}
-            hidden={true} // ??
-            modules={[Pagination]}
-            className="swiper-home"
-            style={{ height: "100%" }}
-            touchEventsTarget={"container"}
-            touchRatio={1}
-            threshold={1}
-            resistance={false}
-            longSwipes={false}
-            initialSlide={menuIndex}
-            touchStartForcePreventDefault={true}
-            preventInteractionOnTransition={true}
-            touchStartPreventDefault={false}
-            edgeSwipeDetection={true}
-        >
+        <SwiperContainer props={{ page: "list" }}>
             {menus.feed.map((menu, index) => {
                 return (
                     <>
@@ -581,7 +546,7 @@ export default function Root() {
                     </>
                 )
             })}
-        </Swiper>
+        </SwiperContainer>
     )
 }
 
@@ -682,7 +647,7 @@ const FeedHeaderComponent = ({
                                 key="new"
                                 onClick={() => {
                                     const aturl = new AtUri(feedInfo.view?.uri)
-                                    navigator.clipboard.writeText(
+                                    void navigator.clipboard.writeText(
                                         `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
                                     )
                                 }}

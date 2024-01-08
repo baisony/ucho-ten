@@ -7,5 +7,4 @@ export const viewSettingsPage = tv({
         button: "text-black dark:text-white",
         appearanceTextColor: "text-black dark:text-white",
     },
-    variants: {},
 })

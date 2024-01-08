@@ -51,33 +51,28 @@ import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
 import Link from "next/link"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import {
     menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { useAtom } from "jotai/index"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { useAtom } from "jotai"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination } from "swiper/modules"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [agent] = useAgent()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
+    const [menuIndex] = useAtom(menuIndexAtom)
 
     const swiperRef = useRef<SwiperCore | null>(null)
     const pathname = usePathname()
@@ -124,30 +119,7 @@ const Page = () => {
 
     return hidden === false ? (
         <>
-            <Swiper
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper
-                }}
-                initialSlide={menuIndex}
-                cssMode={isMobile}
-                pagination={{ type: "custom", clickable: false }}
-                modules={[Pagination]}
-                className="swiper-only-post"
-                style={{ height: "100%" }}
-                touchAngle={30}
-                touchRatio={0.8}
-                touchReleaseOnEdges={true}
-                touchMoveStopPropagation={true}
-                preventInteractionOnTransition={true}
-                onActiveIndexChange={(swiper) => {
-                    if (!menuIndexChangedByMenu) {
-                        setMenuIndex(swiper.activeIndex)
-                    }
-                }}
-                onTouchStart={() => {
-                    setMenuIndexChangedByMenu(false)
-                }}
-            >
+            <SwiperContainer props={{ page: "profile" }}>
                 {menus.profile.map((menu, index) => {
                     return (
                         <SwiperSlide key={index}>
@@ -156,7 +128,7 @@ const Page = () => {
                         </SwiperSlide>
                     )
                 })}
-            </Swiper>
+            </SwiperContainer>
         </>
     ) : (
         hidden && notFound()
@@ -1362,10 +1334,10 @@ const UserProfileComponent = ({
                             {isProfileMine
                                 ? t("pages.profile.editProfile")
                                 : isFollowing
-                                ? !onHoverButton
-                                    ? t("button.following")
-                                    : t("button.unfollow")
-                                : t("button.follow")}
+                                  ? !onHoverButton
+                                      ? t("button.following")
+                                      : t("button.unfollow")
+                                  : t("button.follow")}
                         </Button>
                     </div>
                     <div className={ProfileDisplayName()}>
