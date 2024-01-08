@@ -1,10 +1,11 @@
 import {
+    memo,
     useCallback,
     useEffect,
+    useLayoutEffect,
     useMemo,
     useRef,
     useState,
-    useLayoutEffect,
 } from "react"
 import { useRouter } from "next/navigation"
 import {
@@ -106,7 +107,7 @@ export interface ViewPostCardProps {
     isDisplayMode?: boolean
 }
 
-export const ViewPostCard = (props: ViewPostCardProps) => {
+export const ViewPostCard = memo((props: ViewPostCardProps) => {
     const {
         isMobile,
         postJson,
@@ -1014,6 +1015,6 @@ export const ViewPostCard = (props: ViewPostCardProps) => {
             </main>
         </div>
     )
-}
+})
 
 export default ViewPostCard

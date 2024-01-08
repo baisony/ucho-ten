@@ -5,7 +5,6 @@ import { Button, Spinner } from "@nextui-org/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"
 import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
-import Link from "next/link"
 import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 import Image from "next/image"
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
@@ -181,6 +180,7 @@ export default function CreateLoginPage() {
                                 height={50}
                                 width={320}
                                 loading={"eager"}
+                                decoding={"async"}
                             />
                             <div
                                 className={
@@ -203,17 +203,18 @@ export default function CreateLoginPage() {
                                     "w-full flex items-center justify-center"
                                 }
                             >
-                                <Link href={"/login"}>
-                                    <Button
-                                        className={
-                                            "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
-                                        }
-                                    >
-                                        <div className="text-zinc-400 text-xl font-bold">
-                                            Sign In
-                                        </div>
-                                    </Button>
-                                </Link>
+                                <Button
+                                    className={
+                                        "w-80 h-14 bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center"
+                                    }
+                                    onClick={() => {
+                                        router.push("/login")
+                                    }}
+                                >
+                                    <div className="text-zinc-400 text-xl font-bold">
+                                        Sign In
+                                    </div>
+                                </Button>
                             </div>
                         </div>
                     )}

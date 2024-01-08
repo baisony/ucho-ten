@@ -2,7 +2,10 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -26,30 +29,25 @@ import { isMobile } from "react-device-detect"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { AtUri, BskyAgent } from "@atproto/api"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Pagination, Virtual } from "swiper/modules"
+import { Virtual } from "swiper/modules"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
-    useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { useAtom } from "jotai"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
-import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 SwiperCore.use([Virtual])
 
@@ -79,17 +77,7 @@ export default function Root() {
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
 
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
-        useMenuIndexChangedByMenu()
-    const [currentMenuType] = useCurrentMenuType()
-    const [tappedTabbarButton, setTappedTabbarButton] =
-        useTappedTabbarButtonAtom()
-
-    const [disableSlideVerticalScroll] = useState<boolean>(false)
-
-    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("feed")
@@ -111,16 +99,12 @@ export default function Root() {
             const uri = item.post.uri
             if (item.reply) {
                 if (item.reason) return true
-                if (
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-ignore
-                    item.post.author.did === item.reply.parent.author.did &&
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-ignore
-                    item.reply.parent.author.did === item.reply.root.author.did
+                return (
+                    item.post.author.did ===
+                        (item.reply.parent as PostView).author.did &&
+                    (item.reply.parent as PostView).author.did ===
+                        (item.reply.root as PostView).author.did
                 )
-                    return true
-                return false
             }
             // まだ uri がセットに登録されていない場合、trueを返し、セットに登録する
             if (!seenUris.has(uri)) {
@@ -460,27 +444,7 @@ export default function Root() {
     }, [feedInfo, timeline])
 
     return (
-        <Swiper
-            onSwiper={(swiper) => {
-                swiperRef.current = swiper
-            }}
-            cssMode={isMobile}
-            pagination={{ type: "custom", clickable: false }}
-            hidden={true} // ??
-            modules={[Pagination]}
-            className="swiper-home"
-            style={{ height: "100%" }}
-            touchEventsTarget={"container"}
-            touchRatio={1}
-            threshold={1}
-            resistance={false}
-            longSwipes={false}
-            initialSlide={menuIndex}
-            touchStartForcePreventDefault={true}
-            preventInteractionOnTransition={true}
-            touchStartPreventDefault={false}
-            edgeSwipeDetection={true}
-        >
+        <SwiperContainer props={{ page: "feed" }}>
             {menus.feed.map((menu, index) => {
                 return (
                     <>
@@ -530,7 +494,7 @@ export default function Root() {
                     </>
                 )
             })}
-        </Swiper>
+        </SwiperContainer>
     )
 }
 

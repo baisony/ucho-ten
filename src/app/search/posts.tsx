@@ -1,5 +1,4 @@
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { layout } from "@/app/search/styles"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
@@ -16,8 +15,6 @@ import { Virtuoso } from "react-virtuoso"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { useSearchParams } from "next/navigation"
@@ -43,7 +40,6 @@ const SearchPostPage = ({
     nextQueryParams,
     searchText,
 }: SearchPostPageProps) => {
-    const { searchSupportCard } = layout()
     const searchParams = useSearchParams()
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const [muteWords] = useWordMutes()
@@ -55,7 +51,6 @@ const SearchPostPage = ({
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
-    //const [searchTextState, setSearchTextState] = useState<string>(searchText)
     const searchTextRef = useRef<string>(searchText)
 
     const scrollRef = useRef<HTMLElement | null>(null)
@@ -65,7 +60,6 @@ const SearchPostPage = ({
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
-    const isScrolling = useRef<boolean>(false)
     const feedKey = `Posts`
     const pageName = "search"
 
@@ -329,8 +323,6 @@ const SearchPostPage = ({
         const foundObject = timeline.findIndex(
             (item) => item.uri === newValue.postUri
         )
-        console.log(newValue.postUri)
-        console.log(foundObject)
 
         if (foundObject !== -1) {
             // console.log(timeline[foundObject])
