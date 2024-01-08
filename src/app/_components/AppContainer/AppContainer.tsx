@@ -17,8 +17,6 @@ import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { useImageGalleryAtom } from "@/app/_atoms/imageGallery"
-import { Slide } from "yet-another-react-lightbox"
 
 import { push as BurgerPush } from "react-burger-menu"
 
@@ -32,7 +30,6 @@ import { useBookmarks } from "@/app/_atoms/bookmarks"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useStatusCodeAtPage } from "@/app/_atoms/statusCode"
-import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useQueryClient } from "@tanstack/react-query"
 import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
@@ -63,8 +60,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const pathName = usePathname()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
-    const searchPath = ["/search"]
-    const isSearchScreen = searchPath.includes(pathName)
     const isLoginPath = ["/login", "/"].includes(pathName)
     const [displayLanguage] = useDisplayLanguage()
     const [agent, setAgent] = useAgent()
@@ -74,19 +69,14 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [muteWords, setMuteWords] = useWordMutes()
     const [, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
-    const [imageGallery] = useImageGalleryAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
         useUserProfileDetailedAtom()
     const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
     const [, setUnreadNotification] = useUnreadNotificationAtom()
 
-    const [translateTo] = useTranslationLanguage()
-
     const target = searchParams.get("target")
     const [searchText, setSearchText] = useState<string>("")
-    const [imageSlides, setImageSlides] = useState<Slide[] | null>(null)
-    const [imageSlideIndex, setImageSlideIndex] = useState<number | null>(null)
     const specificPaths = ["/post", "/", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
@@ -147,7 +137,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         if (!agent) return
         const count = setInterval(
             () => {
-                refreshSession()
+                void refreshSession()
             },
             1000 * 60 * 5
         )
@@ -329,9 +319,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 updateMenuWithFeedGenerators(feedData.feeds)
                             }
                         })
-                        .catch((e) => {
-                            //console.log(e)
-                        })
 
                     promises.push(userPreferencesPromise)
                 }
@@ -356,22 +343,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         setShowTabBar(!specificPaths.includes(pathName))
     }, [pathName])
-
-    useEffect(() => {
-        if (imageGallery && imageGallery.images.length > 0) {
-            const slides: Slide[] = []
-
-            for (const image of imageGallery.images) {
-                slides.push({
-                    src: image.fullsize,
-                    description: image.alt,
-                })
-            }
-
-            setImageSlideIndex(imageGallery.index)
-            setImageSlides(slides)
-        }
-    }, [imageGallery])
 
     const shouldFillPageBackground = useMemo((): boolean => {
         if (pathName.startsWith("/login") || pathName === "/") {
@@ -566,7 +537,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
             if (notify_num === 0) return
             setUnreadNotification(notify_num)
-            autoRefetch()
+            void autoRefetch()
         } catch (e) {
             console.log(e)
         }
@@ -683,14 +654,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                 </div>
                                 {showTabBar && !isLoginPath && <TabBar />}
                             </div>
-                            {imageSlides && imageSlideIndex !== null && (
-                                <ViewLightbox
-                                    imageSlides={imageSlides}
-                                    imageSlideIndex={imageSlideIndex}
-                                    setImageSlides={setImageSlides}
-                                    setImageSlideIndex={setImageSlideIndex}
-                                />
-                            )}
+                            <ViewLightbox />
                         </div>
                         <div
                             className={

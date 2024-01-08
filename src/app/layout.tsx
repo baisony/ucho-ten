@@ -276,7 +276,7 @@ export default function RootLayout({
                 }}
                 className={"bg-white dark:bg-black"}
             >
-                <Script src="/noflash.js" strategy={"beforeInteractive"} />
+                <Script src="/noflash.js" />
                 <Providers>
                     <AppConatiner>{children}</AppConatiner>
                 </Providers>
