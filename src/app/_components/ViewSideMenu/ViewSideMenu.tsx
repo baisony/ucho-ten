@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { memo, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark,
@@ -43,7 +43,7 @@ interface Props {
     className?: string
 }
 
-export const ViewSideMenu: React.FC<Props> = () => {
+export const ViewSideMenu: React.FC<Props> = memo(() => {
     const [userProfileDetailed] = useUserProfileDetailedAtom()
     const pathName = usePathname()
     const router = useRouter()
@@ -317,4 +317,4 @@ export const ViewSideMenu: React.FC<Props> = () => {
             />
         </div>
     )
-}
+})
