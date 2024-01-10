@@ -1319,7 +1319,7 @@ const EmbedMedia = ({
                         key={`image-${index}`}
                     >
                         <img
-                            className="w-full h-full z-0 object-cover"
+                            className="cursor-zoom-in w-full h-full z-0 object-cover"
                             src={image.thumb}
                             alt={image.alt}
                             onClick={(e) => {

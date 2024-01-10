@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons"
 import { useTranslation } from "react-i18next"
+import { memo } from "react"
 
 interface RefreshButtonProps {
     handleRefresh: () => void
 }
 
-const RefreshButton = (props: RefreshButtonProps) => {
+const RefreshButton = memo((props: RefreshButtonProps) => {
     const { t } = useTranslation()
     return (
         <div
@@ -24,6 +25,6 @@ const RefreshButton = (props: RefreshButtonProps) => {
             </div>
         </div>
     )
-}
+})
 
 export default RefreshButton

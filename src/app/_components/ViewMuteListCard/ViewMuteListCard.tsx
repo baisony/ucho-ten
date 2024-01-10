@@ -1,11 +1,11 @@
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { Skeleton } from "@nextui-org/react"
-import "react-swipeable-list/dist/styles.css"
 import { viewFeedCard } from "@/app/_components/ViewFeedCard/styles"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { AtUri } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import Link from "next/link"
+import { memo } from "react"
 
 interface Props {
     className?: string
@@ -14,7 +14,7 @@ interface Props {
     list: ListView
 }
 
-export const ViewMuteListCard: React.FC<Props> = (props: Props) => {
+export const ViewMuteListCard: React.FC<Props> = memo((props: Props) => {
     const [nextQueryParams] = useNextQueryParamsAtom()
     const { isSkeleton, list } = props
     const {
@@ -105,6 +105,6 @@ export const ViewMuteListCard: React.FC<Props> = (props: Props) => {
             </Link>
         </main>
     )
-}
+})
 
 export default ViewMuteListCard

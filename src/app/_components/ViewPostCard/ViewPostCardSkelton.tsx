@@ -1,11 +1,9 @@
 import { viewPostCard } from "./styles"
 import { Skeleton } from "@nextui-org/react"
+import { memo } from "react"
 
-export interface ViewPostCardSkeltonProps {
-    isTop?: boolean
-}
-
-const ViewPostCardSkelton = ({ isTop }: ViewPostCardSkeltonProps) => {
+export const ViewPostCardSkelton = memo(() => {
+    const getRandomNumber = () => Math.floor(Math.random() * 2)
     const {
         PostCard,
         PostAuthor,
@@ -40,12 +38,19 @@ const ViewPostCardSkelton = ({ isTop }: ViewPostCardSkeltonProps) => {
                         <div className="w-full flex flex-col gap-2">
                             <Skeleton className={skeletonText1line()} />
                             <Skeleton className={skeletonText2line()} />
+                            {getRandomNumber() === 0 && (
+                                <Skeleton
+                                    className={
+                                        "w-full max-w-[350px] h-[300px] rounded-[10px] overflow-hidden"
+                                    }
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
             </main>
         </div>
     )
-}
+})
 
 export default ViewPostCardSkelton

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react"
+import { memo, useCallback, useMemo } from "react"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { Linkcard } from "../Linkcard"
 import { ScrollShadow, Skeleton } from "@nextui-org/react"
@@ -24,7 +24,7 @@ interface Props {
     nextQueryParams: URLSearchParams
 }
 
-export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
+export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
     const router = useRouter()
     const [, setImageGallery] = useImageGalleryAtom()
     const {
@@ -299,6 +299,6 @@ export const ViewQuoteCard: React.FC<Props> = (props: Props) => {
             </main>
         </>
     )
-}
+})
 
 export default ViewQuoteCard
