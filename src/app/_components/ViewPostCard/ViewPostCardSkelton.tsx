@@ -3,6 +3,7 @@ import { Skeleton } from "@nextui-org/react"
 import { memo } from "react"
 
 export const ViewPostCardSkelton = memo(() => {
+    const getRandomNumber = () => Math.floor(Math.random() * 2)
     const {
         PostCard,
         PostAuthor,
@@ -37,6 +38,13 @@ export const ViewPostCardSkelton = memo(() => {
                         <div className="w-full flex flex-col gap-2">
                             <Skeleton className={skeletonText1line()} />
                             <Skeleton className={skeletonText2line()} />
+                            {getRandomNumber() === 0 && (
+                                <Skeleton
+                                    className={
+                                        "w-full max-w-[350px] h-[300px] rounded-[10px] overflow-hidden"
+                                    }
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
