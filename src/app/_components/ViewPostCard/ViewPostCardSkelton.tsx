@@ -1,11 +1,8 @@
 import { viewPostCard } from "./styles"
 import { Skeleton } from "@nextui-org/react"
+import { memo } from "react"
 
-export interface ViewPostCardSkeltonProps {
-    isTop?: boolean
-}
-
-const ViewPostCardSkelton = ({ isTop }: ViewPostCardSkeltonProps) => {
+export const ViewPostCardSkelton = memo(() => {
     const {
         PostCard,
         PostAuthor,
@@ -46,6 +43,6 @@ const ViewPostCardSkelton = ({ isTop }: ViewPostCardSkeltonProps) => {
             </main>
         </div>
     )
-}
+})
 
 export default ViewPostCardSkelton
