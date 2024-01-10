@@ -1,9 +1,8 @@
 "use client"
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
-import { Virtual } from "swiper/modules"
 import FeedPage from "@/app/_components/FeedPage/FeedPage"
 import {
     HeaderMenu,
@@ -19,14 +18,13 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
-SwiperCore.use([Virtual])
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 interface SwiperPageProps {
     page: string
 }
 
-export const SwiperPage = (props: SwiperPageProps) => {
+export const SwiperPage = memo((props: SwiperPageProps) => {
     const { page } = props
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
@@ -117,4 +115,4 @@ export const SwiperPage = (props: SwiperPageProps) => {
             </SwiperContainer>
         </>
     )
-}
+})

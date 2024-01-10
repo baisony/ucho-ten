@@ -11,7 +11,7 @@ interface EmbedMediaProps {
     nextQueryParams: URLSearchParams
 }
 
-const EmbedMedia = memo(
+export const EmbedMedia = memo(
     ({
         embedMedia,
         onImageClick,

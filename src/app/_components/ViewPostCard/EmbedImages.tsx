@@ -9,7 +9,7 @@ interface EmbedImagesProps {
     isEmbedToModal?: boolean
 }
 
-const EmbedImages = memo(
+export const EmbedImages = memo(
     ({ embedImages, onImageClick, isEmbedToModal }: EmbedImagesProps) => {
         return (
             !isEmbedToModal && (
@@ -30,7 +30,7 @@ const EmbedImages = memo(
                                 key={`image-${index}`}
                             >
                                 <img
-                                    className={`${
+                                    className={`cursor-zoom-in ${
                                         embedImages.images.length !== 1
                                             ? `w-[280px]`
                                             : "w-full max-w-[500px]"

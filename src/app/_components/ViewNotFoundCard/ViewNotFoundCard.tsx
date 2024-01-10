@@ -1,11 +1,11 @@
-import "react-swipeable-list/dist/styles.css"
 import { viewNotFoundCard } from "@/app/_components/ViewNotFoundCard/styles"
+import { memo } from "react"
 
 interface Props {
     className?: string
 }
 
-export const ViewNotFoundCard: React.FC<Props> = () => {
+export const ViewNotFoundCard: React.FC<Props> = memo(() => {
     const { PostCard } = viewNotFoundCard()
 
     return (
@@ -15,6 +15,6 @@ export const ViewNotFoundCard: React.FC<Props> = () => {
             </div>
         </main>
     )
-}
+})
 
 export default ViewNotFoundCard
