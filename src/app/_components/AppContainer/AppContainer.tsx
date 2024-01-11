@@ -86,15 +86,16 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const { background } = layout()
 
     useEffect(() => {
-        ;(async () => {
+        const initOneSignal = async () => {
             await OneSignal.init({
                 appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID!,
                 notifyButton: {
                     enable: true,
                 },
             })
-        })()
-    })
+        }
+        void initOneSignal()
+    }, [])
 
     useEffect(() => {
         router.prefetch("/")
