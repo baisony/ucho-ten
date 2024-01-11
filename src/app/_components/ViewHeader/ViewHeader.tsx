@@ -285,7 +285,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
-                cssMode={isMobile}
+                cssMode={true}
                 slidesPerView={"auto"}
                 className={bottom({ isMatchingPath })}
                 navigation={true}
