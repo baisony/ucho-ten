@@ -324,7 +324,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                 }
 
                 // 並列で実行する
-                Promise.all(promises).then(() => {})
+                Promise.race(promises).then(() => {})
             }
         }
 

@@ -18,8 +18,6 @@ export const signInModal = tv({
     },
 })
 
-// ---
-
 interface SignOutModalProps {
     isOpen: boolean
     onOpenChange: () => void

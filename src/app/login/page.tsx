@@ -15,13 +15,11 @@ import { isMobile } from "react-device-detect"
 import "./shakeButton.css"
 import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
-import { useIsSessionExpired } from "@/app/_atoms/sessionExpired"
 
 export default function CreateLoginPage() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
-    const [isSessionExpired, setIsSessionExpired] = useIsSessionExpired()
     const [loading, setLoading] = useState(false)
     const [user, setUser] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -43,11 +41,6 @@ export default function CreateLoginPage() {
     } = createLoginPage()
 
     const pds = useRef<string>("bsky.social")
-
-    useLayoutEffect(() => {
-        setCurrentMenuType("login")
-    }, [])
-
     const headerAndSlash = (url: string) => {
         return url.replace(/https?:\/\//, "").replace(/\/$/, "")
     }
@@ -64,7 +57,7 @@ export default function CreateLoginPage() {
             const server = headerAndSlash(pds.current)
             console.log(server)
             const agent = new BskyAgent({ service: `https://${server}` })
-            const res = await agent.login({
+            await agent.login({
                 identifier: user,
                 password: password,
             })
@@ -130,7 +123,8 @@ export default function CreateLoginPage() {
         }
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+        setCurrentMenuType("login")
         const resumesession = async () => {
             try {
                 const server = headerAndSlash(pds.current)
@@ -141,7 +135,6 @@ export default function CreateLoginPage() {
                 if (storedData) {
                     const { session } = JSON.parse(storedData)
                     console.log(await agent.resumeSession(session))
-                    setIsSessionExpired(false)
 
                     if (toRedirect) {
                         const url = `/${toRedirect}${
