@@ -110,6 +110,9 @@ dependencies:
   react-i18next:
     specifier: ^13.5.0
     version: 13.5.0(i18next@23.7.16)(react-dom@18.2.0)(react@18.2.0)
+  react-onesignal:
+    specifier: ^3.0.1
+    version: 3.0.1(react@18.2.0)
   react-swipe-down-refresh:
     specifier: ^0.1.1
     version: 0.1.1(react@18.2.0)
@@ -7749,6 +7752,15 @@ packages:
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+    dev: false
+
+  /react-onesignal@3.0.1(react@18.2.0):
+    resolution: {integrity: sha512-AfAtGdXRcuMhVf+9OXehGcQeiJIYl1ihAByvfVNa3RCA1Vnn19tBha4XQB+o3ukUh2IQn0yiflRO4vXgI9nOng==}
+    engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      react: '>= 16.8'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-remove-scroll-bar@2.3.4(@types/react@18.2.22)(react@18.2.0):

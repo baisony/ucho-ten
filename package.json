@@ -45,6 +45,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-i18next": "^13.5.0",
+    "react-onesignal": "^3.0.1",
     "react-swipe-down-refresh": "^0.1.1",
     "react-swipeable-list": "^1.9.3",
     "react-textarea-autosize": "^8.5.3",

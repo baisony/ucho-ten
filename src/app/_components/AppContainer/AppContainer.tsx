@@ -35,6 +35,7 @@ import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
+import OneSignal from "react-onesignal"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
@@ -83,6 +84,17 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
 
     const { background } = layout()
+
+    useEffect(() => {
+        ;(async () => {
+            await OneSignal.init({
+                appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID!,
+                notifyButton: {
+                    enable: true,
+                },
+            })
+        })()
+    })
 
     useEffect(() => {
         router.prefetch("/")
