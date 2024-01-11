@@ -44,8 +44,6 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 SwiperCore.use([Virtual])
 
-const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
-
 interface FeedResponseObject {
     posts: PostView[]
     cursor: string // TODO: should consider adding ? to handle undefined.
@@ -70,7 +68,6 @@ export default function FeedPage() {
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
-    const shouldCheckUpdate = useRef<boolean>(false)
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
@@ -119,7 +116,7 @@ export default function FeedPage() {
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
-            const { posts, cursor, notifications } = response
+            const { posts, notifications } = response
             if (notifications.length === 0) {
                 setIsEndOfFeed(true)
             }
@@ -170,7 +167,7 @@ export default function FeedPage() {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey] = queryKey
+        const [_key] = queryKey
 
         const { data } = await agent.listNotifications({
             cursor: cursorState || "",
