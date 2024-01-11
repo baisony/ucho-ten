@@ -1,5 +1,6 @@
 import { linkcard } from "./styles"
 import { Spinner } from "@nextui-org/react"
+import { memo } from "react"
 
 interface Props {
     children?: React.ReactNode
@@ -9,7 +10,7 @@ interface Props {
     skeleton?: boolean
 }
 
-export const Linkcard: React.FC<Props> = (props: Props) => {
+export const Linkcard: React.FC<Props> = memo((props: Props) => {
     const { ogpData, skeleton } = props
     const {
         LinkCard,
@@ -109,6 +110,6 @@ export const Linkcard: React.FC<Props> = (props: Props) => {
             </a>
         </div>
     )
-}
+})
 
 export default Linkcard

@@ -1,8 +1,10 @@
+import { memo } from "react"
+
 interface Props {
     isSearchScreen?: boolean
 }
 
-export const DummyHeader: React.FC<Props> = (props: Props) => {
+export const DummyHeader: React.FC<Props> = memo((props: Props) => {
     if (props.isSearchScreen) {
         return (
             <div
@@ -20,6 +22,6 @@ export const DummyHeader: React.FC<Props> = (props: Props) => {
             />
         )
     }
-}
+})
 
 export default DummyHeader

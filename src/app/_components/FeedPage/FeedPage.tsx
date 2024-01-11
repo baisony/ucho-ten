@@ -227,56 +227,60 @@ const FeedPage = memo(
             shouldCheckUpdate.current = true
         }
 
-        const handleFetchResponse = (response: FeedResponseObject) => {
-            if (response) {
-                const { posts, cursor } = response
-                if (posts.length === 0 || cursor === "") setIsEndOfFeed(true)
-                setCursorState(response.cursor)
+        const handleFetchResponse = useCallback(
+            (response: FeedResponseObject) => {
+                if (response) {
+                    const { posts, cursor } = response
+                    if (posts.length === 0 || cursor === "")
+                        setIsEndOfFeed(true)
+                    setCursorState(response.cursor)
 
-                console.log("posts", posts)
+                    console.log("posts", posts)
 
-                const filteredData =
-                    feedKey === "following"
-                        ? filterDisplayPosts(
-                              posts,
-                              userProfileDetailed,
-                              agent,
-                              hideRepost
-                          )
-                        : posts
-                //@ts-ignore
-                const muteWordFilter = filterPosts(filteredData)
+                    const filteredData =
+                        feedKey === "following"
+                            ? filterDisplayPosts(
+                                  posts,
+                                  userProfileDetailed,
+                                  agent,
+                                  hideRepost
+                              )
+                            : posts
+                    //@ts-ignore
+                    const muteWordFilter = filterPosts(filteredData)
 
-                console.log("filteredData", filteredData)
-                console.log("muteWordFilter", muteWordFilter)
+                    console.log("filteredData", filteredData)
+                    console.log("muteWordFilter", muteWordFilter)
 
-                if (timeline === null) {
-                    if (muteWordFilter.length > 0) {
-                        latestCID.current = muteWordFilter[0].post.cid
+                    if (timeline === null) {
+                        if (muteWordFilter.length > 0) {
+                            latestCID.current = muteWordFilter[0].post.cid
+                        }
                     }
+
+                    setTimeline((currentTimeline) => {
+                        if (currentTimeline !== null) {
+                            return [...currentTimeline, ...muteWordFilter]
+                        } else {
+                            return [...muteWordFilter]
+                        }
+                    })
+                } else {
+                    setTimeline([])
+                    setHasMore(false)
+                    return
                 }
 
-                setTimeline((currentTimeline) => {
-                    if (currentTimeline !== null) {
-                        return [...currentTimeline, ...muteWordFilter]
-                    } else {
-                        return [...muteWordFilter]
-                    }
-                })
-            } else {
-                setTimeline([])
-                setHasMore(false)
-                return
-            }
+                setCursorState(response.cursor)
 
-            setCursorState(response.cursor)
-
-            if (cursorState !== "") {
-                setHasMore(true)
-            } else {
-                setHasMore(false)
-            }
-        }
+                if (cursorState !== "") {
+                    setHasMore(true)
+                } else {
+                    setHasMore(false)
+                }
+            },
+            []
+        )
 
         const getTimelineFetcher = async ({
             queryKey,

@@ -49,8 +49,8 @@ import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
-import EmbedMedia from "./EmbedMedia"
-import EmbedImages from "./EmbedImages"
+import { EmbedMedia } from "./EmbedMedia"
+import { EmbedImages } from "./EmbedImages"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
@@ -786,46 +786,42 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                 {translatedJsonData !== null &&
                                     viewTranslatedText && (
                                         <>
-                                            <div>
-                                                {processPostBodyText(
-                                                    nextQueryParams,
-                                                    null,
-                                                    translatedJsonData
-                                                )}
-                                            </div>
+                                            {processPostBodyText(
+                                                nextQueryParams,
+                                                null,
+                                                translatedJsonData
+                                            )}
                                         </>
                                     )}
                                 {viewTranslatedText && (
-                                    <>
-                                        <Button
-                                            size={"sm"}
-                                            variant={"flat"}
-                                            radius={"full"}
-                                            onClick={async (e) => {
-                                                e.stopPropagation()
-                                                if (!isTranslated.current) {
-                                                    await translateContentText()
-                                                }
-                                                if (viewTranslatedText) {
-                                                    setViewTranslatedText(false)
-                                                } else {
-                                                    setViewTranslatedText(true)
-                                                }
-                                            }}
-                                        >
-                                            {!translateError
-                                                ? !viewTranslatedText
-                                                    ? t(
-                                                          "pages.postOnlyPage.translate"
-                                                      )
-                                                    : t(
-                                                          "pages.postOnlyPage.viewOriginal"
-                                                      )
+                                    <Button
+                                        size={"sm"}
+                                        variant={"flat"}
+                                        radius={"full"}
+                                        onClick={async (e) => {
+                                            e.stopPropagation()
+                                            if (!isTranslated.current) {
+                                                await translateContentText()
+                                            }
+                                            if (viewTranslatedText) {
+                                                setViewTranslatedText(false)
+                                            } else {
+                                                setViewTranslatedText(true)
+                                            }
+                                        }}
+                                    >
+                                        {!translateError
+                                            ? !viewTranslatedText
+                                                ? t(
+                                                      "pages.postOnlyPage.translate"
+                                                  )
                                                 : t(
-                                                      "pages.postOnlyPage.translateErorr"
-                                                  )}
-                                        </Button>
-                                    </>
+                                                      "pages.postOnlyPage.viewOriginal"
+                                                  )
+                                            : t(
+                                                  "pages.postOnlyPage.translateErorr"
+                                              )}
+                                    </Button>
                                 )}
                             </div>
                         )}
@@ -930,85 +926,75 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     />
                                 </div>
                             </div>
-                            <div className={``}>
-                                {!isEmbedToModal && (
-                                    <>
-                                        <div className={`flex`}>
-                                            {!isViaUFeed && (
-                                                <div
-                                                    className={`${PostReactionButton()} ${replyButton(
-                                                        {
-                                                            replyDisabled:
-                                                                postJson?.viewer
-                                                                    ?.replyDisabled,
-                                                        }
-                                                    )} group-hover:md:block md:hidden`}
-                                                >
-                                                    <FontAwesomeIcon
-                                                        icon={faComment}
-                                                        onClick={async (e) => {
-                                                            e.stopPropagation()
-                                                            if (
-                                                                postJson?.viewer
-                                                                    ?.replyDisabled
-                                                            )
-                                                                return
-                                                            await handleReply()
-                                                        }}
-                                                        className={
-                                                            "h-full w-full"
-                                                        }
-                                                    />
-                                                </div>
-                                            )}
-                                            {!isViaUFeed && (
-                                                <div
-                                                    className={`${PostReactionButton()} ${repostButton(
-                                                        {
-                                                            isReacted:
-                                                                isReposted,
-                                                        }
-                                                    )} group-hover:md:block ${
-                                                        !isReposted &&
-                                                        `md:hidden`
-                                                    }`}
-                                                >
-                                                    <FontAwesomeIcon
-                                                        icon={faRetweet}
-                                                        onClick={async (e) => {
-                                                            e.stopPropagation()
-                                                            await handleRepost()
-                                                        }}
-                                                        className={
-                                                            "h-full w-full"
-                                                        }
-                                                    />
-                                                </div>
-                                            )}
-                                            <div
-                                                className={`${PostReactionButton()} ${likeButton(
-                                                    { isReacted: isLiked }
-                                                )} group-hover:md:block ${
-                                                    !isLiked && `md:hidden`
-                                                }`}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={
-                                                        isLiked
-                                                            ? faHeartSolid
-                                                            : faHeartRegular
-                                                    }
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        await handleLike()
-                                                    }}
-                                                    className={"h-full w-full"}
-                                                />
-                                            </div>
+                            {!isEmbedToModal && (
+                                <div className={`flex`}>
+                                    {!isViaUFeed && (
+                                        <div
+                                            className={`${PostReactionButton()} ${replyButton(
+                                                {
+                                                    replyDisabled:
+                                                        postJson?.viewer
+                                                            ?.replyDisabled,
+                                                }
+                                            )} group-hover:md:block md:hidden`}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faComment}
+                                                onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    if (
+                                                        postJson?.viewer
+                                                            ?.replyDisabled
+                                                    )
+                                                        return
+                                                    await handleReply()
+                                                }}
+                                                className={"h-full w-full"}
+                                            />
                                         </div>
-                                    </>
-                                )}
-                            </div>
+                                    )}
+                                    {!isViaUFeed && (
+                                        <div
+                                            className={`${PostReactionButton()} ${repostButton(
+                                                {
+                                                    isReacted: isReposted,
+                                                }
+                                            )} group-hover:md:block ${
+                                                !isReposted && `md:hidden`
+                                            }`}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faRetweet}
+                                                onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    await handleRepost()
+                                                }}
+                                                className={"h-full w-full"}
+                                            />
+                                        </div>
+                                    )}
+                                    <div
+                                        className={`${PostReactionButton()} ${likeButton(
+                                            { isReacted: isLiked }
+                                        )} group-hover:md:block ${
+                                            !isLiked && `md:hidden`
+                                        }`}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={
+                                                isLiked
+                                                    ? faHeartSolid
+                                                    : faHeartRegular
+                                            }
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                await handleLike()
+                                            }}
+                                            className={"h-full w-full"}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

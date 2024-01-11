@@ -16,19 +16,10 @@ export const createLoginPage = tv({
             "w-80 h-14 bottom-[0px] absolute bg-neutral-700 bg-opacity-50 rounded-2xl flex items-center justify-center",
     },
     variants: {
-        isMobile: {
-            true: {
-                background: "",
-            },
-            false: {
-                background: "",
-            },
-        },
         error: {
             true: {
                 LoginFormHandle: "border-[#FF0000]",
             },
-            false: {},
         },
     },
 })
