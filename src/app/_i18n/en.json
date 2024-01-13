@@ -53,6 +53,7 @@
       "auto": "Auto",
       "timeline": "Timeline",
       "hideRepost": "Hide Repost",
+      "pushNotification": "Push Notification",
       "appearance": "Appearance",
       "size": "Size",
       "fontSize": "Font size",
@@ -210,6 +211,8 @@
     }
   },
   "button": {
+    "enable": "Enable",
+    "disable": "Disable",
     "cancel": "Cancel",
     "close": "Close",
     "send": "Send",

@@ -112,6 +112,54 @@ export const SettingsGeneralPage = ({
                         </TableRow>
                     </TableBody>
                 </Table>
+
+                <div
+                    className={
+                        "font-[600] sm:text-black lg:text-white dark:text-white"
+                    }
+                >
+                    {t("pages.settings.pushNotification")}
+                </div>
+                <Table hideHeader className={"w-full"}>
+                    <TableHeader>
+                        <TableColumn> </TableColumn>
+                        <TableColumn> </TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                <div>beta testing now.</div>
+                            </TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
+                                <div className={"h-[40px] overflow-hidden"}>
+                                    <div
+                                        className="onesignal-customlink-container"
+                                        onClick={async (e) => {
+                                            const session =
+                                                localStorage.getItem("session")
+                                            const res = fetch(
+                                                `/api/getNotifySubscribed/${session}`,
+                                                {
+                                                    method: "GET",
+                                                }
+                                            )
+                                            if (
+                                                //@ts-ignore
+                                                e?.target?.className.includes(
+                                                    "state-subscribed"
+                                                )
+                                            ) {
+                                                console.log("un subscribed")
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
                 <div
                     className={
                         "font-[600] sm:text-black lg:text-white dark:text-white"
@@ -337,7 +385,7 @@ export const SettingsGeneralPage = ({
                 <div className={"lg:w-full h-full mt-[20px]"}>
                     <div
                         className={
-                            "sm:text-black sm:dark:text-white lg:text-white lg:dark:text-black font-[600]"
+                            "sm:text-black sm:dark:text-white lg:text-black lg:dark:text-white font-[600]"
                         }
                     >
                         {t("pages.settings.fontSizePreview")}

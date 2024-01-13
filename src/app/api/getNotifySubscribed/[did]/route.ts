@@ -16,10 +16,10 @@ export async function GET(
     const data = JSON.parse(params.did)
     const agent = new BskyAgent({ service: `https://${data.server}` })
     const resumeResult = await agent.resumeSession(data.session)
-    const did = data.session.did
     if (!resumeResult.success) {
         return new Response("resume session error", { status: 400 })
     }
+    const did = data.session.did
     const connection = await oracledb.getConnection({
         user: OCI_USER,
         password: OCI_PASS,

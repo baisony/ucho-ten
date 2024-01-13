@@ -50,8 +50,9 @@
       "light": "ライト",
       "system": "自動",
       "auto": "自動",
-      "timeline": "Timeline",
-      "hideRepost": "Hide Repost",
+      "timeline": "タイムライン",
+      "hideRepost": "リポストを表示しない",
+      "pushNotification": "プッシュ通知",
       "appearance": "外観",
       "size": "サイズ",
       "fontSize": "フォントサイズ",
@@ -211,6 +212,8 @@
     }
   },
   "button": {
+    "enable": "有効",
+    "disable": "無効",
     "cancel": "キャンセル",
     "close": "閉じる",
     "send": "送信",
