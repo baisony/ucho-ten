@@ -25,7 +25,8 @@ import {
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { BskyAgent } from "@atproto/api"
-import { OneSignalCustomLinkContainer } from "@/app/settings/OneSignalCustomLinkContainer"
+import { useEffect, useState } from "react"
+import OneSignal from "react-onesignal"
 
 interface SettingsGeneralPageProps {
     t: any
@@ -42,6 +43,7 @@ export const SettingsGeneralPage = ({
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [contentFontSize, setContentFontSize] = useContentFontSize()
     const [hideRepost, setHideRepost] = useHideRepost()
+    const [subscribed, setSubscribed] = useState<boolean | undefined>()
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -76,6 +78,15 @@ export const SettingsGeneralPage = ({
         viewer: {},
         labels: [],
     }
+
+    useEffect(() => {
+        if (
+            typeof window === "undefined" ||
+            OneSignal.User.PushSubscription.optedIn === undefined
+        )
+            return
+        setSubscribed(OneSignal.User.PushSubscription.optedIn)
+    }, [OneSignal.User.PushSubscription.optedIn])
 
     return (
         <div className={"w-full h-full"}>
@@ -135,7 +146,39 @@ export const SettingsGeneralPage = ({
                                 className={"flex justify-end items-center"}
                             >
                                 <div className={"h-[40px] overflow-hidden"}>
-                                    <OneSignalCustomLinkContainer />
+                                    {OneSignal?.Notifications?.isPushSupported() ? (
+                                        <Button
+                                            onClick={async () => {
+                                                if (
+                                                    OneSignal?.Notifications
+                                                        ?.permissionNative ===
+                                                    "denied"
+                                                )
+                                                    return
+                                                if (subscribed) {
+                                                    await OneSignal.User.PushSubscription.optOut()
+                                                    setSubscribed(false)
+                                                } else {
+                                                    await OneSignal.User.PushSubscription.optIn()
+                                                    setSubscribed(true)
+                                                }
+                                            }}
+                                            isDisabled={
+                                                OneSignal?.Notifications
+                                                    ?.permissionNative ===
+                                                "denied"
+                                            }
+                                        >
+                                            {OneSignal?.Notifications
+                                                ?.permissionNative !== "denied"
+                                                ? !subscribed
+                                                    ? "enabled"
+                                                    : "disabled"
+                                                : "Permission denied"}
+                                        </Button>
+                                    ) : (
+                                        <Button isDisabled>unsupported</Button>
+                                    )}
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -169,7 +212,7 @@ export const SettingsGeneralPage = ({
                                         onClick={() => {
                                             setAppearanceColor("system")
                                             if (
-                                                window.matchMedia(
+                                                window?.matchMedia(
                                                     "(prefers-color-scheme: dark)"
                                                 ).matches
                                             ) {

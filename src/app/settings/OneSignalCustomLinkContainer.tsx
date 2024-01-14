@@ -4,9 +4,9 @@ import { Spinner } from "@nextui-org/react"
 export const OneSignalCustomLinkContainer = () => {
     const [loading, setLoading] = useState(false)
     useEffect(() => {
-        if (!window) return
+        if (typeof window === "undefined" || !window) return
         //@ts-ignore
-        window?.OneSignal?.eventHelper?.onSubscriptionChanged_updateCustomLink()
+        window.OneSignal?.eventHelper?.onSubscriptionChanged_updateCustomLink()
     }, [window?.OneSignal])
     return (
         <>
