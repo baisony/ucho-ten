@@ -17,7 +17,13 @@ export async function GET(
     const agent = new BskyAgent({ service: `https://${data.server}` })
     const resumeResult = await agent.resumeSession(data.session)
     if (!resumeResult.success) {
-        return new Response("resume session error", { status: 400 })
+        return new Response(
+            JSON.stringify({
+                success: false,
+                res: { text: "resume session error" },
+            }),
+            { status: 400 }
+        )
     }
     const did = data.session.did
     const connection = await oracledb.getConnection({
@@ -29,6 +35,7 @@ export async function GET(
     const result = await connection.execute(
         `SELECT * FROM "ADMIN"."${OCI_VIEW}"　WHERE "DID" = '${did}'`
     )
-    console.log(result.rows)
-    return new Response(JSON.stringify({ res: result.rows }), { status: 200 })
+    return new Response(JSON.stringify({ res: result.rows }), {
+        status: 200,
+    })
 }

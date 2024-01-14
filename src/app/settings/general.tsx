@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { useAppearanceColor } from "@/app/_atoms/appearanceColor"
@@ -10,6 +11,7 @@ import {
     ButtonGroup,
     Select,
     SelectItem,
+    Spinner,
     Switch,
     Table,
     TableBody,
@@ -41,6 +43,7 @@ export const SettingsGeneralPage = ({
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [contentFontSize, setContentFontSize] = useContentFontSize()
     const [hideRepost, setHideRepost] = useHideRepost()
+    const [loading, setLoading] = useState(false)
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -135,25 +138,63 @@ export const SettingsGeneralPage = ({
                             >
                                 <div className={"h-[40px] overflow-hidden"}>
                                     <div
-                                        className="onesignal-customlink-container"
+                                        className={`onesignal-customlink-container ${
+                                            loading && `hidden`
+                                        }`}
                                         onClick={async (e) => {
-                                            const session =
-                                                localStorage.getItem("session")
-                                            const res = fetch(
-                                                `/api/getNotifySubscribed/${session}`,
-                                                {
-                                                    method: "GET",
-                                                }
-                                            )
-                                            if (
-                                                //@ts-ignore
-                                                e?.target?.className.includes(
-                                                    "state-subscribed"
+                                            if (loading) {
+                                                e.preventDefault()
+                                            }
+                                            try {
+                                                setLoading(true)
+                                                const session =
+                                                    localStorage.getItem(
+                                                        "session"
+                                                    )
+                                                const res = await fetch(
+                                                    `/api/getNotifySubscribed/${session}`,
+                                                    {
+                                                        method: "GET",
+                                                    }
                                                 )
-                                            ) {
-                                                console.log("un subscribed")
+                                                if (res.status !== 200) return
+                                                const json = await res.json()
+                                                if (
+                                                    //@ts-ignore
+                                                    e?.target?.className.includes(
+                                                        "state-subscribed"
+                                                    )
+                                                ) {
+                                                    console.log("un subscribed")
+                                                } else {
+                                                    if (
+                                                        !(
+                                                            Object.keys(
+                                                                json.res
+                                                            ).length >= 1
+                                                        )
+                                                    ) {
+                                                        console.log(
+                                                            "subscribed"
+                                                        )
+                                                        const res = await fetch(
+                                                            `/api/setNotifySubscribed/set`,
+                                                            {
+                                                                method: "POST",
+                                                                body: session,
+                                                            }
+                                                        )
+                                                    }
+                                                }
+                                            } catch (e) {
+                                                console.log(e)
+                                            } finally {
+                                                setLoading(false)
                                             }
                                         }}
+                                    />
+                                    <Spinner
+                                        className={`${!loading && `hidden`}`}
                                     />
                                 </div>
                             </TableCell>

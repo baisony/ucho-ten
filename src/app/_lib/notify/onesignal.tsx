@@ -9,7 +9,6 @@ export const OneSignalInitial = () => {
     useEffect(() => {
         if (!agent) return
         const oneSignalInit = async () => {
-            console.log()
             await OneSignal.init({
                 appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID || "",
                 allowLocalhostAsSecureOrigin: true,
@@ -24,9 +23,7 @@ export const OneSignalInitial = () => {
                         },
                         text: {
                             subscribe: "Enable",
-                            /* Prompt's text when not subscribed */ unsubscribe:
-                                "Disable",
-                            /* Prompt's text when subscribed */
+                            unsubscribe: "Disable",
                         },
                         unsubscribeEnabled: true,
                     },
