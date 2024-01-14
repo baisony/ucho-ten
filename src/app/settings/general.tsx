@@ -132,15 +132,19 @@ export const SettingsGeneralPage = ({
                 >
                     {t("pages.settings.pushNotification")}
                 </div>
-                <Table hideHeader className={"w-full"}>
+                <Table className={"w-full"}>
                     <TableHeader>
-                        <TableColumn> </TableColumn>
+                        <TableColumn>
+                            <div>{t("text.betaFeature")}</div>
+                        </TableColumn>
                         <TableColumn> </TableColumn>
                     </TableHeader>
                     <TableBody>
                         <TableRow>
                             <TableCell>
-                                <div>{t("text.betaFeature")}</div>
+                                <div>
+                                    {t("pages.settings.onlyMentionNotify")}
+                                </div>
                             </TableCell>
                             <TableCell
                                 className={"flex justify-end items-center"}
