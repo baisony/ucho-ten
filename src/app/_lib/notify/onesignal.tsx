@@ -12,22 +12,6 @@ export const OneSignalInitial = () => {
             await OneSignal.init({
                 appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID || "",
                 allowLocalhostAsSecureOrigin: true,
-                promptOptions: {
-                    customlink: {
-                        enabled: true /* Required to use the Custom Link */,
-                        style: "button" /* Has value of 'button' or 'link' */,
-                        size: "medium" /* One of 'small', 'medium', or 'large' */,
-                        color: {
-                            button: "#E12D30" /* Color of the button background if style = "button" */,
-                            text: "#FFFFFF" /* Color of the prompt's text */,
-                        },
-                        text: {
-                            subscribe: "Enable",
-                            unsubscribe: "Disable",
-                        },
-                        unsubscribeEnabled: true,
-                    },
-                },
             }).then(async () => {
                 await OneSignal.Slidedown.promptPush()
             })
