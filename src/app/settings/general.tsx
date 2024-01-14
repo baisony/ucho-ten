@@ -140,7 +140,7 @@ export const SettingsGeneralPage = ({
                     <TableBody>
                         <TableRow>
                             <TableCell>
-                                <div>beta testing now.</div>
+                                <div>{t("text.betaFeature")}</div>
                             </TableCell>
                             <TableCell
                                 className={"flex justify-end items-center"}
@@ -172,12 +172,14 @@ export const SettingsGeneralPage = ({
                                             {OneSignal?.Notifications
                                                 ?.permissionNative !== "denied"
                                                 ? !subscribed
-                                                    ? "enabled"
-                                                    : "disabled"
-                                                : "Permission denied"}
+                                                    ? t("button.enable")
+                                                    : t("button.disable")
+                                                : t("button.permissionDenied")}
                                         </Button>
                                     ) : (
-                                        <Button isDisabled>unsupported</Button>
+                                        <Button isDisabled>
+                                            {t("button.unsupported")}
+                                        </Button>
                                     )}
                                 </div>
                             </TableCell>

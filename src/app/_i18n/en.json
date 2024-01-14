@@ -211,8 +211,6 @@
     }
   },
   "button": {
-    "enable": "Enable",
-    "disable": "Disable",
     "cancel": "Cancel",
     "close": "Close",
     "send": "Send",
@@ -242,7 +240,11 @@
     "warn": "Warn",
     "show": "Show",
     "post": "Post",
-    "newPosts": "New Posts"
+    "newPosts": "New Posts",
+    "enable": "Enable",
+    "disable": "Disable",
+    "unsupported": "Unsupported",
+    "permissionDenied": "Permission Denied"
   },
   "alert": {
     "cannotShareInBrowser": "Cannot Share in Your Browser."
@@ -255,6 +257,7 @@
     "copyright": "Copyright Violation",
     "rude": "Anti-Social Behavior",
     "violation": "Illegal and Urgent",
-    "other": "Other"
+    "other": "Other",
+    "betaFeature": "This is a beta feature."
   }
 }
