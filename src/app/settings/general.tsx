@@ -79,6 +79,31 @@ export const SettingsGeneralPage = ({
         labels: [],
     }
 
+    const confirmSubscribe = async () => {
+        const session = await localStorage.getItem("session")
+        const res = await fetch(`/api/getNotifySubscribed/${session}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        const json = await res.json()
+        console.log(json.res)
+        return json.res.length !== 0
+    }
+
+    const pushNotifySubscribed = async () => {
+        const session = await localStorage.getItem("session")
+        const res = await fetch(`/api/setNotifySubscribed/1`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: session,
+        })
+        if (res.status === 200) alert("通知の購読に成功しました。")
+    }
+
     useEffect(() => {
         if (
             typeof window === "undefined" ||
@@ -163,6 +188,11 @@ export const SettingsGeneralPage = ({
                                                     await OneSignal.User.PushSubscription.optOut()
                                                     setSubscribed(false)
                                                 } else {
+                                                    const res =
+                                                        await confirmSubscribe()
+                                                    if (!res) {
+                                                        await pushNotifySubscribed()
+                                                    }
                                                     await OneSignal.User.PushSubscription.optIn()
                                                     setSubscribed(true)
                                                 }
