@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "Ucho-ten",
     applicationName: "Ucho-ten",
     description:
-        "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
+        'Ucho-ten is a BlueSky client that conceals numbers from social media, allowing you to focus on your "Likes" at any time.',
     openGraph: {
         type: "website",
         siteName: "Ucho-ten Bluesky Client",
@@ -18,13 +18,14 @@ export const metadata: Metadata = {
         url: "https://ucho-ten.net",
         locale: "ja_JP",
         description:
-            "Ucho-tenは「他者から解放され、自己の独立」を目指すBlueskyクライアントです。いつでも新鮮な気持ちでSNSを使うことができます。",
+            'Ucho-ten is a BlueSky client that conceals numbers from social media, allowing you to focus on your "Likes" at any time.',
         images: [
             {
                 url: "https://ucho-ten.net/images/ogp/ucho-ten-ogp.png",
                 alt: "Ucho-ten",
             },
         ],
+        alternateLocale: ["ja_JP", "en_US"],
     },
     twitter: {
         card: "summary_large_image",
