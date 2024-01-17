@@ -1,0 +1,14 @@
+User-agent: *
+
+Allow: /
+Disallow: /api/
+Disallow: /about/
+Disallow: /bookmarks/
+Disallow: /feeds/
+Disallow: /search/
+Disallow: /inbox/
+Disallow: /post/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /u-tab/
+Disallow: /*?
