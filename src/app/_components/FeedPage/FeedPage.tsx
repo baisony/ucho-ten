@@ -29,6 +29,7 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useHideRepost } from "@/app/_atoms/hideRepost"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
@@ -79,6 +80,7 @@ const FeedPage = memo(
         const virtuosoRef = useRef(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
+        const [zenMode] = useZenMode()
 
         const getFeedKeys = {
             all: ["getFeed"] as const,
@@ -521,6 +523,7 @@ const FeedPage = memo(
                                             handleSaveScrollPosition:
                                                 handleSaveScrollPosition,
                                             isViaUFeed: isViaUFeed,
+                                            zenMode: zenMode,
                                         }}
                                     />
                                 ) : (
