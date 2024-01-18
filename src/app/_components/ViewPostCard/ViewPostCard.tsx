@@ -692,10 +692,14 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                 }}
                                 href={`/profile/${postJsonData?.author
                                     ?.did}?${nextQueryParams.toString()}`}
+                                className={"items-start"}
                             >
                                 <span
-                                    className={`${PostAuthorDisplayName()} md:hover:underline`}
-                                    style={{ fontSize: "13px" }}
+                                    className={`${PostAuthorDisplayName()} md:hover:underline ${
+                                        `text-[` +
+                                        Number(contentFontSize + 11) +
+                                        `px]`
+                                    }`}
                                 >
                                     {postJsonData?.author?.displayName ||
                                         postJsonData?.author?.handle}
