@@ -130,167 +130,176 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                 <>
                     <>
                         <div className={`${PostCardContainer()}`}>
-                            <div className={`${PostAuthor()}`}>
-                                <Link
-                                    className={PostAuthorIcon()}
-                                    onClick={(e) => {
-                                        if (!isEmbedReportModal) return
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                    }}
-                                    href={`/profile/${postJson?.author
-                                        .did}?${nextQueryParams.toString()}`}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton className={skeletonIcon()} />
-                                    ) : (
-                                        <img
-                                            src={
-                                                postJson?.author?.avatar ||
-                                                profile?.avatar ||
-                                                defaultIcon.src
-                                            }
-                                            className={`${
-                                                isEmbedToModal
-                                                    ? `z-[2]`
-                                                    : `z-[0]`
-                                            } rounded-full w-full h-full`}
-                                            alt={postJson?.author.did}
-                                        />
-                                    )}
-                                </Link>
-                                <Link
-                                    className={PostAuthorDisplayName()}
-                                    style={{ fontSize: "13px" }}
-                                    onClick={(e) => {
-                                        if (!isEmbedReportModal) return
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                    }}
-                                    href={`/profile/${postJson?.author
-                                        .did}?${nextQueryParams.toString()}`}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton className={skeletonName()} />
-                                    ) : (
-                                        <span>
-                                            {postJson?.author?.displayName}
-                                            {profile?.displayName}
-                                        </span>
-                                    )}
-                                </Link>
-                                <div className={"text-[#BABABA]"}>
-                                    &nbsp;-&nbsp;
-                                </div>
-                                <Link
-                                    className={PostAuthorHandle()}
-                                    onClick={(e) => {
-                                        if (!isEmbedReportModal) return
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                    }}
-                                    href={`/profile/${postJson?.author
-                                        .did}?${nextQueryParams.toString()}`}
-                                >
-                                    {isSkeleton ? (
-                                        <Skeleton
-                                            className={skeletonHandle()}
-                                        />
-                                    ) : (
-                                        <span>
-                                            {postJson?.author?.handle}
-                                            {profile?.handle}
-                                        </span>
-                                    )}
-                                </Link>
-                                <div
-                                    className={PostCreatedAt()}
-                                    style={{ fontSize: "12px" }}
-                                >
-                                    {!isSkeleton && postJson && (
-                                        <div>
-                                            {formattedSimpleDate(
-                                                postJson?.indexedAt,
-                                                now || new Date()
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className={PostContent()}>
-                                {isSkeleton ? (
-                                    <div className="w-full flex flex-col gap-2">
-                                        <Skeleton
-                                            className={skeletonText1line()}
-                                        />
-                                        <Skeleton
-                                            className={skeletonText2line()}
-                                        />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div
-                                            style={{ wordBreak: "break-word" }}
-                                            className={`text-[14px] md:text-[15px]`}
-                                        >
-                                            {renderTextWithLinks}
-                                        </div>
-                                    </>
-                                )}
-                                <div className={"overflow-x-scroll"}>
-                                    {postJson?.embed &&
-                                        (postJson?.embed?.$type ===
-                                        "app.bsky.embed.images#view" ? (
-                                            <ScrollShadow
-                                                hideScrollBar
-                                                orientation="horizontal"
-                                            >
-                                                <div
-                                                    className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
-                                                >
-                                                    {postJson.embed.images.map(
-                                                        (
-                                                            image: any,
-                                                            index: number
-                                                        ) => (
-                                                            <div
-                                                                className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover}`}
-                                                                key={`image-${index}`}
-                                                            >
-                                                                <img
-                                                                    className="w-full h-full z-0 object-cover"
-                                                                    src={
-                                                                        image.thumb
-                                                                    }
-                                                                    alt={
-                                                                        image?.alt
-                                                                    }
-                                                                    onMouseUp={(
-                                                                        e
-                                                                    ) =>
-                                                                        e.stopPropagation()
-                                                                    }
-                                                                    onClick={() => {
-                                                                        handleImageClick(
-                                                                            index
-                                                                        )
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        )
-                                                    )}
-                                                </div>
-                                            </ScrollShadow>
+                            <div className={"w-full h-full pl-[8px]"}>
+                                <div className={`${PostAuthor()}`}>
+                                    <Link
+                                        className={PostAuthorIcon()}
+                                        onClick={(e) => {
+                                            if (!isEmbedReportModal) return
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                        }}
+                                        href={`/profile/${postJson?.author
+                                            .did}?${nextQueryParams.toString()}`}
+                                    >
+                                        {isSkeleton ? (
+                                            <Skeleton
+                                                className={skeletonIcon()}
+                                            />
                                         ) : (
-                                            postJson.embed.$type ===
-                                                "app.bsky.embed.external#view" && (
-                                                <Linkcard
-                                                    ogpData={
-                                                        postJson.embed.external
-                                                    }
-                                                />
-                                            )
-                                        ))}
+                                            <img
+                                                src={
+                                                    postJson?.author?.avatar ||
+                                                    profile?.avatar ||
+                                                    defaultIcon.src
+                                                }
+                                                className={`${
+                                                    isEmbedToModal
+                                                        ? `z-[2]`
+                                                        : `z-[0]`
+                                                } rounded-full w-full h-full`}
+                                                alt={postJson?.author.did}
+                                            />
+                                        )}
+                                    </Link>
+                                    <Link
+                                        className={PostAuthorDisplayName()}
+                                        style={{ fontSize: "13px" }}
+                                        onClick={(e) => {
+                                            if (!isEmbedReportModal) return
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                        }}
+                                        href={`/profile/${postJson?.author
+                                            .did}?${nextQueryParams.toString()}`}
+                                    >
+                                        {isSkeleton ? (
+                                            <Skeleton
+                                                className={skeletonName()}
+                                            />
+                                        ) : (
+                                            <span>
+                                                {postJson?.author?.displayName}
+                                                {profile?.displayName}
+                                            </span>
+                                        )}
+                                    </Link>
+                                    <div className={"text-[#BABABA]"}>
+                                        &nbsp;-&nbsp;
+                                    </div>
+                                    <Link
+                                        className={PostAuthorHandle()}
+                                        onClick={(e) => {
+                                            if (!isEmbedReportModal) return
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                        }}
+                                        href={`/profile/${postJson?.author
+                                            .did}?${nextQueryParams.toString()}`}
+                                    >
+                                        {isSkeleton ? (
+                                            <Skeleton
+                                                className={skeletonHandle()}
+                                            />
+                                        ) : (
+                                            <span>
+                                                {postJson?.author?.handle}
+                                                {profile?.handle}
+                                            </span>
+                                        )}
+                                    </Link>
+                                    <div
+                                        className={PostCreatedAt()}
+                                        style={{ fontSize: "12px" }}
+                                    >
+                                        {!isSkeleton && postJson && (
+                                            <div>
+                                                {formattedSimpleDate(
+                                                    postJson?.indexedAt,
+                                                    now || new Date()
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className={PostContent()}>
+                                    {isSkeleton ? (
+                                        <div className="w-full flex flex-col gap-2">
+                                            <Skeleton
+                                                className={skeletonText1line()}
+                                            />
+                                            <Skeleton
+                                                className={skeletonText2line()}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div
+                                                style={{
+                                                    wordBreak: "break-word",
+                                                }}
+                                                className={`text-[14px] md:text-[15px]`}
+                                            >
+                                                {renderTextWithLinks}
+                                            </div>
+                                        </>
+                                    )}
+                                    <div className={"overflow-x-scroll"}>
+                                        {postJson?.embed &&
+                                            (postJson?.embed?.$type ===
+                                            "app.bsky.embed.images#view" ? (
+                                                <ScrollShadow
+                                                    hideScrollBar
+                                                    orientation="horizontal"
+                                                >
+                                                    <div
+                                                        className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
+                                                    >
+                                                        {postJson.embed.images.map(
+                                                            (
+                                                                image: any,
+                                                                index: number
+                                                            ) => (
+                                                                <div
+                                                                    className={`mt-[10px] mb-[10px] rounded-[7.5px] overflow-hidden min-w-[280px] max-w-[500px] h-[300px] mr-[10px] bg-cover}`}
+                                                                    key={`image-${index}`}
+                                                                >
+                                                                    <img
+                                                                        className="w-full h-full z-0 object-cover"
+                                                                        src={
+                                                                            image.thumb
+                                                                        }
+                                                                        alt={
+                                                                            image?.alt
+                                                                        }
+                                                                        onMouseUp={(
+                                                                            e
+                                                                        ) =>
+                                                                            e.stopPropagation()
+                                                                        }
+                                                                        onClick={() => {
+                                                                            handleImageClick(
+                                                                                index
+                                                                            )
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </ScrollShadow>
+                                            ) : (
+                                                postJson.embed.$type ===
+                                                    "app.bsky.embed.external#view" && (
+                                                    <Linkcard
+                                                        ogpData={
+                                                            postJson.embed
+                                                                .external
+                                                        }
+                                                    />
+                                                )
+                                            ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>

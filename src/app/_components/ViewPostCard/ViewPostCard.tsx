@@ -694,34 +694,16 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     ?.did}?${nextQueryParams.toString()}`}
                             >
                                 <span
-                                    className={`${PostAuthorDisplayName()} md:hover:underline`}
-                                    style={{ fontSize: "13px" }}
+                                    className={`${PostAuthorDisplayName()} md:hover:underline ${
+                                        `text-[` +
+                                        Number(contentFontSize + 11) +
+                                        `px]`
+                                    }`}
                                 >
                                     {postJsonData?.author?.displayName ||
                                         postJsonData?.author?.handle}
                                 </span>
                             </Link>
-                            {postJsonData?.author?.displayName && (
-                                <>
-                                    <div className={"text-[#BABABA]"}>
-                                        &nbsp;-&nbsp;
-                                    </div>
-                                    <Link
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            handleChangeSaveScrollPosition()
-                                        }}
-                                        href={`/profile/${postJsonData?.author
-                                            ?.did}?${nextQueryParams.toString()}`}
-                                    >
-                                        <span
-                                            className={`${PostAuthorHandle()} md:hover:underline`}
-                                        >
-                                            {postJsonData?.author?.handle}
-                                        </span>
-                                    </Link>
-                                </>
-                            )}
                         </span>
 
                         <div
