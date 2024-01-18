@@ -11,17 +11,17 @@ export const viewPostCard = tv({
         PostAuthorIcon:
             "h-[30px] w-[30px] object-cover hover:cursor-pointer rounded-full overflow-hidden",
         PostAuthorDisplayName:
-            "text-black dark:text-[#D7D7D7] ml-[9px] hover:cursor-pointer font-[600] max-w-[40%] overflow-hidden text-ellipsis whitespace-nowrap",
+            "text-black dark:text-[#D7D7D7] ml-[11px] hover:cursor-pointer font-[600] max-w-[40%] overflow-hidden text-ellipsis whitespace-nowrap",
         PostAuthorHandle:
             "text-[#595959] dark:text-[#BABABA] font-light text-[12px] hover:cursor-pointer max-w-[30%] overflow-hidden text-ellipsis whitespace-nowrap",
         postCreatedAt: "text-[#595959] font-light text-[12px]",
         moreButton: "text-[#B8B8B8] font-light text-[12px]",
         OptionButton: "text-[#595959] font-light absolute right-[17px]",
-        PostContent: "w-[100%-5px] h-full ml-[38px] mr-[0px]",
+        PostContent: "w-[100%-5px] h-full ml-[41px] mr-[0px]",
         PostReactionButtonContainer:
-            "h-[20px] mt-[15px] flex items-center justify-between ml-[36px]",
+            "h-[20px] mt-[15px] flex items-center justify-between ml-[41px]",
         PostReactionButton:
-            "text-[14px] md:text-[16px] ml-[50px] cursor-pointer select-none w-[16px] h-[16px]",
+            "text-[14px] md:text-[16px] ml-[50px] cursor-pointer select-none w-[15px] h-[15px]",
         dropdown: "",
         skeletonIcon: "h-full w-full rounded-[10px]",
         skeletonName: "h-3 w-2/5 rounded-lg ",

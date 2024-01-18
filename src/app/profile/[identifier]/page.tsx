@@ -1292,7 +1292,7 @@ const UserProfileComponent = ({
                                         : "default"
                                     : "default"
                             }
-                            variant={isProfileMine ? "ghost" : "solid"}
+                            variant={"ghost"}
                             onMouseLeave={() => {
                                 if (isMobile) return
                                 setOnHoverButton(false)
