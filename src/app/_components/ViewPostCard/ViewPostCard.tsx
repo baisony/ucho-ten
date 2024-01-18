@@ -943,9 +943,10 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                             ?.replyDisabled,
                                                 }
                                             )} ${
-                                                !zenMode &&
-                                                `group-hover:md:block`
-                                            } md:hidden`}
+                                                !zenMode
+                                                    ? `group-hover:md:block md:hidden`
+                                                    : `hidden`
+                                            }`}
                                         >
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -969,8 +970,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                     isReacted: isReposted,
                                                 }
                                             )} ${
-                                                !zenMode &&
-                                                `group-hover:md:block`
+                                                !zenMode
+                                                    ? `group-hover:md:block md:hidden`
+                                                    : `hidden`
                                             } ${!isReposted && `md:hidden`}`}
                                         >
                                             <FontAwesomeIcon
