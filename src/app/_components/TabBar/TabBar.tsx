@@ -15,6 +15,7 @@ import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import Image from "next/image"
 import { useUnreadNotificationAtom } from "@/app/_atoms/unreadNotifications"
 import { useHighlightedTab } from "@/app/_atoms/hightlightedTab"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 interface Props {
     className?: string
@@ -31,6 +32,7 @@ export const TabBar: React.FC<Props> = () => {
     const [unreadNotification] = useUnreadNotificationAtom()
     const { TabBar, Container, Icon } = tabBar()
     const [highlightedTab, setHighLightedTab] = useHighlightedTab()
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         switch (pathname) {
@@ -173,7 +175,9 @@ export const TabBar: React.FC<Props> = () => {
                 </Badge>
             </div>
             <div
-                className={Container({ selected: highlightedTab === "p" })}
+                className={`${Container({
+                    selected: highlightedTab === "p",
+                })} ${zenMode && `hidden`}`}
                 onClick={() => {
                     setHighLightedTab("p")
                     router.push("/post")

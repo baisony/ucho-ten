@@ -25,6 +25,8 @@ import {
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { BskyAgent } from "@atproto/api"
+import { useZenMode } from "@/app/_atoms/zenMode"
+import { useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 
 interface SettingsGeneralPageProps {
     t: any
@@ -41,6 +43,8 @@ export const SettingsGeneralPage = ({
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [contentFontSize, setContentFontSize] = useContentFontSize()
     const [hideRepost, setHideRepost] = useHideRepost()
+    const [zenMode, setZenMode] = useZenMode()
+    const [menus, setMenus] = useHeaderMenusByHeaderAtom()
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -97,6 +101,44 @@ export const SettingsGeneralPage = ({
                         <TableColumn> </TableColumn>
                     </TableHeader>
                     <TableBody>
+                        <TableRow>
+                            <TableCell>{t("pages.settings.zenMode")}</TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
+                                <Switch
+                                    isSelected={zenMode}
+                                    onValueChange={(e) => {
+                                        console.log(e)
+                                        setZenMode(e)
+                                        if (e) {
+                                            // If e is true, remove the first element from menus
+                                            const updatedMenus =
+                                                menus.home.slice(1)
+
+                                            setMenus((prevHeaderMenus) => ({
+                                                ...prevHeaderMenus,
+                                                home: updatedMenus,
+                                            }))
+                                        } else {
+                                            // If e is false, add a new element to the beginning of menus
+                                            const newMenu = {
+                                                displayText: "Following",
+                                                info: "following",
+                                            }
+
+                                            setMenus((prevHeaderMenus) => ({
+                                                ...prevHeaderMenus,
+                                                home: [
+                                                    newMenu,
+                                                    ...prevHeaderMenus.home,
+                                                ],
+                                            }))
+                                        }
+                                    }}
+                                />
+                            </TableCell>
+                        </TableRow>
                         <TableRow>
                             <TableCell>
                                 {t("pages.settings.hideRepost")}

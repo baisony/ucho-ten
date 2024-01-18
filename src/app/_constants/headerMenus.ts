@@ -7,12 +7,7 @@ const defaultLoginPageMenus: HeaderMenu[] = [
     },
 ]
 
-const defaultHomeMenus: HeaderMenu[] = [
-    {
-        displayText: "Following",
-        info: "following",
-    },
-]
+const defaultHomeMenus: HeaderMenu[] = []
 
 const defaultSearchTopMenus: HeaderMenu[] = [
     {
