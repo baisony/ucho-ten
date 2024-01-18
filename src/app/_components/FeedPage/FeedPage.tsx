@@ -235,8 +235,6 @@ const FeedPage = memo(
                         setIsEndOfFeed(true)
                     setCursorState(response.cursor)
 
-                    console.log("posts", posts)
-
                     const filteredData =
                         feedKey === "following"
                             ? filterDisplayPosts(
@@ -248,9 +246,6 @@ const FeedPage = memo(
                             : posts
                     //@ts-ignore
                     const muteWordFilter = filterPosts(filteredData)
-
-                    console.log("filteredData", filteredData)
-                    console.log("muteWordFilter", muteWordFilter)
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
@@ -325,7 +320,6 @@ const FeedPage = memo(
             queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
             queryFn: getTimelineFetcher,
             select: (fishes) => {
-                console.log(fishes)
                 return fishes
             },
             notifyOnChangeProps: ["data"],

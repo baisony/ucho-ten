@@ -38,6 +38,7 @@ import { useHighlightedTab } from "@/app/_atoms/hightlightedTab"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { viewSideMenuStyle } from "@/app/_components/ViewSideMenu/styles"
 import Image from "next/image"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 interface Props {
     className?: string
@@ -61,6 +62,8 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
         useTappedTabbarButtonAtom()
 
     const [unreadNotification] = useUnreadNotificationAtom()
+
+    const [zenMode] = useZenMode()
 
     return (
         <div className={"flex justify-end items-end"}>
@@ -176,9 +179,9 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                     {t("components.ViewSideMenu.settings")}
                 </Link>
                 <Link
-                    className={menuItem({
+                    className={`${menuItem({
                         isLocationHere: pathName === "/post",
-                    })}
+                    })} ${zenMode && `hidden`}`}
                     href={"/post"}
                 >
                     <div className={"mr-[10px]"}>
