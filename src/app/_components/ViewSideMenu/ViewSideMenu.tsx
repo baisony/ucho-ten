@@ -96,9 +96,9 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                     {t("components.ViewSideMenu.home")}
                 </Link>
                 <Link
-                    className={menuItem({
+                    className={`${menuItem({
                         isLocationHere: pathName === "/bookmarks",
-                    })}
+                    })} ${zenMode && `hidden`}`}
                     href={"/bookmarks"}
                 >
                     <div className={"mr-[10px]"}>

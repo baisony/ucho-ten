@@ -3,6 +3,7 @@ import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faHome,
+    faRss,
     faInbox,
     faPenToSquare,
     faSearch,
@@ -82,7 +83,7 @@ export const TabBar: React.FC<Props> = () => {
                 }}
             >
                 <FontAwesomeIcon
-                    icon={faHome}
+                    icon={!zenMode || zenMode === undefined ? faHome : faRss}
                     className={Icon()}
                     style={{
                         color: highlightedTab === "h" ? "#62A8DC" : undefined,
@@ -145,7 +146,9 @@ export const TabBar: React.FC<Props> = () => {
                 </div>
             </div>
             <div
-                className={Container({ selected: highlightedTab === "i" })}
+                className={`${Container({
+                    selected: highlightedTab === "i",
+                })} ${zenMode && `hidden`}`}
                 onClick={() => {
                     if (highlightedTab === "i" && tappedTabbarButton === null) {
                         setTappedTabbarButton("inbox")

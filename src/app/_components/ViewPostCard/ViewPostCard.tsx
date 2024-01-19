@@ -909,9 +909,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                         <div className={PostReactionButtonContainer()}>
                             <div className={`flex`}>
                                 <div
-                                    className={`${bookmarkButton()} group-hover:md:block ${
+                                    className={`${bookmarkButton()} ${
                                         !isBookmarked && `md:hidden`
-                                    } ${isEmbedToModal && `hidden`}`}
+                                    } ${isEmbedToModal && `hidden`} ${
+                                        !zenMode
+                                            ? `group-hover:md:block md:hidden`
+                                            : `hidden`
+                                    }`}
                                 >
                                     <FontAwesomeIcon
                                         icon={

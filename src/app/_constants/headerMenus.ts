@@ -37,6 +37,10 @@ const defaultUTabMenus: HeaderMenu[] = [
         info: "at://did:plc:pwlfo4w6auzwihryxik32t6d/app.bsky.feed.generator/ufeed",
     },
     {
+        displayText: "My Likes",
+        info: "at://did:plc:vc7f4oafdgxsihk4cry2xpze/app.bsky.feed.generator/likes",
+    },
+    {
         displayText: "Random Bookmark",
         info: "random-bookmark",
     },
