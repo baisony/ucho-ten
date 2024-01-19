@@ -719,7 +719,7 @@ const PostPage = (props: PostPageProps) => {
                                             }
                                             try {
                                                 const url = new AtUri(atUri)
-                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/${url.rkey}`
+                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/post/${url.rkey}`
 
                                                 console.log(url)
                                                 await window.navigator.share({
