@@ -211,100 +211,104 @@ const Page = () => {
     }
     return (
         <>
-            {searchText === "" ? (
-                <div className={"w-full h-full text-white"}>
-                    <div className={"absolute bottom-0  w-full"}>
-                        {t("pages.search.FindPerson")}
-                        <Link
-                            className={searchSupportCard()}
-                            href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed?${nextQueryParams.toString()}`}
-                        >
-                            <div className={"h-[50px] w-[50px]"}></div>
-                            <div>
-                                <div>穏やかなSNSを見つめる</div>
-                                <div>by @Ucho-ten</div>
-                            </div>
-                        </Link>
-                        <Link
-                            className={searchSupportCard()}
-                            href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
-                        >
-                            <div className={"h-[50px] w-[50px]"}></div>
-                            <div>
-                                <div>Japanese Cluster</div>
-                                <div>by @jaz.bsky.social</div>
-                            </div>
-                        </Link>
-                        <Link
-                            className={searchSupportCard()}
-                            href={findFeeds()}
-                        >
-                            <div className={"h-[50px] w-[50px]"}></div>
-                            <div>
-                                <div>日本語フィードを探す</div>
-                                {/* TODO: i18n */}
-                                <div>by @Ucho-ten</div>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-            ) : (
-                <SwiperContainer props={{ page: "search" }}>
-                    <SwiperSlide key={`swiperslide-home-0`}>
-                        <div
-                            id={`swiperIndex-div-${0}`}
-                            key={0}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <SearchPostPage
-                                {...{
-                                    isActive: menuIndex === 0,
-                                    t,
-                                    nextQueryParams,
-                                    agent,
-                                    searchText,
-                                }}
-                            />
+            <SwiperContainer
+                props={{ page: searchText === "" ? "searchTop" : "search" }}
+            >
+                {searchText === "" ? (
+                    <div className={"w-full h-full text-white"}>
+                        <div className={"absolute bottom-0  w-full"}>
+                            {t("pages.search.FindPerson")}
+                            <Link
+                                className={searchSupportCard()}
+                                href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed?${nextQueryParams.toString()}`}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>穏やかなSNSを見つめる</div>
+                                    <div>by @Ucho-ten</div>
+                                </div>
+                            </Link>
+                            <Link
+                                className={searchSupportCard()}
+                                href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>Japanese Cluster</div>
+                                    <div>by @jaz.bsky.social</div>
+                                </div>
+                            </Link>
+                            <Link
+                                className={searchSupportCard()}
+                                href={findFeeds()}
+                            >
+                                <div className={"h-[50px] w-[50px]"}></div>
+                                <div>
+                                    <div>日本語フィードを探す</div>
+                                    {/* TODO: i18n */}
+                                    <div>by @Ucho-ten</div>
+                                </div>
+                            </Link>
                         </div>
-                    </SwiperSlide>
-                    <SwiperSlide key={`swiperslide-home-1`}>
-                        <div
-                            id={`swiperIndex-div-0`}
-                            key={0}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <SearchActorPage
+                    </div>
+                ) : (
+                    <>
+                        <SwiperSlide key={`swiperslide-home-0`}>
+                            <div
+                                id={`swiperIndex-div-${0}`}
+                                key={0}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
+                                }}
+                            >
+                                <SearchPostPage
+                                    {...{
+                                        isActive: menuIndex === 0,
+                                        t,
+                                        nextQueryParams,
+                                        agent,
+                                        searchText,
+                                    }}
+                                />
+                            </div>
+                        </SwiperSlide>
+                        <SwiperSlide key={`swiperslide-home-1`}>
+                            <div
+                                id={`swiperIndex-div-0`}
+                                key={0}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
+                                }}
+                            >
+                                <SearchActorPage
+                                    {...{
+                                        t,
+                                        agent,
+                                        isActive: menuIndex === 1,
+                                        nextQueryParams,
+                                        searchText,
+                                        userPreferences,
+                                    }}
+                                />
+                            </div>
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <SearchFeedPage
                                 {...{
                                     t,
                                     agent,
-                                    isActive: menuIndex === 1,
+                                    isActive: menuIndex === 2,
                                     nextQueryParams,
                                     searchText,
                                     userPreferences,
                                 }}
                             />
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <SearchFeedPage
-                            {...{
-                                t,
-                                agent,
-                                isActive: menuIndex === 2,
-                                nextQueryParams,
-                                searchText,
-                                userPreferences,
-                            }}
-                        />
-                    </SwiperSlide>
-                </SwiperContainer>
-            )}
+                        </SwiperSlide>
+                    </>
+                )}
+            </SwiperContainer>
         </>
     )
 }

@@ -56,6 +56,7 @@ export const menuIndexAtom = atom(
         const currentType = get(currentMenuType)
         const currentIndex = get(menuIndexByHeader)
         const updatedIndex = { ...currentIndex, [currentType]: newMenuIndex }
+        console.log(currentType, newMenuIndex, updatedIndex)
         return set(menuIndexByHeader, updatedIndex)
     }
 )
