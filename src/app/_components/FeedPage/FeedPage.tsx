@@ -391,7 +391,6 @@ const FeedPage = memo(
             if (!isActive) return
             //@ts-ignore
             virtuosoRef?.current?.getState((state) => {
-                console.log(state)
                 if (
                     state.scrollTop !==
                     //@ts-ignore

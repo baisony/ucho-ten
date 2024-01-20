@@ -37,7 +37,7 @@ export function SwiperContainer({
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
 
-    const [now, setNow] = useState<Date>(new Date())
+    const [, setNow] = useState<Date>(new Date())
 
     const swiperRef = useRef<SwiperCore | null>(null)
 
@@ -65,7 +65,7 @@ export function SwiperContainer({
         }
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (
             currentMenuType === `${page}` &&
             swiperRef.current &&
@@ -74,6 +74,7 @@ export function SwiperContainer({
             swiperRef.current.slideTo(menuIndex)
         }
     }, [currentMenuType, menuIndex, swiperRef.current])
+
     return (
         <>
             <Swiper

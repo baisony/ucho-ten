@@ -270,9 +270,7 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                             >
                                 <a
                                     href={
-                                        process.env
-                                            .NEXT_PUBLIC_BUG_REPORT_PAGE ||
-                                        "https://google.com"
+                                        process.env.NEXT_PUBLIC_BUG_REPORT_PAGE
                                     }
                                     target={"_blank"}
                                     rel={"noreferrer"}
