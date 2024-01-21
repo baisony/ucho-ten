@@ -3,6 +3,11 @@ import { AppBskyEmbedRecordWithMedia } from "@atproto/api"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import { ViewQuoteCard } from "../ViewQuoteCard"
 import { memo } from "react"
+import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 
 interface EmbedMediaProps {
     embedMedia: AppBskyEmbedRecordWithMedia.View
@@ -57,10 +62,29 @@ export const EmbedMedia = memo(
                             </div>
                         ))}
                     </ScrollShadow>
-                    <ViewQuoteCard
-                        postJson={embedMedia.record.record}
-                        nextQueryParams={nextQueryParams}
-                    />
+                    {embedMedia.record.record.$type ===
+                        "app.bsky.embed.record#view" && (
+                        <ViewQuoteCard
+                            postJson={embedMedia.record.record}
+                            nextQueryParams={nextQueryParams}
+                        />
+                    )}
+                    {embedMedia.record.record.$type ===
+                        "app.bsky.feed.defs#generatorView" && (
+                        <ViewFeedCard
+                            feed={embedMedia.record.record as GeneratorView}
+                        />
+                    )}
+                    {embedMedia.record.record.$type ===
+                        "app.bsky.graph.defs#listView" && (
+                        <ViewMuteListCard
+                            list={embedMedia.record.record as ListView}
+                        />
+                    )}
+                    {embedMedia.record.record.$type ===
+                        "app.bsky.embed.record#viewNotFound" && (
+                        <ViewNotFoundCard />
+                    )}
                 </>
             )
         )
