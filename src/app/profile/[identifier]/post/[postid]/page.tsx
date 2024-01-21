@@ -65,7 +65,6 @@ import {
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
-import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { Linkcard } from "@/app/_components/Linkcard"
 import {
     ImageGalleryObject,
@@ -95,6 +94,7 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -1330,10 +1330,25 @@ const EmbedMedia = ({
                     </div>
                 ))}
             </ScrollShadow>
-            <ViewQuoteCard
-                postJson={embedMedia.record.record}
-                nextQueryParams={nextQueryParams}
-            />
+            {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#view" && (
+                <ViewQuoteCard
+                    postJson={embedMedia.record.record}
+                    nextQueryParams={nextQueryParams}
+                />
+            )}
+            {embedMedia.record.record.$type ===
+                "app.bsky.feed.defs#generatorView" && (
+                <ViewFeedCard
+                    feed={embedMedia.record.record as GeneratorView}
+                />
+            )}
+            {embedMedia.record.record.$type ===
+                "app.bsky.graph.defs#listView" && (
+                <ViewMuteListCard list={embedMedia.record.record as ListView} />
+            )}
+            {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#viewNotFound" && <ViewNotFoundCard />}
         </>
     )
 }
