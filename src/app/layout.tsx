@@ -56,8 +56,6 @@ export default function RootLayout({
     return (
         <html lang="ja" className={"overflow-hidden"}>
             <head>
-                <title>Ucho-ten</title>
-                <meta charSet="utf-8" />
                 <link rel="preconnect" href={"https://bsky.network"} />
                 <link rel="preconnect" href={"https://bsky.social"} />
                 <link rel="preconnect" href={"https://cdn.bsky.app"} />
