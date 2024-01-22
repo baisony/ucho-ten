@@ -6,11 +6,10 @@ import { useAgent } from "@/app/_atoms/agent"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
 } from "../_atoms/headerMenu"
-import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 
@@ -39,7 +38,7 @@ const Page = () => {
     const { t } = useTranslation()
     const { searchSupportCard } = layout()
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex, setMenuIndex] = useMenuIndex()
     const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
     const [agent] = useAgent()

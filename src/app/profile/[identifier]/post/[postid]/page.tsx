@@ -82,10 +82,9 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { menuIndexAtom, useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { useCurrentMenuType, useMenuIndex } from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
-import { useAtom } from "jotai"
 
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -98,7 +97,7 @@ import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
     const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {

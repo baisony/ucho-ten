@@ -159,12 +159,12 @@ const FeedPage = memo(
                     setNewTimeline(muteWordFilter)
 
                     if (muteWordFilter.length > 0) {
-                        console.log(
+                        /*console.log(
                             "new and old cid",
                             feedKey,
                             muteWordFilter[0].post.cid,
                             latestCID.current
-                        )
+                        )*/
 
                         if (
                             muteWordFilter[0].post.cid !== latestCID.current &&
@@ -387,7 +387,6 @@ const FeedPage = memo(
         }
 
         const handleSaveScrollPosition = () => {
-            console.log("save")
             if (!isActive) return
             //@ts-ignore
             virtuosoRef?.current?.getState((state) => {

@@ -1,19 +1,17 @@
 "use client"
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { useAtom } from "jotai"
 import { Swiper } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
+    useMenuIndex,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 
 import { isMobile } from "react-device-detect"
 import { HEADER_MENUS, HeaderMenuType } from "@/app/_constants/headerMenus"
-
 SwiperCore.use([Virtual])
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
@@ -30,7 +28,7 @@ export function SwiperContainer({
 }) {
     const { page } = props
     const [, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex, setMenuIndex] = useMenuIndex()
     const [menuIndexChangedByMenu, setMenuIndexChangedByMenu] =
         useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
@@ -65,7 +63,9 @@ export function SwiperContainer({
         }
     }, [])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+        if (currentMenuType !== page) return
+        console.log(page, currentMenuType, menuIndex)
         if (
             currentMenuType === `${page}` &&
             swiperRef.current &&
@@ -73,7 +73,12 @@ export function SwiperContainer({
         ) {
             swiperRef.current.slideTo(menuIndex)
         }
-    }, [currentMenuType, menuIndex, swiperRef.current])
+    }, [page, currentMenuType, menuIndex, swiperRef.current])
+
+    useEffect(() => {
+        console.log(`${page}: スライドが生成されました`)
+        console.log(menuIndex)
+    }, [menuIndex])
 
     return (
         <>
@@ -81,6 +86,8 @@ export function SwiperContainer({
                 onSwiper={(swiper) => {
                     swiperRef.current = swiper
                 }}
+                //@ts-ignore
+                ref={swiperRef}
                 cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 hidden={true} // ??
@@ -92,7 +99,6 @@ export function SwiperContainer({
                 threshold={1}
                 resistance={false}
                 longSwipes={false}
-                initialSlide={menuIndex}
                 touchStartForcePreventDefault={true}
                 preventInteractionOnTransition={true}
                 touchStartPreventDefault={false}
