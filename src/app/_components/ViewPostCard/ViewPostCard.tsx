@@ -975,7 +975,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                 }
                                             )} ${
                                                 !zenMode
-                                                    ? `group-hover:md:block md:hidden`
+                                                    ? `group-hover:md:block`
                                                     : `hidden`
                                             } ${!isReposted && `md:hidden`}`}
                                         >
