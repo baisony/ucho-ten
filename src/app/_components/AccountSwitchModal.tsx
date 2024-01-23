@@ -14,6 +14,7 @@ import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import AccountComponent from "./AccountComponent"
 import OneSignal from "react-onesignal"
+import { useOneSignalLogin } from "@/app/_atoms/onesignalLoggined"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -54,6 +55,7 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
         null
     )
+    const [, setOneSignalLogin] = useOneSignalLogin()
 
     const { appearanceTextColor } = signInModal()
 
@@ -115,7 +117,7 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
             setIsAccountSwitching(false)
 
             await OneSignal?.logout()
-            await OneSignal?.login(agent?.session?.did ?? "")
+            setOneSignalLogin(false)
 
             window.location.reload()
         } catch (e: unknown) {
