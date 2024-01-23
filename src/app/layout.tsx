@@ -5,6 +5,7 @@ import Script from "next/script"
 
 import "./globals.css"
 import { Suspense } from "react"
+import { OneSignalInitial } from "@/app/_lib/notify/onesignal"
 
 export const metadata: Metadata = {
     manifest: "/manifest.json",
@@ -280,6 +281,7 @@ export default function RootLayout({
                 className={"bg-white dark:bg-black"}
             >
                 <Script src="/noflash.js" />
+                <OneSignalInitial />
                 <Providers>
                     <Suspense>
                         <AppConatiner>{children}</AppConatiner>

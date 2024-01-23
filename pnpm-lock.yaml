@@ -83,9 +83,15 @@ dependencies:
   next-pwa:
     specifier: ^5.6.0
     version: 5.6.0(@babel/core@7.23.7)(next@14.0.4)(webpack@5.89.0)
+  node-oracledb:
+    specifier: ^1.0.2
+    version: 1.0.2
   open-graph-scraper:
     specifier: ^6.3.2
     version: 6.3.2
+  oracledb:
+    specifier: ^6.3.0
+    version: 6.3.0
   postcss:
     specifier: 8.4.31
     version: 8.4.31
@@ -110,6 +116,9 @@ dependencies:
   react-i18next:
     specifier: ^13.5.0
     version: 13.5.0(i18next@23.7.16)(react-dom@18.2.0)(react@18.2.0)
+  react-onesignal:
+    specifier: ^3.0.1
+    version: 3.0.1(react@18.2.0)
   react-swipe-down-refresh:
     specifier: ^0.1.1
     version: 0.1.1(react@18.2.0)
@@ -4274,12 +4283,12 @@ packages:
   /@types/eslint-scope@3.7.7:
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
     dependencies:
-      '@types/eslint': 8.56.1
+      '@types/eslint': 8.56.2
       '@types/estree': 1.0.5
     dev: false
 
-  /@types/eslint@8.56.1:
-    resolution: {integrity: sha512-18PLWRzhy9glDQp3+wOgfLYRWlhgX0azxgJ63rdpoUHyrC9z0f5CkFburjQx4uD7ZCruw85ZtMt6K+L+R8fLJQ==}
+  /@types/eslint@8.56.2:
+    resolution: {integrity: sha512-uQDwm1wFHmbBbCZCqAlq6Do9LYwByNZHWzXppSnay9SuwJ+VRbjkbLABer54kcPnMSlG6Fdiy2yaFXm/z9Z5gw==}
     dependencies:
       '@types/estree': 1.0.5
       '@types/json-schema': 7.0.15
@@ -7031,6 +7040,10 @@ packages:
       - babel-plugin-macros
     dev: false
 
+  /node-oracledb@1.0.2:
+    resolution: {integrity: sha512-uniHRXnh3TefPNR6hSWSMYFnRlSbAhYau0KSWsEnQcp37ENWj91+wWdczZmez/Gs0H98b/IWak8uVNKw79xmIA==}
+    dev: false
+
   /node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
     dev: false
@@ -7142,6 +7155,12 @@ packages:
       levn: 0.4.1
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  /oracledb@6.3.0:
+    resolution: {integrity: sha512-fr3U66QxgGXb5cs/ozLBQU50TMbZcBQEWvSaj2rJAXG8KRrsZcGOK8JTlZL1yJHeW8cSjOm6n/wTw3SJksGjDg==}
+    engines: {node: '>=14.6'}
+    requiresBuild: true
+    dev: false
 
   /p-limit@2.3.0:
     resolution: {integrity: sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==}
@@ -7749,6 +7768,15 @@ packages:
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+    dev: false
+
+  /react-onesignal@3.0.1(react@18.2.0):
+    resolution: {integrity: sha512-AfAtGdXRcuMhVf+9OXehGcQeiJIYl1ihAByvfVNa3RCA1Vnn19tBha4XQB+o3ukUh2IQn0yiflRO4vXgI9nOng==}
+    engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      react: '>= 16.8'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-remove-scroll-bar@2.3.4(@types/react@18.2.22)(react@18.2.0):

@@ -105,6 +105,7 @@ export interface ViewPostCardProps {
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean
     isDisplayMode?: boolean
+    zenMode?: boolean
 }
 
 export const ViewPostCard = memo((props: ViewPostCardProps) => {
@@ -122,6 +123,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         handleValueChange,
         handleSaveScrollPosition,
         isViaUFeed,
+        zenMode,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -692,10 +694,14 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                 }}
                                 href={`/profile/${postJsonData?.author
                                     ?.did}?${nextQueryParams.toString()}`}
+                                className={"items-start"}
                             >
                                 <span
-                                    className={`${PostAuthorDisplayName()} md:hover:underline`}
-                                    style={{ fontSize: "13px" }}
+                                    className={`${PostAuthorDisplayName()} md:hover:underline ${
+                                        `text-[` +
+                                        Number(contentFontSize + 11) +
+                                        `px]`
+                                    }`}
                                 >
                                     {postJsonData?.author?.displayName ||
                                         postJsonData?.author?.handle}
@@ -903,9 +909,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                         <div className={PostReactionButtonContainer()}>
                             <div className={`flex`}>
                                 <div
-                                    className={`${bookmarkButton()} group-hover:md:block ${
+                                    className={`${bookmarkButton()} ${
                                         !isBookmarked && `md:hidden`
-                                    } ${isEmbedToModal && `hidden`}`}
+                                    } ${isEmbedToModal && `hidden`} ${
+                                        !zenMode
+                                            ? `group-hover:md:block md:hidden`
+                                            : `hidden`
+                                    }`}
                                 >
                                     <FontAwesomeIcon
                                         icon={
@@ -930,13 +940,17 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                 <div className={`flex`}>
                                     {!isViaUFeed && (
                                         <div
-                                            className={`${PostReactionButton()} ${replyButton(
+                                            className={`${PostReactionButton()}  ${replyButton(
                                                 {
                                                     replyDisabled:
                                                         postJson?.viewer
                                                             ?.replyDisabled,
                                                 }
-                                            )} group-hover:md:block md:hidden`}
+                                            )} ${
+                                                !zenMode
+                                                    ? `group-hover:md:block md:hidden`
+                                                    : `hidden`
+                                            }`}
                                         >
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -959,9 +973,11 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                 {
                                                     isReacted: isReposted,
                                                 }
-                                            )} group-hover:md:block ${
-                                                !isReposted && `md:hidden`
-                                            }`}
+                                            )} ${
+                                                !zenMode
+                                                    ? `group-hover:md:block`
+                                                    : `hidden`
+                                            } ${!isReposted && `md:hidden`}`}
                                         >
                                             <FontAwesomeIcon
                                                 icon={faRetweet}

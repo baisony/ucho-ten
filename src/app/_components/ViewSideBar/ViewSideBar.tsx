@@ -28,6 +28,7 @@ import Link from "next/link"
 import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 interface Props {
     className?: string
@@ -56,6 +57,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
 
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const [zenMode] = useZenMode()
 
     const handleDeleteSession = () => {
         console.log("delete session")
@@ -134,7 +136,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                 </Link>
                 <div className={Content()}>
                     <Link
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} ${zenMode && `hidden`}`}
                         onClick={() => {
                             openSideBar(false)
                         }}
