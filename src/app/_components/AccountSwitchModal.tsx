@@ -13,6 +13,7 @@ import { BskyAgent } from "@atproto/api"
 import { useAccounts, UserAccount, UserAccountByDid } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import AccountComponent from "./AccountComponent"
+import OneSignal from "react-onesignal"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -20,8 +21,6 @@ export const signInModal = tv({
         appearanceTextColor: "text-black dark:text-white",
     },
 })
-
-// ---
 
 interface AccountSwitchModalProps {
     isOpen: boolean
@@ -45,16 +44,9 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
     const [agent, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
 
-    // const { isOpen, onOpenChange } = useDisclosure()
-
-    // const [serverName, setServerName] = useState<string>("")
     const [accountsByServices, setAccountsByServices] = useState<{
         [key: string]: UserAccount[]
     }>({})
-    // const [identity, setIdentity] = useState<string>("")
-    // const [password, setPassword] = useState<string>("")
-    // const [isLogging, setIsLogging] = useState<boolean>(false)
-    // const [loginError, setLoginError] = useState<boolean>(false)
     const [isAccountSwitching, setIsAccountSwitching] = useState(false)
     const [authenticationRequired, setAuthenticationRequired] = useState<
         boolean | null
@@ -91,6 +83,12 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
 
             await agent.resumeSession(session)
 
+            /*if (await OneSignal?.User.PushSubscription.optedIn) {
+                await OneSignal.User.PushSubscription.optOut()
+                optedInRef.current =
+                    await OneSignal?.User.PushSubscription.optedIn
+            }*/
+
             setAgent(agent)
 
             const json = {
@@ -115,6 +113,9 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
             setAccounts(existingAccountsData)
 
             setIsAccountSwitching(false)
+
+            await OneSignal?.logout()
+            await OneSignal?.login(agent?.session?.did ?? "")
 
             window.location.reload()
         } catch (e: unknown) {
