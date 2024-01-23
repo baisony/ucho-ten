@@ -25,6 +25,10 @@ import {
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { BskyAgent } from "@atproto/api"
+import { useEffect, useState } from "react"
+import OneSignal from "react-onesignal"
+import { useOneSignalLogin } from "@/app/_atoms/onesignalLoggined"
+import { useAgent } from "@/app/_atoms/agent"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 
@@ -38,11 +42,14 @@ export const SettingsGeneralPage = ({
     t,
     nextQueryParams,
 }: SettingsGeneralPageProps) => {
+    const [agent] = useAgent()
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [contentFontSize, setContentFontSize] = useContentFontSize()
     const [hideRepost, setHideRepost] = useHideRepost()
+    const [subscribed, setSubscribed] = useState<boolean | undefined>()
+    const [OneSignalLogin] = useOneSignalLogin()
     const [zenMode, setZenMode] = useZenMode()
     const [menus, setMenus] = useHeaderMenusByHeaderAtom()
 
@@ -79,6 +86,40 @@ export const SettingsGeneralPage = ({
         viewer: {},
         labels: [],
     }
+
+    const confirmSubscribe = async () => {
+        const session = await localStorage.getItem("session")
+        const res = await fetch(`/api/getNotifySubscribed/${session}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        const json = await res.json()
+        console.log(json.res)
+        return json.res.length !== 0
+    }
+
+    const pushNotifySubscribed = async () => {
+        const session = await localStorage.getItem("session")
+        const res = await fetch(`/api/setNotifySubscribed/1`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: session,
+        })
+        if (res.status === 200) alert("通知の購読に成功しました。")
+    }
+
+    useEffect(() => {
+        if (
+            typeof window === "undefined" ||
+            OneSignal.User.PushSubscription.optedIn === undefined
+        )
+            return
+        setSubscribed(OneSignal.User.PushSubscription.optedIn)
+    }, [OneSignalLogin, OneSignal.User.PushSubscription.optedIn])
 
     return (
         <div className={"w-full h-full"}>
@@ -154,6 +195,78 @@ export const SettingsGeneralPage = ({
                         </TableRow>
                     </TableBody>
                 </Table>
+
+                <div
+                    className={
+                        "font-[600] sm:text-black lg:text-white dark:text-white"
+                    }
+                >
+                    {t("pages.settings.pushNotification")}
+                </div>
+                <Table className={"w-full"}>
+                    <TableHeader>
+                        <TableColumn>
+                            <div>{t("text.betaFeature")}</div>
+                        </TableColumn>
+                        <TableColumn> </TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                <div>
+                                    {t("pages.settings.onlyMentionNotify")}
+                                </div>
+                            </TableCell>
+                            <TableCell
+                                className={"flex justify-end items-center"}
+                            >
+                                <div className={"h-[40px] overflow-hidden"}>
+                                    {OneSignal?.Notifications?.isPushSupported() &&
+                                    agent?.service.host === "bsky.social" ? (
+                                        <Button
+                                            onClick={async () => {
+                                                if (
+                                                    OneSignal?.Notifications
+                                                        ?.permissionNative ===
+                                                    "denied"
+                                                )
+                                                    return
+                                                if (subscribed) {
+                                                    await OneSignal.User.PushSubscription.optOut()
+                                                    setSubscribed(false)
+                                                } else {
+                                                    const res =
+                                                        await confirmSubscribe()
+                                                    if (!res) {
+                                                        await pushNotifySubscribed()
+                                                    }
+                                                    await OneSignal.User.PushSubscription.optIn()
+                                                    setSubscribed(true)
+                                                }
+                                            }}
+                                            isDisabled={
+                                                OneSignal?.Notifications
+                                                    ?.permissionNative ===
+                                                "denied"
+                                            }
+                                        >
+                                            {OneSignal?.Notifications
+                                                ?.permissionNative !== "denied"
+                                                ? !subscribed
+                                                    ? t("button.enable")
+                                                    : t("button.disable")
+                                                : t("button.permissionDenied")}
+                                        </Button>
+                                    ) : (
+                                        <Button isDisabled>
+                                            {t("button.unsupported")}
+                                        </Button>
+                                    )}
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
                 <div
                     className={
                         "font-[600] sm:text-black lg:text-white dark:text-white"
@@ -182,7 +295,7 @@ export const SettingsGeneralPage = ({
                                         onClick={() => {
                                             setAppearanceColor("system")
                                             if (
-                                                window.matchMedia(
+                                                window?.matchMedia(
                                                     "(prefers-color-scheme: dark)"
                                                 ).matches
                                             ) {
@@ -379,7 +492,7 @@ export const SettingsGeneralPage = ({
                 <div className={"lg:w-full h-full mt-[20px]"}>
                     <div
                         className={
-                            "sm:text-black sm:dark:text-white lg:text-white lg:dark:text-black font-[600]"
+                            "sm:text-black sm:dark:text-white lg:text-black lg:dark:text-white font-[600]"
                         }
                     >
                         {t("pages.settings.fontSizePreview")}
