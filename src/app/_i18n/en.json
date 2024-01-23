@@ -54,7 +54,7 @@
       "timeline": "Timeline",
       "hideRepost": "Hide Repost",
       "pushNotification": "Push Notification",
-      "onlyMentionNotify": "Only Mention Notify",
+      "onlyMentionNotify": "Only Mention Notify, Available on only bsky.social",
       "appearance": "Appearance",
       "size": "Size",
       "fontSize": "Font size",

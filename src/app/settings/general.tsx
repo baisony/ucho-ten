@@ -27,6 +27,8 @@ import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { BskyAgent } from "@atproto/api"
 import { useEffect, useState } from "react"
 import OneSignal from "react-onesignal"
+import { useOneSignalLogin } from "@/app/_atoms/onesignalLoggined"
+import { useAgent } from "@/app/_atoms/agent"
 
 interface SettingsGeneralPageProps {
     t: any
@@ -38,12 +40,14 @@ export const SettingsGeneralPage = ({
     t,
     nextQueryParams,
 }: SettingsGeneralPageProps) => {
+    const [agent] = useAgent()
     const [displayLanguage, setDisplayLanguage] = useDisplayLanguage()
     const [translateTo, setTranslateTo] = useTranslationLanguage()
     const [appearanceColor, setAppearanceColor] = useAppearanceColor()
     const [contentFontSize, setContentFontSize] = useContentFontSize()
     const [hideRepost, setHideRepost] = useHideRepost()
     const [subscribed, setSubscribed] = useState<boolean | undefined>()
+    const [OneSignalLogin] = useOneSignalLogin()
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -111,7 +115,7 @@ export const SettingsGeneralPage = ({
         )
             return
         setSubscribed(OneSignal.User.PushSubscription.optedIn)
-    }, [OneSignal.User.PushSubscription.optedIn])
+    }, [OneSignalLogin, OneSignal.User.PushSubscription.optedIn])
 
     return (
         <div className={"w-full h-full"}>
@@ -175,7 +179,8 @@ export const SettingsGeneralPage = ({
                                 className={"flex justify-end items-center"}
                             >
                                 <div className={"h-[40px] overflow-hidden"}>
-                                    {OneSignal?.Notifications?.isPushSupported() ? (
+                                    {OneSignal?.Notifications?.isPushSupported() &&
+                                    agent?.service.host === "bsky.social" ? (
                                         <Button
                                             onClick={async () => {
                                                 if (
