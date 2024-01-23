@@ -8,7 +8,10 @@ import { Suspense } from "react"
 
 export const metadata: Metadata = {
     manifest: "/manifest.json",
-    title: "Ucho-ten",
+    title: {
+        template: "%s | Ucho-ten",
+        default: "Ucho-ten",
+    },
     applicationName: "Ucho-ten",
     description:
         'Ucho-ten is a BlueSky client that conceals numbers from social media, allowing you to focus on your "Likes" at any time.',

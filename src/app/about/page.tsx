@@ -1,12 +1,10 @@
-"use client"
-import { useCurrentMenuType } from "../_atoms/headerMenu"
-import { useLayoutEffect } from "react"
+import PageClient from "./page.client"
 
-export default function Root() {
-    const [, setCurrentMenuType] = useCurrentMenuType()
-    useLayoutEffect(() => {
-        setCurrentMenuType("about")
-    }, [])
+export default function Page() {
+    return <PageClient />
+}
 
-    return <></>
+export const metadata = {
+    robots: "noindex,nofollow",
+    title: "About",
 }
