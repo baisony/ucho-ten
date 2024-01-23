@@ -4,6 +4,7 @@ import { AppConatiner } from "./_components/AppContainer/AppContainer"
 import Script from "next/script"
 
 import "./globals.css"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
     manifest: "/manifest.json",
@@ -36,12 +37,7 @@ export const metadata: Metadata = {
             url: "/images/ogp/ucho-ten-ogp.png",
         },
     },
-    robots: {
-        index: true,
-        googleBot: {
-            index: true,
-        },
-    },
+    robots: "noarchive, nofollow",
 }
 
 const viewport = {
@@ -282,7 +278,9 @@ export default function RootLayout({
             >
                 <Script src="/noflash.js" />
                 <Providers>
-                    <AppConatiner>{children}</AppConatiner>
+                    <Suspense>
+                        <AppConatiner>{children}</AppConatiner>
+                    </Suspense>
                 </Providers>
             </body>
         </html>
