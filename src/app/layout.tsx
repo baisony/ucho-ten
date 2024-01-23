@@ -37,12 +37,7 @@ export const metadata: Metadata = {
             url: "/images/ogp/ucho-ten-ogp.png",
         },
     },
-    robots: {
-        index: true,
-        googleBot: {
-            index: true,
-        },
-    },
+    robots: "noarchive, nofollow",
 }
 
 const viewport = {
