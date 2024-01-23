@@ -5,3 +5,8 @@ const Root = () => {
 }
 
 export default Root
+
+export const metadata = {
+    robots: "nofollow",
+    title: "Home",
+}

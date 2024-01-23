@@ -5,10 +5,14 @@ import Script from "next/script"
 
 import "./globals.css"
 import { OneSignalInitial } from "@/app/_lib/notify/onesignal"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
     manifest: "/manifest.json",
-    title: "Ucho-ten",
+    title: {
+        template: "%s | Ucho-ten",
+        default: "Ucho-ten",
+    },
     applicationName: "Ucho-ten",
     description:
         'Ucho-ten is a BlueSky client that conceals numbers from social media, allowing you to focus on your "Likes" at any time.',
@@ -57,8 +61,6 @@ export default function RootLayout({
     return (
         <html lang="ja" className={"overflow-hidden"}>
             <head>
-                <title>Ucho-ten</title>
-                <meta charSet="utf-8" />
                 <link rel="preconnect" href={"https://bsky.network"} />
                 <link rel="preconnect" href={"https://bsky.social"} />
                 <link rel="preconnect" href={"https://cdn.bsky.app"} />
@@ -281,7 +283,9 @@ export default function RootLayout({
                 <Script src="/noflash.js" />
                 <OneSignalInitial />
                 <Providers>
-                    <AppConatiner>{children}</AppConatiner>
+                    <Suspense>
+                        <AppConatiner>{children}</AppConatiner>
+                    </Suspense>
                 </Providers>
             </body>
         </html>

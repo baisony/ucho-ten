@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import "@/app/_i18n/config" //i18
 import React, {
+    Suspense,
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -654,7 +655,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                                         statusCode !== 404 && (
                                             <ViewFillPageBackground />
                                         )}
-                                    {children}
+                                    <Suspense>{children}</Suspense>
                                 </div>
                                 {showTabBar && !isLoginPath && <TabBar />}
                             </div>
