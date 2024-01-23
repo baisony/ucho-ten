@@ -65,7 +65,6 @@ import {
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
-import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { Linkcard } from "@/app/_components/Linkcard"
 import {
     ImageGalleryObject,
@@ -83,10 +82,9 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { menuIndexAtom, useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { useCurrentMenuType, useMenuIndex } from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
-import { useAtom } from "jotai"
 
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -95,10 +93,11 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 
 const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
     const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
@@ -719,7 +718,7 @@ const PostPage = (props: PostPageProps) => {
                                             }
                                             try {
                                                 const url = new AtUri(atUri)
-                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/${url.rkey}`
+                                                const bskyURL = `https://bsky.app/profile/${url.hostname}/post/${url.rkey}`
 
                                                 console.log(url)
                                                 await window.navigator.share({
@@ -1330,10 +1329,25 @@ const EmbedMedia = ({
                     </div>
                 ))}
             </ScrollShadow>
-            <ViewQuoteCard
-                postJson={embedMedia.record.record}
-                nextQueryParams={nextQueryParams}
-            />
+            {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#view" && (
+                <ViewQuoteCard
+                    postJson={embedMedia.record.record}
+                    nextQueryParams={nextQueryParams}
+                />
+            )}
+            {embedMedia.record.record.$type ===
+                "app.bsky.feed.defs#generatorView" && (
+                <ViewFeedCard
+                    feed={embedMedia.record.record as GeneratorView}
+                />
+            )}
+            {embedMedia.record.record.$type ===
+                "app.bsky.graph.defs#listView" && (
+                <ViewMuteListCard list={embedMedia.record.record as ListView} />
+            )}
+            {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#viewNotFound" && <ViewNotFoundCard />}
         </>
     )
 }

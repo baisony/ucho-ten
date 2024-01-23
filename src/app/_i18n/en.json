@@ -52,6 +52,7 @@
       "system": "System",
       "auto": "Auto",
       "timeline": "Timeline",
+      "zenMode": "ZEN Mode",
       "hideRepost": "Hide Repost",
       "pushNotification": "Push Notification",
       "onlyMentionNotify": "Only Mention Notify, Available on only bsky.social",

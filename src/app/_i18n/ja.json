@@ -54,6 +54,7 @@
       "hideRepost": "リポストを表示しない",
       "pushNotification": "プッシュ通知",
       "onlyMentionNotify": "メンションのみプッシュ通知 (bsky.socialのみ)",
+      "zenMode": "禅",
       "appearance": "外観",
       "size": "サイズ",
       "fontSize": "フォントサイズ",

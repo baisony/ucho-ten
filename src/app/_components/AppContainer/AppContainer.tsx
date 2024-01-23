@@ -35,6 +35,7 @@ import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
+import { useZenMode } from "@/app/_atoms/zenMode"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
@@ -95,7 +96,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/settings")
         router.prefetch("/bookmarks")
         router.prefetch("/feeds")
-        router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
 
     const headerAndSlash = (url: string) => {
@@ -105,7 +105,6 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
     const refreshSession = async () => {
         if (!agent) return
         if (!agent?.session) return
-        console.log(agent?.session)
 
         try {
             const url = new URL(agent?.service)
@@ -402,10 +401,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         })
 
-        menus.unshift({
-            displayText: "Following",
-            info: "following",
-        })
+        const hoge = localStorage.getItem("zenMode")
+        console.log(hoge)
+        if (!hoge || hoge === "false") {
+            console.log(hoge)
+            menus.unshift({
+                displayText: "Following",
+                info: "following",
+            })
+        }
 
         newHeaderMenusByHeader.home = menus
 

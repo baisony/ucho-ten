@@ -7,12 +7,7 @@ const defaultLoginPageMenus: HeaderMenu[] = [
     },
 ]
 
-const defaultHomeMenus: HeaderMenu[] = [
-    {
-        displayText: "Following",
-        info: "following",
-    },
-]
+const defaultHomeMenus: HeaderMenu[] = []
 
 const defaultSearchTopMenus: HeaderMenu[] = [
     {
@@ -40,6 +35,10 @@ const defaultUTabMenus: HeaderMenu[] = [
     {
         displayText: "U-feed",
         info: "at://did:plc:pwlfo4w6auzwihryxik32t6d/app.bsky.feed.generator/ufeed",
+    },
+    {
+        displayText: "My Likes",
+        info: "at://did:plc:vc7f4oafdgxsihk4cry2xpze/app.bsky.feed.generator/likes",
     },
     {
         displayText: "Random Bookmark",

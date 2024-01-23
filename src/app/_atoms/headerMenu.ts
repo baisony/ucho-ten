@@ -60,5 +60,7 @@ export const menuIndexAtom = atom(
     }
 )
 
+export const useMenuIndex = () => useAtom(menuIndexAtom)
+
 const menuIndexChangedByMenu = atom<boolean>(false)
 export const useMenuIndexChangedByMenu = () => useAtom(menuIndexChangedByMenu)

@@ -29,6 +29,7 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useHideRepost } from "@/app/_atoms/hideRepost"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
@@ -79,6 +80,7 @@ const FeedPage = memo(
         const virtuosoRef = useRef(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
+        const [zenMode] = useZenMode()
 
         const getFeedKeys = {
             all: ["getFeed"] as const,
@@ -157,12 +159,12 @@ const FeedPage = memo(
                     setNewTimeline(muteWordFilter)
 
                     if (muteWordFilter.length > 0) {
-                        console.log(
+                        /*console.log(
                             "new and old cid",
                             feedKey,
                             muteWordFilter[0].post.cid,
                             latestCID.current
-                        )
+                        )*/
 
                         if (
                             muteWordFilter[0].post.cid !== latestCID.current &&
@@ -235,8 +237,6 @@ const FeedPage = memo(
                         setIsEndOfFeed(true)
                     setCursorState(response.cursor)
 
-                    console.log("posts", posts)
-
                     const filteredData =
                         feedKey === "following"
                             ? filterDisplayPosts(
@@ -248,9 +248,6 @@ const FeedPage = memo(
                             : posts
                     //@ts-ignore
                     const muteWordFilter = filterPosts(filteredData)
-
-                    console.log("filteredData", filteredData)
-                    console.log("muteWordFilter", muteWordFilter)
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
@@ -325,7 +322,6 @@ const FeedPage = memo(
             queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
             queryFn: getTimelineFetcher,
             select: (fishes) => {
-                console.log(fishes)
                 return fishes
             },
             notifyOnChangeProps: ["data"],
@@ -391,11 +387,9 @@ const FeedPage = memo(
         }
 
         const handleSaveScrollPosition = () => {
-            console.log("save")
             if (!isActive) return
             //@ts-ignore
             virtuosoRef?.current?.getState((state) => {
-                console.log(state)
                 if (
                     state.scrollTop !==
                     //@ts-ignore
@@ -527,6 +521,7 @@ const FeedPage = memo(
                                             handleSaveScrollPosition:
                                                 handleSaveScrollPosition,
                                             isViaUFeed: isViaUFeed,
+                                            zenMode: zenMode,
                                         }}
                                     />
                                 ) : (

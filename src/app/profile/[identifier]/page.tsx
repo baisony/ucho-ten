@@ -53,15 +53,14 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
 import Link from "next/link"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
 } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
@@ -72,7 +71,7 @@ const Page = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [agent] = useAgent()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
 
     const swiperRef = useRef<SwiperCore | null>(null)
     const pathname = usePathname()
@@ -1292,7 +1291,7 @@ const UserProfileComponent = ({
                                         : "default"
                                     : "default"
                             }
-                            variant={isProfileMine ? "ghost" : "solid"}
+                            variant={"ghost"}
                             onMouseLeave={() => {
                                 if (isMobile) return
                                 setOnHoverButton(false)
