@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { Providers } from "./_components/Providers/Providers"
-import { AppConatiner } from "./_components/AppContainer/AppContainer"
+import { AppContainer } from "./_components/AppContainer/AppContainer"
 import Script from "next/script"
 
 import "./globals.css"
@@ -284,7 +284,7 @@ export default function RootLayout({
                 <OneSignalInitial />
                 <Providers>
                     <Suspense>
-                        <AppConatiner>{children}</AppConatiner>
+                        <AppContainer>{children}</AppContainer>
                     </Suspense>
                 </Providers>
             </body>

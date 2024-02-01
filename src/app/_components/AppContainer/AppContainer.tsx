@@ -56,7 +56,7 @@ const ViewSideMenu = dynamic(
 
 //const ViewSideBar = dynamic(() => import("../ViewSideBar/ViewSideBar"), {})
 
-export function AppConatiner({ children }: { children: React.ReactNode }) {
+export function AppContainer({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()
     const router = useRouter()
     const pathName = usePathname()
@@ -592,22 +592,24 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }}
         >
             <div id="burger-outer-container" className={"h-full w-full"}>
-                <BurgerPush
-                    className={"backdrop-blur-[5px]"}
-                    outerContainerId="burger-outer-container"
-                    pageWrapId="main-container"
-                    styles={burgerMenuStyles}
-                    isOpen={drawerOpen}
-                    onClose={() => {
-                        setDrawerOpen(false)
-                    }}
-                >
-                    <ViewSideBar
-                        isSideBarOpen={drawerOpen}
-                        openSideBar={handleSideBarOpen}
-                        isMobile={isMobile}
-                    />
-                </BurgerPush>
+                {document?.getElementById("main-container") && (
+                    <BurgerPush
+                        className={"backdrop-blur-[5px]"}
+                        outerContainerId={"burger-outer-container"}
+                        pageWrapId={"main-container"}
+                        styles={burgerMenuStyles}
+                        isOpen={drawerOpen}
+                        onClose={() => {
+                            setDrawerOpen(false)
+                        }}
+                    >
+                        <ViewSideBar
+                            isSideBarOpen={drawerOpen}
+                            openSideBar={handleSideBarOpen}
+                            isMobile={isMobile}
+                        />
+                    </BurgerPush>
+                )}
                 <main
                     id="main-container"
                     className={background()}
@@ -665,7 +667,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             className={
                                 "lg:w-[calc(100%/4)] h-full hidden lg:flex"
                             }
-                        ></div>
+                        />
                     </div>
                 </main>
             </div>
