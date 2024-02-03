@@ -1065,7 +1065,7 @@ const UserProfileComponent = ({
                 <ModalContent>
                     {() => (
                         <>
-                            <ModalHeader>Copy</ModalHeader>
+                            <ModalHeader>Actions</ModalHeader>
                             <ModalBody>
                                 <span>
                                     <div
