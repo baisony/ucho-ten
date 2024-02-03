@@ -640,7 +640,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
                     {json?.reason && (
                         <Link
-                            className={`text-[13px] ml-[40px] text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
+                            className={`text-[13px] ${zenMode ? `ml-[11px]` : `ml-[40px]`} text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 handleChangeSaveScrollPosition()
@@ -712,7 +712,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             </Link>
                             {postJsonData?.author?.displayName && (
                                 <>
-                                    <div className={"text-[#BABABA]"}>
+                                    <div
+                                        className={`${zenMode && `hidden`} text-[#BABABA]`}
+                                    >
                                         &nbsp;-&nbsp;
                                     </div>
                                     <Link
@@ -725,7 +727,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                         }?${nextQueryParams.toString()}`}
                                     >
                                         <span
-                                            className={`${PostAuthorHandle()} md:hover:underline`}
+                                            className={`${PostAuthorHandle({ zenMode })} md:hover:underline`}
                                         >
                                             {postJsonData?.author?.handle}
                                         </span>

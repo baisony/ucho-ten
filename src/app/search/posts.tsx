@@ -19,6 +19,7 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { useSearchParams } from "next/navigation"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -62,6 +63,8 @@ const SearchPostPage = ({
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = `Posts`
     const pageName = "search"
+
+    const [zenMode] = useZenMode()
 
     const FEED_FETCH_LIMIT = 25
     const CHECK_FEED_UPDATE_INTERVAL: number = 10 * 1000
@@ -457,6 +460,7 @@ const SearchPostPage = ({
                                     handleValueChange: handleValueChange,
                                     handleSaveScrollPosition:
                                         handleSaveScrollPosition,
+                                    zenMode,
                                 }}
                             />
                         ) : (

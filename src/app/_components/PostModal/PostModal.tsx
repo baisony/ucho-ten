@@ -702,6 +702,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             isEmbedToModal={true}
                             nextQueryParams={nextQueryParams}
                             t={t}
+                            zenMode
                         />
                     </div>
                     <div

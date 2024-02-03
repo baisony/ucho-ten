@@ -308,6 +308,7 @@ const PostPage = (props: PostPageProps) => {
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
                         t={t}
+                        zenMode
                     />
                 </>
             )
@@ -1126,6 +1127,7 @@ const PostPage = (props: PostPageProps) => {
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
+                                    zenMode
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}
@@ -1236,6 +1238,7 @@ const PostPage = (props: PostPageProps) => {
                                     //isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
+                                    zenMode
                                 />
                             )
                         })}

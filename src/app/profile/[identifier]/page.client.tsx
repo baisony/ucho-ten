@@ -66,6 +66,7 @@ import SwiperCore from "swiper/core"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -78,6 +79,7 @@ const PageClient = () => {
     const username = pathname.replace("/profile/", "")
 
     const [hidden, setHidden] = useState<boolean | null>(null)
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("profile")
@@ -123,7 +125,7 @@ const PageClient = () => {
                     return (
                         <SwiperSlide key={index}>
                             {/* @ts-ignore */}
-                            <PostPage tab={menu.info} />
+                            <PostPage tab={menu.info} zenMode={zenMode} />
                         </SwiperSlide>
                     )
                 })}
@@ -138,6 +140,7 @@ export default PageClient
 
 interface PostPageProps {
     tab: "posts" | "replies" | "media"
+    zenMode: boolean
 }
 
 const PostPage = (props: PostPageProps) => {
@@ -473,6 +476,7 @@ const PostPage = (props: PostPageProps) => {
                         nextQueryParams,
                         t,
                         handleSaveScrollPosition: handleSaveScrollPosition,
+                        zenMode: props.zenMode,
                     }
 
                     return {

@@ -81,6 +81,7 @@ export const viewPostCard = tv({
         zenMode: {
             true: {
                 PostAuthorIcon: "hidden",
+                PostAuthorHandle: "hidden",
                 PostContent: "ml-[11px]",
             },
         },
