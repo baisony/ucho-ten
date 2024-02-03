@@ -10,6 +10,7 @@ import {
     ButtonGroup,
     Select,
     SelectItem,
+    Spinner,
     Switch,
     Table,
     TableBody,
@@ -52,6 +53,7 @@ export const SettingsGeneralPage = ({
     const [OneSignalLogin] = useOneSignalLogin()
     const [zenMode, setZenMode] = useZenMode()
     const [menus, setMenus] = useHeaderMenusByHeaderAtom()
+    const [loading, setLoqading] = useState(false)
 
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
@@ -225,37 +227,52 @@ export const SettingsGeneralPage = ({
                                     agent?.service.host === "bsky.social" ? (
                                         <Button
                                             onClick={async () => {
-                                                if (
-                                                    OneSignal?.Notifications
-                                                        ?.permissionNative ===
-                                                    "denied"
-                                                )
-                                                    return
-                                                if (subscribed) {
-                                                    await OneSignal.User.PushSubscription.optOut()
-                                                    setSubscribed(false)
-                                                } else {
-                                                    const res =
-                                                        await confirmSubscribe()
-                                                    if (!res) {
-                                                        await pushNotifySubscribed()
+                                                try {
+                                                    setLoqading(true)
+                                                    if (
+                                                        OneSignal?.Notifications
+                                                            ?.permissionNative ===
+                                                        "denied"
+                                                    )
+                                                        return
+                                                    if (subscribed) {
+                                                        await OneSignal.User.PushSubscription.optOut()
+                                                        setSubscribed(false)
+                                                    } else {
+                                                        const res =
+                                                            await confirmSubscribe()
+                                                        if (!res) {
+                                                            await pushNotifySubscribed()
+                                                        }
+                                                        await OneSignal.User.PushSubscription.optIn()
+                                                        setSubscribed(true)
                                                     }
-                                                    await OneSignal.User.PushSubscription.optIn()
-                                                    setSubscribed(true)
+                                                } catch (e) {
+                                                } finally {
+                                                    setLoqading(false)
                                                 }
                                             }}
                                             isDisabled={
                                                 OneSignal?.Notifications
                                                     ?.permissionNative ===
-                                                "denied"
+                                                    "denied" || loading
                                             }
                                         >
                                             {OneSignal?.Notifications
-                                                ?.permissionNative !== "denied"
-                                                ? !subscribed
-                                                    ? t("button.enable")
-                                                    : t("button.disable")
-                                                : t("button.permissionDenied")}
+                                                ?.permissionNative !==
+                                            "denied" ? (
+                                                !loading ? (
+                                                    !subscribed ? (
+                                                        t("button.enable")
+                                                    ) : (
+                                                        t("button.disable")
+                                                    )
+                                                ) : (
+                                                    <Spinner />
+                                                )
+                                            ) : (
+                                                t("button.permissionDenied")
+                                            )}
                                         </Button>
                                     ) : (
                                         <Button isDisabled>
