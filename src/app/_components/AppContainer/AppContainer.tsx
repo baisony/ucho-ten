@@ -36,7 +36,6 @@ import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
-import { useZenMode } from "@/app/_atoms/zenMode"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
@@ -576,6 +575,32 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         const element = document.querySelector("meta[name=theme-color]")!
         element.setAttribute("content", themeColor)
     }, [appearanceColor, agent, pathName])
+
+    useEffect(() => {
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                //今回はDocRoot以下をServiceWorkerのスコープとします
+                navigator.serviceWorker
+                    .register("/main-service-worker.js")
+                    .then(
+                        function (registration) {
+                            // 登録成功
+                            console.log(
+                                "ServiceWorker registration successful with scope: ",
+                                registration.scope
+                            )
+                        },
+                        function (err) {
+                            // 登録失敗
+                            console.log(
+                                "ServiceWorker registration failed: ",
+                                err
+                            )
+                        }
+                    )
+            })
+        }
+    }, [])
 
     return (
         <div
