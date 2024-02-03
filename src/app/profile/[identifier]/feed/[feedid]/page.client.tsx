@@ -512,7 +512,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     }
 
     if (postProps) {
-        if (postProps.isSkeleton) return <ViewPostCardSkelton />
+        if (postProps.isSkeleton) return <ViewPostCardSkelton zenMode />
         return <ViewPostCard {...postProps} />
     }
 }

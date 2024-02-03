@@ -460,7 +460,7 @@ const SearchPostPage = ({
                                 }}
                             />
                         ) : (
-                            <ViewPostCardSkelton />
+                            <ViewPostCardSkelton zenMode />
                         )}
                     </>
                 )}

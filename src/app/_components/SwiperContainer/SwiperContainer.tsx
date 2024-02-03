@@ -65,7 +65,6 @@ export function SwiperContainer({
 
     useEffect(() => {
         if (currentMenuType !== page) return
-        console.log(page, currentMenuType, menuIndex)
         if (
             currentMenuType === `${page}` &&
             swiperRef.current &&
@@ -74,11 +73,6 @@ export function SwiperContainer({
             swiperRef.current.slideTo(menuIndex)
         }
     }, [page, currentMenuType, menuIndex, swiperRef.current])
-
-    useEffect(() => {
-        console.log(`${page}: スライドが生成されました`)
-        console.log(menuIndex)
-    }, [menuIndex])
 
     return (
         <>

@@ -229,7 +229,9 @@ export default function Root() {
                                                             }}
                                                         />
                                                     ) : (
-                                                        <ViewPostCardSkelton />
+                                                        <ViewPostCardSkelton
+                                                            zenMode
+                                                        />
                                                     )}
                                                 </>
                                             )}

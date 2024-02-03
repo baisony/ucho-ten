@@ -78,5 +78,11 @@ export const viewPostCard = tv({
                 replyButton: "text-gray-300 dark:text-gray-700",
             },
         },
+        zenMode: {
+            true: {
+                PostAuthorIcon: "hidden",
+                PostContent: "ml-[11px]",
+            },
+        },
     },
 })

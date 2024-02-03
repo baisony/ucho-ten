@@ -663,6 +663,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             <Link
                                 className={PostAuthorIcon({
                                     isEmbedToPost,
+                                    zenMode,
                                 })}
                                 onClick={(e) => {
                                     e.stopPropagation()
@@ -764,7 +765,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             )}
                         </div>
                     </div>
-                    <div className={PostContent({ isEmbedToPost })}>
+                    <div className={PostContent({ isEmbedToPost, zenMode })}>
                         {json?.reply && (
                             <div
                                 className={
@@ -898,6 +899,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
+                                    zenMode
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}

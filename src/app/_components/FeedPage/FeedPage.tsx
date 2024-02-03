@@ -525,7 +525,7 @@ const FeedPage = memo(
                                         }}
                                     />
                                 ) : (
-                                    <ViewPostCardSkelton />
+                                    <ViewPostCardSkelton zenMode />
                                 )}
                             </>
                         )}
