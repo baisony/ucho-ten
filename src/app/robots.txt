@@ -11,4 +11,5 @@ Disallow: /profile/
 Disallow: /search/
 Disallow: /settings/
 Disallow: /u-tab/
+Disallow: /offline/
 Disallow: /*?

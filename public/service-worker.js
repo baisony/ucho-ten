@@ -17,6 +17,8 @@ const urlsToCache = [
     //404
     "./images/404page/zazen_obousan.png",
     "./images/404page/404.png",
+    //noflash
+    "./noflash.js",
 ]
 
 self.addEventListener("install", (event) => {
