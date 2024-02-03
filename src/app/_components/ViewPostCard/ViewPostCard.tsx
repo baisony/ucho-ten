@@ -645,9 +645,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                 e.stopPropagation()
                                 handleChangeSaveScrollPosition()
                             }}
-                            href={`/profile/${
-                                (json?.reason?.by as ProfileViewBasic)?.did
-                            }?${nextQueryParams.toString()}`}
+                            href={`/profile/${(
+                                json?.reason?.by as ProfileViewBasic
+                            )?.did}?${nextQueryParams.toString()}`}
                         >
                             <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                             {(json.reason.by as ProfileViewBasic).displayName ||
@@ -668,9 +668,8 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     e.stopPropagation()
                                     handleChangeSaveScrollPosition()
                                 }}
-                                href={`/profile/${
-                                    postJsonData?.author?.did
-                                }?${nextQueryParams.toString()}`}
+                                href={`/profile/${postJsonData?.author
+                                    ?.did}?${nextQueryParams.toString()}`}
                             >
                                 <img
                                     src={
@@ -693,9 +692,8 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     e.stopPropagation()
                                     handleChangeSaveScrollPosition()
                                 }}
-                                href={`/profile/${
-                                    postJsonData?.author?.did
-                                }?${nextQueryParams.toString()}`}
+                                href={`/profile/${postJsonData?.author
+                                    ?.did}?${nextQueryParams.toString()}`}
                                 className={"items-start"}
                             >
                                 <span
@@ -719,9 +717,8 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             e.stopPropagation()
                                             handleChangeSaveScrollPosition()
                                         }}
-                                        href={`/profile/${
-                                            postJsonData?.author?.did
-                                        }?${nextQueryParams.toString()}`}
+                                        href={`/profile/${postJsonData?.author
+                                            ?.did}?${nextQueryParams.toString()}`}
                                     >
                                         <span
                                             className={`${PostAuthorHandle()} md:hover:underline`}

@@ -107,9 +107,8 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         if (!agent?.session) return
                         openSideBar(false)
                     }}
-                    href={`/profile/${
-                        agent?.session?.did
-                    }?${nextQueryParams.toString()}`}
+                    href={`/profile/${agent?.session
+                        ?.did}?${nextQueryParams.toString()}`}
                 >
                     <div
                         className={
@@ -187,9 +186,8 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             if (!agent?.session) return
                             openSideBar(false)
                         }}
-                        href={`/profile/${
-                            agent?.session?.did
-                        }?${nextQueryParams.toString()}`}
+                        href={`/profile/${agent?.session
+                            ?.did}?${nextQueryParams.toString()}`}
                     >
                         <div className={NavBarContainer()}>
                             <FontAwesomeIcon

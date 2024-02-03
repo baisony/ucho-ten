@@ -852,9 +852,8 @@ const PostPage = (props: PostPageProps) => {
                         <div className={"flex items-center"}>
                             <Link
                                 className={AuthorIcon()}
-                                href={`/profile/${
-                                    postView?.author.did
-                                }?${nextQueryParams.toString()}`}
+                                href={`/profile/${postView?.author
+                                    .did}?${nextQueryParams.toString()}`}
                             >
                                 <img
                                     src={
@@ -868,9 +867,8 @@ const PostPage = (props: PostPageProps) => {
                                 <div>
                                     <Link
                                         className={AuthorDisplayName()}
-                                        href={`/profile/${
-                                            postView?.author.did
-                                        }?${nextQueryParams.toString()}`}
+                                        href={`/profile/${postView?.author
+                                            .did}?${nextQueryParams.toString()}`}
                                     >
                                         {postView?.author?.displayName}
                                     </Link>
@@ -878,9 +876,8 @@ const PostPage = (props: PostPageProps) => {
                                 <div>
                                     <Link
                                         className={AuthorHandle()}
-                                        href={`/profile/${
-                                            postView?.author.did
-                                        }?${nextQueryParams.toString()}`}
+                                        href={`/profile/${postView?.author
+                                            .did}?${nextQueryParams.toString()}`}
                                     >
                                         {postView?.author?.handle}
                                     </Link>
