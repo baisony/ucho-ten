@@ -5,10 +5,6 @@ const withPWA = require("next-pwa")({
     skipWaiting: true,
     register: false,
     cacheOnFrontEndNav: true,
-    reloadOnOnline: true,
-    fallbacks: {
-        document: "/offline",
-    },
 })
 module.exports = withPWA({
     //next.js config
