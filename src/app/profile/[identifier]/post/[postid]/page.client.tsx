@@ -1351,6 +1351,8 @@ const EmbedMedia = ({
             )}
             {embedMedia.record.record.$type ===
                 "app.bsky.embed.record#viewNotFound" && <ViewNotFoundCard />}
+            {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#viewBlocked" && <ViewNotFoundCard />}
         </>
     )
 }
