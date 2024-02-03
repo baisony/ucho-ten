@@ -5,7 +5,10 @@ const withPWA = require("next-pwa")({
     skipWaiting: true,
     register: false,
     cacheOnFrontEndNav: true,
+    extendDefaultRuntimeCaching: true,
+    aggressiveFrontEndNavCaching: true,
     reloadOnOnline: true,
+    swcMinify: true,
     fallbacks: {
         document: "/offline",
     },
@@ -13,5 +16,4 @@ const withPWA = require("next-pwa")({
 module.exports = withPWA({
     //next.js config
     reactStrictMode: false,
-    swcMinify: true,
 })
