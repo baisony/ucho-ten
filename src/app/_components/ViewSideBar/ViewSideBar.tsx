@@ -100,6 +100,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     e.stopPropagation()
                 }}
             >
+                className={`${NavBarItem()} ${zenMode && `hidden`}`}
                 <div className={"w-full h-[env(safe-area-inset-top)]"} />
                 <Link
                     className={AuthorIconContainer()}

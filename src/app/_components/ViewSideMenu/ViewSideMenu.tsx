@@ -107,9 +107,9 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                     {t("components.ViewSideMenu.bookmark")}
                 </Link>
                 <Link
-                    className={menuItem({
+                    className={`${menuItem({
                         isLocationHere: pathName === "/inbox",
-                    })}
+                    })} ${zenMode && `hidden`}`}
                     href={"/inbox"}
                 >
                     <div className={"mr-[10px]"}>
