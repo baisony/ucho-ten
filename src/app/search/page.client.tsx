@@ -210,47 +210,53 @@ const PageClient = () => {
     }
     return (
         <>
-            <SwiperContainer
-                props={{ page: searchText === "" ? "searchTop" : "search" }}
-            >
-                {searchText === "" ? (
-                    <div className={"w-full h-full text-white"}>
-                        <div className={"absolute bottom-0  w-full"}>
-                            {t("pages.search.FindPerson")}
-                            <Link
-                                className={searchSupportCard()}
-                                href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed?${nextQueryParams.toString()}`}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>穏やかなSNSを見つめる</div>
-                                    <div>by @Ucho-ten</div>
+            {searchText === "" ? (
+                <div className={"w-full h-full text-white"}>
+                    <div className={"absolute bottom-0  w-full"}>
+                        {t("pages.search.FindPerson")}
+                        <Link
+                            className={searchSupportCard()}
+                            href={`/profile/did:plc:pwlfo4w6auzwihryxik32t6d/feed/ufeed?${nextQueryParams.toString()}`}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div
+                                    onClick={() => {
+                                        console.log("hogehogehoge")
+                                    }}
+                                >
+                                    穏やかなSNSを見つめる
                                 </div>
-                            </Link>
-                            <Link
-                                className={searchSupportCard()}
-                                href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>Japanese Cluster</div>
-                                    <div>by @jaz.bsky.social</div>
-                                </div>
-                            </Link>
-                            <Link
-                                className={searchSupportCard()}
-                                href={findFeeds()}
-                            >
-                                <div className={"h-[50px] w-[50px]"}></div>
-                                <div>
-                                    <div>日本語フィードを探す</div>
-                                    {/* TODO: i18n */}
-                                    <div>by @Ucho-ten</div>
-                                </div>
-                            </Link>
-                        </div>
+                                <div>by @Ucho-ten</div>
+                            </div>
+                        </Link>
+                        <Link
+                            className={searchSupportCard()}
+                            href={`/profile/did:plc:q6gjnaw2blty4crticxkmujt/feed/cl-japanese?${nextQueryParams.toString()}`}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>Japanese Cluster</div>
+                                <div>by @jaz.bsky.social</div>
+                            </div>
+                        </Link>
+                        <Link
+                            className={searchSupportCard()}
+                            href={findFeeds()}
+                        >
+                            <div className={"h-[50px] w-[50px]"}></div>
+                            <div>
+                                <div>日本語フィードを探す</div>
+                                {/* TODO: i18n */}
+                                <div>by @Ucho-ten</div>
+                            </div>
+                        </Link>
                     </div>
-                ) : (
+                </div>
+            ) : (
+                <SwiperContainer
+                    props={{ page: searchText === "" ? "searchTop" : "search" }}
+                >
                     <>
                         <SwiperSlide key={`swiperslide-home-0`}>
                             <div
@@ -306,8 +312,8 @@ const PageClient = () => {
                             />
                         </SwiperSlide>
                     </>
-                )}
-            </SwiperContainer>
+                </SwiperContainer>
+            )}
         </>
     )
 }
