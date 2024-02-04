@@ -21,7 +21,7 @@ export const viewPostCard = tv({
         PostReactionButtonContainer:
             "h-[20px] mt-[15px] flex items-center justify-between ml-[41px]",
         PostReactionButton:
-            "text-[14px] md:text-[16px] ml-[50px] cursor-pointer select-none w-[15px] h-[15px]",
+            "text-[14px] md:text-[16px] ml-[50px] cursor-pointer select-none w-[15px] h-[14px]",
         dropdown: "",
         skeletonIcon: "h-full w-full rounded-[10px]",
         skeletonName: "h-3 w-2/5 rounded-lg ",
@@ -41,10 +41,10 @@ export const viewPostCard = tv({
             "text-sm font-bold whitespace-nowrap overflow-hidden overflow-ellipsis",
         LinkCardDescription: "text-xs mt-1",
         LinkCardSiteName: "text-xs mt-1 text-gray-400",
-        replyButton: "text-[#909090] dark:text-[#636363]",
-        bookmarkButton: "text-[#909090] dark:text-[#636363]",
-        repostButton: "",
-        likeButton: "",
+        replyButton: "text-[#b3b3b3] dark:text-[#636363]",
+        bookmarkButton: "text-[#b3b3b3] dark:text-[#636363]",
+        repostButton: "text-[#b3b3b3] dark:text-[#636363]",
+        likeButton: "text-[#b3b3b3] dark:text-[#636363]",
     },
     variants: {
         isEmbedToModal: {
@@ -67,10 +67,6 @@ export const viewPostCard = tv({
             true: {
                 repostButton: "text-[#17BF63]",
                 likeButton: "text-[#fd7e00]",
-            },
-            false: {
-                repostButton: "text-[#909090] dark:text-[#636363]",
-                likeButton: "text-[#909090] dark:text-[#636363]",
             },
         },
         replyDisabled: {
