@@ -116,8 +116,8 @@ export default function FeedPage() {
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
-            const { posts, notifications } = response
-            if (notifications.length === 0) {
+            const { posts, notifications, cursor } = response
+            if (notifications.length === 0 || cursor === "") {
                 setIsEndOfFeed(true)
             }
             setCursorState(response.cursor)
