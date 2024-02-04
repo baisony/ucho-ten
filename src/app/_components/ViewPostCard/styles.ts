@@ -65,8 +65,8 @@ export const viewPostCard = tv({
         },
         isReacted: {
             true: {
-                repostButton: "text-[#17BF63]",
-                likeButton: "text-[#fd7e00]",
+                repostButton: "text-[#17BF63] dark:text-[#17BF63]",
+                likeButton: "text-[#fd7e00] dark:text-[#fd7e00]",
             },
         },
         replyDisabled: {
