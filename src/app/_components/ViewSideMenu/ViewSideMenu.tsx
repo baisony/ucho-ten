@@ -257,7 +257,9 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                                 }
                             >
                                 <a
-                                    href={"https://github.com/baisony/ucho-ten"}
+                                    href={
+                                        "https://docs.ucho-ten.net/docs/%E6%A6%82%E8%A6%81/"
+                                    }
                                     target={"_blank"}
                                     rel={"noreferrer"}
                                 >

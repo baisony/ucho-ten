@@ -100,7 +100,6 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     e.stopPropagation()
                 }}
             >
-                className={`${NavBarItem()} ${zenMode && `hidden`}`}
                 <div className={"w-full h-[env(safe-area-inset-top)]"} />
                 <Link
                     className={AuthorIconContainer()}
@@ -242,12 +241,14 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     }
                 />
                 <div className={Footer()}>
-                    <Link
+                    <a
                         className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             openSideBar(false)
                         }}
-                        href={`/about?${nextQueryParams.toString()}`}
+                        href={`https://docs.ucho-ten.net/docs/%E6%A6%82%E8%A6%81/`}
+                        target={"_blank"}
+                        rel={"noopener noreferrer"}
                     >
                         <div className={NavBarContainer()}>
                             <FontAwesomeIcon
@@ -256,7 +257,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             />
                         </div>
                         <div>{t("components.ViewSideBar.about")}</div>
-                    </Link>
+                    </a>
                     <div
                         className={`${NavBarItem()} font-medium`}
                         onClick={() => {

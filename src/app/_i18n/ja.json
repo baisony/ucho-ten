@@ -110,7 +110,7 @@
       "feeds": "フィード",
       "preferences": "設定",
       "bugReport": "バグ報告",
-      "about": "Ucho-tenについて",
+      "about": "使い方",
       "SwitchAccount": "アカウントを切り替える",
       "logout": "ログアウト",
       "switchAccount": "アカウントを切り替える",
@@ -157,7 +157,7 @@
       "search": "検索",
       "post": "投稿",
       "settings": "設定",
-      "about": "Ucho-tenについて",
+      "about": "使い方",
       "bugreport": "バグ報告",
       "profile": "プロフィール",
       "switchAccount": "アカウント切り替え",
@@ -186,7 +186,7 @@
       "Random Bookmark": "ランダムブックマーク",
       "Random Post": "ランダムポスト",
       "Random User": "ランダムユーザー",
-      "About": "Ucho-tenについて",
+      "About": "使い方",
       "Tutorial": "チュートリアル"
     }
   },
