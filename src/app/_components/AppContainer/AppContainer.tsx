@@ -36,6 +36,7 @@ import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
+import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
@@ -59,6 +60,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()
     const router = useRouter()
     const pathName = usePathname()
+    const [accounts, setAccounts] = useAccounts()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
     const isLoginPath = ["/login", "/"].includes(pathName)
@@ -98,10 +100,6 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         router.prefetch("/feeds")
     }, [])
 
-    const headerAndSlash = (url: string) => {
-        return url.replace(/https?:\/\//, "").replace(/\/$/, "")
-    }
-
     const refreshSession = async () => {
         if (!agent) return
         if (!agent?.session) return
@@ -125,11 +123,29 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
             prevSession.session.accessJwt = json.accessJwt
             prevSession.session.refreshJwt = json.refreshJwt
             const sessionJson = {
-                server: headerAndSlash(agent?.service.toString()),
+                server: agent?.service.host,
                 session: agent.session,
             }
             setAgent(prevSession)
             localStorage.setItem("session", JSON.stringify(sessionJson))
+            const existingAccountsData: UserAccountByDid = accounts
+
+            const { data } = await agent.getProfile({
+                actor: agent.session.did,
+            })
+
+            existingAccountsData[agent.session.did] = {
+                service: agent?.service.host,
+                session: agent.session,
+                profile: {
+                    did: agent.session.did,
+                    displayName: data?.displayName || agent.session.handle,
+                    handle: agent.session.handle,
+                    avatar: data?.avatar || "",
+                },
+            }
+
+            setAccounts(existingAccountsData)
         } catch (e) {}
     }
     useEffect(() => {
