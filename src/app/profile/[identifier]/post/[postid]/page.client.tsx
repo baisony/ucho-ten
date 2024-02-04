@@ -94,11 +94,13 @@ import "swiper/css/pagination"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     const [menuIndex] = useMenuIndex()
     const swiperRef = useRef<SwiperCore | null>(null)
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("onlyPost")
@@ -118,10 +120,10 @@ const PageClient = () => {
         <>
             <SwiperContainer props={{ page: "onlyPost" }}>
                 <SwiperSlide>
-                    <PostPage tab={"authors"} />
+                    <PostPage tab={"authors"} zenMode={zenMode} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <PostPage tab={"others"} />
+                    <PostPage tab={"others"} zenMode={zenMode} />
                 </SwiperSlide>
             </SwiperContainer>
         </>
@@ -132,6 +134,7 @@ export default PageClient
 
 interface PostPageProps {
     tab: "authors" | "others"
+    zenMode: boolean | undefined
 }
 
 const PostPage = (props: PostPageProps) => {
@@ -308,7 +311,7 @@ const PostPage = (props: PostPageProps) => {
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
                         t={t}
-                        zenMode
+                        zenMode={props.zenMode}
                     />
                 </>
             )
@@ -1127,7 +1130,7 @@ const PostPage = (props: PostPageProps) => {
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
-                                    zenMode
+                                    zenMode={props.zenMode}
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}
@@ -1238,7 +1241,7 @@ const PostPage = (props: PostPageProps) => {
                                     //isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
-                                    zenMode
+                                    zenMode={props.zenMode}
                                 />
                             )
                         })}
