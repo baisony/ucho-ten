@@ -164,6 +164,7 @@ const PostPage = (props: PostPageProps) => {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const [zenMode] = useZenMode()
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -498,6 +499,7 @@ const PostPage = (props: PostPageProps) => {
                     nextQueryParams,
                     t,
                     handleSaveScrollPosition: handleSaveScrollPosition,
+                    zenMode,
                 }
 
                 return {

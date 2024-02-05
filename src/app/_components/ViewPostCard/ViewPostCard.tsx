@@ -106,7 +106,7 @@ export interface ViewPostCardProps {
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean
     isDisplayMode?: boolean
-    zenMode?: boolean
+    zenMode: boolean | undefined
 }
 
 export const ViewPostCard = memo((props: ViewPostCardProps) => {
@@ -900,7 +900,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
-                                    zenMode
+                                    zenMode={props.zenMode}
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}
