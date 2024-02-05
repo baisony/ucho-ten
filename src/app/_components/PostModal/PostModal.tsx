@@ -246,8 +246,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             if (type === "Reply") {
                 postObj.reply = {
                     root: {
-                        uri: postData.record?.reply?.root?.uri ?? postData.uri,
-                        cid: postData.record?.reply?.root?.cid ?? postData.cid,
+                        uri: postData?.record?.reply?.root?.uri ?? postData.uri,
+                        cid: postData?.record?.reply?.root?.cid ?? postData.cid,
                     },
                     parent: {
                         uri: postData.uri,
