@@ -41,6 +41,7 @@ import "swiper/css/pagination"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 SwiperCore.use([Virtual])
 
@@ -76,6 +77,7 @@ export default function FeedPage() {
     const isScrolling = useRef<boolean>(false)
 
     const [menus] = useHeaderMenusByHeaderAtom()
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("inbox")
@@ -444,6 +446,8 @@ export default function FeedPage() {
                                                                     handleValueChange,
                                                                 handleSaveScrollPosition:
                                                                     handleSaveScrollPosition,
+                                                                zenMode:
+                                                                    zenMode,
                                                             }}
                                                         />
                                                     ) : (
