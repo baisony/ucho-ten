@@ -49,6 +49,13 @@ interface FeedResponseObject {
     cursor: string // TODO: should consider adding ? to handle undefined.
 }
 
+interface ResponseObject {
+    status: number
+    error: string
+    success: boolean
+    headers: any
+}
+
 const FeedPage = memo(
     ({
         feedKey,
@@ -81,6 +88,7 @@ const FeedPage = memo(
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
         const [zenMode] = useZenMode()
+        const [hasError, setHasError] = useState<null | ResponseObject>(null)
 
         const getFeedKeys = {
             all: ["getFeed"] as const,
@@ -178,6 +186,7 @@ const FeedPage = memo(
                 }
             } catch (e) {
                 console.error(e)
+                setHasError(e as ResponseObject)
             }
         }, [agent])
 
@@ -477,64 +486,77 @@ const FeedPage = memo(
                     threshold={150}
                     disabled={isScrolling.current}
                 >
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                                // setListScrollRefAtom(ref)
+                    {hasError && (
+                        <>
+                            <DummyHeader />
+                            <div className={"w-full h-[50ox] bg-white"}>
+                                <div>Error code: {hasError?.status}</div>
+                                <div>Error: {hasError?.error}</div>
+                            </div>
+                        </>
+                    )}
+                    {!hasError && (
+                        <Virtuoso
+                            scrollerRef={(ref) => {
+                                if (ref instanceof HTMLElement) {
+                                    scrollRef.current = ref
+                                    // setListScrollRefAtom(ref)
+                                }
+                            }}
+                            ref={virtuosoRef}
+                            isScrolling={(e) => {
+                                isScrolling.current = e
+                            }}
+                            restoreStateFrom={
+                                //@ts-ignore
+                                scrollPositions[`${pageName}-${feedKey}`]
                             }
-                        }}
-                        ref={virtuosoRef}
-                        isScrolling={(e) => {
-                            isScrolling.current = e
-                        }}
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`${pageName}-${feedKey}`]
-                        }
-                        context={{ hasMore }}
-                        increaseViewportBy={200}
-                        overscan={200}
-                        data={timeline ?? undefined}
-                        totalCount={timeline ? timeline.length : 20}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, item) => (
-                            <>
-                                {item ? (
-                                    <ViewPostCard
-                                        key={`feed-${item.post.uri}`}
-                                        {...{
-                                            isMobile,
-                                            isSkeleton: false,
-                                            bodyText: processPostBodyText(
+                            context={{ hasMore }}
+                            increaseViewportBy={200}
+                            overscan={200}
+                            data={timeline ?? undefined}
+                            totalCount={timeline ? timeline.length : 20}
+                            atTopThreshold={100}
+                            atBottomThreshold={100}
+                            itemContent={(index, item) => (
+                                <>
+                                    {item ? (
+                                        <ViewPostCard
+                                            key={`feed-${item.post.uri}`}
+                                            {...{
+                                                isMobile,
+                                                isSkeleton: false,
+                                                bodyText: processPostBodyText(
+                                                    nextQueryParams,
+                                                    item.post || null
+                                                ),
+                                                postJson: item.post || null,
+                                                json: item,
+                                                now,
                                                 nextQueryParams,
-                                                item.post || null
-                                            ),
-                                            postJson: item.post || null,
-                                            json: item,
-                                            now,
-                                            nextQueryParams,
-                                            t,
-                                            handleValueChange:
-                                                handleValueChange,
-                                            handleSaveScrollPosition:
-                                                handleSaveScrollPosition,
-                                            isViaUFeed: isViaUFeed,
-                                            zenMode: zenMode,
-                                        }}
-                                    />
-                                ) : (
-                                    <ViewPostCardSkelton zenMode />
-                                )}
-                            </>
-                        )}
-                        components={{
-                            Header: () => <DummyHeader />,
-                        }}
-                        endReached={loadMore}
-                        className={notNulltimeline()}
-                    />
+                                                t,
+                                                handleValueChange:
+                                                    handleValueChange,
+                                                handleSaveScrollPosition:
+                                                    handleSaveScrollPosition,
+                                                isViaUFeed: isViaUFeed,
+                                                zenMode: zenMode,
+                                            }}
+                                        />
+                                    ) : (
+                                        <ViewPostCardSkelton
+                                            zenMode={zenMode}
+                                        />
+                                    )}
+                                </>
+                            )}
+                            components={{
+                                Header: () => <DummyHeader />,
+                            }}
+                            endReached={loadMore}
+                            className={notNulltimeline()}
+                        />
+                    )}
                 </SwipeRefreshList>
             </>
         )
