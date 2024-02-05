@@ -24,7 +24,6 @@ export const EmbedMedia = memo(
         nextQueryParams,
     }: EmbedMediaProps) => {
         const images = embedMedia.media.images
-        console.log(embedMedia)
 
         if (!images || !Array.isArray(images)) {
             return
