@@ -70,6 +70,13 @@ export const EmbedMedia = memo(
                         />
                     )}
                     {embedMedia.record.record.$type ===
+                        "app.bsky.embed.record#viewRecord" && (
+                        <ViewQuoteCard
+                            postJson={embedMedia.record.record}
+                            nextQueryParams={nextQueryParams}
+                        />
+                    )}
+                    {embedMedia.record.record.$type ===
                         "app.bsky.feed.defs#generatorView" && (
                         <ViewFeedCard
                             feed={embedMedia.record.record as GeneratorView}
