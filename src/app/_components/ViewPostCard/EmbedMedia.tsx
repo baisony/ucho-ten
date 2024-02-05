@@ -24,6 +24,7 @@ export const EmbedMedia = memo(
         nextQueryParams,
     }: EmbedMediaProps) => {
         const images = embedMedia.media.images
+        console.log(embedMedia)
 
         if (!images || !Array.isArray(images)) {
             return
@@ -64,6 +65,13 @@ export const EmbedMedia = memo(
                     </ScrollShadow>
                     {embedMedia.record.record.$type ===
                         "app.bsky.embed.record#view" && (
+                        <ViewQuoteCard
+                            postJson={embedMedia.record.record}
+                            nextQueryParams={nextQueryParams}
+                        />
+                    )}
+                    {embedMedia.record.record.$type ===
+                        "app.bsky.embed.record#viewRecord" && (
                         <ViewQuoteCard
                             postJson={embedMedia.record.record}
                             nextQueryParams={nextQueryParams}
