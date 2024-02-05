@@ -452,7 +452,7 @@ export default function FeedPage() {
                                                         />
                                                     ) : (
                                                         <ViewPostCardSkelton
-                                                            zenMode
+                                                            zenMode={zenMode}
                                                         />
                                                     )}
                                                 </>

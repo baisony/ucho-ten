@@ -232,7 +232,7 @@ export default function Root() {
                                                         />
                                                     ) : (
                                                         <ViewPostCardSkelton
-                                                            zenMode
+                                                            zenMode={zenMode}
                                                         />
                                                     )}
                                                 </>
