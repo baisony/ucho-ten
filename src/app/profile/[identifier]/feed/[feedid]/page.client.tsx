@@ -49,6 +49,7 @@ import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 
 SwiperCore.use([Virtual])
 
@@ -77,6 +78,7 @@ export default function Root() {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const [scrollIndex, setScrollIndex] = useState(0)
 
     const [menus] = useHeaderMenusByHeaderAtom()
     const [zenMode] = useZenMode()
@@ -472,6 +474,9 @@ export default function Root() {
                                         //@ts-ignore
                                         scrollPositions[`feed-${atUri}`]
                                     }
+                                    rangeChanged={(range) => {
+                                        setScrollIndex(range.startIndex)
+                                    }}
                                     context={{ hasMore }}
                                     overscan={200}
                                     increaseViewportBy={200}
@@ -491,6 +496,10 @@ export default function Root() {
                                     className={nullTimeline()}
                                 />
                             </div>
+                            <ScrollToTopButton
+                                scrollRef={scrollRef}
+                                scrollIndex={scrollIndex}
+                            />
                         </SwiperSlide>
                         <SwiperSlide>
                             <SwiperEmptySlide />

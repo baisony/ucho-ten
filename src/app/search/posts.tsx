@@ -20,6 +20,7 @@ import { BskyAgent } from "@atproto/api"
 import { useSearchParams } from "next/navigation"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -58,6 +59,7 @@ const SearchPostPage = ({
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
+    const [scrollIndex, setScrollIndex] = useState<number>(0)
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
@@ -435,6 +437,9 @@ const SearchPostPage = ({
                     //@ts-ignore
                     scrollPositions[`search-posts-${searchTextRef.current}`]
                 }
+                rangeChanged={(range) => {
+                    setScrollIndex(range.startIndex)
+                }}
                 context={{ hasMore }}
                 overscan={200}
                 increaseViewportBy={200}
@@ -473,6 +478,10 @@ const SearchPostPage = ({
                 }}
                 endReached={loadMore}
                 className={notNulltimeline()}
+            />
+            <ScrollToTopButton
+                scrollRef={scrollRef}
+                scrollIndex={scrollIndex}
             />
         </div>
     )
