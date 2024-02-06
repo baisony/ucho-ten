@@ -30,6 +30,7 @@ import { useHideRepost } from "@/app/_atoms/hideRepost"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton/ScrollToTopButton"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
@@ -83,6 +84,7 @@ const FeedPage = memo(
         const shouldScrollToTop = useRef<boolean>(false)
         const latestCID = useRef<string>("")
         const shouldCheckUpdate = useRef<boolean>(false)
+        const [scrollIndex, setScrollIndex] = useState<number>(0)
 
         const virtuosoRef = useRef(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
@@ -186,6 +188,8 @@ const FeedPage = memo(
                 }
             } catch (e) {
                 console.error(e)
+                //@ts-ignore
+                if (JSON.parse(e).status === 1) return
                 setHasError(e as ResponseObject)
             }
         }, [agent])
@@ -511,6 +515,9 @@ const FeedPage = memo(
                                 //@ts-ignore
                                 scrollPositions[`${pageName}-${feedKey}`]
                             }
+                            rangeChanged={(range) => {
+                                setScrollIndex(range.startIndex)
+                            }}
                             context={{ hasMore }}
                             increaseViewportBy={200}
                             overscan={200}
@@ -557,6 +564,10 @@ const FeedPage = memo(
                             className={notNulltimeline()}
                         />
                     )}
+                    <ScrollToTopButton
+                        scrollRef={scrollRef}
+                        scrollIndex={scrollIndex}
+                    />
                 </SwipeRefreshList>
             </>
         )

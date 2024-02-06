@@ -8,8 +8,6 @@ import {
     useQueryClient,
 } from "@tanstack/react-query"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -18,6 +16,7 @@ import { useSearchParams } from "next/navigation"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { isMobile } from "react-device-detect"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 
 interface FeedResponseObject {
     feeds: GeneratorView[]
@@ -50,6 +49,7 @@ const SearchFeedPage = ({
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
+    const [scrollIndex, setScrollIndex] = useState<number>(0)
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
@@ -218,6 +218,9 @@ const SearchFeedPage = ({
                     //@ts-ignore
                     scrollPositions[`search-posts-${searchText}`]
                 }
+                rangeChanged={(range) => {
+                    setScrollIndex(range.startIndex)
+                }}
                 context={{ hasMore }}
                 overscan={200}
                 increaseViewportBy={200}
@@ -255,6 +258,10 @@ const SearchFeedPage = ({
                 }}
                 endReached={loadMore}
                 className={notNulltimeline()}
+            />
+            <ScrollToTopButton
+                scrollRef={scrollRef}
+                scrollIndex={scrollIndex}
             />
         </div>
     )
