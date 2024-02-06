@@ -10,7 +10,6 @@ import {
     useHeaderMenusByHeaderAtom,
     useMenuIndex,
 } from "../_atoms/headerMenu"
-import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 
@@ -221,7 +220,13 @@ const PageClient = () => {
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
-                                <div>穏やかなSNSを見つめる</div>
+                                <div
+                                    onClick={() => {
+                                        console.log("hogehogehoge")
+                                    }}
+                                >
+                                    穏やかなSNSを見つめる
+                                </div>
                                 <div>by @Ucho-ten</div>
                             </div>
                         </Link>
@@ -307,20 +312,6 @@ const PageClient = () => {
                             />
                         </SwiperSlide>
                     </>
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <SearchFeedPage
-                            {...{
-                                t,
-                                agent,
-                                isActive: menuIndex === 2,
-                                nextQueryParams,
-                                searchText,
-                                userPreferences,
-                            }}
-                        />
-                    </SwiperSlide>
                 </SwiperContainer>
             )}
         </>

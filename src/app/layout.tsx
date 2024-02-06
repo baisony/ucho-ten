@@ -41,7 +41,6 @@ export const metadata: Metadata = {
             url: "/images/ogp/ucho-ten-ogp.png",
         },
     },
-    robots: "noarchive, nofollow",
 }
 
 const viewport = {
@@ -269,6 +268,7 @@ export default function RootLayout({
                 />
                 <meta name="apple-mobile-web-app-title" content="Ucho-ten" />
                 <meta name="msapplication-TileColor" content="#b91d47" />
+                <meta name="robots" content="noarchive,max-image-preview" />
             </head>
             <body
                 style={{
@@ -284,7 +284,7 @@ export default function RootLayout({
                 <OneSignalInitial />
                 <Providers>
                     <Suspense>
-                        <AppConatiner>{children}</AppConatiner>
+                        <AppContainer>{children}</AppContainer>
                     </Suspense>
                 </Providers>
             </body>
