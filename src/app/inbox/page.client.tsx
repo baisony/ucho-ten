@@ -396,7 +396,10 @@ export default function FeedPage() {
                                             "swiperRefresh h-full w-full"
                                         }
                                         threshold={150}
-                                        disabled={isScrolling.current}
+                                        disabled={
+                                            isScrolling.current &&
+                                            scrollIndex > 0
+                                        }
                                     >
                                         <Virtuoso
                                             scrollerRef={(ref) => {
