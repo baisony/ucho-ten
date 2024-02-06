@@ -22,7 +22,6 @@ const PageClient = () => {
     const { t } = useTranslation()
 
     const [menuIndex] = useMenuIndex()
-
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
 
