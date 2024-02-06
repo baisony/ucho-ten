@@ -1,5 +1,3 @@
-import { useTranslation } from "react-i18next"
-
 const NOW = 5
 const MINUTE = 60
 const HOUR = MINUTE * 60
@@ -9,7 +7,6 @@ export function formattedSimpleDate(
     now: Date = new Date(),
     useRelativeTime: boolean = true
 ): string {
-    const { t } = useTranslation()
     const date = new Date(dateStr)
     const today = new Date()
     const ms = Number(date)
@@ -41,7 +38,7 @@ export function formattedSimpleDate(
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
 
     if (date.toDateString() === twentyFourHoursAgo.toDateString()) {
-        return `${t("components.ViewPostCard.Yesterday")} ${hours}:${zeroIfNeeded}${minutes}`
+        return `Yest ${hours}:${zeroIfNeeded}${minutes}`
     }
 
     return `${year !== today.getFullYear() ? `${year}/` : ``}${month}/${day} ${hours}:${zeroIfNeeded}${minutes}`
