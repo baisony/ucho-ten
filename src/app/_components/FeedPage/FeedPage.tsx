@@ -488,7 +488,7 @@ const FeedPage = memo(
                     }}
                     className={"swiperRefresh h-full w-full"}
                     threshold={150}
-                    disabled={isScrolling.current}
+                    disabled={isScrolling.current && scrollIndex > 0}
                 >
                     {hasError && (
                         <>
