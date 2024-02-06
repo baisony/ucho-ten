@@ -10,8 +10,6 @@ import {
     useQueryClient,
 } from "@tanstack/react-query"
 import { Virtuoso } from "react-virtuoso"
-import { ListFooterSpinner } from "@/app/_components/ListFooterSpinner"
-import { ListFooterNoContent } from "@/app/_components/ListFooterNoContent"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -20,6 +18,7 @@ import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { Skeleton } from "@nextui-org/react"
 import defaultIcon from "../../../public/images/icon/default_icon.svg"
 import { useRouter, useSearchParams } from "next/navigation"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 
 interface FeedResponseObject {
     actors: ProfileView[]
@@ -58,6 +57,7 @@ const SearchActorPage = ({
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
     const shouldCheckUpdate = useRef<boolean>(false)
+    const [scrollIndex, setScrollIndex] = useState<number>(0)
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
@@ -323,6 +323,9 @@ const SearchActorPage = ({
                 totalCount={timeline ? timeline.length : 20}
                 atTopThreshold={100}
                 atBottomThreshold={100}
+                rangeChanged={(range) => {
+                    setScrollIndex(range.startIndex)
+                }}
                 itemContent={(index, data) => (
                     <>
                         {data ? (
@@ -355,6 +358,10 @@ const SearchActorPage = ({
                 }}
                 endReached={loadMore}
                 className={notNulltimeline()}
+            />
+            <ScrollToTopButton
+                scrollRef={scrollRef}
+                scrollIndex={scrollIndex}
             />
         </div>
     )

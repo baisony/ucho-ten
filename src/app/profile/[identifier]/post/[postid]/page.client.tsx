@@ -82,10 +82,9 @@ import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { menuIndexAtom, useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { useCurrentMenuType, useMenuIndex } from "@/app/_atoms/headerMenu"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { LABEL_ACTIONS } from "@/app/_constants/labels"
-import { useAtom } from "jotai"
 
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -95,11 +94,13 @@ import "swiper/css/pagination"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
     const swiperRef = useRef<SwiperCore | null>(null)
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("onlyPost")
@@ -119,10 +120,10 @@ const PageClient = () => {
         <>
             <SwiperContainer props={{ page: "onlyPost" }}>
                 <SwiperSlide>
-                    <PostPage tab={"authors"} />
+                    <PostPage tab={"authors"} zenMode={zenMode} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <PostPage tab={"others"} />
+                    <PostPage tab={"others"} zenMode={zenMode} />
                 </SwiperSlide>
             </SwiperContainer>
         </>
@@ -133,6 +134,7 @@ export default PageClient
 
 interface PostPageProps {
     tab: "authors" | "others"
+    zenMode: boolean | undefined
 }
 
 const PostPage = (props: PostPageProps) => {
@@ -309,6 +311,7 @@ const PostPage = (props: PostPageProps) => {
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
                         t={t}
+                        zenMode={props.zenMode}
                     />
                 </>
             )
@@ -853,8 +856,9 @@ const PostPage = (props: PostPageProps) => {
                         <div className={"flex items-center"}>
                             <Link
                                 className={AuthorIcon()}
-                                href={`/profile/${postView?.author
-                                    .did}?${nextQueryParams.toString()}`}
+                                href={`/profile/${
+                                    postView?.author.did
+                                }?${nextQueryParams.toString()}`}
                             >
                                 <img
                                     src={
@@ -868,8 +872,9 @@ const PostPage = (props: PostPageProps) => {
                                 <div>
                                     <Link
                                         className={AuthorDisplayName()}
-                                        href={`/profile/${postView?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                        href={`/profile/${
+                                            postView?.author.did
+                                        }?${nextQueryParams.toString()}`}
                                     >
                                         {postView?.author?.displayName}
                                     </Link>
@@ -877,8 +882,9 @@ const PostPage = (props: PostPageProps) => {
                                 <div>
                                     <Link
                                         className={AuthorHandle()}
-                                        href={`/profile/${postView?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                        href={`/profile/${
+                                            postView?.author.did
+                                        }?${nextQueryParams.toString()}`}
                                     >
                                         {postView?.author?.handle}
                                     </Link>
@@ -1124,6 +1130,7 @@ const PostPage = (props: PostPageProps) => {
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
+                                    zenMode={props.zenMode}
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}
@@ -1234,6 +1241,7 @@ const PostPage = (props: PostPageProps) => {
                                     //isMobile={isMobile}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
+                                    zenMode={props.zenMode}
                                 />
                             )
                         })}
@@ -1338,6 +1346,13 @@ const EmbedMedia = ({
                 />
             )}
             {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#viewRecord" && (
+                <ViewQuoteCard
+                    postJson={embedMedia.record.record}
+                    nextQueryParams={nextQueryParams}
+                />
+            )}
+            {embedMedia.record.record.$type ===
                 "app.bsky.feed.defs#generatorView" && (
                 <ViewFeedCard
                     feed={embedMedia.record.record as GeneratorView}
@@ -1349,6 +1364,8 @@ const EmbedMedia = ({
             )}
             {embedMedia.record.record.$type ===
                 "app.bsky.embed.record#viewNotFound" && <ViewNotFoundCard />}
+            {embedMedia.record.record.$type ===
+                "app.bsky.embed.record#viewBlocked" && <ViewNotFoundCard />}
         </>
     )
 }

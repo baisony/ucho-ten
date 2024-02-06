@@ -6,4 +6,5 @@ export default function Page() {
 
 export const metadata = {
     robots: "noindex,nofollow",
+    title: "Profile",
 }

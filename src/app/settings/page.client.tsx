@@ -5,8 +5,7 @@ import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useAgent } from "@/app/_atoms/agent"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { menuIndexAtom, useCurrentMenuType } from "../_atoms/headerMenu"
-import { useAtom } from "jotai"
+import { useCurrentMenuType, useMenuIndex } from "../_atoms/headerMenu"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 
@@ -22,7 +21,7 @@ const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     const { t } = useTranslation()
 
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
 
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()

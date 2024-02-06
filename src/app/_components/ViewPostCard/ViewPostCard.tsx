@@ -28,6 +28,7 @@ import {
     faReply,
     faRetweet,
     faStar as faHeartSolid,
+    faEllipsis,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
@@ -105,6 +106,7 @@ export interface ViewPostCardProps {
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean
     isDisplayMode?: boolean
+    zenMode: boolean | undefined
 }
 
 export const ViewPostCard = memo((props: ViewPostCardProps) => {
@@ -122,6 +124,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         handleValueChange,
         handleSaveScrollPosition,
         isViaUFeed,
+        zenMode,
     } = props
 
     const postJsonData = useMemo((): ViewRecord | PostView | null => {
@@ -638,14 +641,14 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
                     {json?.reason && (
                         <Link
-                            className={`text-[13px] ml-[40px] text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
+                            className={`text-[13px] ${zenMode ? `ml-[11px]` : `ml-[40px]`} text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 handleChangeSaveScrollPosition()
                             }}
-                            href={`/profile/${(
-                                json?.reason?.by as ProfileViewBasic
-                            )?.did}?${nextQueryParams.toString()}`}
+                            href={`/profile/${
+                                (json?.reason?.by as ProfileViewBasic)?.did
+                            }?${nextQueryParams.toString()}`}
                         >
                             <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
                             {(json.reason.by as ProfileViewBasic).displayName ||
@@ -661,13 +664,15 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             <Link
                                 className={PostAuthorIcon({
                                     isEmbedToPost,
+                                    zenMode,
                                 })}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleChangeSaveScrollPosition()
                                 }}
-                                href={`/profile/${postJsonData?.author
-                                    ?.did}?${nextQueryParams.toString()}`}
+                                href={`/profile/${
+                                    postJsonData?.author?.did
+                                }?${nextQueryParams.toString()}`}
                             >
                                 <img
                                     src={
@@ -690,12 +695,17 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     e.stopPropagation()
                                     handleChangeSaveScrollPosition()
                                 }}
-                                href={`/profile/${postJsonData?.author
-                                    ?.did}?${nextQueryParams.toString()}`}
+                                href={`/profile/${
+                                    postJsonData?.author?.did
+                                }?${nextQueryParams.toString()}`}
+                                className={"items-start"}
                             >
                                 <span
-                                    className={`${PostAuthorDisplayName()} md:hover:underline`}
-                                    style={{ fontSize: "13px" }}
+                                    className={`${PostAuthorDisplayName()} md:hover:underline ${
+                                        `text-[` +
+                                        Number(contentFontSize + 11) +
+                                        `px]`
+                                    }`}
                                 >
                                     {postJsonData?.author?.displayName ||
                                         postJsonData?.author?.handle}
@@ -703,7 +713,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             </Link>
                             {postJsonData?.author?.displayName && (
                                 <>
-                                    <div className={"text-[#BABABA]"}>
+                                    <div className={`text-[#BABABA]`}>
                                         &nbsp;-&nbsp;
                                     </div>
                                     <Link
@@ -711,8 +721,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             e.stopPropagation()
                                             handleChangeSaveScrollPosition()
                                         }}
-                                        href={`/profile/${postJsonData?.author
-                                            ?.did}?${nextQueryParams.toString()}`}
+                                        href={`/profile/${
+                                            postJsonData?.author?.did
+                                        }?${nextQueryParams.toString()}`}
                                     >
                                         <span
                                             className={`${PostAuthorHandle()} md:hover:underline`}
@@ -755,7 +766,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             )}
                         </div>
                     </div>
-                    <div className={PostContent({ isEmbedToPost })}>
+                    <div className={PostContent({ isEmbedToPost, zenMode })}>
                         {json?.reply && (
                             <div
                                 className={
@@ -889,6 +900,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
                                     t={t}
+                                    zenMode={props.zenMode}
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}
@@ -903,9 +915,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                         <div className={PostReactionButtonContainer()}>
                             <div className={`flex`}>
                                 <div
-                                    className={`${bookmarkButton()} group-hover:md:block ${
+                                    className={`${bookmarkButton()} ${
                                         !isBookmarked && `md:hidden`
-                                    } ${isEmbedToModal && `hidden`}`}
+                                    } ${isEmbedToModal && `hidden`} ${
+                                        !zenMode
+                                            ? `group-hover:md:block md:hidden`
+                                            : `hidden`
+                                    }`}
                                 >
                                     <FontAwesomeIcon
                                         icon={
@@ -922,21 +938,27 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             if (!postUri) return
                                             void handleBookmark(postUri)
                                         }}
-                                        className={"h-[16px] w-[12px]"}
+                                        className={"h-[14px] w-[12px]"}
                                     />
                                 </div>
                             </div>
                             {!isEmbedToModal && (
-                                <div className={`flex`}>
+                                <div
+                                    className={`flex text-[#bfbfbf] dark:text-[#636363]`}
+                                >
                                     {!isViaUFeed && (
                                         <div
-                                            className={`${PostReactionButton()} ${replyButton(
+                                            className={`${PostReactionButton()}  ${replyButton(
                                                 {
                                                     replyDisabled:
                                                         postJson?.viewer
                                                             ?.replyDisabled,
                                                 }
-                                            )} group-hover:md:block md:hidden`}
+                                            )} ${
+                                                !zenMode
+                                                    ? `group-hover:md:block md:hidden`
+                                                    : `hidden`
+                                            }`}
                                         >
                                             <FontAwesomeIcon
                                                 icon={faComment}
@@ -959,9 +981,11 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                 {
                                                     isReacted: isReposted,
                                                 }
-                                            )} group-hover:md:block ${
-                                                !isReposted && `md:hidden`
-                                            }`}
+                                            )} ${
+                                                !zenMode
+                                                    ? `group-hover:md:block`
+                                                    : `hidden`
+                                            } ${!isReposted && `md:hidden`}`}
                                         >
                                             <FontAwesomeIcon
                                                 icon={faRetweet}
@@ -989,6 +1013,18 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             onClick={async (e) => {
                                                 e.stopPropagation()
                                                 await handleLike()
+                                            }}
+                                            className={"h-full w-full"}
+                                        />
+                                    </div>
+                                    <div
+                                        className={`${PostReactionButton()} lg:hidden h-[15px] w-[20px]`}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faEllipsis}
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                onOpenOption()
                                             }}
                                             className={"h-full w-full"}
                                         />

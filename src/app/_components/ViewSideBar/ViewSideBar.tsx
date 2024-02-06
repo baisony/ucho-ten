@@ -28,6 +28,7 @@ import Link from "next/link"
 import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 interface Props {
     className?: string
@@ -56,6 +57,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
     const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
 
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const [zenMode] = useZenMode()
 
     const handleDeleteSession = () => {
         console.log("delete session")
@@ -105,8 +107,9 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         if (!agent?.session) return
                         openSideBar(false)
                     }}
-                    href={`/profile/${agent?.session
-                        ?.did}?${nextQueryParams.toString()}`}
+                    href={`/profile/${
+                        agent?.session?.did
+                    }?${nextQueryParams.toString()}`}
                 >
                     <div
                         className={
@@ -134,7 +137,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                 </Link>
                 <div className={Content()}>
                     <Link
-                        className={NavBarItem()}
+                        className={`${NavBarItem()} ${zenMode && `hidden`}`}
                         onClick={() => {
                             openSideBar(false)
                         }}
@@ -184,8 +187,9 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             if (!agent?.session) return
                             openSideBar(false)
                         }}
-                        href={`/profile/${agent?.session
-                            ?.did}?${nextQueryParams.toString()}`}
+                        href={`/profile/${
+                            agent?.session?.did
+                        }?${nextQueryParams.toString()}`}
                     >
                         <div className={NavBarContainer()}>
                             <FontAwesomeIcon
@@ -237,12 +241,14 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                     }
                 />
                 <div className={Footer()}>
-                    <Link
+                    <a
                         className={`${NavBarItem()} font-medium`}
                         onClick={() => {
                             openSideBar(false)
                         }}
-                        href={`/about?${nextQueryParams.toString()}`}
+                        href={`https://docs.ucho-ten.net/docs/%E6%A6%82%E8%A6%81/`}
+                        target={"_blank"}
+                        rel={"noopener noreferrer"}
                     >
                         <div className={NavBarContainer()}>
                             <FontAwesomeIcon
@@ -251,7 +257,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                             />
                         </div>
                         <div>{t("components.ViewSideBar.about")}</div>
-                    </Link>
+                    </a>
                     <div
                         className={`${NavBarItem()} font-medium`}
                         onClick={() => {
@@ -301,7 +307,7 @@ const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
                         "ml-[35px] absolute bottom-[calc(20px+env(safe-area-inset-bottom))] text-[#f2f2f2] dark:text-[#D7D7D7] text-xs"
                     }
                 >
-                    <div className={"versionNumber"}>version: 1.0.3</div>
+                    <div className={"versionNumber"}>version: 1.0.4</div>
                     <div className={"codeName"}>code name: Nirvana</div>
                 </div>
             </main>

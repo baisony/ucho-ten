@@ -15,9 +15,9 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import {
     HeaderMenu,
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { HeaderMenuType } from "@/app/_constants/headerMenus"
@@ -26,7 +26,6 @@ import { useTranslation } from "react-i18next"
 import "swiper/css"
 
 import logoImage from "@/../public/images/logo/ucho-ten.svg"
-import { useAtom } from "jotai"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
 import Link from "next/link"
@@ -48,7 +47,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     const isMatchingPath = specificPaths.includes(pathname)
     const [feedGenerators] = useFeedGeneratorsAtom()
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex, setMenuIndex] = useMenuIndex()
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
     const [tappedTabbarButton, setTappedTabbarButton] =

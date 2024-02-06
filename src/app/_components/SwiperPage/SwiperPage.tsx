@@ -1,14 +1,12 @@
 "use client"
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react"
-import { useAtom } from "jotai"
+import { memo, useEffect, useLayoutEffect, useState } from "react"
 import { SwiperSlide } from "swiper/react"
-import SwiperCore from "swiper/core"
 import FeedPage from "@/app/_components/FeedPage/FeedPage"
 import {
     HeaderMenu,
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
@@ -27,16 +25,13 @@ interface SwiperPageProps {
 export const SwiperPage = memo((props: SwiperPageProps) => {
     const { page } = props
     const [, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex, setMenuIndex] = useMenuIndex()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
-    const [currentMenuType] = useCurrentMenuType()
     const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
     const [now, setNow] = useState<Date>(new Date())
     const [disableSlideVerticalScroll] = useState<boolean>(false)
-
-    const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
         //@ts-ignore
@@ -62,15 +57,6 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
         }
     }, [])
 
-    useEffect(() => {
-        if (
-            currentMenuType === `${page}` &&
-            swiperRef.current &&
-            menuIndex !== swiperRef.current.activeIndex
-        ) {
-            swiperRef.current.slideTo(menuIndex)
-        }
-    }, [currentMenuType, menuIndex, swiperRef.current])
     return (
         <>
             <SwiperContainer

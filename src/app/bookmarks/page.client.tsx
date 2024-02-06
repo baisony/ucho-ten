@@ -25,6 +25,7 @@ import "swiper/css/pagination"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 SwiperCore.use([Virtual])
 
@@ -39,7 +40,7 @@ export default function Root() {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
-
+    const [zenMode] = useZenMode()
     const [menus] = useHeaderMenusByHeaderAtom()
 
     useLayoutEffect(() => {
@@ -226,10 +227,13 @@ export default function Root() {
                                                                     handleValueChange,
                                                                 handleSaveScrollPosition:
                                                                     handleSaveScrollPosition,
+                                                                zenMode,
                                                             }}
                                                         />
                                                     ) : (
-                                                        <ViewPostCardSkelton />
+                                                        <ViewPostCardSkelton
+                                                            zenMode={zenMode}
+                                                        />
                                                     )}
                                                 </>
                                             )}

@@ -53,32 +53,33 @@ import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { Virtuoso } from "react-virtuoso"
 import Link from "next/link"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
 } from "@/app/_atoms/headerMenu"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [agent] = useAgent()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
 
     const swiperRef = useRef<SwiperCore | null>(null)
     const pathname = usePathname()
     const username = pathname.replace("/profile/", "")
 
     const [hidden, setHidden] = useState<boolean | null>(null)
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("profile")
@@ -124,7 +125,7 @@ const PageClient = () => {
                     return (
                         <SwiperSlide key={index}>
                             {/* @ts-ignore */}
-                            <PostPage tab={menu.info} />
+                            <PostPage tab={menu.info} zenMode={zenMode} />
                         </SwiperSlide>
                     )
                 })}
@@ -139,6 +140,7 @@ export default PageClient
 
 interface PostPageProps {
     tab: "posts" | "replies" | "media"
+    zenMode: boolean
 }
 
 const PostPage = (props: PostPageProps) => {
@@ -162,6 +164,7 @@ const PostPage = (props: PostPageProps) => {
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const [zenMode] = useZenMode()
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -474,6 +477,7 @@ const PostPage = (props: PostPageProps) => {
                         nextQueryParams,
                         t,
                         handleSaveScrollPosition: handleSaveScrollPosition,
+                        zenMode: props.zenMode,
                     }
 
                     return {
@@ -495,6 +499,7 @@ const PostPage = (props: PostPageProps) => {
                     nextQueryParams,
                     t,
                     handleSaveScrollPosition: handleSaveScrollPosition,
+                    zenMode,
                 }
 
                 return {
@@ -566,7 +571,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     }
 
     if (postProps) {
-        if (postProps.isSkeleton) return <ViewPostCardSkelton />
+        if (postProps.isSkeleton) return <ViewPostCardSkelton zenMode />
         return <ViewPostCard {...postProps} />
     }
 }
@@ -1062,7 +1067,7 @@ const UserProfileComponent = ({
                 <ModalContent>
                     {() => (
                         <>
-                            <ModalHeader>Copy</ModalHeader>
+                            <ModalHeader>Actions</ModalHeader>
                             <ModalBody>
                                 <span>
                                     <div
@@ -1292,7 +1297,7 @@ const UserProfileComponent = ({
                                         : "default"
                                     : "default"
                             }
-                            variant={isProfileMine ? "ghost" : "solid"}
+                            variant={"ghost"}
                             onMouseLeave={() => {
                                 if (isMobile) return
                                 setOnHoverButton(false)

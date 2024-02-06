@@ -52,7 +52,10 @@
       "system": "System",
       "auto": "Auto",
       "timeline": "Timeline",
+      "zenMode": "ZEN Mode",
       "hideRepost": "Hide Repost",
+      "pushNotification": "Push Notification",
+      "onlyMentionNotify": "Only Mention Notify, Available on only bsky.social",
       "appearance": "Appearance",
       "size": "Size",
       "fontSize": "Font size",
@@ -108,7 +111,7 @@
       "feeds": "Feeds",
       "preferences": "Preferences",
       "bugReport": "Bug Report",
-      "about": "About Ucho-ten",
+      "about": "How to use Ucho-ten",
       "SwitchAccount": "Switch Account",
       "logout": "Logout",
       "switchAccount": "Switch Account",
@@ -141,7 +144,7 @@
       "warning": "Content Warning",
       "show": "Show",
       "Today": "Today",
-      "Yesterday": "Yesterday"
+      "Yesterday": "Yest"
     },
     "LinkCard": {
     },
@@ -153,7 +156,7 @@
       "search": "Search",
       "post": "Post",
       "settings": "Settings",
-      "about": "About Ucho-ten",
+      "about": "How to use Ucho-ten",
       "bugreport": "Bug Report",
       "profile": "Profile",
       "switchAccount": "Switch Account",
@@ -239,7 +242,11 @@
     "warn": "Warn",
     "show": "Show",
     "post": "Post",
-    "newPosts": "New Posts"
+    "newPosts": "New Posts",
+    "enable": "Enable",
+    "disable": "Disable",
+    "unsupported": "Unsupported",
+    "permissionDenied": "Permission Denied"
   },
   "alert": {
     "cannotShareInBrowser": "Cannot Share in Your Browser."
@@ -252,6 +259,7 @@
     "copyright": "Copyright Violation",
     "rude": "Anti-Social Behavior",
     "violation": "Illegal and Urgent",
-    "other": "Other"
+    "other": "Other",
+    "betaFeature": "This is a beta feature."
   }
 }

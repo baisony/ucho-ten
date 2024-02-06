@@ -49,6 +49,8 @@ import "swiper/css/pagination"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { useZenMode } from "@/app/_atoms/zenMode"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 
 SwiperCore.use([Virtual])
 
@@ -74,11 +76,13 @@ export default function Root() {
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
+    const [scrollIndex, setScrollIndex] = useState<number>(0)
 
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     const [menus] = useHeaderMenusByHeaderAtom()
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("list")
@@ -437,6 +441,7 @@ export default function Root() {
                             t,
                             handleValueChange: handleValueChange,
                             handleSaveScrollPosition: handleSaveScrollPosition,
+                            zenMode,
                         }
                         return {
                             postProps,
@@ -476,6 +481,7 @@ export default function Root() {
                         now,
                         nextQueryParams,
                         t,
+                        zenMode,
                     }
 
                     return {
@@ -519,6 +525,9 @@ export default function Root() {
                                         //@ts-ignore
                                         scrollPositions[`list-${atUri}`]
                                     }
+                                    rangeChanged={(range) => {
+                                        setScrollIndex(range.startIndex)
+                                    }}
                                     context={{ hasMore }}
                                     overscan={200}
                                     increaseViewportBy={200}
@@ -537,6 +546,10 @@ export default function Root() {
                                     )}
                                     endReached={loadMore}
                                     className={nullTimeline()}
+                                />
+                                <ScrollToTopButton
+                                    scrollRef={scrollRef}
+                                    scrollIndex={scrollIndex}
                                 />
                             </div>
                         </SwiperSlide>
@@ -573,7 +586,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     }
 
     if (postProps) {
-        if (postProps.isSkeleton) return <ViewPostCardSkelton />
+        if (postProps.isSkeleton) return <ViewPostCardSkelton zenMode />
         return <ViewPostCard {...postProps} />
     }
 }

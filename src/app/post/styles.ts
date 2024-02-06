@@ -6,7 +6,7 @@ export const createPostPage = tv({
         backgroundColor: "w-full h-full absolute",
 
         PostModal:
-            "pt-[env(safe-area-inset-bottom)] text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#16191F] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
+            "pt-[env(safe-area-inset-top)] text-white dark:text-[#D7D7D7] bg-[#DADADA] dark:bg-[#16191F] bg-opacity-70 backdrop-blur-[15px] dark:bg-opacity-50 dark:backdrop-blur-[15px] w-full min-w-[300px] max-w-[500px] h-full max-h-[350px] shadow-xl relative rounded-none md:rounded-[10px] md:overflow-hidden md:min-h-[400px]",
         header: "w-full h-[43px] select-none flex justify-between items-center",
         headerCancelButton: "w-[91px] h-[37px] left-[4px] text-white",
         headerTitle:

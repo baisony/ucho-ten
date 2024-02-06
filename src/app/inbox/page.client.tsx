@@ -41,6 +41,8 @@ import "swiper/css/pagination"
 import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
+import { useZenMode } from "@/app/_atoms/zenMode"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 
 SwiperCore.use([Virtual])
 
@@ -74,8 +76,10 @@ export default function FeedPage() {
     const feedKey = "Inbox"
     const pageName = "Inbox"
     const isScrolling = useRef<boolean>(false)
+    const [scrollIndex, setScrollIndex] = useState<number>(0)
 
     const [menus] = useHeaderMenusByHeaderAtom()
+    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("inbox")
@@ -116,8 +120,8 @@ export default function FeedPage() {
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
-            const { posts, notifications } = response
-            if (notifications.length === 0) {
+            const { posts, notifications, cursor } = response
+            if (notifications.length === 0 || cursor === "") {
                 setIsEndOfFeed(true)
             }
             setCursorState(response.cursor)
@@ -392,7 +396,10 @@ export default function FeedPage() {
                                             "swiperRefresh h-full w-full"
                                         }
                                         threshold={150}
-                                        disabled={isScrolling.current}
+                                        disabled={
+                                            isScrolling.current &&
+                                            scrollIndex > 0
+                                        }
                                     >
                                         <Virtuoso
                                             scrollerRef={(ref) => {
@@ -410,6 +417,9 @@ export default function FeedPage() {
                                                     `${pageName}-${feedKey}`
                                                 ]
                                             }
+                                            rangeChanged={(range) => {
+                                                setScrollIndex(range.startIndex)
+                                            }}
                                             context={{ hasMore }}
                                             isScrolling={(e) => {
                                                 isScrolling.current = e
@@ -444,10 +454,14 @@ export default function FeedPage() {
                                                                     handleValueChange,
                                                                 handleSaveScrollPosition:
                                                                     handleSaveScrollPosition,
+                                                                zenMode:
+                                                                    zenMode,
                                                             }}
                                                         />
                                                     ) : (
-                                                        <ViewPostCardSkelton />
+                                                        <ViewPostCardSkelton
+                                                            zenMode={zenMode}
+                                                        />
                                                     )}
                                                 </>
                                             )}
@@ -458,6 +472,10 @@ export default function FeedPage() {
                                             // onScroll={(e) => disableScrollIfNeeded(e)}
                                             //className="overflow-y-auto"
                                             className={notNulltimeline()}
+                                        />
+                                        <ScrollToTopButton
+                                            scrollRef={scrollRef}
+                                            scrollIndex={scrollIndex}
                                         />
                                     </SwipeRefreshList>
                                 </main>

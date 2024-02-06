@@ -18,7 +18,7 @@ import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { menuIndexAtom, useCurrentMenuType } from "../_atoms/headerMenu"
+import { useCurrentMenuType, useMenuIndex } from "../_atoms/headerMenu"
 
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -33,7 +33,7 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
-    const [menuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex] = useMenuIndex()
 
     const swiperRef = useRef<SwiperCore | null>(null)
 

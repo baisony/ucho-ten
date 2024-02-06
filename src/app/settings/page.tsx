@@ -5,6 +5,6 @@ export default function Page() {
 }
 
 export const metadata = {
-    robots: "noindex, nofollow",
+    robots: "noindex,nofollow",
     title: "Settings",
 }

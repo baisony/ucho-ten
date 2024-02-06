@@ -36,6 +36,7 @@ import { TabBar } from "@/app/_components/TabBar"
 import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
+import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
@@ -55,10 +56,11 @@ const ViewSideMenu = dynamic(
 
 //const ViewSideBar = dynamic(() => import("../ViewSideBar/ViewSideBar"), {})
 
-export function AppConatiner({ children }: { children: React.ReactNode }) {
+export function AppContainer({ children }: { children: React.ReactNode }) {
     const [statusCode] = useStatusCodeAtPage()
     const router = useRouter()
     const pathName = usePathname()
+    const [accounts, setAccounts] = useAccounts()
     const searchParams = useSearchParams()
     const { i18n } = useTranslation()
     const isLoginPath = ["/login", "/"].includes(pathName)
@@ -96,17 +98,11 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         router.prefetch("/settings")
         router.prefetch("/bookmarks")
         router.prefetch("/feeds")
-        router.prefetch("/profile/[identifier]/post/[postid]")
     }, [])
-
-    const headerAndSlash = (url: string) => {
-        return url.replace(/https?:\/\//, "").replace(/\/$/, "")
-    }
 
     const refreshSession = async () => {
         if (!agent) return
         if (!agent?.session) return
-        console.log(agent?.session)
 
         try {
             const url = new URL(agent?.service)
@@ -127,11 +123,29 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             prevSession.session.accessJwt = json.accessJwt
             prevSession.session.refreshJwt = json.refreshJwt
             const sessionJson = {
-                server: headerAndSlash(agent?.service.toString()),
+                server: agent?.service.host,
                 session: agent.session,
             }
             setAgent(prevSession)
             localStorage.setItem("session", JSON.stringify(sessionJson))
+            const existingAccountsData: UserAccountByDid = accounts
+
+            const { data } = await agent.getProfile({
+                actor: agent.session.did,
+            })
+
+            existingAccountsData[agent.session.did] = {
+                service: agent?.service.host,
+                session: agent.session,
+                profile: {
+                    did: agent.session.did,
+                    displayName: data?.displayName || agent.session.handle,
+                    handle: agent.session.handle,
+                    avatar: data?.avatar || "",
+                },
+            }
+
+            setAccounts(existingAccountsData)
         } catch (e) {}
     }
     useEffect(() => {
@@ -403,10 +417,15 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }
         })
 
-        menus.unshift({
-            displayText: "Following",
-            info: "following",
-        })
+        const hoge = localStorage.getItem("zenMode")
+        console.log(hoge)
+        if (!hoge || hoge === "false") {
+            console.log(hoge)
+            menus.unshift({
+                displayText: "Following",
+                info: "following",
+            })
+        }
 
         newHeaderMenusByHeader.home = menus
 
@@ -573,6 +592,32 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
         element.setAttribute("content", themeColor)
     }, [appearanceColor, agent, pathName])
 
+    useEffect(() => {
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                //今回はDocRoot以下をServiceWorkerのスコープとします
+                navigator.serviceWorker
+                    .register("/main-service-worker.js")
+                    .then(
+                        function (registration) {
+                            // 登録成功
+                            console.log(
+                                "ServiceWorker registration successful with scope: ",
+                                registration.scope
+                            )
+                        },
+                        function (err) {
+                            // 登録失敗
+                            console.log(
+                                "ServiceWorker registration failed: ",
+                                err
+                            )
+                        }
+                    )
+            })
+        }
+    }, [])
+
     return (
         <div
             className={`bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]`}
@@ -588,22 +633,24 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
             }}
         >
             <div id="burger-outer-container" className={"h-full w-full"}>
-                <BurgerPush
-                    className={"backdrop-blur-[5px]"}
-                    outerContainerId="burger-outer-container"
-                    pageWrapId="main-container"
-                    styles={burgerMenuStyles}
-                    isOpen={drawerOpen}
-                    onClose={() => {
-                        setDrawerOpen(false)
-                    }}
-                >
-                    <ViewSideBar
-                        isSideBarOpen={drawerOpen}
-                        openSideBar={handleSideBarOpen}
-                        isMobile={isMobile}
-                    />
-                </BurgerPush>
+                {document?.getElementById("main-container") && (
+                    <BurgerPush
+                        className={"backdrop-blur-[5px]"}
+                        outerContainerId={"burger-outer-container"}
+                        pageWrapId={"main-container"}
+                        styles={burgerMenuStyles}
+                        isOpen={drawerOpen}
+                        onClose={() => {
+                            setDrawerOpen(false)
+                        }}
+                    >
+                        <ViewSideBar
+                            isSideBarOpen={drawerOpen}
+                            openSideBar={handleSideBarOpen}
+                            isMobile={isMobile}
+                        />
+                    </BurgerPush>
+                )}
                 <main
                     id="main-container"
                     className={background()}
@@ -661,7 +708,7 @@ export function AppConatiner({ children }: { children: React.ReactNode }) {
                             className={
                                 "lg:w-[calc(100%/4)] h-full hidden lg:flex"
                             }
-                        ></div>
+                        />
                     </div>
                 </main>
             </div>

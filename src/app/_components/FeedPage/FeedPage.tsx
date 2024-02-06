@@ -29,6 +29,8 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useHideRepost } from "@/app/_atoms/hideRepost"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
+import { useZenMode } from "@/app/_atoms/zenMode"
+import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton/ScrollToTopButton"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
@@ -46,6 +48,13 @@ export interface FeedPageProps {
 interface FeedResponseObject {
     posts: FeedViewPost[]
     cursor: string // TODO: should consider adding ? to handle undefined.
+}
+
+interface ResponseObject {
+    status: number
+    error: string
+    success: boolean
+    headers: any
 }
 
 const FeedPage = memo(
@@ -75,10 +84,13 @@ const FeedPage = memo(
         const shouldScrollToTop = useRef<boolean>(false)
         const latestCID = useRef<string>("")
         const shouldCheckUpdate = useRef<boolean>(false)
+        const [scrollIndex, setScrollIndex] = useState<number>(0)
 
         const virtuosoRef = useRef(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
+        const [zenMode] = useZenMode()
+        const [hasError, setHasError] = useState<null | ResponseObject>(null)
 
         const getFeedKeys = {
             all: ["getFeed"] as const,
@@ -157,12 +169,12 @@ const FeedPage = memo(
                     setNewTimeline(muteWordFilter)
 
                     if (muteWordFilter.length > 0) {
-                        console.log(
+                        /*console.log(
                             "new and old cid",
                             feedKey,
                             muteWordFilter[0].post.cid,
                             latestCID.current
-                        )
+                        )*/
 
                         if (
                             muteWordFilter[0].post.cid !== latestCID.current &&
@@ -176,6 +188,9 @@ const FeedPage = memo(
                 }
             } catch (e) {
                 console.error(e)
+                //@ts-ignore
+                if (JSON.parse(e).status === 1) return
+                setHasError(e as ResponseObject)
             }
         }, [agent])
 
@@ -235,8 +250,6 @@ const FeedPage = memo(
                         setIsEndOfFeed(true)
                     setCursorState(response.cursor)
 
-                    console.log("posts", posts)
-
                     const filteredData =
                         feedKey === "following"
                             ? filterDisplayPosts(
@@ -248,9 +261,6 @@ const FeedPage = memo(
                             : posts
                     //@ts-ignore
                     const muteWordFilter = filterPosts(filteredData)
-
-                    console.log("filteredData", filteredData)
-                    console.log("muteWordFilter", muteWordFilter)
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
@@ -325,7 +335,6 @@ const FeedPage = memo(
             queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
             queryFn: getTimelineFetcher,
             select: (fishes) => {
-                console.log(fishes)
                 return fishes
             },
             notifyOnChangeProps: ["data"],
@@ -391,11 +400,9 @@ const FeedPage = memo(
         }
 
         const handleSaveScrollPosition = () => {
-            console.log("save")
             if (!isActive) return
             //@ts-ignore
             virtuosoRef?.current?.getState((state) => {
-                console.log(state)
                 if (
                     state.scrollTop !==
                     //@ts-ignore
@@ -481,64 +488,85 @@ const FeedPage = memo(
                     }}
                     className={"swiperRefresh h-full w-full"}
                     threshold={150}
-                    disabled={isScrolling.current}
+                    disabled={isScrolling.current && scrollIndex > 0}
                 >
-                    <Virtuoso
-                        scrollerRef={(ref) => {
-                            if (ref instanceof HTMLElement) {
-                                scrollRef.current = ref
-                                // setListScrollRefAtom(ref)
+                    {hasError && (
+                        <>
+                            <DummyHeader />
+                            <div className={"w-full h-[50ox] bg-white"}>
+                                <div>Error code: {hasError?.status}</div>
+                                <div>Error: {hasError?.error}</div>
+                            </div>
+                        </>
+                    )}
+                    {!hasError && (
+                        <Virtuoso
+                            scrollerRef={(ref) => {
+                                if (ref instanceof HTMLElement) {
+                                    scrollRef.current = ref
+                                    // setListScrollRefAtom(ref)
+                                }
+                            }}
+                            ref={virtuosoRef}
+                            isScrolling={(e) => {
+                                isScrolling.current = e
+                            }}
+                            restoreStateFrom={
+                                //@ts-ignore
+                                scrollPositions[`${pageName}-${feedKey}`]
                             }
-                        }}
-                        ref={virtuosoRef}
-                        isScrolling={(e) => {
-                            isScrolling.current = e
-                        }}
-                        restoreStateFrom={
-                            //@ts-ignore
-                            scrollPositions[`${pageName}-${feedKey}`]
-                        }
-                        context={{ hasMore }}
-                        increaseViewportBy={200}
-                        overscan={200}
-                        data={timeline ?? undefined}
-                        totalCount={timeline ? timeline.length : 20}
-                        atTopThreshold={100}
-                        atBottomThreshold={100}
-                        itemContent={(index, item) => (
-                            <>
-                                {item ? (
-                                    <ViewPostCard
-                                        key={`feed-${item.post.uri}`}
-                                        {...{
-                                            isMobile,
-                                            isSkeleton: false,
-                                            bodyText: processPostBodyText(
+                            rangeChanged={(range) => {
+                                setScrollIndex(range.startIndex)
+                            }}
+                            context={{ hasMore }}
+                            increaseViewportBy={200}
+                            overscan={200}
+                            data={timeline ?? undefined}
+                            totalCount={timeline ? timeline.length : 20}
+                            atTopThreshold={100}
+                            atBottomThreshold={100}
+                            itemContent={(index, item) => (
+                                <>
+                                    {item ? (
+                                        <ViewPostCard
+                                            key={`feed-${item.post.uri}`}
+                                            {...{
+                                                isMobile,
+                                                isSkeleton: false,
+                                                bodyText: processPostBodyText(
+                                                    nextQueryParams,
+                                                    item.post || null
+                                                ),
+                                                postJson: item.post || null,
+                                                json: item,
+                                                now,
                                                 nextQueryParams,
-                                                item.post || null
-                                            ),
-                                            postJson: item.post || null,
-                                            json: item,
-                                            now,
-                                            nextQueryParams,
-                                            t,
-                                            handleValueChange:
-                                                handleValueChange,
-                                            handleSaveScrollPosition:
-                                                handleSaveScrollPosition,
-                                            isViaUFeed: isViaUFeed,
-                                        }}
-                                    />
-                                ) : (
-                                    <ViewPostCardSkelton />
-                                )}
-                            </>
-                        )}
-                        components={{
-                            Header: () => <DummyHeader />,
-                        }}
-                        endReached={loadMore}
-                        className={notNulltimeline()}
+                                                t,
+                                                handleValueChange:
+                                                    handleValueChange,
+                                                handleSaveScrollPosition:
+                                                    handleSaveScrollPosition,
+                                                isViaUFeed: isViaUFeed,
+                                                zenMode: zenMode,
+                                            }}
+                                        />
+                                    ) : (
+                                        <ViewPostCardSkelton
+                                            zenMode={zenMode}
+                                        />
+                                    )}
+                                </>
+                            )}
+                            components={{
+                                Header: () => <DummyHeader />,
+                            }}
+                            endReached={loadMore}
+                            className={notNulltimeline()}
+                        />
+                    )}
+                    <ScrollToTopButton
+                        scrollRef={scrollRef}
+                        scrollIndex={scrollIndex}
                     />
                 </SwipeRefreshList>
             </>

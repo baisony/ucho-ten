@@ -6,11 +6,10 @@ import { useAgent } from "@/app/_atoms/agent"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
 } from "../_atoms/headerMenu"
-import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 
@@ -39,7 +38,7 @@ const PageClient = () => {
     const { t } = useTranslation()
     const { searchSupportCard } = layout()
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex, setMenuIndex] = useMenuIndex()
     const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
     const [agent] = useAgent()
@@ -221,7 +220,13 @@ const PageClient = () => {
                         >
                             <div className={"h-[50px] w-[50px]"}></div>
                             <div>
-                                <div>穏やかなSNSを見つめる</div>
+                                <div
+                                    onClick={() => {
+                                        console.log("hogehogehoge")
+                                    }}
+                                >
+                                    穏やかなSNSを見つめる
+                                </div>
                                 <div>by @Ucho-ten</div>
                             </div>
                         </Link>
@@ -249,60 +254,64 @@ const PageClient = () => {
                     </div>
                 </div>
             ) : (
-                <SwiperContainer props={{ page: "search" }}>
-                    <SwiperSlide key={`swiperslide-home-0`}>
-                        <div
-                            id={`swiperIndex-div-${0}`}
-                            key={0}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <SearchPostPage
-                                {...{
-                                    isActive: menuIndex === 0,
-                                    t,
-                                    nextQueryParams,
-                                    agent,
-                                    searchText,
+                <SwiperContainer
+                    props={{ page: searchText === "" ? "searchTop" : "search" }}
+                >
+                    <>
+                        <SwiperSlide key={`swiperslide-home-0`}>
+                            <div
+                                id={`swiperIndex-div-${0}`}
+                                key={0}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
                                 }}
-                            />
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide key={`swiperslide-home-1`}>
-                        <div
-                            id={`swiperIndex-div-0`}
-                            key={0}
-                            style={{
-                                overflowY: "auto",
-                                height: "100%",
-                            }}
-                        >
-                            <SearchActorPage
+                            >
+                                <SearchPostPage
+                                    {...{
+                                        isActive: menuIndex === 0,
+                                        t,
+                                        nextQueryParams,
+                                        agent,
+                                        searchText,
+                                    }}
+                                />
+                            </div>
+                        </SwiperSlide>
+                        <SwiperSlide key={`swiperslide-home-1`}>
+                            <div
+                                id={`swiperIndex-div-0`}
+                                key={0}
+                                style={{
+                                    overflowY: "auto",
+                                    height: "100%",
+                                }}
+                            >
+                                <SearchActorPage
+                                    {...{
+                                        t,
+                                        agent,
+                                        isActive: menuIndex === 1,
+                                        nextQueryParams,
+                                        searchText,
+                                        userPreferences,
+                                    }}
+                                />
+                            </div>
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <SearchFeedPage
                                 {...{
                                     t,
                                     agent,
-                                    isActive: menuIndex === 1,
+                                    isActive: menuIndex === 2,
                                     nextQueryParams,
                                     searchText,
                                     userPreferences,
                                 }}
                             />
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <SearchFeedPage
-                            {...{
-                                t,
-                                agent,
-                                isActive: menuIndex === 2,
-                                nextQueryParams,
-                                searchText,
-                                userPreferences,
-                            }}
-                        />
-                    </SwiperSlide>
+                        </SwiperSlide>
+                    </>
                 </SwiperContainer>
             )}
         </>

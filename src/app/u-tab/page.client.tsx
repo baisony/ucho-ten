@@ -7,15 +7,14 @@ import {
     useRef,
     useState,
 } from "react"
-import { useAtom } from "jotai"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Virtual } from "swiper/modules"
 import FeedPage from "../_components/FeedPage/FeedPage"
 import {
-    menuIndexAtom,
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
+    useMenuIndex,
     useMenuIndexChangedByMenu,
 } from "../_atoms/headerMenu"
 import { useTappedTabbarButtonAtom } from "../_atoms/tabbarButtonTapped"
@@ -42,7 +41,7 @@ const Root = () => {
     const [, setCurrentMenuType] = useCurrentMenuType()
     const [agent] = useAgent()
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [menuIndex, setMenuIndex] = useAtom(menuIndexAtom)
+    const [menuIndex, setMenuIndex] = useMenuIndex()
     const [menus] = useHeaderMenusByHeaderAtom()
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [currentMenuType] = useCurrentMenuType()
@@ -144,6 +143,7 @@ const Root = () => {
                                             isMobile={isMobile}
                                             nextQueryParams={nextQueryParams}
                                             t={t}
+                                            zenMode
                                         />
                                     </>
                                 )}
