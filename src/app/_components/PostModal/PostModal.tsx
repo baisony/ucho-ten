@@ -19,6 +19,8 @@ import {
     faCirclePlus,
     faFaceLaughBeam,
     faPlus,
+    faShieldHalved,
+    faTrash,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import "react-circular-progressbar/dist/styles.css"
@@ -37,6 +39,8 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Radio,
+    RadioGroup,
     Selection,
     Spinner,
     Textarea as NextUITextarea,
@@ -140,6 +144,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [emojiPickerColor, setEmojiPickerColor] = useState<
         "auto" | "light" | "dark"
     >("auto")
+    const [adultContent, setAdultContent] = useState<
+        boolean | "suggestive" | "nudity" | "porn"
+    >(false)
+
+    const [selectedAdultContent, setSelectedAdultContent] = useState<
+        boolean | "suggestive" | "nudity" | "porn"
+    >(false)
     const {
         PostModal,
         header,
@@ -174,6 +185,11 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         isOpen: isOpenLangs,
         onOpen: onOpenLangs,
         onOpenChange: onOpenChangeLangs,
+    } = useDisclosure()
+    const {
+        isOpen: isOpenModerations,
+        onOpen: onOpenModerations,
+        onOpenChange: onOpenChangeModerations,
     } = useDisclosure()
     const [altOfImageList, setAltOfImageList] = useState(["", "", "", ""])
 
@@ -322,7 +338,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     }
                 }
             }
-            console.log(postObj)
+            if (adultContent) {
+                postObj.labels = {
+                    $type: "com.atproto.label.defs#selfLabels",
+                    values: [
+                        {
+                            val: adultContent,
+                        },
+                    ],
+                }
+            }
             await agent.post(postObj)
             props.onClose(true)
             await queryClient.refetchQueries({
@@ -638,6 +663,73 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     }}
                                 >
                                     {t("button.save")}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isOpenModerations}
+                onOpenChange={onOpenChangeModerations}
+            >
+                <ModalContent>
+                    {(onCloseModerations) => (
+                        <>
+                            <ModalHeader>
+                                {t("modal.contentWarnings.title")}
+                            </ModalHeader>
+                            <ModalBody>
+                                <RadioGroup
+                                    label={t(
+                                        "modal.contentWarnings.selectDetail"
+                                    )}
+                                    color="warning"
+                                    //@ts-ignore
+                                    onValueChange={setSelectedAdultContent}
+                                    //@ts-ignore
+                                    defaultValue={adultContent}
+                                >
+                                    <Radio value="suggestive">
+                                        {t("modal.contentWarnings.suggestive")}
+                                    </Radio>
+                                    <Radio value="nudity">
+                                        {t("modal.contentWarnings.nudity")}
+                                    </Radio>
+                                    <Radio value="porn">
+                                        {t("modal.contentWarnings.porn")}
+                                    </Radio>
+                                </RadioGroup>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button
+                                    color="danger"
+                                    variant="light"
+                                    onClick={() => {
+                                        setSelectedAdultContent(false)
+                                        setAdultContent(false)
+                                        onCloseModerations()
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </Button>
+                                <Button
+                                    color={"danger"}
+                                    onClick={() => {
+                                        onCloseModerations()
+                                    }}
+                                >
+                                    {t("button.cancel")}
+                                </Button>
+                                <Button
+                                    color={"primary"}
+                                    onClick={() => {
+                                        setAdultContent(selectedAdultContent)
+                                        console.log(selectedAdultContent)
+                                        onCloseModerations()
+                                    }}
+                                >
+                                    {t("button.add")}
                                 </Button>
                             </ModalFooter>
                         </>
@@ -1064,6 +1156,21 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     />
                                 </PopoverContent>
                             </Popover>
+                        </div>
+                        <div className={`${footerTooltipStyle()}`}>
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                className={"h-[24px] text-white"}
+                                onClick={() => {
+                                    onOpenModerations()
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faShieldHalved}
+                                    className={`h-[20px] mb-[4px] ${adultContent && `text-[#18C965]`}`}
+                                />
+                            </Button>
                         </div>
                         <div className={footerCharacterCount()}>
                             <div
