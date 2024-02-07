@@ -338,7 +338,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     }
                 }
             }
-            if (adultContent) {
+            if (adultContent && (getOGPData || contentImages.length > 0)) {
                 postObj.labels = {
                     $type: "com.atproto.label.defs#selfLabels",
                     values: [
@@ -1165,6 +1165,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 onClick={() => {
                                     onOpenModerations()
                                 }}
+                                isDisabled={
+                                    !getOGPData && contentImages.length === 0
+                                }
                             >
                                 <FontAwesomeIcon
                                     icon={faShieldHalved}

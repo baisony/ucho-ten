@@ -287,7 +287,7 @@ export default function Root() {
                     } as AppBskyEmbedImages.Main
                 }
             }
-            if (adultContent) {
+            if (adultContent && (getOGPData || contentImages.length > 0)) {
                 postObj.labels = {
                     $type: "com.atproto.label.defs#selfLabels",
                     values: [
@@ -1052,6 +1052,10 @@ export default function Root() {
                                     onClick={() => {
                                         onOpenModerations()
                                     }}
+                                    isDisabled={
+                                        !getOGPData &&
+                                        contentImages.length === 0
+                                    }
                                 >
                                     <FontAwesomeIcon
                                         icon={faShieldHalved}
