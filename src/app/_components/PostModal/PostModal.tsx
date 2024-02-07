@@ -690,7 +690,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     //@ts-ignore
                                     defaultValue={adultContent}
                                 >
-                                    <Radio value="suggestive">
+                                    <Radio value="sexual">
                                         {t("modal.contentWarnings.suggestive")}
                                     </Radio>
                                     <Radio value="nudity">
