@@ -210,6 +210,13 @@
       "quote": "Quote",
       "reply": "Reply",
       "editALT": "Edit ALT"
+    },
+    "contentWarnings": {
+      "title": "Add a content warning",
+      "selectDetail": "Select content detail",
+      "suggestive": "Sexually Suggestive",
+      "nudity": "Nudity",
+      "porn": "Porn"
     }
   },
   "button": {

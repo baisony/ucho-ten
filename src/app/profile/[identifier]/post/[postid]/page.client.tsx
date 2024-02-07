@@ -653,7 +653,12 @@ const PostPage = (props: PostPageProps) => {
                     case "spam":
                     case "impersonation":
                     case "gore":
-                        const action = userPreference.contentLabels?.[key]
+                        const action =
+                            userPreference.contentLabels?.[
+                                key === "suggestive" || key === "nudity"
+                                    ? "nsfw"
+                                    : key
+                            ]
                         if (action === "warn") {
                             setContentWarning(true)
                             setWarningReason(warningLabel)

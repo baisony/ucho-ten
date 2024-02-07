@@ -211,6 +211,13 @@
       "quote": "引用",
       "reply": "返信",
       "editALT": "ALTを編集"
+    },
+    "contentWarnings": {
+      "title": "コンテンツ警告を追加",
+      "selectDetail": "詳細を選択",
+      "suggestive": "暗示的な性的コンテンツ",
+      "nudity": "裸体が含まれる性的コンテンツ",
+      "porn": "露骨な性的コンテンツ"
     }
   },
   "button": {
