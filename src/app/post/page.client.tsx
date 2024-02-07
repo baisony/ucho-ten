@@ -8,6 +8,8 @@ import {
     faCirclePlus,
     faFaceLaughBeam,
     faPlus,
+    faShieldHalved,
+    faTrash,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
@@ -30,6 +32,8 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Radio,
+    RadioGroup,
     Selection,
     Spinner,
     Textarea as NextUITextarea,
@@ -116,6 +120,13 @@ export default function Root() {
     const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
     const [OGPImage, setOGPImage] = useState<any>([])
+    const [adultContent, setAdultContent] = useState<
+        boolean | "suggestive" | "nudity" | "porn"
+    >(false)
+
+    const [selectedAdultContent, setSelectedAdultContent] = useState<
+        boolean | "suggestive" | "nudity" | "porn"
+    >(false)
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const currentCursorPostion = useRef<number>(0)
@@ -158,6 +169,11 @@ export default function Root() {
         isOpen: isOpenLangs,
         onOpen: onOpenLangs,
         onOpenChange: onOpenChangeLangs,
+    } = useDisclosure()
+    const {
+        isOpen: isOpenModerations,
+        onOpen: onOpenModerations,
+        onOpenChange: onOpenChangeModerations,
     } = useDisclosure()
     const [altOfImageList, setAltOfImageList] = useState(["", "", "", ""])
 
@@ -269,6 +285,16 @@ export default function Root() {
                         $type: "app.bsky.embed.images",
                         images,
                     } as AppBskyEmbedImages.Main
+                }
+            }
+            if (adultContent) {
+                postObj.labels = {
+                    $type: "com.atproto.label.defs#selfLabels",
+                    values: [
+                        {
+                            val: adultContent,
+                        },
+                    ],
                 }
             }
             await agent.post(postObj)
@@ -560,6 +586,73 @@ export default function Root() {
                                     }}
                                 >
                                     {t("button.save")}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isOpenModerations}
+                onOpenChange={onOpenChangeModerations}
+            >
+                <ModalContent>
+                    {(onCloseModerations) => (
+                        <>
+                            <ModalHeader>
+                                {t("modal.contentWarnings.title")}
+                            </ModalHeader>
+                            <ModalBody>
+                                <RadioGroup
+                                    label={t(
+                                        "modal.contentWarnings.selectDetail"
+                                    )}
+                                    color="warning"
+                                    //@ts-ignore
+                                    onValueChange={setSelectedAdultContent}
+                                    //@ts-ignore
+                                    defaultValue={adultContent}
+                                >
+                                    <Radio value="suggestive">
+                                        {t("modal.contentWarnings.suggestive")}
+                                    </Radio>
+                                    <Radio value="nudity">
+                                        {t("modal.contentWarnings.nudity")}
+                                    </Radio>
+                                    <Radio value="porn">
+                                        {t("modal.contentWarnings.porn")}
+                                    </Radio>
+                                </RadioGroup>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button
+                                    color="danger"
+                                    variant="light"
+                                    onClick={() => {
+                                        setSelectedAdultContent(false)
+                                        setAdultContent(false)
+                                        onCloseModerations()
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </Button>
+                                <Button
+                                    color={"danger"}
+                                    onClick={() => {
+                                        onCloseModerations()
+                                    }}
+                                >
+                                    {t("button.cancel")}
+                                </Button>
+                                <Button
+                                    color={"primary"}
+                                    onClick={() => {
+                                        setAdultContent(selectedAdultContent)
+                                        console.log(selectedAdultContent)
+                                        onCloseModerations()
+                                    }}
+                                >
+                                    {t("button.add")}
                                 </Button>
                             </ModalFooter>
                         </>
@@ -950,6 +1043,21 @@ export default function Root() {
                                         />
                                     </PopoverContent>
                                 </Popover>
+                            </div>
+                            <div className={`${footerTooltipStyle()}`}>
+                                <Button
+                                    isIconOnly
+                                    variant="light"
+                                    className={"h-[24px] text-white"}
+                                    onClick={() => {
+                                        onOpenModerations()
+                                    }}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faShieldHalved}
+                                        className={`h-[20px] mb-[4px] ${adultContent && `text-[#18C965]`}`}
+                                    />
+                                </Button>
                             </div>
                             {/*<div
                                 className={`${footerTooltipStyle()} top-[-3px] h-full ${
