@@ -40,6 +40,14 @@ export default function CreateLoginPage() {
         LoginFormLoginButton,
     } = createLoginPage()
 
+    function addTldIfMissing(handle: string, pds: string): string {
+        if (!handle.includes(".")) {
+            return `${handle}.${pds}`
+        } else {
+            return handle
+        }
+    }
+
     const pds = useRef<string>("bsky.social")
     const headerAndSlash = (url: string) => {
         return url.replace(/https?:\/\//, "").replace(/\/$/, "")
@@ -55,10 +63,9 @@ export default function CreateLoginPage() {
 
         try {
             const server = headerAndSlash(pds.current)
-            console.log(server)
             const agent = new BskyAgent({ service: `https://${server}` })
             await agent.login({
-                identifier: user,
+                identifier: addTldIfMissing(user, server),
                 password: password,
             })
 
