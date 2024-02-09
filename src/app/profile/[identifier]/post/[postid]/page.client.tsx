@@ -675,6 +675,8 @@ const PostPage = (props: PostPageProps) => {
         })
     }, [userPreference, postView])
 
+    console.log(thread)
+
     return thread && !notfoundPost ? (
         <>
             <Modal

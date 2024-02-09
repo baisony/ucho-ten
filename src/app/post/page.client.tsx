@@ -52,6 +52,7 @@ import i18n from "@/app/_i18n/config"
 
 import {
     AppBskyEmbedImages,
+    AppBskyEmbedRecord,
     AppBskyFeedPost,
     BlobRef,
     RichText,
@@ -64,6 +65,8 @@ import { LANGUAGES } from "../_constants/lanuages"
 import LanguagesSelectionModal from "../_components/LanguageSelectionModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { usePostLanguage } from "@/app/_atoms/postLanguage"
+import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
+import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -115,8 +118,9 @@ export default function Root() {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
+    const [getFeedData, setGetFeedData] = useState<any>(null)
+    const [getListData, setGetListData] = useState<any>(null)
     const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
     const [OGPImage, setOGPImage] = useState<any>([])
@@ -211,7 +215,9 @@ export default function Root() {
         if (
             trimedContentText() === "" &&
             contentImages.length === 0 &&
-            !getOGPData
+            !getOGPData &&
+            !getFeedData &&
+            !getListData
         )
             return
         setLoading(true)
@@ -243,12 +249,17 @@ export default function Root() {
                 langs: PostLanguage,
             }
 
+            if (getFeedData || getListData) {
+                postObj.embed = {
+                    $type: "app.bsky.embed.record",
+                    record: getFeedData ?? getListData,
+                } as AppBskyEmbedRecord.Main
+            }
+
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
 
                 for (const [index, blobRef] of blobRefs.entries()) {
-                    console.log(index)
-                    console.log(altOfImageList)
                     const image: AppBskyEmbedImages.Image = {
                         image: blobRef,
                         alt: altOfImageList[index],
@@ -446,6 +457,62 @@ export default function Root() {
             })
         }
     }
+
+    function isFeedURL(url: string): boolean {
+        const regex = /^https:\/\/bsky\.app\/profile\/[^/]+\/feed\/[^/]+$/
+        return regex.test(url)
+    }
+
+    function isListURL(url: string): boolean {
+        const regex = /^https:\/\/bsky\.app\/profile\/[^/]+\/lists\/[^/]+$/
+        return regex.test(url)
+    }
+
+    const getListInfo = async (url: string) => {
+        if (!agent) return
+        const regex = /\/([^/]+)\/lists\/([^/]+)/
+        const matches = url.match(regex)
+        console.log("hogehoge")
+        if (matches) {
+            const did = matches[1]
+            const feedName = matches[2]
+            try {
+                setIsOGPGetProcessing(true)
+                const { data } = await agent.app.bsky.graph.getList({
+                    list: `at://${did}/app.bsky.graph.list/${feedName}`,
+                })
+                console.log(data)
+                setGetListData(data.list)
+            } catch (e) {
+                console.log(e)
+            } finally {
+                setIsOGPGetProcessing(false)
+            }
+        }
+    }
+
+    const getFeedInfo = async (url: string) => {
+        if (!agent) return
+        const regex = /\/([^/]+)\/feed\/([^/]+)/
+        const matches = url.match(regex)
+        console.log(matches)
+        if (matches) {
+            const did = matches[1]
+            const feedName = matches[2]
+            try {
+                setIsOGPGetProcessing(true)
+                const { data } = await agent.app.bsky.feed.getFeedGenerator({
+                    feed: `at://${did}/app.bsky.feed.generator/${feedName}`,
+                })
+                console.log(data)
+                setGetFeedData(data.view)
+            } catch (e) {
+            } finally {
+                setIsOGPGetProcessing(false)
+            }
+        }
+    }
+
     const getOGP = async (url: string) => {
         console.log(url)
         setIsOGPGetProcessing(true)
@@ -480,7 +547,6 @@ export default function Root() {
             return res
         } catch (e) {
             setIsOGPGetProcessing(false)
-            setIsSetURLCard(false)
             setIsGetOGPFetchError(true)
             console.log(e)
             return e
@@ -694,7 +760,8 @@ export default function Root() {
                                 ((trimedContentText().length === 0 ||
                                     trimedContentText().length > 300) &&
                                     contentImages.length === 0 &&
-                                    !getOGPData)
+                                    !getOGPData &&
+                                    !getFeedData)
                             }
                             isLoading={loading}
                         >
@@ -730,7 +797,9 @@ export default function Root() {
                                         contentImages.length !== 0 ||
                                         isCompressing ||
                                         detectedURLs.length !== 0 ||
-                                        getOGPData !== null,
+                                        getOGPData !== null ||
+                                        getFeedData !== null ||
+                                        getListData !== null,
                                 })}
                                 aria-label="post input area"
                                 placeholder={t("modal.post.placeholder")}
@@ -827,6 +896,8 @@ export default function Root() {
                             )}
                             {isDetectedURL &&
                                 !getOGPData &&
+                                !getFeedData &&
+                                !getListData &&
                                 !isOGPGetProcessing && (
                                     <div className={"w-full"}>
                                         {detectedURLs.map((url, index) => (
@@ -845,8 +916,16 @@ export default function Root() {
                                                     }
                                                     onClick={() => {
                                                         setSelectedURL(url)
-                                                        setIsSetURLCard(true)
-                                                        void getOGP(url)
+                                                        if (isFeedURL(url)) {
+                                                            getFeedInfo(url)
+                                                        } else if (
+                                                            isListURL(url)
+                                                        ) {
+                                                            console.log("list")
+                                                            getListInfo(url)
+                                                        } else {
+                                                            void getOGP(url)
+                                                        }
                                                     }}
                                                 >
                                                     {url}
@@ -860,14 +939,15 @@ export default function Root() {
                                     <Linkcard skeleton={true} />
                                 </div>
                             )}
-                            {getOGPData && !isOGPGetProcessing && (
+                            {(getFeedData || getOGPData || getListData) && (
                                 <div
                                     className={`${contentRightUrlCard()} flex relative`}
                                 >
                                     <div
                                         className={`${contentRightUrlCardDeleteButton()} absolute z-10 right-[10px] top-[10px]`}
                                         onClick={() => {
-                                            setIsSetURLCard(false)
+                                            setGetFeedData(undefined)
+                                            setGetListData(undefined)
                                             setGetOGPData(undefined)
                                         }}
                                     >
@@ -876,7 +956,15 @@ export default function Root() {
                                             size={"lg"}
                                         />
                                     </div>
-                                    <Linkcard ogpData={getOGPData} />
+                                    {getOGPData && (
+                                        <Linkcard ogpData={getOGPData} />
+                                    )}
+                                    {getFeedData && (
+                                        <ViewFeedCard feed={getFeedData} />
+                                    )}
+                                    {getListData && (
+                                        <ViewMuteListCard list={getListData} />
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -893,6 +981,8 @@ export default function Root() {
                                         isCompressing ||
                                         contentImages.length >= 4 ||
                                         getOGPData ||
+                                        getFeedData ||
+                                        getListData ||
                                         isOGPGetProcessing
                                     }
                                     as={"span"}
@@ -924,6 +1014,8 @@ export default function Root() {
                                         isCompressing ||
                                         contentImages.length >= 4 ||
                                         getOGPData ||
+                                        getFeedData ||
+                                        getListData ||
                                         isOGPGetProcessing
                                     }
                                 />
@@ -1054,6 +1146,8 @@ export default function Root() {
                                     }}
                                     isDisabled={
                                         !getOGPData &&
+                                        !getFeedData &&
+                                        !getListData &&
                                         contentImages.length === 0
                                     }
                                 >

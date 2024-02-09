@@ -69,6 +69,8 @@ import LanguagesSelectionModal from "../LanguageSelectionModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { usePostLanguage } from "@/app/_atoms/postLanguage"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
+import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 
 //export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -137,6 +139,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
     const [isSetURLCard, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
+    const [getFeedData, setGetFeedData] = useState<any>(null)
+    const [getListData, setGetListData] = useState<any>(null)
     const [, setIsGetOGPFetchError] = useState(false)
     // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
@@ -231,7 +235,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         if (
             trimedContentText() === "" &&
             contentImages.length === 0 &&
-            !getOGPData
+            !getOGPData &&
+            !getFeedData &&
+            !getListData
         )
             return
         setLoading(true)
@@ -279,6 +285,14 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     record: postData,
                 } as AppBskyEmbedRecord.Main
             }
+
+            if (getFeedData || getListData) {
+                postObj.embed = {
+                    $type: "app.bsky.embed.record",
+                    record: getFeedData ?? getListData,
+                } as AppBskyEmbedRecord.Main
+            }
+
             if (blobRefs.length > 0) {
                 const images: AppBskyEmbedImages.Image[] = []
 
@@ -338,7 +352,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     }
                 }
             }
-            if (adultContent && (getOGPData || contentImages.length > 0)) {
+            if (
+                adultContent &&
+                (getOGPData ||
+                    getListData ||
+                    getFeedData ||
+                    contentImages.length > 0)
+            ) {
                 postObj.labels = {
                     $type: "com.atproto.label.defs#selfLabels",
                     values: [
@@ -495,6 +515,62 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             })
         }
     }
+
+    function isFeedURL(url: string): boolean {
+        const regex = /^https:\/\/bsky\.app\/profile\/[^/]+\/feed\/[^/]+$/
+        return regex.test(url)
+    }
+
+    function isListURL(url: string): boolean {
+        const regex = /^https:\/\/bsky\.app\/profile\/[^/]+\/lists\/[^/]+$/
+        return regex.test(url)
+    }
+
+    const getListInfo = async (url: string) => {
+        if (!agent) return
+        const regex = /\/([^/]+)\/lists\/([^/]+)/
+        const matches = url.match(regex)
+        console.log("hogehoge")
+        if (matches) {
+            const did = matches[1]
+            const feedName = matches[2]
+            try {
+                setIsOGPGetProcessing(true)
+                const { data } = await agent.app.bsky.graph.getList({
+                    list: `at://${did}/app.bsky.graph.list/${feedName}`,
+                })
+                console.log(data)
+                setGetListData(data.list)
+            } catch (e) {
+                console.log(e)
+            } finally {
+                setIsOGPGetProcessing(false)
+            }
+        }
+    }
+
+    const getFeedInfo = async (url: string) => {
+        if (!agent) return
+        const regex = /\/([^/]+)\/feed\/([^/]+)/
+        const matches = url.match(regex)
+        console.log(matches)
+        if (matches) {
+            const did = matches[1]
+            const feedName = matches[2]
+            try {
+                setIsOGPGetProcessing(true)
+                const { data } = await agent.app.bsky.feed.getFeedGenerator({
+                    feed: `at://${did}/app.bsky.feed.generator/${feedName}`,
+                })
+                console.log(data)
+                setGetFeedData(data.view)
+            } catch (e) {
+            } finally {
+                setIsOGPGetProcessing(false)
+            }
+        }
+    }
+
     const getOGP = async (url: string) => {
         console.log(url)
         setIsOGPGetProcessing(true)
@@ -766,7 +842,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             ((trimedContentText().length === 0 ||
                                 trimedContentText().length > 300) &&
                                 contentImages.length === 0 &&
-                                !getOGPData)
+                                !getOGPData &&
+                                !getFeedData &&
+                                !getListData)
                         }
                         isLoading={loading}
                     >
@@ -832,7 +910,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         contentImages.length !== 0 ||
                                         isCompressing ||
                                         detectedURLs.length !== 0 ||
-                                        getOGPData !== null,
+                                        getOGPData !== null ||
+                                        getListData !== null ||
+                                        getFeedData !== null,
                                 })}
                                 aria-label="post input area"
                                 placeholder={t("modal.post.placeholder")}
@@ -935,6 +1015,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                             )}
                             {isDetectedURL &&
                                 !getOGPData &&
+                                !getFeedData &&
+                                !getListData &&
                                 !isOGPGetProcessing && (
                                     <div className={"w-full"}>
                                         {detectedURLs.map((url, index) => (
@@ -954,7 +1036,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         setIsSetURLCard(true)
-                                                        void getOGP(url)
+                                                        if (isFeedURL(url)) {
+                                                            getFeedInfo(url)
+                                                        } else if (
+                                                            isListURL(url)
+                                                        ) {
+                                                            console.log("list")
+                                                            getListInfo(url)
+                                                        } else {
+                                                            void getOGP(url)
+                                                        }
                                                     }}
                                                 >
                                                     {url}
@@ -969,7 +1060,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 </div>
                             )}
                             {isSetURLCard &&
-                                getOGPData &&
+                                (getFeedData || getOGPData || getListData) &&
                                 !isOGPGetProcessing && (
                                     <div
                                         className={`${contentRightUrlCard()} flex relative`}
@@ -979,6 +1070,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                             onClick={() => {
                                                 setIsSetURLCard(false)
                                                 setGetOGPData(undefined)
+                                                setGetFeedData(undefined)
+                                                setGetListData(undefined)
                                             }}
                                         >
                                             <FontAwesomeIcon
@@ -986,7 +1079,17 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                 size={"lg"}
                                             />
                                         </div>
-                                        <Linkcard ogpData={getOGPData} />
+                                        {getOGPData && (
+                                            <Linkcard ogpData={getOGPData} />
+                                        )}
+                                        {getFeedData && (
+                                            <ViewFeedCard feed={getFeedData} />
+                                        )}
+                                        {getListData && (
+                                            <ViewMuteListCard
+                                                list={getListData}
+                                            />
+                                        )}
                                     </div>
                                 )}
                         </div>
@@ -1004,6 +1107,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     isCompressing ||
                                     contentImages.length >= 4 ||
                                     getOGPData ||
+                                    getListData ||
+                                    getFeedData ||
                                     isOGPGetProcessing
                                 }
                                 as={"span"}
@@ -1033,6 +1138,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     isCompressing ||
                                     contentImages.length >= 4 ||
                                     getOGPData ||
+                                    getListData ||
+                                    getFeedData ||
                                     isOGPGetProcessing
                                 }
                             />
@@ -1166,7 +1273,10 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     onOpenModerations()
                                 }}
                                 isDisabled={
-                                    !getOGPData && contentImages.length === 0
+                                    !getOGPData &&
+                                    !getFeedData &&
+                                    !getListData &&
+                                    contentImages.length === 0
                                 }
                             >
                                 <FontAwesomeIcon
