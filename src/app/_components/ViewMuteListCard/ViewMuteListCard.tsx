@@ -39,6 +39,8 @@ export const ViewMuteListCard: React.FC<Props> = memo((props: Props) => {
         }?${nextQueryParams.toString()}` as string
     }
 
+    console.log(list)
+
     return (
         <main className={`${PostCard()} cursor-pointer`}>
             <Link
@@ -67,10 +69,7 @@ export const ViewMuteListCard: React.FC<Props> = memo((props: Props) => {
                             {isSkeleton ? (
                                 <Skeleton className={skeletonName()} />
                             ) : (
-                                list?.purpose ===
-                                    "app.bsky.graph.defs#modlist" && (
-                                    <span>{list?.name}</span>
-                                )
+                                <span>{list?.name}</span>
                             )}
                         </span>
                         <div className={"text-[#BABABA]"}>&nbsp;-&nbsp;</div>
@@ -79,7 +78,7 @@ export const ViewMuteListCard: React.FC<Props> = memo((props: Props) => {
                                 <Skeleton className={skeletonHandle()} />
                             ) : (
                                 <span>
-                                    Mute list made by @{list?.creator?.handle}
+                                    User list by @{list?.creator?.handle}
                                 </span>
                             )}
                         </span>
