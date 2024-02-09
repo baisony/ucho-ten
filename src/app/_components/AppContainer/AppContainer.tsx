@@ -481,13 +481,13 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
                         const element = document.querySelector(
                             "meta[name=theme-color]"
                         )!
-                        element.setAttribute("content", "#000000")
+                        element?.setAttribute("content", "#000000")
                     } else {
                         document.documentElement.classList.remove("dark")
                         const element = document.querySelector(
                             "meta[name=theme-color]"
                         )!
-                        element.setAttribute("content", "#FFFFFF")
+                        element?.setAttribute("content", "#FFFFFF")
                     }
                 }
             }
@@ -589,7 +589,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         // theme-colorの設定
         const themeColor = isDarkMode ? "#000000" : "#FFFFFF"
         const element = document.querySelector("meta[name=theme-color]")!
-        element.setAttribute("content", themeColor)
+        element?.setAttribute("content", themeColor)
     }, [appearanceColor, agent, pathName])
 
     useEffect(() => {
