@@ -10,6 +10,8 @@ import {
 import { useRouter } from "next/navigation"
 import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
+import { useQueryClient } from "@tanstack/react-query"
+import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -30,10 +32,12 @@ const SignOutModal = (props: SignOutModalProps) => {
     const { t } = useTranslation()
     const router = useRouter()
 
-    const [agent] = useAgent()
+    const [agent, setAgent] = useAgent()
     const [accounts, setAccounts] = useAccounts()
+    const [, setUserProfileDetailed] = useUserProfileDetailedAtom()
 
     const { appearanceTextColor } = signInModal()
+    const queryClient = useQueryClient()
 
     const handleDeleteSession = () => {
         if (handleSideBarOpen !== undefined) {
@@ -54,6 +58,10 @@ const SignOutModal = (props: SignOutModalProps) => {
         }
 
         setAccounts(existingAccountsData)
+
+        setAgent(null)
+        setUserProfileDetailed(null)
+        queryClient.clear()
 
         router.push("/login")
     }

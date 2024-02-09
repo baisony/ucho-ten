@@ -251,8 +251,8 @@
     "show": "表示",
     "post": "送信",
     "newPosts": "新しい投稿",
-    "enable": "有効",
-    "disable": "無効",
+    "enable": "有効にする",
+    "disable": "無効にする",
     "unsupported": "お使いの環境は未対応です",
     "permissionDenied": "通知を許可してください"
   },

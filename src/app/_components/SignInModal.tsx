@@ -62,6 +62,14 @@ const SignInModal = (props: SignInModalProps) => {
 
     const { appearanceTextColor } = signInModal()
 
+    function addTldIfMissing(handle: string, pds: string): string {
+        if (!handle.includes(".")) {
+            return `${handle}.${pds}`
+        } else {
+            return handle
+        }
+    }
+
     const handleClickSignIn = async () => {
         if (serverName === "" || identity === "" || password === "") {
             return
@@ -81,7 +89,7 @@ const SignInModal = (props: SignInModalProps) => {
             })
 
             await agent.login({
-                identifier: identity,
+                identifier: addTldIfMissing(identity, result),
                 password: password,
             })
 
