@@ -9,7 +9,6 @@ import type {
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"
 import {
     faArrowUpFromBracket,
     faHeart as faSolidHeart,
@@ -22,7 +21,10 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
+    Modal,
+    ModalContent,
     Skeleton,
+    useDisclosure,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { isMobile } from "react-device-detect"
@@ -50,6 +52,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { PostModal } from "@/app/_components/PostModal"
 
 SwiperCore.use([Virtual])
 
@@ -588,8 +591,29 @@ const FeedHeaderComponent = ({
         PinButton,
     } = viewFeedPage()
 
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
+    console.log(feedInfo)
+
     return (
         <>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                placement={isMobile ? "top" : "center"}
+                className={"z-[100] max-w-[600px] bg-transparent"}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <PostModal
+                            type={"Post"}
+                            onClose={onClose}
+                            initialEmbed={feedInfo?.view}
+                            initialEmbedType={"feed"}
+                        />
+                    )}
+                </ModalContent>
+            </Modal>
             <DummyHeader />
             <div className={ProfileContainer()}>
                 <div className={ProfileInfoContainer()}>
@@ -607,22 +631,6 @@ const FeedHeaderComponent = ({
                         </div>
                     )}
                     <div className={Buttons()}>
-                        <div className={ProfileActionButton()}>
-                            {!isSkeleton && (
-                                <FontAwesomeIcon
-                                    icon={
-                                        feedInfo.view?.viewer?.like
-                                            ? faSolidHeart
-                                            : faRegularHeart
-                                    }
-                                    style={{
-                                        color: feedInfo.view?.viewer?.like
-                                            ? "#ff0000"
-                                            : "#000000",
-                                    }}
-                                />
-                            )}
-                        </div>
                         <Dropdown>
                             <DropdownTrigger>
                                 <div className={ProfileCopyButton()}>
@@ -636,6 +644,9 @@ const FeedHeaderComponent = ({
                                 className={"text-black dark:text-white"}
                                 aria-label="dropdown share menu"
                             >
+                                <DropdownItem key={"share"} onClick={onOpen}>
+                                    {t("pages.feedOnlyPage.postThisFeed")}
+                                </DropdownItem>
                                 <DropdownItem
                                     key="new"
                                     onClick={() => {

@@ -86,11 +86,15 @@ interface Props {
     children?: React.ReactNode
     type?: "Post" | "Reply" | `Quote`
     postData?: any
+    initialText?: string
+    initialEmbed?: any
+    initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
 }
 
 export const PostModal: React.FC<Props> = (props: Props) => {
-    const { type, postData } = props
+    const { type, postData, initialText, initialEmbed, initialEmbedType } =
+        props
     const [appearanceColor] = useAppearanceColor()
     const { t } = useTranslation()
     const searchParams = useSearchParams()
@@ -137,7 +141,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [isSetURLCard, setIsSetURLCard] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
     const [getFeedData, setGetFeedData] = useState<any>(null)
     const [getListData, setGetListData] = useState<any>(null)
@@ -606,7 +609,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             return res
         } catch (e) {
             setIsOGPGetProcessing(false)
-            setIsSetURLCard(false)
             setIsGetOGPFetchError(true)
             console.log(e)
             return e
@@ -689,6 +691,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             setPostLanguage(Array.from(keys) as string[])
         }
     }
+
+    useEffect(() => {
+        if (!initialEmbedType) return
+        if (initialEmbedType === "feed") {
+            console.log("feed")
+            setGetFeedData(initialEmbed)
+        } else if (initialEmbedType === "list") {
+            setGetFeedData(initialEmbed)
+        }
+    }, [initialEmbedType])
 
     return (
         <>
@@ -864,19 +876,21 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         },
                     })}
                 >
-                    <div className={"w-full"}>
-                        <ViewPostCard
-                            bodyText={processPostBodyText(
-                                nextQueryParams,
-                                postData
-                            )}
-                            postJson={postData}
-                            isEmbedToModal={true}
-                            nextQueryParams={nextQueryParams}
-                            t={t}
-                            zenMode={zenMode}
-                        />
-                    </div>
+                    {type !== "Post" && (
+                        <div className={"w-full"}>
+                            <ViewPostCard
+                                bodyText={processPostBodyText(
+                                    nextQueryParams,
+                                    postData
+                                )}
+                                postJson={postData}
+                                isEmbedToModal={true}
+                                nextQueryParams={nextQueryParams}
+                                t={t}
+                                zenMode={zenMode}
+                            />
+                        </div>
+                    )}
                     <div
                         className={`${contentContainer()} h-[90%]`}
                         //ref={scrollBottomRef}
@@ -913,6 +927,8 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         getOGPData !== null ||
                                         getListData !== null ||
                                         getFeedData !== null,
+                                    //@ts-ignore
+                                    type: type,
                                 })}
                                 aria-label="post input area"
                                 placeholder={t("modal.post.placeholder")}
@@ -1035,7 +1051,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                     }
                                                     onClick={() => {
                                                         setSelectedURL(url)
-                                                        setIsSetURLCard(true)
                                                         if (isFeedURL(url)) {
                                                             getFeedInfo(url)
                                                         } else if (
@@ -1059,8 +1074,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     <Linkcard skeleton={true} />
                                 </div>
                             )}
-                            {isSetURLCard &&
-                                (getFeedData || getOGPData || getListData) &&
+                            {(getFeedData || getOGPData || getListData) &&
                                 !isOGPGetProcessing && (
                                     <div
                                         className={`${contentRightUrlCard()} flex relative`}
@@ -1068,7 +1082,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         <div
                                             className={`${contentRightUrlCardDeleteButton()} absolute z-10 right-[10px] top-[10px]`}
                                             onClick={() => {
-                                                setIsSetURLCard(false)
                                                 setGetOGPData(undefined)
                                                 setGetFeedData(undefined)
                                                 setGetListData(undefined)
