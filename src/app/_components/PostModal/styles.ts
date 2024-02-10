@@ -79,5 +79,10 @@ export const postModal = tv({
                 content: "border-none",
             },
         },
+        type: {
+            Post: {
+                contentRightTextArea: "min-h-[calc(100%)]",
+            },
+        },
     },
 })

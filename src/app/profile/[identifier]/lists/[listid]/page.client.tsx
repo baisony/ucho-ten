@@ -14,7 +14,10 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
+    Modal,
+    ModalContent,
     Skeleton,
+    useDisclosure,
 } from "@nextui-org/react"
 import "react-swipeable-list/dist/styles.css"
 import { isMobile } from "react-device-detect"
@@ -51,6 +54,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { PostModal } from "@/app/_components/PostModal"
 
 SwiperCore.use([Virtual])
 
@@ -610,6 +614,8 @@ const FeedHeaderComponent = ({
         isSubscribed
     )
 
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
     const {
         ProfileContainer,
         ProfileInfoContainer,
@@ -629,117 +635,143 @@ const FeedHeaderComponent = ({
     }, [isSubscribed])
 
     return (
-        <div className={ProfileContainer()}>
-            <div className={ProfileInfoContainer()}>
-                {!isSkeleton ? (
-                    <img
-                        className={ProfileImage()}
-                        src={feedInfo?.avatar || defaultFeedIcon.src}
-                        alt={feedInfo?.name}
-                    />
-                ) : (
-                    <div className={ProfileImage()}>
-                        <Skeleton className={`h-full w-full rounded-[10px] `} />
-                    </div>
-                )}
-                <div className={Buttons()}>
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <div className={ProfileCopyButton()}>
-                                <FontAwesomeIcon
-                                    icon={faArrowUpFromBracket}
-                                    className={ShareButton()}
-                                />
-                            </div>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                            className={"text-black dark:text-white"}
-                            aria-label="dropdown share menu"
-                        >
-                            <DropdownItem
-                                key="new"
-                                onClick={() => {
-                                    const aturl = new AtUri(feedInfo.view?.uri)
-                                    void navigator.clipboard.writeText(
-                                        `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
-                                    )
-                                }}
+        <>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                placement={isMobile ? "top" : "center"}
+                className={"z-[100] max-w-[600px] bg-transparent"}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <PostModal
+                            type={"Post"}
+                            onClose={onClose}
+                            initialEmbed={feedInfo?.view}
+                            initialEmbedType={"list"}
+                        />
+                    )}
+                </ModalContent>
+            </Modal>
+            <div className={ProfileContainer()}>
+                <div className={ProfileInfoContainer()}>
+                    {!isSkeleton ? (
+                        <img
+                            className={ProfileImage()}
+                            src={feedInfo?.avatar || defaultFeedIcon.src}
+                            alt={feedInfo?.name}
+                        />
+                    ) : (
+                        <div className={ProfileImage()}>
+                            <Skeleton
+                                className={`h-full w-full rounded-[10px] `}
+                            />
+                        </div>
+                    )}
+                    <div className={Buttons()}>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <div className={ProfileCopyButton()}>
+                                    <FontAwesomeIcon
+                                        icon={faArrowUpFromBracket}
+                                        className={ShareButton()}
+                                    />
+                                </div>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                                className={"text-black dark:text-white"}
+                                aria-label="dropdown share menu"
                             >
-                                {t("pages.feedOnlyPage.copyFeedURL")}
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Button
-                        className={FollowButton()}
-                        onMouseLeave={() => {
-                            setOnHoverButton(false)
-                        }}
-                        onMouseEnter={() => {
-                            setOnHoverButton(true)
-                        }}
-                        onClick={() => {
-                            try {
-                                onClick
-                                if (isSubscribed1) {
-                                    setIsSubscribed1(false)
-                                } else {
-                                    setIsSubscribed1(true)
+                                <DropdownItem key="share" onClick={onOpen}>
+                                    {t("pages.feedOnlyPage.postThisFeed")}
+                                </DropdownItem>
+                                <DropdownItem
+                                    key="new"
+                                    onClick={() => {
+                                        const aturl = new AtUri(
+                                            feedInfo.view?.uri
+                                        )
+                                        void navigator.clipboard.writeText(
+                                            `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
+                                        )
+                                    }}
+                                >
+                                    {t("pages.feedOnlyPage.copyFeedURL")}
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                        <Button
+                            className={FollowButton()}
+                            onMouseLeave={() => {
+                                setOnHoverButton(false)
+                            }}
+                            onMouseEnter={() => {
+                                setOnHoverButton(true)
+                            }}
+                            onClick={() => {
+                                try {
+                                    onClick
+                                    if (isSubscribed1) {
+                                        setIsSubscribed1(false)
+                                    } else {
+                                        setIsSubscribed1(true)
+                                    }
+                                } catch (e) {
+                                    console.log(e)
                                 }
-                            } catch (e) {
-                                console.log(e)
+                            }}
+                            isDisabled={
+                                isSkeleton ||
+                                feedInfo?.purpose ===
+                                    "app.bsky.graph.defs#curatelist"
                             }
-                        }}
-                        isDisabled={
-                            isSkeleton ||
-                            feedInfo?.purpose ===
-                                "app.bsky.graph.defs#curatelist"
-                        }
-                    >
-                        {isSubscribed1
-                            ? !onHoverButton
-                                ? t("button.subscribed")
-                                : t("button.unsubscribe")
-                            : t("button.subscribe")}
-                    </Button>
-                </div>
-                <div className={ProfileDisplayName()}>
-                    {!isSkeleton ? (
-                        feedInfo?.name
-                    ) : (
-                        <Skeleton
-                            className={`h-[24px] w-[300px] rounded-[10px] `}
-                        />
-                    )}
-                </div>
-                <div className={ProfileHandle()}>
-                    {!isSkeleton ? (
-                        `${t(`pages.feedOnlyPage.createdBy`)} @${
-                            feedInfo.creator.handle
-                        }`
-                    ) : (
-                        <Skeleton
-                            className={`h-3 w-[80px] rounded-[10px] mt-[5px] `}
-                        />
-                    )}
-                </div>
-                <div className={ProfileBio()}>
-                    {!isSkeleton ? (
-                        feedInfo?.description
-                    ) : (
-                        <>
+                        >
+                            {isSubscribed1
+                                ? !onHoverButton
+                                    ? t("button.subscribed")
+                                    : t("button.unsubscribe")
+                                : t("button.subscribe")}
+                        </Button>
+                    </div>
+                    <div className={ProfileDisplayName()}>
+                        {!isSkeleton ? (
+                            feedInfo?.name
+                        ) : (
                             <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                className={`h-[24px] w-[300px] rounded-[10px] `}
                             />
+                        )}
+                    </div>
+                    <div className={ProfileHandle()}>
+                        {!isSkeleton ? (
+                            `${t(`pages.feedOnlyPage.createdBy`)} @${
+                                feedInfo.creator.handle
+                            }`
+                        ) : (
                             <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                className={`h-3 w-[80px] rounded-[10px] mt-[5px] `}
                             />
-                            <Skeleton
-                                className={`h-3 w-full rounded-[10px] mt-[5px] `}
-                            />
-                        </>
-                    )}
+                        )}
+                    </div>
+                    <div className={ProfileBio()}>
+                        {!isSkeleton ? (
+                            feedInfo?.description
+                        ) : (
+                            <>
+                                <Skeleton
+                                    className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                />
+                                <Skeleton
+                                    className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                />
+                                <Skeleton
+                                    className={`h-3 w-full rounded-[10px] mt-[5px] `}
+                                />
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
