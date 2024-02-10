@@ -839,7 +839,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     <div className={headerTitle()}>
                         {type === "Reply"
                             ? t(`modal.post.reply`)
-                            : t(`modal.post.quote`)}
+                            : type === "Post"
+                              ? t("modal.post.post")
+                              : t(`modal.post.quote`)}
                     </div>
                     <Button
                         className={headerPostButton()}
