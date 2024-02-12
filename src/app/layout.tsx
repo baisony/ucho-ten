@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     },
     applicationName: "Ucho-ten",
     description:
-        'Ucho-ten is a BlueSky client that conceals numbers from social media, allowing you to focus on your "Likes" at any time.',
+        'Ucho-ten is a Bluesky client that conceals numbers from social media, allowing you to focus on your "Likes" at any time.',
     openGraph: {
         type: "website",
         siteName: "Ucho-ten Bluesky Client",
