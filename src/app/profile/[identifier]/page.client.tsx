@@ -12,6 +12,7 @@ import { isMobile } from "react-device-detect"
 import { useAgent } from "@/app/_atoms/agent"
 import type {
     FeedViewPost,
+    GeneratorView,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { notFound, usePathname, useRouter } from "next/navigation"
@@ -30,23 +31,29 @@ import {
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Button,
+    Card,
+    CardBody,
+    CardFooter,
     Chip,
+    Divider,
     Dropdown,
     DropdownItem,
     DropdownMenu,
     DropdownTrigger,
+    Image,
     Input,
     Modal,
     ModalBody,
     ModalContent,
     ModalFooter,
     ModalHeader,
+    ScrollShadow,
     Skeleton,
     Spinner,
     Textarea,
     useDisclosure,
 } from "@nextui-org/react"
-import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
+import { AppBskyActorProfile, AtUri, BlobRef, BskyAgent } from "@atproto/api"
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -67,6 +74,7 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -80,6 +88,8 @@ const PageClient = () => {
 
     const [hidden, setHidden] = useState<boolean | null>(null)
     const [zenMode] = useZenMode()
+    const [profile, setProfile] = useState<any>(null)
+    const [usersFeeds, setUsersFeeds] = useState<GeneratorView[] | null>(null)
 
     useLayoutEffect(() => {
         setCurrentMenuType("profile")
@@ -99,13 +109,21 @@ const PageClient = () => {
     const fetchProfile = async () => {
         if (!agent) return
         try {
-            const { data } = await agent.getProfile({ actor: username })
-            console.log(data)
-            const user = data.viewer
+            const { data: profileData } = await agent.getProfile({
+                actor: username,
+            })
+            const user = profileData.viewer
             if (user?.muted || user?.blockedBy || user?.blocking) {
                 setHidden(true)
             } else {
                 setHidden(false)
+                setProfile(profileData)
+                const { data: feedsData } =
+                    await agent.app.bsky.feed.getActorFeeds({
+                        actor: username,
+                        cursor: "",
+                    })
+                setUsersFeeds(feedsData.feeds)
             }
         } catch (e) {
             console.error(e)
@@ -114,9 +132,8 @@ const PageClient = () => {
 
     useEffect(() => {
         if (!agent) return
-        console.log(agent)
         void fetchProfile()
-    }, [agent])
+    }, [agent, username])
 
     return hidden === false ? (
         <>
@@ -124,8 +141,13 @@ const PageClient = () => {
                 {menus.profile.map((menu, index) => {
                     return (
                         <SwiperSlide key={index}>
-                            {/* @ts-ignore */}
-                            <PostPage tab={menu.info} zenMode={zenMode} />
+                            <PostPage
+                                //@ts-ignore
+                                tab={menu.info}
+                                zenMode={zenMode}
+                                profile={profile}
+                                feeds={usersFeeds}
+                            />
                         </SwiperSlide>
                     )
                 })}
@@ -140,7 +162,9 @@ export default PageClient
 
 interface PostPageProps {
     tab: "posts" | "replies" | "media"
-    zenMode: boolean
+    zenMode: boolean | undefined
+    profile: any
+    feeds: GeneratorView[] | null
 }
 
 const PostPage = (props: PostPageProps) => {
@@ -156,7 +180,8 @@ const PostPage = (props: PostPageProps) => {
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
-    const [profile, setProfile] = useState<any>(null)
+    const [profile] = useState<any>(props.profile)
+    const [feeds] = useState<any>(props.feeds)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)
@@ -299,16 +324,6 @@ const PostPage = (props: PostPageProps) => {
         }
     }
 
-    const fetchProfile = async () => {
-        if (!agent) return
-        try {
-            const { data } = await agent.getProfile({ actor: username })
-            setProfile(data)
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
     const loadMore = async () => {
         await fetchTimeline()
     }
@@ -318,11 +333,6 @@ const PostPage = (props: PostPageProps) => {
             void fetchTimeline()
         }
     }, [profile])
-
-    useEffect(() => {
-        if (!agent) return
-        void fetchProfile()
-    }, [agent, username])
 
     const onClickDomain = (domain: string) => {
         router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
@@ -441,6 +451,7 @@ const PostPage = (props: PostPageProps) => {
                 agent,
                 profile,
                 isProfileMine: profile.did === agent?.session?.did,
+                feeds: props.feeds,
                 onClickDomain,
             }
 
@@ -581,6 +592,7 @@ interface UserProfileProps {
     profile?: any
     isProfileMine?: boolean
     onClickDomain?: (url: string) => void
+    feeds?: GeneratorView[] | null
     isSkeleton?: boolean
 }
 
@@ -589,10 +601,12 @@ const UserProfileComponent = ({
     profile,
     isProfileMine,
     //onClickDomain,
+    feeds,
     isSkeleton,
 }: UserProfileProps) => {
     // const router = useRouter()
     const [nextQueryParams] = useNextQueryParamsAtom()
+    const router = useRouter()
     const [onHoverButton, setOnHoverButton] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isMuted, setIsMuted] = useState(!!profile?.viewer?.muted)
@@ -1374,6 +1388,54 @@ const UserProfileComponent = ({
                             </>
                         )}
                     </div>
+                    {/* @ts-ignore */}
+                    {feeds?.length >= 1 && (
+                        <>
+                            <Divider className={"my-4"} />
+                            <div className={"font-bold "}>
+                                このユーザーが作成したフィード
+                            </div>
+                            <ScrollShadow
+                                orientation="horizontal"
+                                className={`flex overflow-x-auto overflow-y-hidden gap-3`}
+                            >
+                                {feeds?.map((feed: any, index: number) => (
+                                    <>
+                                        <Card
+                                            shadow="sm"
+                                            key={index}
+                                            isPressable
+                                            onClick={() => {
+                                                const atURI = new AtUri(
+                                                    feed.uri
+                                                )
+                                                router.push(
+                                                    `/profile/${atURI.hostname}/feed/${atURI.rkey}`
+                                                )
+                                            }}
+                                            className={`min-w-[120px] max-w-[120px] mb-1 mt-1`}
+                                        >
+                                            <CardBody className="overflow-visible p-0">
+                                                <Image
+                                                    shadow="sm"
+                                                    radius="lg"
+                                                    width="100%"
+                                                    className="w-full object-cover h-[140px]"
+                                                    src={
+                                                        feed?.avatar ??
+                                                        defaultFeedIcon.src
+                                                    }
+                                                />
+                                            </CardBody>
+                                            <CardFooter className="text-small justify-between whitespace-nowrap overflow-hidden">
+                                                <b>{feed.displayName}</b>
+                                            </CardFooter>
+                                        </Card>
+                                    </>
+                                ))}
+                            </ScrollShadow>
+                        </>
+                    )}
                 </div>
             </div>
         </>
