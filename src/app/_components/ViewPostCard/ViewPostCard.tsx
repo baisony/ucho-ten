@@ -718,9 +718,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             </Link>
                             {postJsonData?.author?.displayName && (
                                 <>
-                                    <div className={`text-[#BABABA]`}>
-                                        &nbsp;-&nbsp;
-                                    </div>
                                     <Link
                                         onClick={(e) => {
                                             e.stopPropagation()
@@ -731,9 +728,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                         }?${nextQueryParams.toString()}`}
                                     >
                                         <span
-                                            className={`${PostAuthorHandle()} md:hover:underline`}
+                                            className={`${PostAuthorHandle()} md:hover:underline ml-[5px]`}
                                         >
-                                            {postJsonData?.author?.handle}
+                                            @{postJsonData?.author?.handle}
                                         </span>
                                     </Link>
                                 </>
