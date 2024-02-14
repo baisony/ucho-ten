@@ -506,8 +506,9 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         try {
             const data = localStorage.getItem("session")
             if (!data) return
-            const res = await fetch(`/api/getSettings/${data}`, {
-                method: "GET",
+            const res = await fetch(`/api/getSettings/post`, {
+                method: "POST",
+                body: JSON.stringify({ data }),
             })
             //res.json()
             if (res.status == 200) {

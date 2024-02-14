@@ -49,16 +49,17 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
             bookmarks: bookmarks,
             muteWords: mutelist,
         }
-        console.log(syncData)
         try {
             const syncData_string = JSON.stringify(syncData)
             const data = localStorage.getItem("session")
             if (!data) return
-            const res = await fetch(`/api/setSettings/${data}`, {
+            const res = await fetch(`/api/setSettings/post`, {
                 method: "POST",
-                body: syncData_string,
+                body: JSON.stringify({
+                    syncData: syncData_string,
+                    authorization: data,
+                }),
             })
-            console.log(await res)
             if (res.status !== 200) {
                 console.log("sync error")
             }
