@@ -14,7 +14,13 @@ import {
 } from "@nextui-org/react"
 import { AtUri } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
+import {
+    faArrowDown,
+    faArrowUp,
+    faBars,
+    faGear,
+    faThumbTack,
+} from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -198,12 +204,26 @@ const MyFeedsPage = () => {
                                 key={index}
                                 href={uriToURL(data?.uri)}
                             >
-                                <div className={"flex items-center ml-[12px]"}>
-                                    <div className={"hidden"}>
-                                        <FontAwesomeIcon
-                                            icon={faBars}
-                                            className={"text-gray-400"}
-                                        />
+                                <div className={"flex items-center ml-[20px]"}>
+                                    <div className={"h-full block"}>
+                                        <div
+                                            onClick={(event) => {
+                                                event.preventDefault()
+                                                console.log("up")
+                                            }}
+                                            className={"mb-[10px]"}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faArrowUp}
+                                                className={"text-gray-400"}
+                                            />
+                                        </div>
+                                        <div className={"mt-[10px]"}>
+                                            <FontAwesomeIcon
+                                                icon={faArrowDown}
+                                                className={"text-gray-400"}
+                                            />
+                                        </div>
                                     </div>
                                     <div
                                         className={
