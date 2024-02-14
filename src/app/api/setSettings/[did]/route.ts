@@ -1,17 +1,21 @@
 import { NextRequest } from "next/server"
-import { connect, DatabaseError, Row } from "@tidbcloud/serverless"
+import { connect, DatabaseError } from "@tidbcloud/serverless"
 import { BskyAgent } from "@atproto/api"
 
 const dbUrl = process.env.DATABASE_URL
 
-export async function POST(
-    request: NextRequest,
-    { params }: { params: { data: string } }
-) {
-    //@ts-ignore
-    const data = JSON.parse(params.did)
-    const agent = new BskyAgent({ service: `https://${data.server}` })
-    const resumeResult = await agent.resumeSession(data.session)
+export async function POST(request: NextRequest) {
+    const postBody = request.body
+    if (postBody === undefined || postBody === null) {
+        return new Response("postBody is empty", { status: 400 })
+    }
+    const body = await new Response(postBody).text()
+
+    const bodyParam = JSON.parse(body)
+    const sessionData = JSON.parse(bodyParam.authorization)
+    const syncData = bodyParam.syncData
+    const agent = new BskyAgent({ service: `https://${sessionData.server}` })
+    const resumeResult = await agent.resumeSession(sessionData.session)
     if (!resumeResult.success) {
         return new Response("resume session error", { status: 400 })
     }
@@ -21,20 +25,15 @@ export async function POST(
     const conn = connect({
         url: dbUrl,
     })
-    if (data.session.did == "") {
+    if (sessionData.session.did == "") {
         return new Response("did is empty", { status: 400 })
     }
-    const postBody = request.body
-    if (postBody === undefined || postBody === null) {
-        return new Response("postBody is empty", { status: 400 })
-    }
-    const body = await new Response(postBody).text()
     const queryString =
         "INSERT INTO `ucho_ten`.`settings` (`did`,`settings`,`updated_at`) VALUES (?,?,NOW()) ON DUPLICATE KEY UPDATE `settings`=?, `updated_at`=NOW()"
     try {
         const result = await conn.execute(
             queryString,
-            [data.session.did, body, body],
+            [sessionData.session.did, syncData, syncData],
             {
                 fullResult: true,
             }
