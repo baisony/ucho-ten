@@ -440,7 +440,6 @@ const PostPage = (props: PostPageProps) => {
             const userProfileProps: UserProfileProps = {
                 agent,
                 profile,
-                isProfileMine: profile.did === agent?.session?.did,
                 onClickDomain,
             }
 
@@ -579,7 +578,6 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
 interface UserProfileProps {
     agent: BskyAgent | null
     profile?: any
-    isProfileMine?: boolean
     onClickDomain?: (url: string) => void
     isSkeleton?: boolean
 }
@@ -587,7 +585,6 @@ interface UserProfileProps {
 const UserProfileComponent = ({
     agent,
     profile,
-    isProfileMine,
     //onClickDomain,
     isSkeleton,
 }: UserProfileProps) => {
@@ -1221,7 +1218,7 @@ const UserProfileComponent = ({
                                 </Dropdown>
                             </>
                         )}
-                        {!isProfileMine && !isSkeleton && (
+                        {!isSkeleton && (
                             <>
                                 <div
                                     className={`${ProfileActionButton()} flex md:hidden`}
@@ -1292,7 +1289,7 @@ const UserProfileComponent = ({
                             className={`${FollowButton()} `}
                             color={
                                 isFollowing
-                                    ? onHoverButton && !isProfileMine
+                                    ? onHoverButton
                                         ? "danger"
                                         : "default"
                                     : "default"
@@ -1307,9 +1304,7 @@ const UserProfileComponent = ({
                                 setOnHoverButton(true)
                             }}
                             onClick={async () => {
-                                if (isProfileMine) {
-                                    onOpen()
-                                } else if (isFollowing) {
+                                if (isFollowing) {
                                     if (!agent) return
                                     try {
                                         const res = await agent.deleteFollow(
@@ -1336,13 +1331,11 @@ const UserProfileComponent = ({
                                 }
                             }}
                         >
-                            {isProfileMine
-                                ? t("pages.profile.editProfile")
-                                : isFollowing
-                                  ? !onHoverButton
-                                      ? t("button.following")
-                                      : t("button.unfollow")
-                                  : t("button.follow")}
+                            {isFollowing
+                                ? !onHoverButton
+                                    ? t("button.following")
+                                    : t("button.unfollow")
+                                : t("button.follow")}
                         </Button>
                     </div>
                     <div className={ProfileDisplayName()}>
