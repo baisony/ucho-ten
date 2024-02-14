@@ -1,7 +1,6 @@
 "use client"
 import { useAgent } from "@/app/_atoms/agent"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import Link from "next/link"
 import { layout } from "./styles"
 import {
     Button,
@@ -13,23 +12,32 @@ import {
     useDisclosure,
 } from "@nextui-org/react"
 import { AtUri } from "@atproto/api"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faBars, faGear, faThumbTack } from "@fortawesome/free-solid-svg-icons"
-import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useCurrentMenuType, useMenuIndex } from "../_atoms/headerMenu"
-
-import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { useAtom } from "jotai"
-import { DummyHeader } from "@/app/_components/DummyHeader"
-import { Virtuoso } from "react-virtuoso"
 import { useTranslation } from "react-i18next"
-import { SwiperContainer } from "@/app/_components/SwiperContainer"
+
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core"
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { SortableItem } from "./SortableItem"
+import { DummyHeader } from "@/app/_components/DummyHeader"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -52,16 +60,9 @@ const PageClient = () => {
     }, [currentMenuType, menuIndex, swiperRef.current])
 
     return (
-        <>
-            <SwiperContainer props={{ page: "feed" }}>
-                <SwiperSlide>
-                    <MyFeedsPage />
-                </SwiperSlide>
-                <SwiperSlide>
-                    <div className="w-full h-full"></div>
-                </SwiperSlide>
-            </SwiperContainer>
-        </>
+        <div style={{ display: "flex" }}>
+            <MyFeedsPage />
+        </div>
     )
 }
 
@@ -95,6 +96,11 @@ const MyFeedsPage = () => {
             const pinned = await agent.app.bsky.feed.getFeedGenerators({
                 feeds: feeds.pinned as string[],
             })
+
+            saved.data.feeds?.forEach((v: any) => {
+                v.id = v.uri
+            })
+            console.log(saved.data.feeds)
             setSavedFeeds((saved.data as any).feeds || [])
             setPinnedFeeds((pinned.data as any).feeds || [])
             setIsFetching(false)
@@ -134,8 +140,31 @@ const MyFeedsPage = () => {
         }?${nextQueryParams.toString()}` as string
     }
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    )
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+
+        if (!over) {
+            return
+        }
+
+        if (active.id !== over.id) {
+            const oldIndex = savedFeeds.findIndex((v) => v.id === active.id)
+            const newIndex = savedFeeds.findIndex((v) => v.id === over.id)
+            setSavedFeeds(arrayMove(savedFeeds, oldIndex, newIndex))
+        }
+    }
+
+    console.log(savedFeeds)
+
     return (
-        <div className={"h-full w-full z-[100]"}>
+        <div className={"h-full w-full z-[1]"}>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
@@ -166,130 +195,45 @@ const MyFeedsPage = () => {
                     )}
                 </ModalContent>
             </Modal>
-            {savedFeeds.length === 0 && (
-                <div
-                    className={`${background()} w-full h-full flex items-center justify-center`}
-                >
-                    {isFetching ? (
-                        <div>
-                            <Spinner />
-                        </div>
-                    ) : (
-                        !isFetching ?? (
-                            <div className={`text-white dark:text-black`}>
-                                {/* FIXME: WTF is this? */}
-                                {t("pages.feeds.notFound")}
+            <div className={"overflow-hidden overflow-y-auto"}>
+                <DummyHeader />
+                {savedFeeds.length === 0 && (
+                    <div
+                        className={`${background()} w-full h-full flex items-center justify-center`}
+                    >
+                        {isFetching ? (
+                            <div>
+                                <Spinner />
                             </div>
-                        )
-                    )}
-                </div>
-            )}
-            {savedFeeds.length !== 0 && (
-                <Virtuoso
-                    overscan={200}
-                    increaseViewportBy={200}
-                    data={savedFeeds}
-                    atTopThreshold={100}
-                    atBottomThreshold={100}
-                    itemContent={(index, data) => (
-                        <>
-                            <Link
-                                className={FeedCard()}
-                                key={index}
-                                href={uriToURL(data?.uri)}
-                            >
-                                <div className={"flex items-center ml-[12px]"}>
-                                    <div className={"hidden"}>
-                                        <FontAwesomeIcon
-                                            icon={faBars}
-                                            className={"text-gray-400"}
-                                        />
-                                    </div>
-                                    <div
-                                        className={
-                                            "h-[50px] w-[50px] overflow-hidden rounded-[10px] ml-[12px]"
-                                        }
-                                    >
-                                        <img
-                                            src={
-                                                data?.avatar ||
-                                                defaultFeedIcon.src
-                                            }
-                                            alt={"avatar"}
-                                        />
-                                    </div>
-                                    <div className={"ml-[12px]"}>
-                                        <div>{data?.displayName}</div>
-                                        <div className={"text-[12px]"}>
-                                            by @{data?.creator?.handle}
-                                        </div>
-                                    </div>
+                        ) : (
+                            !isFetching ?? (
+                                <div className={`text-white dark:text-black`}>
+                                    {/* FIXME: WTF is this? */}
+                                    {t("pages.feeds.notFound")}
                                 </div>
-                                <div className={"mr-[28px] flex items-center"}>
-                                    <div className={"mr-[28px] cursor-pointer"}>
-                                        <FontAwesomeIcon
-                                            icon={faThumbTack}
-                                            size={"lg"}
-                                            className={` ${
-                                                userPreferences.pinned.includes(
-                                                    data.uri
-                                                )
-                                                    ? `text-[#016EFF]`
-                                                    : `text-[#929292]`
-                                            }`}
-                                            onClick={async (e) => {
-                                                e.preventDefault()
-                                                if (
-                                                    userPreferences.pinned.includes(
-                                                        data.uri
-                                                    )
-                                                ) {
-                                                    if (isLoading) return
-                                                    setIsLoading(true)
-                                                    const res =
-                                                        await agent?.removePinnedFeed(
-                                                            data.uri
-                                                        )
-                                                    await fetchFeeds()
-                                                    setIsLoading(false)
-                                                    console.log(res)
-                                                } else {
-                                                    if (isLoading) return
-                                                    setIsLoading(true)
-                                                    const res =
-                                                        await agent?.addPinnedFeed(
-                                                            data.uri
-                                                        )
-                                                    await fetchFeeds()
-                                                    setIsLoading(false)
-                                                    console.log(res)
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                    <div
-                                        className={"cursor-pointer"}
-                                        onClick={async (e) => {
-                                            e.preventDefault()
-                                            setSelectedFeed(data)
-                                            onOpen()
-                                        }}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faGear}
-                                            size={"lg"}
-                                            className={"text-[#929292]"}
-                                        />
-                                    </div>
-                                </div>
-                            </Link>
-                        </>
-                    )}
-                    components={{
-                        Header: () => <DummyHeader />,
-                    }}
-                />
-            )}
+                            )
+                        )}
+                    </div>
+                )}
+                {savedFeeds.length !== 0 && (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={savedFeeds}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <ul className={"p-1"}>
+                                {savedFeeds.map((item) => (
+                                    <SortableItem key={item.uri} item={item} />
+                                ))}
+                            </ul>
+                        </SortableContext>
+                    </DndContext>
+                )}
+            </div>
         </div>
     )
 }
