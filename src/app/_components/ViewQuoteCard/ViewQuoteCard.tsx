@@ -186,9 +186,6 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             </span>
                                         )}
                                     </Link>
-                                    <div className={"text-[#BABABA]"}>
-                                        &nbsp;-&nbsp;
-                                    </div>
                                     <Link
                                         className={PostAuthorHandle()}
                                         onClick={(e) => {
@@ -205,9 +202,10 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                 className={skeletonHandle()}
                                             />
                                         ) : (
-                                            <span>
-                                                {postJson?.author?.handle}
-                                                {profile?.handle}
+                                            <span className={"ml-[5px]"}>
+                                                @
+                                                {postJson?.author?.handle ??
+                                                    profile?.handle}
                                             </span>
                                         )}
                                     </Link>

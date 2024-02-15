@@ -4,14 +4,18 @@ import { BskyAgent } from "@atproto/api"
 
 const dbUrl = process.env.DATABASE_URL
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: { data: string } }
-) {
+export async function POST(request: NextRequest) {
     //@ts-ignore
-    const data = JSON.parse(params.did)
-    const agent = new BskyAgent({ service: `https://${data.server}` })
-    const resumeResult = await agent.resumeSession(data.session)
+    const postBody = request.body
+    if (postBody === undefined || postBody === null) {
+        return new Response("postBody is empty", { status: 400 })
+    }
+    const body = await new Response(postBody).text()
+
+    const bodyParam = JSON.parse(body)
+    const sessionData = JSON.parse(bodyParam.data)
+    const agent = new BskyAgent({ service: `https://${sessionData.server}` })
+    const resumeResult = await agent.resumeSession(sessionData.session)
     if (!resumeResult.success) {
         return new Response("resume session error", { status: 400 })
     }
@@ -21,15 +25,18 @@ export async function GET(
     const conn = connect({
         url: dbUrl,
     })
-    if (data.session.did == "") {
+    if (sessionData.session.did == "") {
         return new Response("did is empty", { status: 400 })
     }
     const queryString = "select `settings` from `settings` where `did` = ?"
     try {
-        const result = await conn.execute(queryString, [data.session.did], {
-            fullResult: true,
-        })
-        const status = 200
+        const result = await conn.execute(
+            queryString,
+            [sessionData.session.did],
+            {
+                fullResult: true,
+            }
+        )
         let message: string = ""
 
         if ("rowCount" in result) {
@@ -44,7 +51,7 @@ export async function GET(
             }
         }
 
-        return new Response(message, { status: status })
+        return new Response(message, { status: 200 })
     } catch (e) {
         // DBエラーの場合
         if (e instanceof DatabaseError) {

@@ -119,11 +119,6 @@ export const ViewUserProfileCard = (props: Props) => {
                                         </span>
                                     )}
                                 </Link>
-                                {!isSkeleton && (
-                                    <div className={"text-[#BABABA]"}>
-                                        &nbsp;-&nbsp;
-                                    </div>
-                                )}
                                 <Link
                                     onClick={(e) => {
                                         e.stopPropagation()
@@ -136,9 +131,9 @@ export const ViewUserProfileCard = (props: Props) => {
                                         />
                                     ) : (
                                         <span
-                                            className={`${PostAuthorHandle()} md:hover:underline`}
+                                            className={`${PostAuthorHandle()} md:hover:underline ml-[5px]`}
                                         >
-                                            {json?.handle}
+                                            @{json?.handle}
                                         </span>
                                     )}
                                 </Link>
