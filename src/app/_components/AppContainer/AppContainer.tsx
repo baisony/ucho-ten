@@ -673,12 +673,12 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
                         </div>
                         <div
                             className={
-                                "min-w-[350px] max-w-[600px] h-full w-full "
+                                "min-w-[350px] max-w-[600px] h-full w-full overscroll-none"
                             }
                         >
                             <div
                                 className={
-                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative"
+                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative overscroll-contain"
                                 }
                             >
                                 {(pathName === "/login" || showTabBar) && (
