@@ -673,7 +673,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
                         </div>
                         <div
                             className={
-                                "min-w-[350px] max-w-[600px] h-full w-full overscroll-none"
+                                "min-w-[350px] max-w-[600px] h-full w-full "
                             }
                         >
                             <div

@@ -255,9 +255,6 @@ export default function Root() {
                                     )}
                                 </div>
                             </SwiperSlide>
-                            <SwiperSlide>
-                                <SwiperEmptySlide />
-                            </SwiperSlide>
                         </>
                     )
                 })}

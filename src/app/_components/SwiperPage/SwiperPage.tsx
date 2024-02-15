@@ -89,12 +89,6 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
                                     />
                                 </div>
                             </SwiperSlide>
-                            {/*//@ts-ignore*/}
-                            {menus[page].length === 1 && (
-                                <SwiperSlide key={1}>
-                                    <SwiperEmptySlide />
-                                </SwiperSlide>
-                            )}
                         </>
                     )
                 })}

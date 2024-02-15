@@ -2,6 +2,8 @@ import React, { FC } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBars } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     item: GeneratorView
@@ -20,11 +22,22 @@ export const SortableItem: FC<Props> = ({ item }: Props) => {
         listStyle: "none",
         transform: CSS.Transform.toString(transform),
         transition,
+        display: "flex",
     }
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            {item.displayName}
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            onClick={(e) => {
+                console.log(e)
+            }}
+        >
+            <div style={{ touchAction: "none" }} {...listeners}>
+                <FontAwesomeIcon icon={faBars} />
+            </div>
+            <div className={"ml-[10px] text-black"}>{item.displayName}</div>
         </div>
     )
 }
