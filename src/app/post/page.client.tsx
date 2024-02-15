@@ -256,48 +256,55 @@ export default function Root() {
                 } as AppBskyEmbedRecord.Main
             }
 
-            if (blobRefs.length > 0) {
-                const images: AppBskyEmbedImages.Image[] = []
+            if (getOGPData) {
+                if (blobRefs.length > 0) {
+                    console.log("logegegege")
+                    const images: AppBskyEmbedImages.Image[] = []
 
-                for (const [index, blobRef] of blobRefs.entries()) {
-                    const image: AppBskyEmbedImages.Image = {
-                        image: blobRef,
-                        alt: altOfImageList[index],
+                    for (const [index, blobRef] of blobRefs.entries()) {
+                        const image: AppBskyEmbedImages.Image = {
+                            image: blobRef,
+                            alt: altOfImageList[index],
+                        }
+
+                        images.push(image)
+
+                        // indexを使用する
                     }
-
-                    images.push(image)
-
-                    // indexを使用する
                 }
+                postObj.embed = {
+                    $type: "app.bsky.embed.external",
+                    external: {
+                        uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
+                        title: getOGPData?.title
+                            ? getOGPData.title
+                            : selectedURL,
+                        description: getOGPData?.description
+                            ? getOGPData.description
+                            : "",
+                    },
+                } as any
 
-                if (getOGPData) {
-                    postObj.embed = {
-                        $type: "app.bsky.embed.external",
-                        external: {
-                            uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
-                            title: getOGPData?.title
-                                ? getOGPData.title
-                                : selectedURL,
-                            description: getOGPData?.description
-                                ? getOGPData.description
-                                : "",
-                            thumb: {
-                                $type: "blob",
-                                ref: {
-                                    $link: uploadBlobRes?.data?.blob.ref.toString(),
-                                },
-                                mimeType: uploadBlobRes?.data?.blob.mimeType,
-                                size: uploadBlobRes?.data?.blob.size,
+                if (blobRefs.length > 0) {
+                    // Check if postObj.embed exists before accessing its properties
+                    if (postObj.embed && postObj.embed.external) {
+                        ;(postObj.embed.external as any).thumb = {
+                            $type: "blob",
+                            ref: {
+                                $link: uploadBlobRes?.data?.blob.ref.toString(),
                             },
-                        },
-                    } as any
-                } else {
-                    postObj.embed = {
-                        $type: "app.bsky.embed.images",
-                        images,
-                    } as AppBskyEmbedImages.Main
+                            mimeType: uploadBlobRes?.data?.blob.mimeType,
+                            size: uploadBlobRes?.data?.blob.size,
+                        }
+                    }
                 }
+            } else {
+                postObj.embed = {
+                    $type: "app.bsky.embed.images",
+                    images,
+                } as AppBskyEmbedImages.Main
             }
+
             if (adultContent && (getOGPData || contentImages.length > 0)) {
                 postObj.labels = {
                     $type: "com.atproto.label.defs#selfLabels",
@@ -309,8 +316,6 @@ export default function Root() {
                 }
             }
             await agent.post(postObj)
-
-            console.log("hoge")
 
             //queryClient.clear() 動く
             await queryClient.refetchQueries({
@@ -523,27 +528,45 @@ export default function Root() {
                     method: "GET",
                 }
             )
-            const ogp = await res.json()
-            const thumb = ogp["image:secure_url"] || ogp?.ogImage[0].url
-            const uri = url
-            const generatedURL = thumb?.startsWith("http")
-                ? thumb
-                : uri && thumb?.startsWith("/")
-                  ? `${uri.replace(/\/$/, "")}${thumb}`
-                  : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
-            const json = {
-                title: ogp?.ogTitle,
-                description: ogp?.ogDescription,
-                thumb: generatedURL,
-                uri: url,
-                alt: ogp?.ogDescription || "",
+            if (res.status === 200) {
+                const ogp = await res.json()
+                const thumb =
+                    (ogp["image:secure_url"] ||
+                        (ogp?.ogImage && ogp?.ogImage[0]?.url)) ??
+                    undefined
+                const uri = url
+                const json = {
+                    title: ogp?.ogTitle,
+                    description: ogp?.ogDescription,
+                    uri: url,
+                    alt: ogp?.ogDescription || "",
+                }
+                if (json && thumb) {
+                    const generatedURL = thumb?.startsWith("http")
+                        ? thumb
+                        : uri && thumb?.startsWith("/")
+                          ? `${uri.replace(/\/$/, "")}${thumb}`
+                          : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
+                    //@ts-ignore
+                    json.thumb = generatedURL
+                    const image = await fetch(
+                        `https://ucho-ten-image-api.vercel.app/api/image?url=${generatedURL}`
+                    )
+                    setOGPImage([{ blob: image, type: "image/jpeg" }])
+                }
+                setGetOGPData(json)
+                setIsOGPGetProcessing(false)
+            } else {
+                const json = {
+                    title: url,
+                    description: "",
+                    thumb: "",
+                    uri: url,
+                    alt: "",
+                }
+                setGetOGPData(json)
+                setIsOGPGetProcessing(false)
             }
-            setGetOGPData(json)
-            const image = await fetch(
-                `https://ucho-ten-image-api.vercel.app/api/image?url=${generatedURL}`
-            )
-            setOGPImage([{ blob: image, type: "image/jpeg" }])
-            setIsOGPGetProcessing(false)
             return res
         } catch (e) {
             setIsOGPGetProcessing(false)
