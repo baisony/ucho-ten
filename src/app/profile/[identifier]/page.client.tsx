@@ -247,6 +247,8 @@ const PostPage = (props: PostPageProps) => {
             return
         }
 
+        if (isEndOfFeed) return
+
         try {
             const { data } = await agent.getAuthorFeed({
                 actor: username,
@@ -262,6 +264,8 @@ const PostPage = (props: PostPageProps) => {
             if (data) {
                 if (data.cursor) {
                     cursor.current = data.cursor
+                } else {
+                    setIsEndOfFeed(true)
                 }
 
                 const { feed } = data
