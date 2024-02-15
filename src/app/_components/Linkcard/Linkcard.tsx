@@ -31,7 +31,8 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
               ? `${uri.replace(/\/$/, "")}${thumb}`
               : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
         : null
-    return (
+
+    return !skeleton && ogpData ? (
         <div className={"w-full"}>
             <SwitchingLinkATag link={ogpData?.uri}>
                 <div className={LinkCard()}>
@@ -103,6 +104,75 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
                     )}
                 </div>
             </SwitchingLinkATag>
+        </div>
+    ) : (
+        <div className={"w-full"}>
+            <div className={LinkCard()}>
+                {skeleton ? (
+                    <>
+                        <div
+                            className={
+                                "w-full h-full items-center justify-center flex"
+                            }
+                        >
+                            <Spinner size="md" />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        {thumb && (
+                            <div className={LinkCardThumbnailContainer()}>
+                                <img
+                                    src={generatedURL || ""}
+                                    className={LinkCardThumbnail()}
+                                    alt={ogpData?.alt || "thumbnail"}
+                                />
+                            </div>
+                        )}
+
+                        <div
+                            className={`${LinkCardContent()} ${
+                                thumb
+                                    ? "md:w-[calc(100%-100px)] w-[calc(100%-80px)]"
+                                    : "w-full"
+                            }`}
+                        >
+                            <div className="w-full">
+                                <div
+                                    className={LinkCardTitle()}
+                                    style={{
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                    }}
+                                >
+                                    {ogpData && (ogpData?.title || "No Title")}
+                                </div>
+                                <div
+                                    className={LinkCardDescription()}
+                                    style={{
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
+                                        display: "-webkit-box",
+                                        overflow: "hidden",
+                                    }}
+                                >
+                                    {ogpData && (ogpData?.description || "")}
+                                </div>
+                                <div className={LinkCardSiteName()}>
+                                    <div className="text-gray-400 w-full">
+                                        {
+                                            ogpData?.uri.match(
+                                                /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
+                                            )[1]
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     )
 })
