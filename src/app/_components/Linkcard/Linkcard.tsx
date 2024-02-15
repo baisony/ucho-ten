@@ -1,6 +1,7 @@
 import { linkcard } from "./styles"
 import { Spinner } from "@nextui-org/react"
 import { memo } from "react"
+import { SwitchingLinkATag } from "@/app/_components/Linkcard/SwitchingLinkATag"
 
 interface Props {
     children?: React.ReactNode
@@ -32,13 +33,7 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
         : null
     return (
         <div className={"w-full"}>
-            <a
-                href={ogpData?.uri}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className={"w-full"}
-            >
+            <SwitchingLinkATag link={ogpData?.uri}>
                 <div className={LinkCard()}>
                     {skeleton ? (
                         <>
@@ -107,7 +102,7 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
                         </>
                     )}
                 </div>
-            </a>
+            </SwitchingLinkATag>
         </div>
     )
 })
