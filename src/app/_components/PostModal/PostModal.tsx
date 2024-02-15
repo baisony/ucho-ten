@@ -323,8 +323,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                     images.push(image)
                 }
 
-                if (getOGPData && OGPImage.length > 0 && postObj.embed) {
-                    postObj.embed.thumb = {
+                if (
+                    getOGPData &&
+                    OGPImage.length > 0 &&
+                    postObj.embed &&
+                    postObj.embed.external
+                ) {
+                    ;(postObj.embed.external as any).thumb = {
                         $type: "blob",
                         ref: {
                             $link: uploadBlobRes?.data?.blob.ref.toString(),

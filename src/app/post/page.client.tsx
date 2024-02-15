@@ -283,8 +283,13 @@ export default function Root() {
                     images.push(image)
                 }
 
-                if (getOGPData && OGPImage.length > 0 && postObj.embed) {
-                    postObj.embed.thumb = {
+                if (
+                    getOGPData &&
+                    OGPImage.length > 0 &&
+                    postObj.embed &&
+                    postObj.embed.external
+                ) {
+                    ;(postObj.embed.external as any).thumb = {
                         $type: "blob",
                         ref: {
                             $link: uploadBlobRes?.data?.blob.ref.toString(),
@@ -310,6 +315,7 @@ export default function Root() {
                     ],
                 }
             }
+
             await agent.post(postObj)
 
             //queryClient.clear() 動く
