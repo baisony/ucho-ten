@@ -91,7 +91,6 @@ const PageClient = () => {
             swiperRef.current &&
             menuIndex !== swiperRef.current.activeIndex
         ) {
-            console.log(menuIndex)
             swiperRef.current.slideTo(menuIndex)
         }
     }, [currentMenuType, menuIndex, swiperRef.current])
@@ -100,7 +99,6 @@ const PageClient = () => {
         if (!agent) return
         try {
             const { data } = await agent.getProfile({ actor: username })
-            console.log(data)
             const user = data.viewer
             if (user?.muted || user?.blockedBy || user?.blocking) {
                 setHidden(true)
@@ -114,7 +112,6 @@ const PageClient = () => {
 
     useEffect(() => {
         if (!agent) return
-        console.log(agent)
         void fetchProfile()
     }, [agent])
 
@@ -155,7 +152,8 @@ const PostPage = (props: PostPageProps) => {
 
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
+    //const [isEndOfFeed, setIsEndOfFeed] = useState(false)
+    const isEndOfFeedRef = useRef(false)
     const [profile, setProfile] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
@@ -165,6 +163,9 @@ const PostPage = (props: PostPageProps) => {
     const virtuosoRef = useRef(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const [zenMode] = useZenMode()
+
+    //const [isFetchingTimeline, setIsFetchingTimeline] = useState(false)
+    const isFetchingTimeline = useRef<boolean>(false)
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -247,9 +248,10 @@ const PostPage = (props: PostPageProps) => {
             return
         }
 
-        if (isEndOfFeed) return
+        if (isEndOfFeedRef.current || isFetchingTimeline.current) return
 
         try {
+            isFetchingTimeline.current = true
             const { data } = await agent.getAuthorFeed({
                 actor: username,
                 cursor: cursor.current,
@@ -258,14 +260,14 @@ const PostPage = (props: PostPageProps) => {
                 data.feed.length === 0 &&
                 (cursor.current === data.cursor || !data.cursor)
             ) {
-                setIsEndOfFeed(true)
+                isEndOfFeedRef.current = true
             }
 
             if (data) {
                 if (data.cursor) {
                     cursor.current = data.cursor
                 } else {
-                    setIsEndOfFeed(true)
+                    isEndOfFeedRef.current = true
                 }
 
                 const { feed } = data
@@ -292,7 +294,6 @@ const PostPage = (props: PostPageProps) => {
                     setHasMore(true)
                 }
             } else {
-                console.log("Responseがundefinedです。")
                 setHasMore(false)
             }
         } catch (e) {
@@ -300,6 +301,7 @@ const PostPage = (props: PostPageProps) => {
             console.error(e)
         } finally {
             //setLoading(false)
+            isFetchingTimeline.current = false
         }
     }
 
@@ -314,6 +316,7 @@ const PostPage = (props: PostPageProps) => {
     }
 
     const loadMore = async () => {
+        if (isEndOfFeedRef.current) return
         await fetchTimeline()
     }
 
@@ -326,103 +329,15 @@ const PostPage = (props: PostPageProps) => {
     useEffect(() => {
         if (!agent) return
         void fetchProfile()
-    }, [agent, username])
+    }, [agent])
 
     const onClickDomain = (domain: string) => {
         router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
     }
 
-    const handleValueChange = (newValue: any) => {
-        console.log(newValue)
-        console.log(timeline)
-        if (!timeline) return
-        const foundObject = timeline.findIndex(
-            (item) => item.post.uri === newValue.postUri
-        )
-
-        if (foundObject !== -1) {
-            console.log(timeline[foundObject])
-            switch (newValue.reaction) {
-                case "like":
-                    setTimeline((prevData) => {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-ignore
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.like =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unlike":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.like =
-                                undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "repost":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                newValue.reactionUri
-                        }
-                        return updatedData
-                    })
-                    break
-                case "unrepost":
-                    setTimeline((prevData) => {
-                        //@ts-ignore
-                        const updatedData = [...prevData]
-                        if (
-                            updatedData[foundObject] &&
-                            updatedData[foundObject].post &&
-                            updatedData[foundObject].post.viewer
-                        ) {
-                            updatedData[foundObject].post.viewer.repost =
-                                undefined
-                        }
-                        return updatedData
-                    })
-                    break
-                case "delete":
-                    setTimeline((prevData) => {
-                        const updatedData = [...prevData]
-                        updatedData.splice(foundObject, 1)
-                        return updatedData
-                    })
-                //timeline.splice(foundObject, 1)
-            }
-            console.log(timeline)
-        } else {
-            console.log(
-                "指定されたURIを持つオブジェクトは見つかりませんでした。"
-            )
-        }
-    }
-
     const handleSaveScrollPosition = () => {
-        console.log("save")
         //@ts-ignore
         virtuosoRef?.current?.getState((state) => {
-            console.log(state)
             if (
                 state.scrollTop !==
                 //@ts-ignore
@@ -511,8 +426,6 @@ const PostPage = (props: PostPageProps) => {
                 }
             })
 
-            console.log("timelineData", timelineData)
-
             data = [...data, ...timelineData]
         }
 
@@ -600,7 +513,6 @@ const UserProfileComponent = ({
     const [onHoverButton, setOnHoverButton] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isMuted, setIsMuted] = useState(!!profile?.viewer?.muted)
-    //console.log(profile)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
     const [description, setDescription] = useState(profile?.description)
@@ -666,7 +578,6 @@ const UserProfileComponent = ({
         const selectedFile = event.target.files[0]
 
         // 選択されたファイルに対する処理を行う
-        console.log("選択されたファイル:", selectedFile)
         setBanner(selectedFile)
     }
     const handleAvatarClick = (event: any) => {
@@ -674,15 +585,12 @@ const UserProfileComponent = ({
         const selectedFile = event.target.files[0]
 
         // 選択されたファイルに対する処理を行う
-        console.log("選択されたファイル:", selectedFile)
         setAvatar(selectedFile)
     }
     const handleSaveClick = async () => {
         if (!agent) {
             return
         }
-        console.log(banner)
-        console.log(avatar)
 
         try {
             setIsUploading(true)
@@ -808,7 +716,6 @@ const UserProfileComponent = ({
             navigator.clipboard
                 .writeText(text)
                 .then(() => {
-                    console.log("Copy successful")
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     //@ts-ignore
                     setCopyContent(key)
@@ -823,15 +730,11 @@ const UserProfileComponent = ({
     const handleMute = async () => {
         if (isLoading) return
         setIsLoading(true)
-        console.log(profile)
-        console.log(!isMuted)
         if (isMuted) {
             const res = await agent?.unmute(profile.did)
-            console.log(res)
             setIsMuted(!isMuted)
         } else {
             const res = await agent?.mute(profile.did)
-            console.log(res)
             setIsMuted(!isMuted)
         }
         setIsLoading(false)
@@ -1319,7 +1222,6 @@ const UserProfileComponent = ({
                                         const res = await agent.deleteFollow(
                                             profile.viewer.following
                                         )
-                                        console.log(res)
                                         setIsFollowing(false)
                                         profile.viewer.following = undefined
                                     } catch (e) {}
@@ -1331,7 +1233,6 @@ const UserProfileComponent = ({
                                         const res = await agent.follow(
                                             profile.did
                                         )
-                                        console.log(res)
                                         setIsFollowing(true)
                                         profile.viewer.following = res.cid
                                     } catch (e) {
