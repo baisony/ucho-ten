@@ -257,21 +257,6 @@ export default function Root() {
             }
 
             if (getOGPData) {
-                if (blobRefs.length > 0) {
-                    console.log("logegegege")
-                    const images: AppBskyEmbedImages.Image[] = []
-
-                    for (const [index, blobRef] of blobRefs.entries()) {
-                        const image: AppBskyEmbedImages.Image = {
-                            image: blobRef,
-                            alt: altOfImageList[index],
-                        }
-
-                        images.push(image)
-
-                        // indexを使用する
-                    }
-                }
                 postObj.embed = {
                     $type: "app.bsky.embed.external",
                     external: {
@@ -284,25 +269,35 @@ export default function Root() {
                             : "",
                     },
                 } as any
+            }
 
-                if (blobRefs.length > 0) {
-                    // Check if postObj.embed exists before accessing its properties
-                    if (postObj.embed && postObj.embed.external) {
-                        ;(postObj.embed.external as any).thumb = {
-                            $type: "blob",
-                            ref: {
-                                $link: uploadBlobRes?.data?.blob.ref.toString(),
-                            },
-                            mimeType: uploadBlobRes?.data?.blob.mimeType,
-                            size: uploadBlobRes?.data?.blob.size,
-                        }
+            if (blobRefs.length > 0) {
+                const images: AppBskyEmbedImages.Image[] = []
+
+                for (const [index, blobRef] of blobRefs.entries()) {
+                    const image: AppBskyEmbedImages.Image = {
+                        image: blobRef,
+                        alt: altOfImageList[index],
                     }
+
+                    images.push(image)
                 }
-            } else {
-                postObj.embed = {
-                    $type: "app.bsky.embed.images",
-                    images,
-                } as AppBskyEmbedImages.Main
+
+                if (getOGPData && OGPImage.length > 0 && postObj.embed) {
+                    postObj.embed.thumb = {
+                        $type: "blob",
+                        ref: {
+                            $link: uploadBlobRes?.data?.blob.ref.toString(),
+                        },
+                        mimeType: uploadBlobRes?.data?.blob.mimeType,
+                        size: uploadBlobRes?.data?.blob.size,
+                    }
+                } else {
+                    postObj.embed = {
+                        $type: "app.bsky.embed.images",
+                        images,
+                    } as AppBskyEmbedImages.Main
+                }
             }
 
             if (adultContent && (getOGPData || contentImages.length > 0)) {
