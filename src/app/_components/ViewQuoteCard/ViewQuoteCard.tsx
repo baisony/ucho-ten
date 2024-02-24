@@ -98,8 +98,9 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
-                                        href={`/profile/${postJson?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                        href={`/profile/${
+                                            postJson?.author.did
+                                        }?${nextQueryParams.toString()}`}
                                     >
                                         {isSkeleton ? (
                                             <Skeleton
@@ -129,8 +130,9 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
-                                        href={`/profile/${postJson?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                        href={`/profile/${
+                                            postJson?.author.did
+                                        }?${nextQueryParams.toString()}`}
                                     >
                                         {isSkeleton ? (
                                             <Skeleton
@@ -150,8 +152,9 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
-                                        href={`/profile/${postJson?.author
-                                            .did}?${nextQueryParams.toString()}`}
+                                        href={`/profile/${
+                                            postJson?.author.did
+                                        }?${nextQueryParams.toString()}`}
                                     >
                                         {isSkeleton ? (
                                             <Skeleton
