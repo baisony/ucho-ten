@@ -207,10 +207,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         syncBookmarks
     )
 
-    const handleReply = async () => {
-        onOpenReply()
-    }
-
     const handleInputChange = (
         reaction: string,
         postUri: string,
@@ -757,7 +753,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                             ?.replyDisabled
                                                     )
                                                         return
-                                                    await handleReply()
+                                                    await onOpenReply()
                                                 }}
                                                 className={"h-full w-full"}
                                             />

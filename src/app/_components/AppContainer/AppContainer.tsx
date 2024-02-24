@@ -40,6 +40,7 @@ import { useServiceWorkerRegistration } from "@/app/_components/AppContainer/lib
 import { useSystemAppearanceColor } from "@/app/_components/AppContainer/lib/useSystemAppearanceColor"
 import { useUpdateTabQueryParam } from "@/app/_components/AppContainer/lib/useUpdateTabQueryParam"
 import { useThemeColorSetting } from "@/app/_components/AppContainer/lib/useThemeColorSetting"
+import { usePrefetchRoutes } from "@/app/_components/AppContainer/lib/usePrefetchRoutes"
 
 const ViewLightbox = dynamic(
     () =>
@@ -88,18 +89,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
 
     const { background } = layout()
 
-    useEffect(() => {
-        router.prefetch("/")
-        router.prefetch("/home")
-        router.prefetch("/login")
-        router.prefetch("/search")
-        router.prefetch("/u-tab")
-        router.prefetch("/inbox")
-        router.prefetch("/post")
-        router.prefetch("/settings")
-        router.prefetch("/bookmarks")
-        router.prefetch("/feeds")
-    }, [])
+    usePrefetchRoutes(router)
 
     const refreshSession = useRefreshSession(
         agent,
