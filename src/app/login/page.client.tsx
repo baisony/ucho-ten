@@ -15,11 +15,13 @@ import { isMobile } from "react-device-detect"
 import "./shakeButton.css"
 import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useCurrentMenuType } from "@/app/_atoms/headerMenu"
+import { useAgent } from "@/app/_atoms/agent"
 
 export default function CreateLoginPage() {
     const [, setCurrentMenuType] = useCurrentMenuType()
     const router = useRouter()
     const [accounts, setAccounts] = useAccounts()
+    const [agent, setAgent] = useAgent()
     const [loading, setLoading] = useState(false)
     const [user, setUser] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -32,6 +34,8 @@ export default function CreateLoginPage() {
         useState<boolean>(false)
     const [, setIsUserInfoIncorrect] = useState<boolean>(false)
     const [, setIsServerError] = useState<boolean>(false)
+    const [defaultService, setDefaultService] = useState<string>()
+    const [defaultIdentity, setDefaultIdentity] = useState<string>()
     const {
         background,
         LoginForm,
@@ -97,6 +101,7 @@ export default function CreateLoginPage() {
                 }
 
                 setAccounts(existingAccountsData)
+                setAgent(agent)
             }
 
             if (toRedirect) {
@@ -132,38 +137,6 @@ export default function CreateLoginPage() {
 
     useLayoutEffect(() => {
         setCurrentMenuType("login")
-        const resumesession = async () => {
-            try {
-                const server = headerAndSlash(pds.current)
-                const agent = new BskyAgent({
-                    service: `https://${server}`,
-                })
-                const storedData = localStorage.getItem("session")
-                if (storedData) {
-                    const { session } = JSON.parse(storedData)
-                    console.log(await agent.resumeSession(session))
-
-                    if (toRedirect) {
-                        const url = `/${toRedirect}${
-                            searchParams ? `&${searchParams}` : ``
-                        }`
-                        const paramName = "toRedirect"
-
-                        router.push(
-                            url.replace(
-                                new RegExp(`[?&]${paramName}=[^&]*(&|$)`, "g"), // パラメータを正確に一致させる正規表現
-                                "?"
-                            )
-                        )
-                    } else {
-                        router.push("/home")
-                    }
-                }
-            } catch (e) {
-                console.log(e)
-            }
-        }
-        void resumesession()
     }, [])
 
     useEffect(() => {
@@ -177,6 +150,13 @@ export default function CreateLoginPage() {
         }
     }, [identifierIsByAutocomplete, passwordIsByAutocomplete, user, password])
 
+    useLayoutEffect(() => {
+        if (!agent) return
+        pds.current = agent?.service.host
+        setDefaultService(agent?.service.host)
+        setDefaultIdentity(agent?.session?.handle)
+    }, [agent])
+
     return (
         <main className={background()}>
             <div className={LoginForm()}>
@@ -184,10 +164,6 @@ export default function CreateLoginPage() {
                     <FontAwesomeIcon
                         className={"ml-[4px] text-xl"}
                         icon={faLink}
-                    />
-                    <FontAwesomeIcon
-                        className={"absolute right-[10px] text-xl"}
-                        icon={faList}
                     />
                     <input
                         type={"url"}
@@ -208,7 +184,8 @@ export default function CreateLoginPage() {
                         className={
                             "h-full w-full bg-transparent ml-[12.5px] text-base font-bold outline-none"
                         }
-                        placeholder={"bsky.social (default)"}
+                        placeholder={"bsky.social"}
+                        defaultValue={defaultService}
                     />
                 </div>
                 <div className={LoginFormHandle({ error: isLoginFailed })}>
@@ -235,7 +212,8 @@ export default function CreateLoginPage() {
                         className={
                             "h-full w-full bg-transparent ml-[16.5px] text-base font-bold outline-none"
                         }
-                        placeholder={"handle, did, e-mail"}
+                        placeholder={"handle  did  Email"}
+                        defaultValue={defaultIdentity}
                         //autocompleteをした時に背景色を設定されないようにする
                         //style={{WebkitTextFillColor:'white !important', WebkitBoxShadow:'0 0 0px 1000px inset #000000',caretColor: 'white !important' }}
                     />
