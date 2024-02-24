@@ -127,14 +127,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         zenMode,
     } = props
 
-    const postJsonData = useMemo((): ViewRecord | PostView | null => {
-        return quoteJson || postJson || null
-    }, [postJson, quoteJson])
+    const postJsonData = useMemo(
+        () => quoteJson || postJson || null,
+        [postJson, quoteJson]
+    )
 
     const postView = useMemo((): PostView | null => {
-        if (quoteJson) {
-            return null
-        } else if (postJson) {
+        if (postJson) {
             return postJson
         } else {
             return null
@@ -165,7 +164,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
 
     const [userPreference] = useUserPreferencesAtom()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
-    const warningReason = useRef<string>("")
+    const warningReason = useRef<string | null | undefined>("")
     const [bookmarks, setBookmarks] = useBookmarks()
     const [contentFontSize] = useContentFontSize()
     const isTranslated = useRef<boolean>(false)
@@ -270,13 +269,15 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
 
     const handleImageClick = useHandleImageClick(setImageGallery)
 
-    useContentLabels(
-        userPreference,
-        postJson,
-        quoteJson,
-        handleInputChange,
-        setContentWarning
-    )
+    useLayoutEffect(() => {
+        warningReason.current = useContentLabels(
+            userPreference,
+            postJson,
+            quoteJson,
+            handleInputChange,
+            setContentWarning
+        )
+    }, [userPreference, postJson, quoteJson])
 
     useLayoutEffect(() => {
         const shouldDeletePost = (viewer: any) =>

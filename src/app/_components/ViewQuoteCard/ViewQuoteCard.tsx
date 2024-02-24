@@ -1,16 +1,13 @@
-import { memo, useCallback, useMemo } from "react"
+import { memo, useMemo } from "react"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { Linkcard } from "../Linkcard"
 import { ScrollShadow, Skeleton } from "@nextui-org/react"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
-import {
-    ImageGalleryObject,
-    ImageObject,
-    useImageGalleryAtom,
-} from "@/app/_atoms/imageGallery"
+import { useImageGalleryAtom } from "@/app/_atoms/imageGallery"
 import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import useHandleImageClick from "@/app/_components/ViewPostCard/lib/handleDisplayImage"
 
 interface Props {
     className?: string
@@ -52,45 +49,7 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
         skeletonText2line,
     } = viewQuoteCard()
 
-    const handleImageClick = useCallback(
-        (index: number) => {
-            if (
-                postJson?.embed?.images &&
-                Array.isArray(postJson.embed.images)
-            ) {
-                const images: ImageObject[] = []
-
-                for (const image of postJson.embed.images) {
-                    const currentImage: ImageObject = {
-                        fullsize: "",
-                        alt: "",
-                    }
-
-                    if (typeof image.fullsize === "string") {
-                        currentImage.fullsize = image.fullsize
-                    }
-
-                    if (typeof image.alt === "string") {
-                        currentImage.alt = image.alt
-                    }
-
-                    if (currentImage.fullsize.length > 0) {
-                        images.push(currentImage)
-                    }
-                }
-
-                if (images.length > 0) {
-                    const gelleryObject: ImageGalleryObject = {
-                        images,
-                        index,
-                    }
-
-                    setImageGallery(gelleryObject)
-                }
-            }
-        },
-        [postJson]
-    )
+    const handleImageClick = useHandleImageClick(setImageGallery)
 
     const renderTextWithLinks = useMemo(() => {
         if (!postJson?.value && !postJson?.record?.text) return
@@ -139,9 +98,8 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
-                                        href={`/profile/${
-                                            postJson?.author.did
-                                        }?${nextQueryParams.toString()}`}
+                                        href={`/profile/${postJson?.author
+                                            .did}?${nextQueryParams.toString()}`}
                                     >
                                         {isSkeleton ? (
                                             <Skeleton
@@ -171,9 +129,8 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
-                                        href={`/profile/${
-                                            postJson?.author.did
-                                        }?${nextQueryParams.toString()}`}
+                                        href={`/profile/${postJson?.author
+                                            .did}?${nextQueryParams.toString()}`}
                                     >
                                         {isSkeleton ? (
                                             <Skeleton
@@ -193,9 +150,8 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
-                                        href={`/profile/${
-                                            postJson?.author.did
-                                        }?${nextQueryParams.toString()}`}
+                                        href={`/profile/${postJson?.author
+                                            .did}?${nextQueryParams.toString()}`}
                                     >
                                         {isSkeleton ? (
                                             <Skeleton
@@ -280,6 +236,9 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                                         }
                                                                         onClick={() => {
                                                                             handleImageClick(
+                                                                                postJson
+                                                                                    .embed
+                                                                                    .images,
                                                                                 index
                                                                             )
                                                                         }}

@@ -1,5 +1,4 @@
 // useContentLabels.ts
-import { useLayoutEffect, useRef } from "react"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 
@@ -33,57 +32,55 @@ const useContentLabels = (
     ) => void,
     setContentWarning: (value: boolean) => void
 ) => {
-    const warningReason = useRef<string | null>(null)
+    if (!userPreference) {
+        return
+    }
 
-    useLayoutEffect(() => {
-        if (!userPreference) {
-            return
-        }
+    const post = postJson || quoteJson
 
-        const post = postJson || quoteJson
+    if (!post || !post.labels || post.labels.length === 0) {
+        return
+    }
 
-        if (!post || !post.labels || post.labels.length === 0) {
-            return
-        }
+    let warningReason: string | null | undefined = ""
 
-        post.labels.forEach((label) => {
-            const labelType = LABEL_ACTIONS[label.val]
-            if (labelType) {
-                const { label: warningLabel, key } = labelType
-                switch (key) {
-                    case "nsfw":
-                    case "suggestive":
-                    case "nudity":
-                        if (!userPreference.adultContentEnabled) {
-                            handleInputChange("delete", postJson?.uri || "", "")
-                        }
-                    case "hate":
-                    case "spam":
-                    case "impersonation":
-                    case "gore":
-                        const action =
-                            userPreference.contentLabels?.[
-                                key === "suggestive" || key === "nudity"
-                                    ? "nsfw"
-                                    : key
-                            ]
-                        if (action === "warn") {
-                            setContentWarning(true)
-                            warningReason.current = warningLabel
-                        } else if (action === "hide") {
-                            handleInputChange("delete", postJson?.uri || "", "")
-                        }
-                        break
-                    default:
-                        break
-                }
-            } else {
-                console.log(label)
+    post.labels.forEach((label) => {
+        const labelType = LABEL_ACTIONS[label.val]
+        if (labelType) {
+            const { label: warningLabel, key } = labelType
+            switch (key) {
+                case "nsfw":
+                case "suggestive":
+                case "nudity":
+                    if (!userPreference.adultContentEnabled) {
+                        handleInputChange("delete", postJson?.uri || "", "")
+                    }
+                case "hate":
+                case "spam":
+                case "impersonation":
+                case "gore":
+                    const action =
+                        userPreference.contentLabels?.[
+                            key === "suggestive" || key === "nudity"
+                                ? "nsfw"
+                                : key
+                        ]
+                    if (action === "warn") {
+                        setContentWarning(true)
+                        warningReason = warningLabel
+                    } else if (action === "hide") {
+                        handleInputChange("delete", postJson?.uri || "", "")
+                    }
+                    break
+                default:
+                    break
             }
-        })
-    }, [userPreference, postJson, quoteJson])
+        } else {
+            console.log(label)
+        }
+    })
 
-    return warningReason.current
+    return warningReason
 }
 
 export default useContentLabels
