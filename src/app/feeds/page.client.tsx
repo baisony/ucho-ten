@@ -222,6 +222,7 @@ const MyFeedsPage = () => {
                         onDragEnd={handleDragEnd}
                     >
                         <SortableContext
+                            //@ts-ignore
                             items={savedFeeds}
                             strategy={verticalListSortingStrategy}
                         >
