@@ -15,6 +15,8 @@ type Props = {
     isPinned: boolean
     agent: BskyAgent | null
     setFeedGenerators: (data: GeneratorView[]) => void
+    draggable: boolean
+    handlePinnedClick: (pinnedStats: boolean, feed: GeneratorView) => void
 }
 
 export const SortableItem: FC<Props> = ({
@@ -22,6 +24,8 @@ export const SortableItem: FC<Props> = ({
     isPinned,
     agent,
     setFeedGenerators,
+    draggable,
+    handlePinnedClick,
 }: Props) => {
     const router = useRouter()
     const { attributes, listeners, setNodeRef, transform, transition } =
@@ -52,6 +56,7 @@ export const SortableItem: FC<Props> = ({
             } else if (!pinnedStats) {
                 await agent.addPinnedFeed(item.uri)
             }
+            handlePinnedClick(pinnedStats, item)
             setIsPinnedState(!pinnedStats)
         } finally {
             setLoading(false)
@@ -77,7 +82,7 @@ export const SortableItem: FC<Props> = ({
                 >
                     <FontAwesomeIcon
                         icon={faBars}
-                        className={"text-black cursor-move"}
+                        className={`text-black cursor-move ${!draggable && `invisible`}`}
                     />
                 </div>
                 <div className={"ml-[10px] text-black flex items-center"}>

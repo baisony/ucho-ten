@@ -77,12 +77,13 @@ export default PageClient
 const MyFeedsPage = () => {
     const [agent] = useAgent()
     const { t } = useTranslation()
-    const [nextQueryParams] = useNextQueryParamsAtom()
-    const { background, FeedCard } = layout()
-    const [userPreferences, setUserPreferences] = useState<any>(undefined)
+    const { background } = layout()
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<GeneratorView[]>([])
     const [pinnedFeeds, setPinnedFeeds] = useState<GeneratorView[]>([])
+    const [onlySavedFeeds, setOnlySavedFeeds] = useState<
+        GeneratorView[] | undefined
+    >([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -98,7 +99,6 @@ const MyFeedsPage = () => {
         try {
             setIsFetching(true)
             const { feeds } = await agent.getPreferences()
-            setUserPreferences(feeds)
             const saved = await agent.app.bsky.feed.getFeedGenerators({
                 feeds: feeds.saved as string[],
             })
@@ -111,7 +111,12 @@ const MyFeedsPage = () => {
             })
             console.log(saved.data.feeds)
             setSavedFeeds((saved.data as any).feeds || [])
-            setPinnedFeeds((pinned.data as any).feeds || [])
+            setPinnedFeeds(
+                (pinned.data as any).feeds.map((feed: { uri: string }) => ({
+                    ...feed,
+                    id: feed.uri,
+                }))
+            )
             setIsFetching(false)
         } catch (e) {
             setIsFetching(false)
@@ -142,13 +147,6 @@ const MyFeedsPage = () => {
         void fetchFeeds()
     }, [agent])
 
-    const uriToURL = (uri: string) => {
-        const transform_uri = new AtUri(uri)
-        return `/profile/${transform_uri.hostname}/feed/${
-            transform_uri.rkey
-        }?${nextQueryParams.toString()}` as string
-    }
-
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -165,12 +163,12 @@ const MyFeedsPage = () => {
         }
 
         if (active.id !== over.id) {
-            const oldIndex = savedFeeds.findIndex((v) => v.id === active.id)
-            const newIndex = savedFeeds.findIndex((v) => v.id === over.id)
-            setSavedFeeds(arrayMove(savedFeeds, oldIndex, newIndex))
+            const oldIndex = pinnedFeeds.findIndex((v) => v.id === active.id)
+            const newIndex = pinnedFeeds.findIndex((v) => v.id === over.id)
+            setPinnedFeeds(arrayMove(pinnedFeeds, oldIndex, newIndex))
             await agent.setSavedFeeds(
-                arrayMove(savedFeeds, oldIndex, newIndex).map((v) => v.uri),
-                pinnedFeeds.map((v) => v.uri)
+                savedFeeds.map((v) => v.uri),
+                arrayMove(pinnedFeeds, oldIndex, newIndex).map((v) => v.uri)
             )
             await handleUpdateMenuWithFeedGenerators()
         }
@@ -188,14 +186,12 @@ const MyFeedsPage = () => {
 
         const data = await agent.getPreferences()
         if (!data?.feeds?.pinned) return
-        console.log(await data.feeds)
         const { data: feedsData } = await agent.app.bsky.feed.getFeedGenerators(
             {
                 feeds: data.feeds.pinned,
             }
         )
         const feeds = await feedsData.feeds
-        console.log(feeds)
         useUpdateMenuWithFeedGenerators(
             feeds,
             headerMenusByHeader,
@@ -203,8 +199,47 @@ const MyFeedsPage = () => {
         )
     }
 
-    console.log(savedFeeds)
-    console.log(pinnedFeeds)
+    useEffect(() => {
+        const findDifference = () => {
+            if (savedFeeds.length === 0) return
+            // 現在のビューの uri をセットに格納
+            const currentSet = new Set(pinnedFeeds.map((view) => view.uri))
+
+            const addedViews: GeneratorView[] = []
+
+            // 現在のビューをループ
+            for (const current of savedFeeds) {
+                // 現在のビューの uri が前回のビューのセットに含まれていない場合は追加されたビューとして追加
+                if (!currentSet.has(current.uri)) {
+                    addedViews.push(current)
+                }
+            }
+            return addedViews
+        }
+
+        setOnlySavedFeeds(findDifference())
+    }, [savedFeeds])
+
+    const handlePinnedClick = async (
+        pinnedStats: boolean,
+        feed: GeneratorView
+    ) => {
+        if (!agent || isLoading) return
+        try {
+            if (pinnedStats) {
+                await agent.removePinnedFeed(feed.uri)
+                setPinnedFeeds(pinnedFeeds.filter((v) => v.uri !== feed.uri))
+                setSavedFeeds([...savedFeeds, feed])
+            } else {
+                await agent.addPinnedFeed(feed.uri)
+                setPinnedFeeds([...pinnedFeeds, feed])
+                setSavedFeeds(savedFeeds.filter((v) => v.uri !== feed.uri))
+            }
+            handleUpdateMenuWithFeedGenerators()
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     return (
         <div className={"h-full w-full z-[1]"}>
@@ -240,7 +275,7 @@ const MyFeedsPage = () => {
             </Modal>
             <div className={"overflow-hidden overflow-y-auto"}>
                 <DummyHeader />
-                {savedFeeds.length === 0 && (
+                {pinnedFeeds.length === 0 && (
                     <div
                         className={`${background()} w-full h-full flex items-center justify-center`}
                     >
@@ -258,33 +293,60 @@ const MyFeedsPage = () => {
                         )}
                     </div>
                 )}
-                {savedFeeds.length !== 0 && (
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            //@ts-ignore
-                            items={savedFeeds}
-                            strategy={verticalListSortingStrategy}
+                {pinnedFeeds.length !== 0 && (
+                    <>
+                        <div>Pinned Feeds</div>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
                         >
-                            <ul className={"p-1"}>
-                                {savedFeeds.map((item) => (
-                                    <SortableItem
-                                        key={item.uri}
-                                        item={item}
-                                        agent={agent}
-                                        isPinned={isUriMatch(
-                                            pinnedFeeds,
-                                            item.uri
-                                        )}
-                                        setFeedGenerators={setFeedGenerators}
-                                    />
-                                ))}
-                            </ul>
-                        </SortableContext>
-                    </DndContext>
+                            <SortableContext
+                                //@ts-ignore
+                                items={pinnedFeeds}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <ul className={"p-1"}>
+                                    {pinnedFeeds.map((item) => (
+                                        <SortableItem
+                                            key={item.uri}
+                                            item={item}
+                                            agent={agent}
+                                            draggable={true}
+                                            isPinned={isUriMatch(
+                                                pinnedFeeds,
+                                                item.uri
+                                            )}
+                                            setFeedGenerators={
+                                                setFeedGenerators
+                                            }
+                                            handlePinnedClick={
+                                                handlePinnedClick
+                                            }
+                                        />
+                                    ))}
+                                </ul>
+                            </SortableContext>
+                        </DndContext>
+                    </>
+                )}
+                {onlySavedFeeds?.length !== 0 && (
+                    <>
+                        <div>Saved Feeds</div>
+                        <ul className={"p-1"}>
+                            {onlySavedFeeds?.map((item) => (
+                                <SortableItem
+                                    key={item.uri}
+                                    item={item}
+                                    agent={agent}
+                                    isPinned={false}
+                                    setFeedGenerators={setFeedGenerators}
+                                    handlePinnedClick={handlePinnedClick}
+                                    draggable={false}
+                                />
+                            ))}
+                        </ul>
+                    </>
                 )}
             </div>
         </div>
