@@ -76,7 +76,7 @@ const MyFeedsPage = () => {
     const [userPreferences, setUserPreferences] = useState<any>(undefined)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [savedFeeds, setSavedFeeds] = useState<GeneratorView[]>([])
-    const [, setPinnedFeeds] = useState<GeneratorView[]>([])
+    const [pinnedFeeds, setPinnedFeeds] = useState<GeneratorView[]>([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -161,7 +161,15 @@ const MyFeedsPage = () => {
         }
     }
 
+    function isUriMatch(
+        feedItem: GeneratorView[],
+        uriToCheck: string
+    ): boolean {
+        return feedItem.some((item) => item.uri === uriToCheck)
+    }
+
     console.log(savedFeeds)
+    console.log(pinnedFeeds)
 
     return (
         <div className={"h-full w-full z-[1]"}>
@@ -228,7 +236,15 @@ const MyFeedsPage = () => {
                         >
                             <ul className={"p-1"}>
                                 {savedFeeds.map((item) => (
-                                    <SortableItem key={item.uri} item={item} />
+                                    <SortableItem
+                                        key={item.uri}
+                                        item={item}
+                                        agent={agent}
+                                        isPinned={isUriMatch(
+                                            pinnedFeeds,
+                                            item.uri
+                                        )}
+                                    />
                                 ))}
                             </ul>
                         </SortableContext>
