@@ -1,7 +1,9 @@
 import { useCallback } from "react"
-import { BskyAgent } from "@atproto/api"
-import { AppBskyFeedGetTimeline } from "@atproto/api"
+import { AppBskyFeedGetTimeline, BskyAgent } from "@atproto/api"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
+import { useFilterPosts } from "@/app/_lib/useFilterPosts"
+import { PostView } from "@atproto/api/src/client/types/app/bsky/feed/defs"
+import { MuteWord } from "@/app/_atoms/wordMute"
 
 interface ResponseObject {
     status: number
@@ -20,9 +22,10 @@ export const useCheckNewTimeline = (
     latestCID: React.MutableRefObject<string>, // 適切な型に置き換えてください
     setNewTimeline: (newTimeline: any[]) => void, // 適切な型に置き換えてください
     setHasUpdate: (hasUpdate: boolean) => void, // 適切な型に置き換えてください
-    setHasError: (error: any) => void // 適切な型に置き換えてください
+    setHasError: (error: any) => void, // 適切な型に置き換えてください
+    muteWords: MuteWord[]
 ) => {
-    const checkNewTimeline = useCallback(async () => {
+    return useCallback(async () => {
         if (!agent) return
         shouldCheckUpdate.current = false
 
@@ -55,14 +58,14 @@ export const useCheckNewTimeline = (
                               hideRepost
                           )
                         : feed
-                //@ts-ignore
-                const muteWordFilter = filterPosts(filteredData)
+                const muteWordFilter = useFilterPosts(filteredData, muteWords)
 
                 setNewTimeline(muteWordFilter)
 
                 if (muteWordFilter.length > 0) {
                     if (
-                        muteWordFilter[0].post.cid !== latestCID.current &&
+                        (muteWordFilter[0]?.post as PostView)?.cid !==
+                            latestCID.current &&
                         latestCID.current !== ""
                     ) {
                         setHasUpdate(true)
@@ -72,12 +75,13 @@ export const useCheckNewTimeline = (
                 }
             }
         } catch (e) {
-            console.error(e)
-            //@ts-ignore
-            if (JSON.parse(e).status === 1) return
-            setHasError(e as ResponseObject)
+            try {
+                //@ts-ignore
+                if (JSON.parse(e).status === 1) return
+                setHasError(e as ResponseObject)
+            } catch (e) {
+                console.error(e)
+            }
         }
     }, [agent])
-
-    return checkNewTimeline
 }

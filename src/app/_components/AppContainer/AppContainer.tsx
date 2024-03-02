@@ -266,24 +266,22 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
             }}
         >
             <div id="burger-outer-container" className={"h-full w-full"}>
-                {document?.getElementById("main-container") && (
-                    <BurgerPush
-                        className={"backdrop-blur-[5px]"}
-                        outerContainerId={"burger-outer-container"}
-                        pageWrapId={"main-container"}
-                        styles={burgerMenuStyles}
-                        isOpen={drawerOpen}
-                        onClose={() => {
-                            setDrawerOpen(false)
-                        }}
-                    >
-                        <ViewSideBar
-                            isSideBarOpen={drawerOpen}
-                            openSideBar={handleSideBarOpen}
-                            isMobile={isMobile}
-                        />
-                    </BurgerPush>
-                )}
+                <BurgerPush
+                    className={"backdrop-blur-[5px]"}
+                    outerContainerId={"burger-outer-container"}
+                    pageWrapId={"main-container"}
+                    styles={burgerMenuStyles}
+                    isOpen={drawerOpen}
+                    onClose={() => {
+                        setDrawerOpen(false)
+                    }}
+                >
+                    <ViewSideBar
+                        isSideBarOpen={drawerOpen}
+                        openSideBar={handleSideBarOpen}
+                        isMobile={isMobile}
+                    />
+                </BurgerPush>
                 <main
                     id="main-container"
                     className={background()}

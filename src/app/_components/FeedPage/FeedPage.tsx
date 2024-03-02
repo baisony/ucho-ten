@@ -34,6 +34,7 @@ import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveS
 import { useHandleValueChange } from "@/app/_components/FeedPage/hooks/useHandleValueChange"
 import { useLazyCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useLazyCheckNewTimeline"
 import { useCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useCheckNewTimeline"
+import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
@@ -117,22 +118,6 @@ const FeedPage = memo(
             }
         }, [hasMore])
 
-        const filterPosts = (posts: FeedViewPost[]) => {
-            return posts.filter((post) => {
-                return !muteWords.some((muteWord) => {
-                    if (muteWord.isActive) {
-                        const textToCheck =
-                            //@ts-ignore
-                            post.post?.embed?.record?.value?.text ||
-                            //@ts-ignore
-                            post.post?.record?.text
-                        return textToCheck?.includes(muteWord.word)
-                    }
-                    return false
-                })
-            })
-        }
-
         const checkNewTimeline = useCheckNewTimeline(
             agent,
             feedKey,
@@ -143,7 +128,8 @@ const FeedPage = memo(
             latestCID,
             setNewTimeline,
             setHasUpdate,
-            setHasError
+            setHasError,
+            muteWords
         )
 
         useEffect(() => {
@@ -211,16 +197,20 @@ const FeedPage = memo(
                                   hideRepost
                               )
                             : posts
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
+                    const muteWordFilter = useFilterPosts(
+                        filteredData,
+                        muteWords
+                    )
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
-                            latestCID.current = muteWordFilter[0].post.cid
+                            latestCID.current = (
+                                muteWordFilter[0].post as PostView
+                            ).cid
                         }
                     }
 
-                    setTimeline((currentTimeline) => {
+                    setTimeline((currentTimeline: any) => {
                         if (currentTimeline !== null) {
                             return [...currentTimeline, ...muteWordFilter]
                         } else {

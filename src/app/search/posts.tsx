@@ -21,6 +21,7 @@ import { useSearchParams } from "next/navigation"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -117,28 +118,6 @@ const SearchPostPage = ({
         }
     }, [hasMore])
 
-    const filterPosts = (posts: PostView[]) => {
-        return posts.filter((post) => {
-            const shouldInclude = muteWords.some((muteWord) => {
-                if (post?.embed?.record) {
-                    const embedRecord = post.embed.record
-                    if (muteWord.isActive) {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        return embedRecord?.value?.text.includes(muteWord.word)
-                    } else {
-                        return false
-                    }
-                } else {
-                    // @ts-ignore
-                    return post.record?.text.includes(muteWord.word)
-                }
-            })
-
-            return !shouldInclude
-        })
-    }
-
     const checkNewTimeline = async () => {
         if (!agent) return
         shouldCheckUpdate.current = false
@@ -159,9 +138,8 @@ const SearchPostPage = ({
                     userProfileDetailed,
                     agent
                 )
+                const muteWordFilter = useFilterPosts(filteredData, muteWords)
                 //@ts-ignore
-                const muteWordFilter = filterPosts(filteredData)
-
                 setNewTimeline(muteWordFilter)
 
                 if (muteWordFilter.length > 0) {
@@ -248,19 +226,18 @@ const SearchPostPage = ({
                 userProfileDetailed,
                 agent
             )
-            //@ts-ignore
-            const muteWordFilter = filterPosts(filteredData)
+            const muteWordFilter = useFilterPosts(filteredData, muteWords)
 
             console.log("filteredData", filteredData)
             console.log("muteWordFilter", muteWordFilter)
 
             if (timeline === null) {
                 if (muteWordFilter.length > 0) {
-                    latestCID.current = muteWordFilter[0].cid
+                    latestCID.current = muteWordFilter[0].cid as string
                 }
             }
 
-            setTimeline((currentTimeline) => {
+            setTimeline((currentTimeline: any) => {
                 if (currentTimeline !== null) {
                     return [...currentTimeline, ...muteWordFilter]
                 } else {
