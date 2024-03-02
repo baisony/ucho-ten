@@ -15,13 +15,13 @@ import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { AppBskyFeedDefs, BskyAgent } from "@atproto/api"
+import { BskyAgent } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 
 import { push as BurgerPush } from "react-burger-menu"
 
-import { HeaderMenu, useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
+import { useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 import { MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
@@ -37,6 +37,7 @@ import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
 import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
+import { useUpdateMenuWithFeedGenerators } from "@/app/_lib/useUpdateMenuWithFeedGenerators"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
@@ -331,7 +332,11 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
                                 const { data: feedData } = data
                                 console.log(feedData)
                                 setFeedGenerators(feedData.feeds)
-                                updateMenuWithFeedGenerators(feedData.feeds)
+                                useUpdateMenuWithFeedGenerators(
+                                    feedData.feeds,
+                                    headerMenusByHeader,
+                                    setHeaderMenusByHeader
+                                )
                             }
                         })
 
@@ -402,38 +407,6 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
             }
         }
     }, [JSON.stringify(muteWords), agent])
-
-    const updateMenuWithFeedGenerators = (
-        feeds: AppBskyFeedDefs.GeneratorView[]
-    ) => {
-        if (feeds.length === 0) {
-            return
-        }
-        const newHeaderMenusByHeader = headerMenusByHeader
-        const menus: HeaderMenu[] = feeds.map((feed) => {
-            return {
-                displayText: feed.displayName,
-                info: feed.uri,
-            }
-        })
-
-        const hoge = localStorage.getItem("zenMode")
-        console.log(hoge)
-        if (!hoge || hoge === "false") {
-            console.log(hoge)
-            menus.unshift({
-                displayText: "Following",
-                info: "following",
-            })
-        }
-
-        newHeaderMenusByHeader.home = menus
-
-        setHeaderMenusByHeader((prevHeaderMenus) => ({
-            ...prevHeaderMenus,
-            home: menus,
-        }))
-    }
 
     const handleSideBarOpen = (isOpen: boolean) => {
         setDrawerOpen(isOpen)

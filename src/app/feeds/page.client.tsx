@@ -43,7 +43,7 @@ import {
 import { SortableItem } from "./SortableItem"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
-import useUpdateMenuWithFeedGenerators from "@/app/_lib/useUpdateMenuWithFeedGenerators"
+import { useUpdateMenuWithFeedGenerators } from "@/app/_lib/useUpdateMenuWithFeedGenerators"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -172,6 +172,7 @@ const MyFeedsPage = () => {
                 arrayMove(savedFeeds, oldIndex, newIndex).map((v) => v.uri),
                 pinnedFeeds.map((v) => v.uri)
             )
+            await handleUpdateMenuWithFeedGenerators()
         }
     }
 
@@ -180,6 +181,26 @@ const MyFeedsPage = () => {
         uriToCheck: string
     ): boolean {
         return feedItem.some((item) => item.uri === uriToCheck)
+    }
+
+    const handleUpdateMenuWithFeedGenerators = async () => {
+        if (!agent) return
+
+        const data = await agent.getPreferences()
+        if (!data?.feeds?.pinned) return
+        console.log(await data.feeds)
+        const { data: feedsData } = await agent.app.bsky.feed.getFeedGenerators(
+            {
+                feeds: data.feeds.pinned,
+            }
+        )
+        const feeds = await feedsData.feeds
+        console.log(feeds)
+        useUpdateMenuWithFeedGenerators(
+            feeds,
+            headerMenusByHeader,
+            setHeaderMenusByHeader
+        )
     }
 
     console.log(savedFeeds)
