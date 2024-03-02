@@ -71,6 +71,11 @@ import { usePostLanguage } from "@/app/_atoms/postLanguage"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
+import { useEmojiClickHandler } from "@/app/post/hooks/useEmojiClickHandler"
+import { useDetectURL } from "@/app/post/hooks/useDetectURL"
+import { useGetListInfo } from "@/app/post/hooks/useGetListInfo"
+import { useGetFeedInfo } from "@/app/post/hooks/useGetFeedInfo"
+import { useGetOGPData } from "@/app/post/hooks/useGetOGPData"
 
 //export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
 
@@ -460,34 +465,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
-    const onEmojiClick = (emoji: any) => {
-        if (isEmojiAdding.current) {
-            return
-        }
-
-        isEmojiAdding.current = true
-
-        if (textareaRef.current) {
-            // const target = textareaRef.current
-            // const cursorPosition = target.selectionStart
-
-            setContentText((prevContentText) => {
-                return `${prevContentText.slice(
-                    0,
-                    currentCursorPostion.current
-                )}${emoji.native}${prevContentText.slice(
-                    currentCursorPostion.current
-                )}`
-            })
-
-            currentCursorPostion.current += emoji.native.length
-        } else {
-            setContentText((prevContentText) => prevContentText + emoji.native)
-        }
-
-        isEmojiAdding.current = false
-    }
-
     // ドラッグをキャンセルする
     const handleDragStart = (e: any) => {
         e.preventDefault()
@@ -504,7 +481,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             setIsDetectURL(true)
             urls.forEach((url) => {
                 setDetectURLs((prevURLs) => [...prevURLs, url])
-                console.log(url)
             })
         }
     }
@@ -517,109 +493,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     function isListURL(url: string): boolean {
         const regex = /^https:\/\/bsky\.app\/profile\/[^/]+\/lists\/[^/]+$/
         return regex.test(url)
-    }
-
-    const getListInfo = async (url: string) => {
-        if (!agent) return
-        const regex = /\/([^/]+)\/lists\/([^/]+)/
-        const matches = url.match(regex)
-        console.log("hogehoge")
-        if (matches) {
-            const did = matches[1]
-            const feedName = matches[2]
-            try {
-                setIsOGPGetProcessing(true)
-                const { data } = await agent.app.bsky.graph.getList({
-                    list: `at://${did}/app.bsky.graph.list/${feedName}`,
-                })
-                console.log(data)
-                setGetListData(data.list)
-            } catch (e) {
-                console.log(e)
-            } finally {
-                setIsOGPGetProcessing(false)
-            }
-        }
-    }
-
-    const getFeedInfo = async (url: string) => {
-        if (!agent) return
-        const regex = /\/([^/]+)\/feed\/([^/]+)/
-        const matches = url.match(regex)
-        console.log(matches)
-        if (matches) {
-            const did = matches[1]
-            const feedName = matches[2]
-            try {
-                setIsOGPGetProcessing(true)
-                const { data } = await agent.app.bsky.feed.getFeedGenerator({
-                    feed: `at://${did}/app.bsky.feed.generator/${feedName}`,
-                })
-                console.log(data)
-                setGetFeedData(data.view)
-            } catch (e) {
-            } finally {
-                setIsOGPGetProcessing(false)
-            }
-        }
-    }
-
-    const getOGP = async (url: string) => {
-        console.log(url)
-        setIsOGPGetProcessing(true)
-        try {
-            const res = await fetch(
-                `/api/getOGPData/${encodeURIComponent(url)}`,
-                {
-                    method: "GET",
-                }
-            )
-            if (res.status === 200) {
-                const ogp = await res.json()
-                const thumb =
-                    (ogp["image:secure_url"] ||
-                        (ogp?.ogImage && ogp?.ogImage[0]?.url)) ??
-                    undefined
-                const uri = url
-                const json = {
-                    title: ogp?.ogTitle,
-                    description: ogp?.ogDescription,
-                    uri: url,
-                    alt: ogp?.ogDescription || "",
-                }
-                if (json && thumb) {
-                    const generatedURL = thumb?.startsWith("http")
-                        ? thumb
-                        : uri && thumb?.startsWith("/")
-                          ? `${uri.replace(/\/$/, "")}${thumb}`
-                          : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
-                    //@ts-ignore
-                    json.thumb = generatedURL
-                    const image = await fetch(
-                        `https://ucho-ten-image-api.vercel.app/api/image?url=${generatedURL}`
-                    )
-                    setOGPImage([{ blob: image, type: "image/jpeg" }])
-                }
-                setGetOGPData(json)
-                setIsOGPGetProcessing(false)
-            } else {
-                const json = {
-                    title: url,
-                    description: "",
-                    thumb: "",
-                    uri: url,
-                    alt: "",
-                }
-                setGetOGPData(json)
-                setIsOGPGetProcessing(false)
-            }
-            return res
-        } catch (e) {
-            setIsOGPGetProcessing(false)
-            setIsGetOGPFetchError(true)
-            console.log(e)
-            return e
-        }
     }
 
     const scrollBottomRef = useRef<HTMLDivElement>(null)
@@ -946,7 +819,11 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 autoFocus={true}
                                 onChange={(e) => {
                                     setContentText(e.target.value)
-                                    detectURL(e.target.value)
+                                    useDetectURL(
+                                        e.target.value,
+                                        setDetectURLs,
+                                        setIsDetectURL
+                                    )
                                     currentCursorPostion.current =
                                         textareaRef.current?.selectionStart || 0
                                 }}
@@ -1061,14 +938,30 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         if (isFeedURL(url)) {
-                                                            getFeedInfo(url)
+                                                            useGetFeedInfo(
+                                                                url,
+                                                                agent,
+                                                                setIsOGPGetProcessing,
+                                                                setGetFeedData
+                                                            )
                                                         } else if (
                                                             isListURL(url)
                                                         ) {
                                                             console.log("list")
-                                                            getListInfo(url)
+                                                            useGetListInfo(
+                                                                url,
+                                                                agent,
+                                                                setIsOGPGetProcessing,
+                                                                setGetListData
+                                                            )
                                                         } else {
-                                                            void getOGP(url)
+                                                            void useGetOGPData(
+                                                                url,
+                                                                setIsOGPGetProcessing,
+                                                                setIsGetOGPFetchError,
+                                                                setGetOGPData,
+                                                                setOGPImage
+                                                            )
                                                         }
                                                     }}
                                                 >
@@ -1279,7 +1172,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     <Picker
                                         data={data}
                                         locale={i18n.language}
-                                        onEmojiSelect={onEmojiClick}
+                                        onEmojiSelect={(e: any) => {
+                                            console.log(e)
+                                            useEmojiClickHandler(
+                                                e,
+                                                isEmojiAdding,
+                                                textareaRef,
+                                                setContentText,
+                                                currentCursorPostion
+                                            )
+                                        }}
                                         previewPosition="none"
                                         theme={emojiPickerColor}
                                     />
