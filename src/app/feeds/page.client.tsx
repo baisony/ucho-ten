@@ -11,14 +11,12 @@ import {
     Spinner,
     useDisclosure,
 } from "@nextui-org/react"
-import { AtUri } from "@atproto/api"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import {
     useCurrentMenuType,
     useHeaderMenusByHeaderAtom,
     useMenuIndex,
-} from "../_atoms/headerMenu"
+} from "@/app/_atoms/headerMenu"
 import SwiperCore from "swiper/core"
 
 import "swiper/css"
@@ -66,7 +64,7 @@ const PageClient = () => {
     }, [currentMenuType, menuIndex, swiperRef.current])
 
     return (
-        <div style={{ display: "flex" }}>
+        <div className={"h-full"}>
             <MyFeedsPage />
         </div>
     )
@@ -273,81 +271,85 @@ const MyFeedsPage = () => {
                     )}
                 </ModalContent>
             </Modal>
-            <div className={"overflow-hidden overflow-y-auto"}>
+            <div className={"overflow-y-auto h-full w-full"}>
                 <DummyHeader />
-                {pinnedFeeds.length === 0 && (
-                    <div
-                        className={`${background()} w-full h-full flex items-center justify-center`}
-                    >
-                        {isFetching ? (
-                            <div>
-                                <Spinner />
-                            </div>
-                        ) : (
-                            !isFetching ?? (
-                                <div className={`text-white dark:text-black`}>
-                                    {/* FIXME: WTF is this? */}
-                                    {t("pages.feeds.notFound")}
-                                </div>
-                            )
-                        )}
-                    </div>
-                )}
-                {pinnedFeeds.length !== 0 && (
-                    <>
-                        <div>Pinned Feeds</div>
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
+                <div className={"bg-white dark:bg-[#16191F] overflow-y-auto"}>
+                    {pinnedFeeds.length === 0 && (
+                        <div
+                            className={`${background()} w-full h-full flex items-center justify-center`}
                         >
-                            <SortableContext
-                                //@ts-ignore
-                                items={pinnedFeeds}
-                                strategy={verticalListSortingStrategy}
+                            {isFetching ? (
+                                <div>
+                                    <Spinner />
+                                </div>
+                            ) : (
+                                !isFetching ?? (
+                                    <div
+                                        className={`text-white dark:text-black`}
+                                    >
+                                        {/* FIXME: WTF is this? */}
+                                        {t("pages.feeds.notFound")}
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    )}
+                    {pinnedFeeds.length !== 0 && (
+                        <>
+                            <div>Pinned Feeds</div>
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
                             >
-                                <ul className={"p-1"}>
-                                    {pinnedFeeds.map((item) => (
-                                        <SortableItem
-                                            key={item.uri}
-                                            item={item}
-                                            agent={agent}
-                                            draggable={true}
-                                            isPinned={isUriMatch(
-                                                pinnedFeeds,
-                                                item.uri
-                                            )}
-                                            setFeedGenerators={
-                                                setFeedGenerators
-                                            }
-                                            handlePinnedClick={
-                                                handlePinnedClick
-                                            }
-                                        />
-                                    ))}
-                                </ul>
-                            </SortableContext>
-                        </DndContext>
-                    </>
-                )}
-                {onlySavedFeeds?.length !== 0 && (
-                    <>
-                        <div>Saved Feeds</div>
-                        <ul className={"p-1"}>
-                            {onlySavedFeeds?.map((item) => (
-                                <SortableItem
-                                    key={item.uri}
-                                    item={item}
-                                    agent={agent}
-                                    isPinned={false}
-                                    setFeedGenerators={setFeedGenerators}
-                                    handlePinnedClick={handlePinnedClick}
-                                    draggable={false}
-                                />
-                            ))}
-                        </ul>
-                    </>
-                )}
+                                <SortableContext
+                                    //@ts-ignore
+                                    items={pinnedFeeds}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <ul>
+                                        {pinnedFeeds.map((item, index) => (
+                                            <SortableItem
+                                                key={index}
+                                                item={item}
+                                                agent={agent}
+                                                draggable={true}
+                                                isPinned={isUriMatch(
+                                                    pinnedFeeds,
+                                                    item.uri
+                                                )}
+                                                setFeedGenerators={
+                                                    setFeedGenerators
+                                                }
+                                                handlePinnedClick={
+                                                    handlePinnedClick
+                                                }
+                                            />
+                                        ))}
+                                    </ul>
+                                </SortableContext>
+                            </DndContext>
+                        </>
+                    )}
+                    {onlySavedFeeds?.length !== 0 && (
+                        <>
+                            <div>Saved Feeds</div>
+                            <ul>
+                                {onlySavedFeeds?.map((item, index) => (
+                                    <SortableItem
+                                        key={index}
+                                        item={item}
+                                        agent={agent}
+                                        isPinned={false}
+                                        setFeedGenerators={setFeedGenerators}
+                                        handlePinnedClick={handlePinnedClick}
+                                        draggable={false}
+                                    />
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     )
