@@ -14,7 +14,11 @@ import {
 import { AtUri } from "@atproto/api"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
-import { useCurrentMenuType, useMenuIndex } from "../_atoms/headerMenu"
+import {
+    useCurrentMenuType,
+    useHeaderMenusByHeaderAtom,
+    useMenuIndex,
+} from "../_atoms/headerMenu"
 import SwiperCore from "swiper/core"
 
 import "swiper/css"
@@ -38,6 +42,8 @@ import {
 } from "@dnd-kit/sortable"
 import { SortableItem } from "./SortableItem"
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
+import useUpdateMenuWithFeedGenerators from "@/app/_lib/useUpdateMenuWithFeedGenerators"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -80,6 +86,9 @@ const MyFeedsPage = () => {
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
     const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const [, setFeedGenerators] = useFeedGeneratorsAtom()
+    const [headerMenusByHeader, setHeaderMenusByHeader] =
+        useHeaderMenusByHeaderAtom()
 
     const fetchFeeds = async () => {
         if (!agent) {
@@ -147,7 +156,8 @@ const MyFeedsPage = () => {
         })
     )
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = async (event: DragEndEvent) => {
+        if (!agent) return
         const { active, over } = event
 
         if (!over) {
@@ -158,6 +168,10 @@ const MyFeedsPage = () => {
             const oldIndex = savedFeeds.findIndex((v) => v.id === active.id)
             const newIndex = savedFeeds.findIndex((v) => v.id === over.id)
             setSavedFeeds(arrayMove(savedFeeds, oldIndex, newIndex))
+            await agent.setSavedFeeds(
+                arrayMove(savedFeeds, oldIndex, newIndex).map((v) => v.uri),
+                pinnedFeeds.map((v) => v.uri)
+            )
         }
     }
 
@@ -244,6 +258,7 @@ const MyFeedsPage = () => {
                                             pinnedFeeds,
                                             item.uri
                                         )}
+                                        setFeedGenerators={setFeedGenerators}
                                     />
                                 ))}
                             </ul>

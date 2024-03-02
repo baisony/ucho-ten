@@ -14,9 +14,15 @@ type Props = {
     item: GeneratorView
     isPinned: boolean
     agent: BskyAgent | null
+    setFeedGenerators: (data: GeneratorView[]) => void
 }
 
-export const SortableItem: FC<Props> = ({ item, isPinned, agent }: Props) => {
+export const SortableItem: FC<Props> = ({
+    item,
+    isPinned,
+    agent,
+    setFeedGenerators,
+}: Props) => {
     const router = useRouter()
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: item.uri })
@@ -38,7 +44,7 @@ export const SortableItem: FC<Props> = ({ item, isPinned, agent }: Props) => {
     //console.log(item)
 
     const handlePinned = async (pinnedStats: boolean) => {
-        if (!agent) return
+        if (!agent || loading) return
         try {
             setLoading(true)
             if (pinnedStats) {
@@ -82,7 +88,9 @@ export const SortableItem: FC<Props> = ({ item, isPinned, agent }: Props) => {
                             "h-[40px] w-[40px] object-cover hover:cursor-pointer rounded-full overflow-hidden"
                         }
                     />
-                    <div className={"ml-[10px]"}>{item.displayName}</div>
+                    <div className={"ml-[10px] truncate"}>
+                        {item.displayName}
+                    </div>
                 </div>
             </div>
             <div className={"flex items-center"}>
