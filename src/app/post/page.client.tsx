@@ -34,7 +34,6 @@ import {
     PopoverTrigger,
     Radio,
     RadioGroup,
-    Selection,
     Spinner,
     Textarea as NextUITextarea,
     useDisclosure,
@@ -44,10 +43,6 @@ import Textarea from "react-textarea-autosize" // 追加
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
-import imageCompression, {
-    Options as ImageCompressionOptions,
-} from "browser-image-compression"
-
 import i18n from "@/app/_i18n/config"
 
 import {
@@ -72,6 +67,9 @@ import { useDetectURL } from "@/app/post/hooks/useDetectURL"
 import { useGetListInfo } from "@/app/post/hooks/useGetListInfo"
 import { useGetFeedInfo } from "@/app/post/hooks/useGetFeedInfo"
 import { useGetOGPData } from "@/app/post/hooks/useGetOGPData"
+import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguagesSelectionChangeHandler"
+import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
+import { useAddImages } from "@/app/post/hooks/useAddImages"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -200,7 +198,12 @@ export default function Root() {
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        await addImages(files)
+        await useAddImages(
+            files,
+            contentImages,
+            setContentImages,
+            setIsCompressing
+        )
     }, [])
 
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
@@ -351,76 +354,13 @@ export default function Root() {
         const imageFiles = Array.from(e.target.files)
         console.log(imageFiles)
         if (!(imageFiles.length + currentImagesCount > 4)) {
-            void addImages(imageFiles)
+            await useAddImages(
+                imageFiles,
+                contentImages,
+                setContentImages,
+                setIsCompressing
+            )
         }
-    }
-
-    const addImages = async (imageFiles: File[]) => {
-        const currentImagesCount = contentImages.length
-
-        if (currentImagesCount + imageFiles.length > 4) {
-            imageFiles.slice(0, 4 - currentImagesCount)
-        }
-        console.log(imageFiles)
-
-        const maxFileSize = 975 * 1024 // 975KB
-
-        const imageBlobs: AttachmentImage[] = await Promise.all(
-            imageFiles.map(async (file) => {
-                if (file.size > maxFileSize) {
-                    try {
-                        setIsCompressing(true)
-                        const options: ImageCompressionOptions = {
-                            maxSizeMB: maxFileSize / 1024 / 1024,
-                            maxWidthOrHeight: 4096,
-                            useWebWorker: true,
-                            maxIteration: 20,
-                        }
-
-                        const compressedFile = await imageCompression(
-                            file,
-                            options
-                        )
-
-                        console.log("圧縮後", compressedFile.size)
-
-                        if (compressedFile.size > maxFileSize) {
-                            throw new Error("Image compression failure")
-                        }
-                        setIsCompressing(false)
-
-                        return {
-                            blob: compressedFile,
-                            type: file.type,
-                        }
-                    } catch (error) {
-                        setIsCompressing(false)
-                        console.log("圧縮失敗", file.size)
-                        console.error(error)
-
-                        return {
-                            blob: file,
-                            type: file.type,
-                            isFailed: true,
-                        }
-                    }
-                } else {
-                    console.log("圧縮しなーい", file.size)
-                    return {
-                        blob: file,
-                        type: file.type,
-                    }
-                }
-            })
-        )
-
-        const addingImages: AttachmentImage[] = imageBlobs.filter(
-            (imageBlob) => {
-                return !imageBlob.isFailed
-            }
-        )
-
-        setContentImages((currentImages) => [...currentImages, ...addingImages])
     }
 
     // ドラッグをキャンセルする
@@ -436,30 +376,6 @@ export default function Root() {
     function isListURL(url: string): boolean {
         const regex = /^https:\/\/bsky\.app\/profile\/[^/]+\/lists\/[^/]+$/
         return regex.test(url)
-    }
-
-    const handlePaste = async (event: React.ClipboardEvent) => {
-        const items = event.clipboardData.items
-        const imageFiles: File[] = []
-
-        for (const item of items) {
-            if (item.type.startsWith("image/")) {
-                const file = item.getAsFile()
-
-                if (file !== null) {
-                    if (
-                        contentImages.length + imageFiles.length <
-                        MAX_ATTACHMENT_IMAGES
-                    ) {
-                        imageFiles.push(file)
-                    }
-                }
-            }
-        }
-
-        if (imageFiles.length > 0) {
-            await addImages(imageFiles)
-        }
     }
 
     const handleOnEmojiOpenChange = (isOpen: boolean) => {
@@ -486,18 +402,14 @@ export default function Root() {
         setAltOfImageList(updatedAltOfImageList)
     }, [altOfImageList, editALTIndex, altText])
 
-    const handleLanguagesSelectionChange = (keys: Selection) => {
-        if (Array.from(keys).length < 4) {
-            setPostLanguage(Array.from(keys) as string[])
-        }
-    }
-
     return (
         <>
             <LanguagesSelectionModal
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
-                onSelectionChange={handleLanguagesSelectionChange}
+                onSelectionChange={(e) =>
+                    useLanguagesSelectionChangeHandler(e, setPostLanguage)
+                }
                 PostLanguage={PostLanguage}
             />
 
@@ -703,7 +615,16 @@ export default function Root() {
                                 }}
                                 onKeyDown={handleKeyDown}
                                 disabled={loading}
-                                onPaste={handlePaste}
+                                onPaste={(e) =>
+                                    usePasteHandler(
+                                        e,
+                                        contentImages,
+                                        useAddImages,
+                                        MAX_ATTACHMENT_IMAGES,
+                                        setContentImages,
+                                        setIsCompressing
+                                    )
+                                }
                             />
                             {(contentImages.length > 0 || isCompressing) && (
                                 <div className={contentRightImagesContainer()}>
