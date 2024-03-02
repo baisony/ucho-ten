@@ -1,5 +1,5 @@
 import { BskyAgent } from "@atproto/api"
-import useUpdateMenuWithFeedGenerators from "@/app/_lib/useUpdateMenuWithFeedGenerators"
+import { useUpdateMenuWithFeedGenerators } from "@/app/_lib/useUpdateMenuWithFeedGenerators"
 
 const useFetchUserPreferences = (
     agent: BskyAgent | undefined, // YourAgentType を適切な型に置き換えてください
