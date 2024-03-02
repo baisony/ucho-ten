@@ -12,7 +12,9 @@ interface LabelActions {
 }
 
 const LABEL_ACTIONS: LabelActions = {
-    nsfw: { label: "NSFW", key: "nsfw" },
+    nsfw: { label: "Adult Content", key: "nsfw" },
+    porn: { label: "Adult Content", key: "nsfw" },
+    sexual: { label: "Sexual Content", key: "suggestive" },
     suggestive: { label: "Suggestive", key: "suggestive" },
     nudity: { label: "Nudity", key: "nudity" },
     hate: { label: "Hate Speech", key: "hate" },

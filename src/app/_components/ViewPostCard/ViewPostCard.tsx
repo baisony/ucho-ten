@@ -266,6 +266,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     const handleImageClick = useHandleImageClick(setImageGallery)
 
     useLayoutEffect(() => {
+        if (!userPreference || !postJson) return
         warningReason.current = useContentLabels(
             userPreference,
             postJson,

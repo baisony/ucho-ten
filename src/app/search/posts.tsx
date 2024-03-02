@@ -143,13 +143,6 @@ const SearchPostPage = ({
                 setNewTimeline(muteWordFilter)
 
                 if (muteWordFilter.length > 0) {
-                    console.log(
-                        "new and old cid",
-                        feedKey,
-                        muteWordFilter[0].cid,
-                        latestCID.current
-                    )
-
                     if (
                         muteWordFilter[0].cid !== latestCID.current &&
                         latestCID.current !== ""
