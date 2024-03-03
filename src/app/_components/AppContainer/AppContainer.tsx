@@ -205,7 +205,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
     }
 
     useLayoutEffect(() => {
-        const lngChange = (lng: any) => {
+        const lngChange = (lng: string) => {
             const lang = lng.replace(/-\w+$/, "")
             void i18n.changeLanguage(lang)
         }
