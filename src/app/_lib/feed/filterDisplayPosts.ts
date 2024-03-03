@@ -1,10 +1,11 @@
-import { AppBskyActorDefs, AtUri, BskyAgent } from "@atproto/api"
+import { AtUri, BskyAgent } from "@atproto/api"
 import {
     FeedViewPost,
     PostView,
     ReplyRef,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
 const handleHideRepost = (
@@ -31,7 +32,7 @@ const handleFrontMention = (post: PostView) => {
 
 export const filterDisplayPosts = (
     posts: FeedViewPost[] | PostView[],
-    sessionUser: AppBskyActorDefs.ProfileViewDetailed | null,
+    sessionUser: ProfileViewDetailed | null,
     agent: BskyAgent | null,
     hideRepost?: boolean
 ): FeedViewPost[] | PostView[] => {

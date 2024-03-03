@@ -27,8 +27,7 @@ const useEmbed = (
 
             if (!embed || !embed.$type) return null
 
-            if ((embed?.record as PostView)?.$type === type)
-                return embed as Embed
+            if ((embed?.record as PostView)?.$type === type) return embed as any
 
             return embed.$type === type ? (embed as Embed) : null
         }

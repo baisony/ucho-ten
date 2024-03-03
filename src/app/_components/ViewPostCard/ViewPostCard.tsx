@@ -285,9 +285,10 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 embedRecordViewRecord?.author?.viewer &&
                 shouldDeletePost(embedRecordViewRecord.author.viewer)) ||
             (embedMedia &&
-                (embedMedia.record.record.author as ProfileViewBasic)?.viewer &&
+                (embedMedia?.record?.record?.author as ProfileViewBasic)
+                    ?.viewer &&
                 shouldDeletePost(
-                    (embedMedia.record.record?.author as ProfileViewBasic)
+                    (embedMedia?.record?.record?.author as ProfileViewBasic)
                         .viewer as ProfileViewBasic
                 ))
         ) {

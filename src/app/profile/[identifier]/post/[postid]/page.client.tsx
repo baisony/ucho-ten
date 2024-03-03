@@ -95,6 +95,7 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -1217,38 +1218,37 @@ const PostPage = (props: PostPageProps) => {
                 </div>
                 <div className={"h-full"}>
                     {thread?.replies &&
-                        (
-                            thread.replies as Array<AppBskyFeedDefs.ThreadViewPost>
-                        ).map((item: any, index: number) => {
-                            console.log(thread)
-                            console.log(item)
-                            if (tab === "authors") {
-                                if (
-                                    thread.post.author.did !==
-                                        item.post.author.did &&
-                                    item.post.author.did !==
-                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                        //@ts-ignore
-                                        thread?.parent?.post?.author?.did
-                                ) {
-                                    return null
+                        (thread.replies as Array<ThreadViewPost>).map(
+                            (item, index: number) => {
+                                console.log(thread)
+                                console.log(item)
+                                if (tab === "authors") {
+                                    if (
+                                        thread.post.author.did !==
+                                            item.post.author.did &&
+                                        item.post.author.did !==
+                                            (thread?.parent?.post as PostView)
+                                                ?.author?.did
+                                    ) {
+                                        return null
+                                    }
                                 }
+                                return (
+                                    <ViewPostCard
+                                        key={index}
+                                        bodyText={processPostBodyText(
+                                            nextQueryParams,
+                                            item.post as PostView
+                                        )}
+                                        postJson={item.post as PostView}
+                                        //isMobile={isMobile}
+                                        nextQueryParams={nextQueryParams}
+                                        t={t}
+                                        zenMode={props.zenMode}
+                                    />
+                                )
                             }
-                            return (
-                                <ViewPostCard
-                                    key={index}
-                                    bodyText={processPostBodyText(
-                                        nextQueryParams,
-                                        item.post as PostView
-                                    )}
-                                    postJson={item.post as PostView}
-                                    //isMobile={isMobile}
-                                    nextQueryParams={nextQueryParams}
-                                    t={t}
-                                    zenMode={props.zenMode}
-                                />
-                            )
-                        })}
+                        )}
                 </div>
             </main>
         </>

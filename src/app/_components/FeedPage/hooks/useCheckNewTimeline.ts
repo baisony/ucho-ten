@@ -2,7 +2,7 @@ import { useCallback } from "react"
 import { BskyAgent } from "@atproto/api"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
-import { PostView } from "@atproto/api/src/client/types/app/bsky/feed/defs"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { MuteWord } from "@/app/_atoms/wordMute"
 
 interface ResponseObject {

@@ -1,7 +1,6 @@
-import { AppBskyActorDefs } from "@atproto/api"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { atom, useAtom } from "jotai"
 
-const userProfileDetailedAtom =
-    atom<AppBskyActorDefs.ProfileViewDetailed | null>(null)
+const userProfileDetailedAtom = atom<ProfileViewDetailed | null>(null)
 
 export const useUserProfileDetailedAtom = () => useAtom(userProfileDetailedAtom)
