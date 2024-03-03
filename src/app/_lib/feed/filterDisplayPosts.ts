@@ -53,6 +53,8 @@ export const filterDisplayPosts = (
             return false
         }
 
+        if (postData.author?.did === sessionUser?.did) return true
+
         if (
             (item?.post as PostView)?.record &&
             (postData.record as PostView)?.reply &&
