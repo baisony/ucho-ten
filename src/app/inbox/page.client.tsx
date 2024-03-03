@@ -481,9 +481,6 @@ export default function FeedPage() {
                                 </main>
                             </div>
                         </SwiperSlide>
-                        <SwiperSlide>
-                            <SwiperEmptySlide />
-                        </SwiperSlide>
                     </>
                 )
             })}

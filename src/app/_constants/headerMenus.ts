@@ -114,10 +114,6 @@ const defaultMyFeedsMenus: HeaderMenu[] = [
         displayText: "My Feeds",
         info: "myfeeds",
     },
-    {
-        displayText: "Search",
-        info: "search",
-    },
 ]
 
 const defaultListMenus: HeaderMenu[] = [

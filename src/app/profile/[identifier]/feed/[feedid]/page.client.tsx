@@ -504,9 +504,6 @@ export default function Root() {
                                 scrollIndex={scrollIndex}
                             />
                         </SwiperSlide>
-                        <SwiperSlide>
-                            <SwiperEmptySlide />
-                        </SwiperSlide>
                     </>
                 )
             })}
