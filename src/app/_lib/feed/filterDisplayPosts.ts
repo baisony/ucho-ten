@@ -1,14 +1,10 @@
-import {
-    AppBskyActorDefs,
-    AppBskyFeedPost,
-    AtUri,
-    BskyAgent,
-} from "@atproto/api"
+import { AppBskyActorDefs, AtUri, BskyAgent } from "@atproto/api"
 import {
     FeedViewPost,
     PostView,
     ReplyRef,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
 
 const handleHideRepost = (
@@ -107,7 +103,7 @@ export const filterDisplayPosts = (
             } else displayPost = authorDID === sessionUser?.did
         }
 
-        const record = postData.record as AppBskyFeedPost.Record
+        const record = postData.record as Record
 
         if (record.reply) {
             const rootDID = getDIDfromAtURI(record.reply.root.uri)

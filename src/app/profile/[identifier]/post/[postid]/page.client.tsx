@@ -11,6 +11,7 @@ import {
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { notFound, usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -61,7 +62,6 @@ import {
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedDefs,
-    AppBskyFeedPost,
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
@@ -594,7 +594,7 @@ const PostPage = (props: PostPageProps) => {
     }, [thread])
 
     const translateContentText = async () => {
-        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
+        if ((postView?.record as Record)?.text === undefined) {
             return
         }
 
@@ -603,10 +603,7 @@ const PostPage = (props: PostPageProps) => {
         const res = await fetch(
             `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
                 translateTo[0] ? translateTo[0] : `auto`
-            }&dt=t&q=` +
-                encodeURIComponent(
-                    (postView?.record as AppBskyFeedPost.Record)?.text
-                )
+            }&dt=t&q=` + encodeURIComponent((postView?.record as Record)?.text)
         )
         if (res.status === 200) {
             const json = await res.json()

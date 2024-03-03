@@ -1,22 +1,19 @@
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { AppBskyFeedPost } from "@atproto/api"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 
 export const translateText = async (
     translateTo: string[],
     postJson: PostView | undefined,
     postView: PostView | null
 ) => {
-    if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
+    if ((postView?.record as Record)?.text === undefined) {
         return
     }
 
     const res = await fetch(
         `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
             translateTo[0] ? translateTo[0] : `auto`
-        }&dt=t&q=` +
-            encodeURIComponent(
-                (postView?.record as AppBskyFeedPost.Record)?.text
-            )
+        }&dt=t&q=` + encodeURIComponent((postView?.record as Record)?.text)
     )
     if (res.status === 200) {
         const json = await res.json()
