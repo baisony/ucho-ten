@@ -1,12 +1,13 @@
 // useCheckNewNotification.ts
 import { useCallback } from "react"
+import { BskyAgent } from "@atproto/api"
 
 const useCheckNewNotification = (
-    agent: any, // agent の型を適切に指定してください
+    agent: BskyAgent | null,
     setUnreadNotification: (num: number) => void,
     autoRefetch: () => Promise<void>
 ) => {
-    const checkNewNotification = useCallback(async () => {
+    return useCallback(async () => {
         if (!agent) {
             return
         }
@@ -23,15 +24,12 @@ const useCheckNewNotification = (
                     notify_num++
                 }
             }
-            if (notify_num === 0) return
             setUnreadNotification(notify_num)
             void autoRefetch()
         } catch (e) {
             console.log(e)
         }
     }, [agent, setUnreadNotification, autoRefetch])
-
-    return checkNewNotification
 }
 
 export default useCheckNewNotification
