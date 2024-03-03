@@ -306,19 +306,21 @@ const FeedPage = memo(
             setLoadMoreFeed(false)
         }
 
-        const lazyCheckNewTimeline = useLazyCheckNewTimeline(
-            agent,
-            latestCID,
-            feedKey,
-            FEED_FETCH_LIMIT,
-            userProfileDetailed,
-            hideRepost,
-            timeline,
-            setTimeline,
-            setNewTimeline,
-            setHasUpdate,
-            queryClient
-        )
+        const lazyCheckNewTimeline = () => {
+            useLazyCheckNewTimeline(
+                agent,
+                latestCID,
+                feedKey,
+                FEED_FETCH_LIMIT,
+                userProfileDetailed,
+                hideRepost,
+                timeline,
+                setTimeline,
+                setNewTimeline,
+                setHasUpdate,
+                queryClient
+            )
+        }
 
         return (
             <>
