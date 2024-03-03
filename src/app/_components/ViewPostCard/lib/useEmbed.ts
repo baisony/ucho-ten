@@ -7,9 +7,6 @@ import {
 
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
-import { View } from "@atproto/api/src/client/types/app/bsky/embed/images"
-import { AppBskyEmbedRecordWithMedia } from "@atproto/api"
-import { External } from "@atproto/api/src/client/types/app/bsky/embed/external"
 
 interface Embed {
     $type: string
@@ -37,26 +34,22 @@ const useEmbed = (
         }
 
         return {
-            embedImages: extractEmbedOfType(
-                "app.bsky.embed.images#view"
-            ) as View | null,
+            embedImages: extractEmbedOfType("app.bsky.embed.images#view"),
             embedMedia: extractEmbedOfType(
                 "app.bsky.embed.recordWithMedia#view"
-            ) as AppBskyEmbedRecordWithMedia.View | null,
-            embedExternal: extractEmbedOfType(
-                "app.bsky.embed.external#view"
-            ) as External | null,
+            ),
+            embedExternal: extractEmbedOfType("app.bsky.embed.external#view"),
             embedRecord: extractEmbedOfType("app.bsky.embed.record#view"),
             embedRecordBlocked: extractEmbedOfType(
                 "app.bsky.embed.record#viewBlocked"
             ),
             embedRecordViewRecord: extractEmbedOfType(
                 "app.bsky.embed.record#view"
-            )?.record as ViewRecord | null,
+            )?.record as ViewRecord,
             embedFeed: extractEmbedOfType("app.bsky.feed.defs#generatorView")
-                ?.record as GeneratorView | null,
+                ?.record as GeneratorView,
             embedMuteList: extractEmbedOfType("app.bsky.graph.defs#listView")
-                ?.record as ListView | null,
+                ?.record as ListView,
             notfoundEmbedRecord: extractEmbedOfType(
                 "app.bsky.embed.record#viewNotFound"
             ),

@@ -8,7 +8,7 @@ export const useSaveScrollPosition = (
     scrollPositions: any, // 適切な型に置き換えてください
     setScrollPositions: (positions: any) => void // 適切な型に置き換えてください
 ) => {
-    const handleSaveScrollPosition = useCallback(() => {
+    return useCallback(() => {
         if (!isActive) return
 
         virtuosoRef?.current?.getState((state: any) => {
@@ -29,6 +29,4 @@ export const useSaveScrollPosition = (
         scrollPositions,
         setScrollPositions,
     ])
-
-    return handleSaveScrollPosition
 }
