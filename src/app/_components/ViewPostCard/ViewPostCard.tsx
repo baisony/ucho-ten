@@ -1,6 +1,5 @@
 import {
     memo,
-    useCallback,
     useEffect,
     useLayoutEffect,
     useMemo,
@@ -10,13 +9,10 @@ import {
 import { useRouter } from "next/navigation"
 import {
     FeedViewPost,
-    GeneratorView,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark as faBookmarkRegular,
@@ -25,10 +21,10 @@ import {
 } from "@fortawesome/free-regular-svg-icons"
 import {
     faBookmark as faBookmarkSolid,
+    faEllipsis,
     faReply,
     faRetweet,
     faStar as faHeartSolid,
-    faEllipsis,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
@@ -37,11 +33,7 @@ import { Linkcard } from "@/app/_components/Linkcard"
 import { Button, useDisclosure } from "@nextui-org/react"
 import { useAgent } from "@/app/_atoms/agent"
 import { formattedSimpleDate } from "@/app/_lib/strings/datetime"
-import {
-    ImageGalleryObject,
-    ImageObject,
-    useImageGalleryAtom,
-} from "@/app/_atoms/imageGallery"
+import { useImageGalleryAtom } from "@/app/_atoms/imageGallery"
 
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
@@ -52,13 +44,21 @@ import dynamic from "next/dynamic"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { EmbedMedia } from "./EmbedMedia"
 import { EmbedImages } from "./EmbedImages"
-import { LABEL_ACTIONS } from "@/app/_constants/labels"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { useWordMutes } from "@/app/_atoms/wordMute"
-import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
-import { translateText } from "@/app/_lib/post/translate"
 import { syncContents } from "@/app/_lib/sync/syncBookmark"
+import useHandleImageClick from "@/app/_components/ViewPostCard/lib/handleDisplayImage"
+import useHandleLike from "@/app/_components/ViewPostCard/lib/useHandleLike"
+import useHandleRepost from "@/app/_components/ViewPostCard/lib/useHandleRepost"
+import useHandleMute from "@/app/_components/ViewPostCard/lib/useHandleMute"
+import useHandlePostDelete from "@/app/_components/ViewPostCard/lib/useHandlePostDelete"
+import useHandleBookmark from "@/app/_components/ViewPostCard/lib/useHandleBookmark"
+import useLongPress from "@/app/_components/ViewPostCard/lib/useLongPress"
+import useEmbed from "@/app/_components/ViewPostCard/lib/useEmbed"
+import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabels"
+import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
+
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
 //import MoreDropDownMenu from "./MoreDropDownMenu"
@@ -127,14 +127,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         zenMode,
     } = props
 
-    const postJsonData = useMemo((): ViewRecord | PostView | null => {
-        return quoteJson || postJson || null
-    }, [postJson, quoteJson])
+    const postJsonData = useMemo(
+        () => quoteJson || postJson || null,
+        [postJson, quoteJson]
+    )
 
     const postView = useMemo((): PostView | null => {
-        if (quoteJson) {
-            return null
-        } else if (postJson) {
+        if (postJson) {
             return postJson
         } else {
             return null
@@ -144,7 +143,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     const [muteWords] = useWordMutes()
     const [, setImageGallery] = useImageGalleryAtom()
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
     const {
         PostCard,
         PostAuthor,
@@ -164,22 +162,13 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     } = viewPostCard()
     const quoteCardStyles = viewQuoteCard()
 
-    const [isLiked, setIsLiked] = useState<boolean>(!!postView?.viewer?.like)
-    const [isReposted, setIsReposted] = useState<boolean>(
-        !!postView?.viewer?.repost
-    )
     const [userPreference] = useUserPreferencesAtom()
-    const [translateTo] = useTranslationLanguage()
     const [contentWarning, setContentWarning] = useState<boolean>(false)
-    const warningReason = useRef<string>("")
+    const warningReason = useRef<string | null | undefined>("")
     const [bookmarks, setBookmarks] = useBookmarks()
-    const [isBookmarked, setIsBookmarked] = useState<boolean>(false)
     const [contentFontSize] = useContentFontSize()
     const isTranslated = useRef<boolean>(false)
-    const [viewTranslatedText, setViewTranslatedText] = useState<boolean>(false)
     const [translateError, setTranslateError] = useState<boolean>(false)
-    const [translatedJsonData, setTranslatedJsonData] = useState<any>(null)
-    const [isMuted, setIsMuted] = useState<boolean>(!!postJson?.viewer?.muted)
     const createDisclosure = () => {
         const disclosure = useDisclosure()
         return {
@@ -212,129 +201,44 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         await syncContents(bookmarklist, muteWords)
     }
 
-    const handleBookmark = async (uri: string) => {
-        const createdAt = new Date().getTime()
-        const json: Bookmark = {
-            uri: uri,
-            category: null,
-            createdAt: createdAt,
-            updatedAt: createdAt,
-            deletedAt: null,
+    const [handleBookmark, isBookmarked, setIsBookmarked] = useHandleBookmark(
+        bookmarks,
+        setBookmarks,
+        syncBookmarks
+    )
+
+    const handleInputChange = (
+        reaction: string,
+        postUri: string,
+        reactionUri: string
+    ) => {
+        if (!handleValueChange) return
+
+        const json = {
+            reaction: reaction,
+            postUri: postUri,
+            reactionUri: reactionUri,
         }
-
-        const index = bookmarks.findIndex(
-            (bookmark: Bookmark) => bookmark.uri === uri
-        )
-        console.log(index)
-
-        if (index !== -1) {
-            //console.log("delete")
-            const newBookmarks = bookmarks
-            newBookmarks.splice(index, 1)
-            //console.log(newBookmarks)
-
-            setBookmarks(newBookmarks)
-            void syncBookmarks(newBookmarks)
-            setIsBookmarked(false)
-            //await syncBookmarks()
-        } else {
-            console.log("add")
-            setBookmarks((prevBookmarks) => [...prevBookmarks, json])
-            void syncBookmarks([...bookmarks, json])
-            setIsBookmarked(true)
-        }
+        console.log(json)
+        handleValueChange(json)
     }
 
-    const handleReply = async () => {
-        //setIsPostModalOpen(true)
-        console.log("open")
-        onOpenReply()
-    }
+    const [handleRepost, isReposted] = useHandleRepost(
+        postView,
+        postJsonData,
+        handleInputChange,
+        agent,
+        !!postView?.viewer?.repost
+    )
 
-    const handleRepost = async () => {
-        if (loading) return
-        setLoading(true)
-        if (isReposted && postView?.viewer?.repost) {
-            setIsReposted(!isReposted)
-            const res = await agent?.deleteRepost(postView.viewer.repost)
-            console.log(res)
-            handleInputChange(
-                "unrepost",
-                postView.uri,
-                postView.viewer.repost || ""
-            )
-        } else if (postJsonData?.uri && postJsonData?.cid) {
-            setIsReposted(!isReposted)
-            const res = await agent?.repost(postJsonData.uri, postJsonData.cid)
-            console.log(res)
-            handleInputChange("repost", postJsonData?.uri || "", res?.uri || "")
-        }
-        setLoading(false)
-    }
+    const [handleLike, isLiked] = useHandleLike(
+        postView,
+        postJsonData,
+        handleInputChange,
+        agent,
+        !!postView?.viewer?.like
+    )
 
-    const handleLike = async () => {
-        if (loading) return
-
-        setLoading(true)
-
-        if (isLiked && postView?.viewer?.like) {
-            setIsLiked(!isLiked)
-            const res = await agent?.deleteLike(postView.viewer.like)
-            console.log(res)
-            handleInputChange(
-                "unlike",
-                postView.uri,
-                postView.viewer.like || ""
-            )
-        } else if (postJsonData?.uri && postJsonData?.cid) {
-            setIsLiked(!isLiked)
-            const res = await agent?.like(postJsonData.uri, postJsonData.cid)
-            console.log(res)
-            handleInputChange("like", postJsonData.uri || "", res?.uri || "")
-        }
-
-        setLoading(false)
-    }
-
-    const useEmbed = useMemo(() => {
-        const extractEmbedOfType = (type: any) => {
-            const quoteEmbed =
-                quoteJson?.embeds?.length && quoteJson?.embeds?.length > 0
-                    ? quoteJson?.embeds[0]
-                    : null
-            const embed = quoteEmbed || postView?.embed || null
-
-            if (!embed?.$type) return null
-
-            if ((embed?.record as PostView)?.$type === type) return embed as any
-
-            return embed.$type === type ? (embed as any) : null
-        }
-
-        return {
-            embedImages: extractEmbedOfType("app.bsky.embed.images#view"),
-            embedMedia: extractEmbedOfType(
-                "app.bsky.embed.recordWithMedia#view"
-            ),
-            embedExternal: extractEmbedOfType("app.bsky.embed.external#view"),
-            embedRecord: extractEmbedOfType("app.bsky.embed.record#view"),
-            embedRecordBlocked: extractEmbedOfType(
-                "app.bsky.embed.record#viewBlocked"
-            ),
-            embedRecordViewRecord: extractEmbedOfType(
-                "app.bsky.embed.record#view"
-            )?.record as ViewRecord,
-            embedFeed: extractEmbedOfType("app.bsky.feed.defs#generatorView")
-                ?.record as GeneratorView,
-            embedMuteList: extractEmbedOfType("app.bsky.graph.defs#listView")
-                ?.record as ListView,
-            notfoundEmbedRecord: extractEmbedOfType(
-                "app.bsky.embed.record#viewNotFound"
-            ),
-        }
-    }, [postJson, quoteJson])
-
-    // Usage
     const {
         embedImages,
         embedMedia,
@@ -345,110 +249,31 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         embedFeed,
         embedMuteList,
         notfoundEmbedRecord,
-    } = useEmbed
+    } = useEmbed(postJson, quoteJson)
 
-    const handleDelete = async () => {
-        if (loading || !agent || !postJson) return
-        try {
-            setLoading(true)
-            await agent.deletePost(postJson?.uri)
-            handleInputChange("delete", postJson.uri, "")
-        } catch (e) {
-            console.log(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handleMute = async () => {
-        if (loading || !postView) return
-
-        setLoading(true)
-
-        if (isMuted) {
-            setIsMuted(!isMuted)
-            await agent?.unmute(postView.author.did)
-        } else {
-            setIsMuted(!isMuted)
-            await agent?.mute(postView.author.did)
-        }
-
-        setLoading(false)
-    }
-
-    const handleImageClick = useCallback(
-        (images: ViewImage[], index: number) => {
-            if (images !== undefined) {
-                const imageObjects: ImageObject[] = []
-
-                for (const image of images) {
-                    const currentImageObject: ImageObject = {
-                        fullsize: image.fullsize,
-                        alt: image.alt,
-                    }
-
-                    imageObjects.push(currentImageObject)
-                }
-
-                if (imageObjects.length > 0) {
-                    const gelleryObject: ImageGalleryObject = {
-                        images: imageObjects,
-                        index,
-                    }
-
-                    setImageGallery(gelleryObject)
-                }
-            }
-        },
-        [postJson]
+    const [handleDelete] = useHandlePostDelete(
+        agent,
+        postJson,
+        handleInputChange
     )
 
-    useEffect(() => {
-        if (!userPreference) {
-            return
-        }
+    const [handleMute, isMuted] = useHandleMute(
+        agent,
+        postView,
+        !!postJson?.viewer?.muted
+    )
 
-        const post = postJson || quoteJson
+    const handleImageClick = useHandleImageClick(setImageGallery)
 
-        if (!post || !post.labels || post.labels.length === 0) {
-            return
-        }
-
-        post.labels.forEach((label) => {
-            const labelType = LABEL_ACTIONS[label.val]
-            if (labelType) {
-                const { label: warningLabel, key } = labelType
-                switch (key) {
-                    case "nsfw":
-                    case "suggestive":
-                    case "nudity":
-                        if (!userPreference.adultContentEnabled) {
-                            handleInputChange("delete", postJson?.uri || "", "")
-                        }
-                    case "hate":
-                    case "spam":
-                    case "impersonation":
-                    case "gore":
-                        const action =
-                            userPreference.contentLabels?.[
-                                key === "suggestive" || key === "nudity"
-                                    ? "nsfw"
-                                    : key
-                            ]
-                        if (action === "warn") {
-                            setContentWarning(true)
-                            warningReason.current = warningLabel
-                        } else if (action === "hide") {
-                            handleInputChange("delete", postJson?.uri || "", "")
-                        }
-                        break
-                    default:
-                        break
-                }
-            } else {
-                console.log(label)
-            }
-        })
+    useLayoutEffect(() => {
+        if (!userPreference || !postJson) return
+        warningReason.current = useContentLabels(
+            userPreference,
+            postJson,
+            quoteJson,
+            handleInputChange,
+            setContentWarning
+        )
     }, [userPreference, postJson, quoteJson])
 
     useLayoutEffect(() => {
@@ -460,9 +285,11 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 embedRecordViewRecord?.author?.viewer &&
                 shouldDeletePost(embedRecordViewRecord.author.viewer)) ||
             (embedMedia &&
-                embedMedia.record.record.author?.viewer &&
+                (embedMedia?.record?.record?.author as ProfileViewBasic)
+                    ?.viewer &&
                 shouldDeletePost(
-                    embedMedia.record.record?.author.viewer as ProfileViewBasic
+                    (embedMedia?.record?.record?.author as ProfileViewBasic)
+                        .viewer as ProfileViewBasic
                 ))
         ) {
             handleInputChange("delete", postJsonData?.uri || "", "")
@@ -514,67 +341,25 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         void handleDelete()
     }
 
-    const handleInputChange = (
-        reaction: string,
-        postUri: string,
-        reactionUri: string
-    ) => {
-        if (!handleValueChange) return
-
-        //const value = event.target.value
-        const json = {
-            reaction: reaction,
-            postUri: postUri,
-            reactionUri: reactionUri,
-        }
-        console.log(json)
-        handleValueChange(json)
-    }
-
     const handleChangeSaveScrollPosition = () => {
         if (!handleSaveScrollPosition) return
         handleSaveScrollPosition()
     }
 
-    const translateContentText = async () => {
-        isTranslated.current = true
-        setViewTranslatedText(true)
-        const res = await translateText(translateTo, postJson, postView)
-        setTranslatedJsonData(res)
-    }
+    const {
+        viewTranslatedText,
+        setViewTranslatedText,
+        translatedJsonData,
+        translateContentText,
+    } = useTranslateContentText(postJson, postView)
 
     const longPressTimerRef = useRef<number | null>(null)
 
     const handleLongPress = () => {
-        console.log(props)
         onOpenOption()
     }
 
-    const handleTouchStart = useCallback(() => {
-        longPressTimerRef.current = window.setTimeout(() => {
-            handleLongPress()
-        }, 500)
-
-        const clearTimer = () => {
-            if (longPressTimerRef.current !== null) {
-                clearTimeout(longPressTimerRef.current)
-                longPressTimerRef.current = null
-            }
-        }
-
-        document.addEventListener("touchend", clearTimer)
-        document.addEventListener("touchmove", clearTimer)
-        document.addEventListener("touchcancel", clearTimer)
-        document.addEventListener("contextmenu", clearTimer)
-
-        return () => {
-            // Clean up event listeners when the component unmounts
-            document.removeEventListener("touchend", clearTimer)
-            document.removeEventListener("touchmove", clearTimer)
-            document.removeEventListener("touchcancel", clearTimer)
-            document.removeEventListener("contextmenu", clearTimer)
-        }
-    }, [onOpenOption])
+    const handleTouchStart = useLongPress(handleLongPress)
 
     useEffect(() => {
         return () => {
@@ -646,7 +431,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 <div className={`${PostCardContainer({ isEmbedToModal })}`}>
                     {json?.reason && (
                         <Link
-                            className={`text-[13px] ${zenMode ? `ml-[11px]` : `ml-[40px]`} text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
+                            className={`text-[13px] ${
+                                zenMode ? `ml-[11px]` : `ml-[40px]`
+                            } text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 handleChangeSaveScrollPosition()
@@ -971,7 +758,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                             ?.replyDisabled
                                                     )
                                                         return
-                                                    await handleReply()
+                                                    await onOpenReply()
                                                 }}
                                                 className={"h-full w-full"}
                                             />

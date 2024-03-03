@@ -11,6 +11,7 @@ import {
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { notFound, usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -61,7 +62,6 @@ import {
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedDefs,
-    AppBskyFeedPost,
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
@@ -95,6 +95,7 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -594,7 +595,7 @@ const PostPage = (props: PostPageProps) => {
     }, [thread])
 
     const translateContentText = async () => {
-        if ((postView?.record as AppBskyFeedPost.Record)?.text === undefined) {
+        if ((postView?.record as Record)?.text === undefined) {
             return
         }
 
@@ -603,10 +604,7 @@ const PostPage = (props: PostPageProps) => {
         const res = await fetch(
             `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${
                 translateTo[0] ? translateTo[0] : `auto`
-            }&dt=t&q=` +
-                encodeURIComponent(
-                    (postView?.record as AppBskyFeedPost.Record)?.text
-                )
+            }&dt=t&q=` + encodeURIComponent((postView?.record as Record)?.text)
         )
         if (res.status === 200) {
             const json = await res.json()
@@ -1220,38 +1218,37 @@ const PostPage = (props: PostPageProps) => {
                 </div>
                 <div className={"h-full"}>
                     {thread?.replies &&
-                        (
-                            thread.replies as Array<AppBskyFeedDefs.ThreadViewPost>
-                        ).map((item: any, index: number) => {
-                            console.log(thread)
-                            console.log(item)
-                            if (tab === "authors") {
-                                if (
-                                    thread.post.author.did !==
-                                        item.post.author.did &&
-                                    item.post.author.did !==
-                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                        //@ts-ignore
-                                        thread?.parent?.post?.author?.did
-                                ) {
-                                    return null
+                        (thread.replies as Array<ThreadViewPost>).map(
+                            (item, index: number) => {
+                                console.log(thread)
+                                console.log(item)
+                                if (tab === "authors") {
+                                    if (
+                                        thread.post.author.did !==
+                                            item.post.author.did &&
+                                        item.post.author.did !==
+                                            (thread?.parent?.post as PostView)
+                                                ?.author?.did
+                                    ) {
+                                        return null
+                                    }
                                 }
+                                return (
+                                    <ViewPostCard
+                                        key={index}
+                                        bodyText={processPostBodyText(
+                                            nextQueryParams,
+                                            item.post as PostView
+                                        )}
+                                        postJson={item.post as PostView}
+                                        //isMobile={isMobile}
+                                        nextQueryParams={nextQueryParams}
+                                        t={t}
+                                        zenMode={props.zenMode}
+                                    />
+                                )
                             }
-                            return (
-                                <ViewPostCard
-                                    key={index}
-                                    bodyText={processPostBodyText(
-                                        nextQueryParams,
-                                        item.post as PostView
-                                    )}
-                                    postJson={item.post as PostView}
-                                    //isMobile={isMobile}
-                                    nextQueryParams={nextQueryParams}
-                                    t={t}
-                                    zenMode={props.zenMode}
-                                />
-                            )
-                        })}
+                        )}
                 </div>
             </main>
         </>

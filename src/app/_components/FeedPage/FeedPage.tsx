@@ -6,7 +6,6 @@ import {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
@@ -31,6 +30,11 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton/ScrollToTopButton"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { useHandleValueChange } from "@/app/_components/FeedPage/hooks/useHandleValueChange"
+import { useLazyCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useLazyCheckNewTimeline"
+import { useCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useCheckNewTimeline"
+import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
@@ -114,85 +118,19 @@ const FeedPage = memo(
             }
         }, [hasMore])
 
-        const filterPosts = (posts: FeedViewPost[]) => {
-            return posts.filter((post) => {
-                return !muteWords.some((muteWord) => {
-                    if (muteWord.isActive) {
-                        const textToCheck =
-                            //@ts-ignore
-                            post.post?.embed?.record?.value?.text ||
-                            //@ts-ignore
-                            post.post?.record?.text
-                        return textToCheck?.includes(muteWord.word)
-                    }
-                    return false
-                })
-            })
-        }
-
-        const checkNewTimeline = useCallback(async () => {
-            if (!agent) return
-            shouldCheckUpdate.current = false
-
-            try {
-                let response: AppBskyFeedGetTimeline.Response
-
-                if (feedKey === "following") {
-                    response = await agent.getTimeline({
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                } else {
-                    response = await agent.app.bsky.feed.getFeed({
-                        feed: feedKey,
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                }
-
-                const { data } = response
-
-                if (data) {
-                    const { feed } = data
-                    const filteredData =
-                        feedKey === "following"
-                            ? filterDisplayPosts(
-                                  feed,
-                                  userProfileDetailed,
-                                  agent,
-                                  hideRepost
-                              )
-                            : feed
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
-
-                    setNewTimeline(muteWordFilter)
-
-                    if (muteWordFilter.length > 0) {
-                        /*console.log(
-                            "new and old cid",
-                            feedKey,
-                            muteWordFilter[0].post.cid,
-                            latestCID.current
-                        )*/
-
-                        if (
-                            muteWordFilter[0].post.cid !== latestCID.current &&
-                            latestCID.current !== ""
-                        ) {
-                            setHasUpdate(true)
-                        } else {
-                            setHasUpdate(false)
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error(e)
-                //@ts-ignore
-                if (JSON.parse(e).status === 1) return
-                setHasError(e as ResponseObject)
-            }
-        }, [agent])
+        const checkNewTimeline = useCheckNewTimeline(
+            agent,
+            feedKey,
+            FEED_FETCH_LIMIT,
+            userProfileDetailed,
+            hideRepost,
+            shouldCheckUpdate,
+            latestCID,
+            setNewTimeline,
+            setHasUpdate,
+            setHasError,
+            muteWords
+        )
 
         useEffect(() => {
             if (!agent) return
@@ -259,16 +197,20 @@ const FeedPage = memo(
                                   hideRepost
                               )
                             : posts
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
+                    const muteWordFilter = useFilterPosts(
+                        filteredData,
+                        muteWords
+                    )
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
-                            latestCID.current = muteWordFilter[0].post.cid
+                            latestCID.current = (
+                                muteWordFilter[0].post as PostView
+                            ).cid
                         }
                     }
 
-                    setTimeline((currentTimeline) => {
+                    setTimeline((currentTimeline: any) => {
                         if (currentTimeline !== null) {
                             return [...currentTimeline, ...muteWordFilter]
                         } else {
@@ -348,136 +290,35 @@ const FeedPage = memo(
             refetchOnReconnect: false,
         })
 
-        const handleValueChange = (newValue: any) => {
-            if (!timeline) return
+        const handleValueChange = useHandleValueChange(timeline, setTimeline)
 
-            const foundObjectIndex = timeline.findIndex(
-                (item) => item.post && item.post.uri === newValue.postUri
-            )
-
-            if (foundObjectIndex !== -1) {
-                setTimeline((prevData) => {
-                    if (!prevData) return prevData
-
-                    const updatedData = [...prevData]
-
-                    const foundObject = updatedData[foundObjectIndex]
-                    if (
-                        foundObject &&
-                        foundObject.post &&
-                        foundObject.post.viewer
-                    ) {
-                        switch (newValue.reaction) {
-                            case "like":
-                            case "unlike":
-                                foundObject.post.viewer.like =
-                                    newValue.reaction === "like"
-                                        ? newValue.reactionUri
-                                        : undefined
-                                break
-                            case "repost":
-                            case "unrepost":
-                                foundObject.post.viewer.repost =
-                                    newValue.reaction === "repost"
-                                        ? newValue.reactionUri
-                                        : undefined
-                                break
-                            case "delete":
-                                updatedData.splice(foundObjectIndex, 1)
-                                break
-                            default:
-                                break
-                        }
-                    }
-
-                    return updatedData
-                })
-            } else {
-                console.log(
-                    "指定されたURIを持つオブジェクトは見つかりませんでした。"
-                )
-            }
-        }
-
-        const handleSaveScrollPosition = () => {
-            if (!isActive) return
-            //@ts-ignore
-            virtuosoRef?.current?.getState((state) => {
-                if (
-                    state.scrollTop !==
-                    //@ts-ignore
-                    scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-                ) {
-                    const updatedScrollPositions = { ...scrollPositions }
-                    //@ts-ignore
-                    updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                    setScrollPositions(updatedScrollPositions)
-                }
-            })
-        }
+        const handleSaveScrollPosition = useSaveScrollPosition(
+            isActive,
+            virtuosoRef,
+            pageName,
+            feedKey,
+            scrollPositions,
+            setScrollPositions
+        )
 
         if (data !== undefined && !isEndOfFeed) {
             handleFetchResponse(data)
             setLoadMoreFeed(false)
         }
 
-        const lazyCheckNewTimeline = async () => {
-            if (!agent) return
-
-            try {
-                let response: AppBskyFeedGetTimeline.Response
-
-                if (feedKey === "following") {
-                    response = await agent.getTimeline({
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                } else {
-                    response = await agent.app.bsky.feed.getFeed({
-                        feed: feedKey,
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                }
-
-                const { data } = response
-
-                if (data) {
-                    const { feed } = data
-                    const filteredData =
-                        feedKey === "following"
-                            ? filterDisplayPosts(
-                                  feed,
-                                  userProfileDetailed,
-                                  agent,
-                                  hideRepost
-                              )
-                            : feed
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
-
-                    const mergedTimeline = mergePosts(muteWordFilter, timeline)
-
-                    if (!mergedTimeline[0]?.post) return
-                    //@ts-ignore
-                    setTimeline(mergedTimeline)
-                    setNewTimeline([])
-                    setHasUpdate(false)
-
-                    if (mergedTimeline.length > 0) {
-                        latestCID.current = (
-                            mergedTimeline[0].post as PostView
-                        ).cid
-                    }
-
-                    await queryClient.refetchQueries({
-                        queryKey: ["getFeed", feedKey],
-                    })
-                }
-            } catch (e) {
-                console.error(e)
-            }
-        }
+        const lazyCheckNewTimeline = useLazyCheckNewTimeline(
+            agent,
+            latestCID,
+            feedKey,
+            FEED_FETCH_LIMIT,
+            userProfileDetailed,
+            hideRepost,
+            timeline,
+            setTimeline,
+            setNewTimeline,
+            setHasUpdate,
+            queryClient
+        )
 
         return (
             <>

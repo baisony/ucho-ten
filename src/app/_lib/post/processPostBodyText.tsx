@@ -1,7 +1,8 @@
 import { viewPostCard } from "@/app/_components/ViewPostCard/styles"
-import { AppBskyFeedPost } from "@atproto/api"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
+
 import {
     faCheckCircle,
     faCircleQuestion,
@@ -36,8 +37,7 @@ export const processPostBodyText = (
         return null
     }
 
-    const record = (quoteJson?.value ||
-        postJsonData?.record) as AppBskyFeedPost.Record
+    const record = (quoteJson?.value || postJsonData?.record) as Record
 
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
