@@ -15,8 +15,6 @@ import { push as BurgerPush } from "react-burger-menu"
 
 import { HeaderMenu, useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
 import { useWordMutes } from "@/app/_atoms/wordMute"
-import { useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
-import { MuteWord, useWordMutes } from "@/app/_atoms/wordMute"
 import { useTranslation } from "react-i18next"
 import { useDisplayLanguage } from "@/app/_atoms/displayLanguage"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
@@ -43,8 +41,6 @@ import { useUpdateTabQueryParam } from "@/app/_components/AppContainer/lib/useUp
 import { useThemeColorSetting } from "@/app/_components/AppContainer/lib/useThemeColorSetting"
 import { usePrefetchRoutes } from "@/app/_components/AppContainer/lib/usePrefetchRoutes"
 import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { useAccounts, UserAccountByDid } from "@/app/_atoms/accounts"
-import { useUpdateMenuWithFeedGenerators } from "@/app/_lib/useUpdateMenuWithFeedGenerators"
 //import { ViewLightbox } from "@/app/_components/ViewLightbox"
 const ViewLightbox = dynamic(
     () =>
