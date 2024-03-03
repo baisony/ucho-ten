@@ -1,10 +1,11 @@
 import { useCallback } from "react"
 import { BskyAgent } from "@atproto/api"
-import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { AppBskyFeedGetTimeline } from "@atproto/api"
+import {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 export const useLazyCheckNewTimeline = (
     agent: BskyAgent | null, // 適切な型に置き換えてください
@@ -19,11 +20,11 @@ export const useLazyCheckNewTimeline = (
     setHasUpdate: (hasUpdate: boolean) => void, // 適切な型に置き換えてください
     queryClient: any // 適切な型に置き換えてください
 ) => {
-    const lazyCheckNewTimeline = useCallback(async () => {
+    return useCallback(async () => {
         if (!agent) return
 
         try {
-            let response: AppBskyFeedGetTimeline.Response
+            let response: any
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({
@@ -85,6 +86,4 @@ export const useLazyCheckNewTimeline = (
         setHasUpdate,
         queryClient,
     ])
-
-    return lazyCheckNewTimeline
 }

@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { AppBskyFeedGetTimeline, BskyAgent } from "@atproto/api"
+import { BskyAgent } from "@atproto/api"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 import { PostView } from "@atproto/api/src/client/types/app/bsky/feed/defs"
@@ -30,7 +30,7 @@ export const useCheckNewTimeline = (
         shouldCheckUpdate.current = false
 
         try {
-            let response: AppBskyFeedGetTimeline.Response
+            let response: any
 
             if (feedKey === "following") {
                 response = await agent.getTimeline({

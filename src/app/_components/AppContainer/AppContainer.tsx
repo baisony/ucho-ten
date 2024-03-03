@@ -8,7 +8,6 @@ import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { AppBskyFeedDefs } from "@atproto/api"
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 
@@ -41,6 +40,7 @@ import { useSystemAppearanceColor } from "@/app/_components/AppContainer/lib/use
 import { useUpdateTabQueryParam } from "@/app/_components/AppContainer/lib/useUpdateTabQueryParam"
 import { useThemeColorSetting } from "@/app/_components/AppContainer/lib/useThemeColorSetting"
 import { usePrefetchRoutes } from "@/app/_components/AppContainer/lib/usePrefetchRoutes"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 const ViewLightbox = dynamic(
     () =>
@@ -114,9 +114,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
 
     useKeyboardShortcuts(router, pathName, nextQueryParams, isMobile)
 
-    const updateMenuWithFeedGenerators = (
-        feeds: AppBskyFeedDefs.GeneratorView[]
-    ) => {
+    const updateMenuWithFeedGenerators = (feeds: GeneratorView[]) => {
         if (feeds.length === 0) {
             return
         }
