@@ -1,5 +1,6 @@
 import { Virtuoso } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
+import { AppBskyFeedGetTimeline } from "@atproto/api"
 import {
     FeedViewPost,
     PostView,
@@ -32,7 +33,6 @@ import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton/ScrollToTopButton"
 import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 import { useHandleValueChange } from "@/app/_components/FeedPage/hooks/useHandleValueChange"
-import { useLazyCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useLazyCheckNewTimeline"
 import { useCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useCheckNewTimeline"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 
@@ -306,20 +306,64 @@ const FeedPage = memo(
             setLoadMoreFeed(false)
         }
 
-        const lazyCheckNewTimeline = () => {
-            useLazyCheckNewTimeline(
-                agent,
-                latestCID,
-                feedKey,
-                FEED_FETCH_LIMIT,
-                userProfileDetailed,
-                hideRepost,
-                timeline,
-                setTimeline,
-                setNewTimeline,
-                setHasUpdate,
-                queryClient
-            )
+        const lazyCheckNewTimeline = async () => {
+            if (!agent) return
+
+            try {
+                let response: AppBskyFeedGetTimeline.Response
+
+                if (feedKey === "following") {
+                    response = await agent.getTimeline({
+                        limit: FEED_FETCH_LIMIT,
+                        cursor: "",
+                    })
+                } else {
+                    response = await agent.app.bsky.feed.getFeed({
+                        feed: feedKey,
+                        limit: FEED_FETCH_LIMIT,
+                        cursor: "",
+                    })
+                }
+
+                const { data } = response
+
+                if (data) {
+                    const { feed } = data
+                    const filteredData =
+                        feedKey === "following"
+                            ? filterDisplayPosts(
+                                  feed,
+                                  userProfileDetailed,
+                                  agent,
+                                  hideRepost
+                              )
+                            : feed
+                    const muteWordFilter = useFilterPosts(
+                        filteredData,
+                        muteWords
+                    )
+                    //@ts-ignore
+                    const mergedTimeline = mergePosts(muteWordFilter, timeline)
+
+                    if (!mergedTimeline[0]?.post) return
+                    //@ts-ignore
+                    setTimeline(mergedTimeline)
+                    setNewTimeline([])
+                    setHasUpdate(false)
+
+                    if (mergedTimeline.length > 0) {
+                        latestCID.current = (
+                            mergedTimeline[0].post as PostView
+                        ).cid
+                    }
+
+                    await queryClient.refetchQueries({
+                        queryKey: ["getFeed", feedKey],
+                    })
+                }
+            } catch (e) {
+                console.error(e)
+            }
         }
 
         return (
