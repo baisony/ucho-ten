@@ -18,6 +18,7 @@ export const ViewLightbox = memo(() => {
     const [imageSlideIndex, setImageSlideIndex] = useState<number | undefined>(
         undefined
     )
+    const [hideToolbar, setHideToolbar] = useState(false)
     const [imageGallery, setImageGallery] = useImageGalleryAtom()
     const zoomRef = useRef<ZoomRef>(null)
     const captionsRef = useRef<CaptionsRef>(null)
@@ -50,6 +51,20 @@ export const ViewLightbox = memo(() => {
                     setImageGallery(null)
                     setImageSlides(undefined)
                     setImageSlideIndex(undefined)
+                } else if (
+                    clickedElement.classList.contains("yarl__slide_image")
+                ) {
+                    const elements = document.querySelectorAll(
+                        ".yarl__toolbar, .yarl__counter"
+                    )
+
+                    for (let i = 0; i < elements.length; i++) {
+                        //@ts-ignore
+                        elements[i].style.visibility = hideToolbar
+                            ? "hidden"
+                            : "visible"
+                    }
+                    setHideToolbar(!hideToolbar)
                 }
             }}
         >
