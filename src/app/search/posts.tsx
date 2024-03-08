@@ -10,7 +10,6 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { mergePosts } from "@/app/_lib/feed/mergePosts"
 import { Virtuoso } from "react-virtuoso"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
@@ -48,9 +47,9 @@ const SearchPostPage = ({
     const [muteWords] = useWordMutes()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<PostView[]>([])
+    const [, setNewTimeline] = useState<PostView[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
@@ -184,28 +183,6 @@ const SearchPostPage = ({
 
     const queryClient = useQueryClient()
 
-    const handleRefresh = async () => {
-        shouldScrollToTop.current = true
-
-        const mergedTimeline = mergePosts(newTimeline, timeline)
-
-        if (!mergedTimeline[0]) return
-        //@ts-ignore
-        setTimeline(mergedTimeline)
-        setNewTimeline([])
-        setHasUpdate(false)
-
-        if (mergedTimeline.length > 0) {
-            latestCID.current = (mergedTimeline[0] as PostView).cid
-        }
-
-        await queryClient.refetchQueries({
-            queryKey: ["getFeed", feedKey],
-        })
-
-        shouldCheckUpdate.current = true
-    }
-
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts, cursor } = response
@@ -265,7 +242,7 @@ const SearchPostPage = ({
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey] = queryKey
+        const [_key] = queryKey
 
         const response = await agent.app.bsky.feed.searchPosts({
             q: searchTextRef.current,

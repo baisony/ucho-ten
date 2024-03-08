@@ -2,13 +2,13 @@ import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
 import { useState } from "react"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Button, ButtonGroup, Switch } from "@nextui-org/react"
-import { BskyAgent, BskyLabelPreference } from "@atproto/api"
+import { BskyAgent, BskyLabelPreference, BskyPreferences } from "@atproto/api"
 
 interface SettingsContentFilteringPageProps {
     t: any
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
-    userPreferences: any
+    userPreferences: BskyPreferences | null
 }
 
 export const SettingsContentFilteringPage = ({

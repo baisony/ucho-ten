@@ -58,7 +58,7 @@ interface ResponseObject {
     status: number
     error: string
     success: boolean
-    headers: any
+    headers: unknown
 }
 
 const FeedPage = memo(
@@ -164,7 +164,7 @@ const FeedPage = memo(
             const mergedTimeline = mergePosts(newTimeline, timeline)
 
             if (!mergedTimeline[0]?.post) return
-            //@ts-ignore
+            //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
             setTimeline(mergedTimeline)
             setNewTimeline([])
             setHasUpdate(false)
@@ -342,11 +342,11 @@ const FeedPage = memo(
                         filteredData,
                         muteWords
                     )
-                    //@ts-ignore
+                    //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
                     const mergedTimeline = mergePosts(muteWordFilter, timeline)
 
                     if (!mergedTimeline[0]?.post) return
-                    //@ts-ignore
+                    //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
                     setTimeline(mergedTimeline)
                     setNewTimeline([])
                     setHasUpdate(false)
