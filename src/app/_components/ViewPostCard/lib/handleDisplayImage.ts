@@ -1,4 +1,3 @@
-import { useCallback } from "react"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 
 interface ImageObject {
@@ -12,34 +11,35 @@ interface ImageGalleryObject {
 }
 
 const useHandleImageClick = (
-    setImageGallery: (gallery: ImageGalleryObject) => void
+    setImageGallery: (gallery: ImageGalleryObject) => void,
+    images: ViewImage[],
+    index: number
 ) => {
-    return useCallback(
-        (images: ViewImage[], index: number) => {
-            if (images !== undefined) {
-                const imageObjects: ImageObject[] = []
+    const hoge = (images: ViewImage[], index: number) => {
+        console.log(images)
+        if (images !== undefined) {
+            const imageObjects: ImageObject[] = []
 
-                for (const image of images) {
-                    const currentImageObject: ImageObject = {
-                        fullsize: image.fullsize,
-                        alt: image.alt,
-                    }
-
-                    imageObjects.push(currentImageObject)
+            for (const image of images) {
+                const currentImageObject: ImageObject = {
+                    fullsize: image.fullsize,
+                    alt: image.alt,
                 }
 
-                if (imageObjects.length > 0) {
-                    const galleryObject: ImageGalleryObject = {
-                        images: imageObjects,
-                        index,
-                    }
-
-                    setImageGallery(galleryObject)
-                }
+                imageObjects.push(currentImageObject)
             }
-        },
-        [setImageGallery]
-    )
+
+            if (imageObjects.length > 0) {
+                const galleryObject: ImageGalleryObject = {
+                    images: imageObjects,
+                    index,
+                }
+
+                setImageGallery(galleryObject)
+            }
+        }
+    }
+    hoge(images, index)
 }
 
 export default useHandleImageClick

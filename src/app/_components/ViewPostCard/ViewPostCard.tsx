@@ -263,8 +263,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         !!postJson?.viewer?.muted
     )
 
-    const handleImageClick = useHandleImageClick(setImageGallery)
-
     useLayoutEffect(() => {
         if (!userPreference || !postJson) return
         warningReason.current = useContentLabels(
@@ -629,7 +627,11 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             <EmbedImages
                                 embedImages={embedImages}
                                 onImageClick={(images, index) => {
-                                    handleImageClick(images, index)
+                                    useHandleImageClick(
+                                        setImageGallery,
+                                        images,
+                                        index
+                                    )
                                 }}
                                 isEmbedToModal={isEmbedToModal}
                             />
@@ -657,7 +659,11 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             <EmbedMedia
                                 embedMedia={embedMedia}
                                 onImageClick={(images, index) => {
-                                    handleImageClick(images, index)
+                                    useHandleImageClick(
+                                        setImageGallery,
+                                        images,
+                                        index
+                                    )
                                 }}
                                 nextQueryParams={nextQueryParams}
                             />
