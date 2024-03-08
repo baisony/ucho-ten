@@ -6,7 +6,5 @@ export const usePrefetchRoutes = (router: any) => {
         router.prefetch("/u-tab")
         router.prefetch("/inbox")
         router.prefetch("/post")
-        router.prefetch("/settings")
-        router.prefetch("/feeds")
     }, [router])
 }
