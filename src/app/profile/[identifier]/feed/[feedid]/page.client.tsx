@@ -11,7 +11,6 @@ import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faArrowUpFromBracket,
-    faHeart as faSolidHeart,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"

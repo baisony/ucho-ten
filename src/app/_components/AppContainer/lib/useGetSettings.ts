@@ -1,12 +1,13 @@
 // useGetSettings.ts
 import { useCallback } from "react"
 import { Bookmark } from "@/app/_atoms/bookmarks"
+import { MuteWord } from "@/app/_atoms/wordMute"
 
 const useGetSettings = (
     setBookmarks: (bookmarks: Bookmark[]) => void,
-    setMuteWords: (muteWords: any[]) => void
+    setMuteWords: (muteWords: MuteWord[]) => void
 ) => {
-    const getSettings = useCallback(async () => {
+    return useCallback(async () => {
         try {
             const data = localStorage.getItem("session")
             if (!data) return
@@ -32,8 +33,6 @@ const useGetSettings = (
             console.log(e)
         }
     }, [setBookmarks, setMuteWords])
-
-    return getSettings
 }
 
 export default useGetSettings
