@@ -38,7 +38,6 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"

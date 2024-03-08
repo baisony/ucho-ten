@@ -104,11 +104,11 @@ const MyFeedsPage = () => {
                 feeds: feeds.pinned as string[],
             })
 
-            saved.data.feeds?.forEach((v: any) => {
+            saved.data.feeds?.forEach((v) => {
                 v.id = v.uri
             })
             console.log(saved.data.feeds)
-            setSavedFeeds((saved.data as any).feeds || [])
+            setSavedFeeds(saved.data.feeds || [])
             setPinnedFeeds(
                 (pinned.data as any).feeds.map((feed: { uri: string }) => ({
                     ...feed,
@@ -189,7 +189,7 @@ const MyFeedsPage = () => {
                 feeds: data.feeds.pinned,
             }
         )
-        const feeds = await feedsData.feeds
+        const feeds = feedsData.feeds
         useUpdateMenuWithFeedGenerators(
             feeds,
             headerMenusByHeader,
@@ -233,7 +233,7 @@ const MyFeedsPage = () => {
                 setPinnedFeeds([...pinnedFeeds, feed])
                 setSavedFeeds(savedFeeds.filter((v) => v.uri !== feed.uri))
             }
-            handleUpdateMenuWithFeedGenerators()
+            await handleUpdateMenuWithFeedGenerators()
         } finally {
             setIsLoading(false)
         }

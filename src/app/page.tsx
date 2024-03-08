@@ -103,7 +103,12 @@ export default function CreateLoginPage() {
                             </div>
                         </>
                     )}
-                    {isSetAccount === null && <Spinner />}
+                    {isSetAccount === null && (
+                        <div className={"flex"}>
+                            Happy Happy Happy...
+                            <Spinner />
+                        </div>
+                    )}
                 </div>
             </div>
         </>
