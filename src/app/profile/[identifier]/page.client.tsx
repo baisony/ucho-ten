@@ -50,7 +50,7 @@ import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import Link from "next/link"
 import {
     useCurrentMenuType,
@@ -67,6 +67,7 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -154,13 +155,13 @@ const PostPage = (props: PostPageProps) => {
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     //const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const isEndOfFeedRef = useRef(false)
-    const [profile, setProfile] = useState<any>(null)
+    const [profile, setProfile] = useState<ProfileViewDetailed | null>(null)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const [zenMode] = useZenMode()
 

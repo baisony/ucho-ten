@@ -1,5 +1,5 @@
 "use client"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import {
@@ -38,7 +38,6 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
@@ -71,7 +70,7 @@ export default function FeedPage() {
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = "Inbox"
     const pageName = "Inbox"

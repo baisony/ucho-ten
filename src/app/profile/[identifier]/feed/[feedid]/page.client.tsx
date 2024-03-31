@@ -11,7 +11,6 @@ import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faArrowUpFromBracket,
-    faHeart as faSolidHeart,
     faThumbTack,
 } from "@fortawesome/free-solid-svg-icons"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
@@ -30,7 +29,7 @@ import "react-swipeable-list/dist/styles.css"
 import { isMobile } from "react-device-detect"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
@@ -47,7 +46,6 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
@@ -69,17 +67,17 @@ export default function Root() {
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
+    const [, setIsEndOfFeed] = useState(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
     const [feedInfo, setFeedInfo] = useState<any>(null)
-    const [, setUserPreference] = useState<any>(null)
+    //const [, setUserPreference] = useState<any>(null)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const [scrollIndex, setScrollIndex] = useState(0)
 
@@ -130,7 +128,7 @@ export default function Root() {
 
         try {
             const res = await agent.getPreferences()
-            setUserPreference(res)
+            //setUserPreference(res)
 
             const { feeds } = res
             const { pinned, saved } = feeds

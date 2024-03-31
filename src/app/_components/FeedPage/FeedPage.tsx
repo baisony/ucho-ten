@@ -1,4 +1,4 @@
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import {
@@ -58,7 +58,7 @@ interface ResponseObject {
     status: number
     error: string
     success: boolean
-    headers: any
+    headers: unknown
 }
 
 const FeedPage = memo(
@@ -90,7 +90,7 @@ const FeedPage = memo(
         const shouldCheckUpdate = useRef<boolean>(false)
         const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-        const virtuosoRef = useRef(null)
+        const virtuosoRef = useRef<VirtuosoHandle | null>(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
         const [zenMode] = useZenMode()
@@ -164,7 +164,7 @@ const FeedPage = memo(
             const mergedTimeline = mergePosts(newTimeline, timeline)
 
             if (!mergedTimeline[0]?.post) return
-            //@ts-ignore
+            //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
             setTimeline(mergedTimeline)
             setNewTimeline([])
             setHasUpdate(false)
@@ -342,11 +342,11 @@ const FeedPage = memo(
                         filteredData,
                         muteWords
                     )
-                    //@ts-ignore
+                    //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
                     const mergedTimeline = mergePosts(muteWordFilter, timeline)
 
                     if (!mergedTimeline[0]?.post) return
-                    //@ts-ignore
+                    //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
                     setTimeline(mergedTimeline)
                     setNewTimeline([])
                     setHasUpdate(false)

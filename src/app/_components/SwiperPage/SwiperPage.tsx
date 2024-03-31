@@ -10,8 +10,7 @@ import {
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
-import { HEADER_MENUS } from "@/app/_constants/headerMenus"
+import { HEADER_MENUS, HeaderMenuType } from "@/app/_constants/headerMenus"
 import "swiper/css"
 import "swiper/css/pagination"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
@@ -19,7 +18,7 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 interface SwiperPageProps {
-    page: string
+    page: HeaderMenuType
 }
 
 export const SwiperPage = memo((props: SwiperPageProps) => {
@@ -34,9 +33,7 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
     const [disableSlideVerticalScroll] = useState<boolean>(false)
 
     useLayoutEffect(() => {
-        //@ts-ignore
         if (HEADER_MENUS[page] === undefined) return
-        //@ts-ignore
         setCurrentMenuType(`${page}`)
     }, [])
 
@@ -59,11 +56,7 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
 
     return (
         <>
-            <SwiperContainer
-                //@ts-ignore
-                props={{ page: page }}
-            >
-                {/*//@ts-ignore*/}
+            <SwiperContainer props={{ page: page }}>
                 {menus[page].map((menu: HeaderMenu, index: number) => {
                     return (
                         <>

@@ -17,6 +17,8 @@ import type { ComAtprotoModerationCreateReport } from "@atproto/api"
 import { useTranslation } from "react-i18next"
 import { reportModalStyle } from "@/app/_components/ReportModal/styles"
 import { isMobile } from "react-device-detect"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 /**
  * SetttingsModal props.
@@ -24,13 +26,13 @@ import { isMobile } from "react-device-detect"
 export type ReportModalProps = {
     postUri?: string
     postCid?: string
-    profile?: any
+    profile?: ProfileViewDetailed | null
     isOpen?: boolean
     onOpenChange?: (open: boolean) => void
     placement?: "top" | "center"
     className?: string
     target: "post" | "account"
-    post?: any
+    post?: PostView | null
     nextQueryParams: URLSearchParams
 }
 
@@ -110,7 +112,7 @@ export const ReportModal = (props: ReportModalProps) => {
             setIsReportSending(false)
             console.log(report)
             return report
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.log(e)
             setIsReportSending(false)
             return undefined
@@ -118,8 +120,6 @@ export const ReportModal = (props: ReportModalProps) => {
     }
 
     const handleSendButtonPush = async () => {
-        //console.log(reportReasonText)
-        //console.log(reportReasonType)
         const result = await submitReport()
         if (result?.success) {
             setIsReportSuccess(true)

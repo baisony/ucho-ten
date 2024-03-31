@@ -7,15 +7,16 @@ import {
 } from "@nextui-org/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-    faLanguage,
+    faAt,
     faCode,
     faEllipsis,
     faFlag,
+    faLanguage,
     faLink,
     faTrash,
-    faAt,
     faUser,
 } from "@fortawesome/free-solid-svg-icons"
+import { TFunction } from "i18next"
 
 interface MoreDropDownMenuProps {
     isThisUser: boolean
@@ -26,7 +27,7 @@ interface MoreDropDownMenuProps {
     onClickCopyJSON: () => void
     onClickReport: () => void
     onClickDelete: () => void
-    t: any
+    t: TFunction
 }
 
 const MoreDropDownMenu = ({

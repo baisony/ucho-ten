@@ -1,18 +1,21 @@
 import { useLayoutEffect } from "react"
-import { BskyAgent } from "@atproto/api"
+import { BskyAgent, BskyPreferences } from "@atproto/api"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 export const useRestoreSession = (
     agent: BskyAgent | null,
     setAgent: (agent: BskyAgent) => void,
-    router: any,
+    router: AppRouterInstance,
     pathName: string,
     searchParams: URLSearchParams,
-    userProfileDetailed: any, // あなたの型を適切に追加
-    setUserProfileDetailed: (data: any) => void, // あなたの型を適切に追加
-    userPreferences: any, // あなたの型を適切に追加
-    setUserPreferences: (preferences: any) => void, // あなたの型を適切に追加
-    setFeedGenerators: (feedGenerators: any) => void, // あなたの型を適切に追加
-    updateMenuWithFeedGenerators: (feedGenerators: any) => void // あなたの型を適切に追加
+    userProfileDetailed: ProfileViewDetailed | null, // あなたの型を適切に追加
+    setUserProfileDetailed: (data: typeof userProfileDetailed) => void, // あなたの型を適切に追加
+    userPreferences: BskyPreferences | null, // あなたの型を適切に追加
+    setUserPreferences: (preferences: typeof userPreferences) => void, // あなたの型を適切に追加
+    setFeedGenerators: (feedGenerators: GeneratorView[] | null) => void, // あなたの型を適切に追加
+    updateMenuWithFeedGenerators: (feedGenerators: GeneratorView[]) => void
 ) => {
     useLayoutEffect(() => {
         if (agent?.hasSession === true) {
@@ -68,7 +71,7 @@ export const useRestoreSession = (
             }
 
             if (agent.hasSession) {
-                const promises: Promise<any>[] = []
+                const promises: Promise<unknown>[] = []
 
                 if (!userProfileDetailed) {
                     const userProfilePromise = agent

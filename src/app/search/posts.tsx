@@ -10,8 +10,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
@@ -22,6 +21,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
+import { TFunction } from "i18next"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -30,7 +30,7 @@ interface FeedResponseObject {
 
 interface SearchPostPageProps {
     isActive: boolean
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     searchText: string
@@ -48,9 +48,9 @@ const SearchPostPage = ({
     const [muteWords] = useWordMutes()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<PostView[]>([])
+    const [, setNewTimeline] = useState<PostView[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
@@ -62,7 +62,7 @@ const SearchPostPage = ({
     const shouldCheckUpdate = useRef<boolean>(false)
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = `Posts`
     const pageName = "search"
@@ -98,7 +98,7 @@ const SearchPostPage = ({
                     queryKey: ["getSearch", feedKey],
                 })
             }
-            refetch()
+            void refetch()
         }
     }, [searchParams])
 
@@ -184,28 +184,6 @@ const SearchPostPage = ({
 
     const queryClient = useQueryClient()
 
-    const handleRefresh = async () => {
-        shouldScrollToTop.current = true
-
-        const mergedTimeline = mergePosts(newTimeline, timeline)
-
-        if (!mergedTimeline[0]) return
-        //@ts-ignore
-        setTimeline(mergedTimeline)
-        setNewTimeline([])
-        setHasUpdate(false)
-
-        if (mergedTimeline.length > 0) {
-            latestCID.current = (mergedTimeline[0] as PostView).cid
-        }
-
-        await queryClient.refetchQueries({
-            queryKey: ["getFeed", feedKey],
-        })
-
-        shouldCheckUpdate.current = true
-    }
-
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts, cursor } = response
@@ -265,7 +243,7 @@ const SearchPostPage = ({
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey] = queryKey
+        const [_key] = queryKey
 
         const response = await agent.app.bsky.feed.searchPosts({
             q: searchTextRef.current,
@@ -360,9 +338,7 @@ const SearchPostPage = ({
                         updatedData.splice(foundObject, 1)
                         return updatedData
                     })
-                //timeline.splice(foundObject, 1)
             }
-            // console.log(timeline)
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"

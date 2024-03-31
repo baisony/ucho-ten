@@ -49,8 +49,6 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
         skeletonText2line,
     } = viewQuoteCard()
 
-    const handleImageClick = useHandleImageClick(setImageGallery)
-
     const renderTextWithLinks = useMemo(() => {
         if (!postJson?.value && !postJson?.record?.text) return
         const post: any[] = []
@@ -238,7 +236,8 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                                             e.stopPropagation()
                                                                         }
                                                                         onClick={() => {
-                                                                            handleImageClick(
+                                                                            useHandleImageClick(
+                                                                                setImageGallery,
                                                                                 postJson
                                                                                     .embed
                                                                                     .images,

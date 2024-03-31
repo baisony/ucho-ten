@@ -1,16 +1,11 @@
 import { useEffect } from "react"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
-export const usePrefetchRoutes = (router: any) => {
+export const usePrefetchRoutes = (router: AppRouterInstance) => {
     useEffect(() => {
-        router.prefetch("/")
-        router.prefetch("/home")
-        router.prefetch("/login")
         router.prefetch("/search")
         router.prefetch("/u-tab")
         router.prefetch("/inbox")
         router.prefetch("/post")
-        router.prefetch("/settings")
-        router.prefetch("/bookmarks")
-        router.prefetch("/feeds")
     }, [router])
 }

@@ -2,7 +2,10 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { ListItemView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import type {
+    ListItemView,
+    ListView,
+} from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -27,7 +30,7 @@ import {
     ViewUserProfileCardCell,
     ViewUserProfileCardCellProps,
 } from "@/app/_components/ViewUserProfileCard/ViewUserProfileCardCell"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { AtUri } from "@atproto/api"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
@@ -49,7 +52,6 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
@@ -75,14 +77,14 @@ export default function Root() {
     >(null)
     const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    const [feedInfo, setFeedInfo] = useState<any>(null)
+    const [feedInfo, setFeedInfo] = useState<ListView | null>(null)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     const [menus] = useHeaderMenusByHeaderAtom()

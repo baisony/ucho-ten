@@ -1,7 +1,8 @@
 import { useEffect } from "react"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 export const useKeyboardShortcuts = (
-    router: any,
+    router: AppRouterInstance,
     pathName: string,
     nextQueryParams: URLSearchParams,
     isMobile: boolean
@@ -11,16 +12,18 @@ export const useKeyboardShortcuts = (
             return
         }
 
-        const handleKeyDown = (event: any) => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement
+
             if (event.key === "Escape" && pathName === "/post") {
                 event.preventDefault()
                 router.back()
                 return
             }
-
+            if (!target) return
             if (
-                event.target.tagName.toLowerCase() === "textarea" ||
-                event.target.tagName.toLowerCase() === "input"
+                target.tagName.toLowerCase() === "textarea" ||
+                target.tagName.toLowerCase() === "input"
             ) {
                 return
             }

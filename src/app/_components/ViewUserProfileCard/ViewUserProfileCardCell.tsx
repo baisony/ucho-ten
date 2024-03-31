@@ -1,5 +1,6 @@
 import { ViewUserProfileCard } from "."
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { TFunction } from "i18next"
 
 export interface ViewUserProfileCardCellProps {
     className?: string
@@ -9,7 +10,7 @@ export interface ViewUserProfileCardCellProps {
     isEmbedToModal?: boolean
     isDummyHeader?: boolean
     nextQueryParams: URLSearchParams
-    t: any
+    t: TFunction
 }
 
 export const ViewUserProfileCardCell = (
