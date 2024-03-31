@@ -3,9 +3,10 @@ import { useState } from "react"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Button, ButtonGroup, Switch } from "@nextui-org/react"
 import { BskyAgent, BskyLabelPreference, BskyPreferences } from "@atproto/api"
+import { TFunction } from "i18next"
 
 interface SettingsContentFilteringPageProps {
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     userPreferences: BskyPreferences | null

@@ -67,6 +67,7 @@ import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -154,7 +155,7 @@ const PostPage = (props: PostPageProps) => {
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
     //const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const isEndOfFeedRef = useRef(false)
-    const [profile, setProfile] = useState<any>(null)
+    const [profile, setProfile] = useState<ProfileViewDetailed | null>(null)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)

@@ -17,6 +17,7 @@ import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { isMobile } from "react-device-detect"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { TFunction } from "i18next"
 
 interface FeedResponseObject {
     feeds: GeneratorView[]
@@ -25,7 +26,7 @@ interface FeedResponseObject {
 
 interface SearchPostPageProps {
     isActive: boolean
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     searchText: string

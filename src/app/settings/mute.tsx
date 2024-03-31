@@ -19,9 +19,10 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { BskyAgent } from "@atproto/api"
+import { TFunction } from "i18next"
 
 interface SettingsMutePageProps {
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
 }

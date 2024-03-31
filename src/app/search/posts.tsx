@@ -21,6 +21,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
+import { TFunction } from "i18next"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -29,7 +30,7 @@ interface FeedResponseObject {
 
 interface SearchPostPageProps {
     isActive: boolean
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     searchText: string

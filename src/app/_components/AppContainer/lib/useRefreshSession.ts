@@ -5,11 +5,11 @@ import { UserAccountByDid } from "@/app/_atoms/accounts"
 
 const useRefreshSession = (
     agent: BskyAgent | null, // agent の型を適切に指定してください
-    setAgent: (agent: any) => void,
+    setAgent: (agent: BskyAgent | null) => void,
     accounts: UserAccountByDid,
-    setAccounts: (accounts: any) => void
+    setAccounts: (accounts: UserAccountByDid) => void
 ) => {
-    const refreshSession = useCallback(async () => {
+    return useCallback(async () => {
         if (!agent || !agent.session) return
 
         try {
@@ -34,9 +34,9 @@ const useRefreshSession = (
                 server: agent.service.host,
                 session: agent.session,
             }
-            setAgent(prevSession)
+            setAgent(prevSession as BskyAgent)
             localStorage.setItem("session", JSON.stringify(sessionJson))
-            const existingAccountsData: any = { ...accounts }
+            const existingAccountsData = { ...accounts }
 
             const { data } = await agent.getProfile({
                 actor: agent.session.did,
@@ -58,8 +58,6 @@ const useRefreshSession = (
             console.log(e)
         }
     }, [agent, setAgent, setAccounts])
-
-    return refreshSession
 }
 
 export default useRefreshSession

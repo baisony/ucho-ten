@@ -58,6 +58,7 @@ import useLongPress from "@/app/_components/ViewPostCard/lib/useLongPress"
 import useEmbed from "@/app/_components/ViewPostCard/lib/useEmbed"
 import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabels"
 import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
+import { TFunction } from "i18next"
 
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
@@ -101,7 +102,7 @@ export interface ViewPostCardProps {
     now?: Date
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
-    t: any
+    t: TFunction
     handleValueChange?: (value: any) => void
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean

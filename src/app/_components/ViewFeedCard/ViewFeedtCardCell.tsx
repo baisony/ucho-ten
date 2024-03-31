@@ -5,6 +5,7 @@ import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import { layout } from "@/app/search/styles"
 import Link from "next/link"
 import { AtUri } from "@atproto/api"
+import { TFunction } from "i18next"
 
 export interface ViewFeedCardCellProps {
     className?: string
@@ -12,7 +13,7 @@ export interface ViewFeedCardCellProps {
     now?: Date
     feed: GeneratorView
     nextQueryParams: URLSearchParams
-    t: any
+    t: TFunction
     isSearchScreen?: boolean
     handleSaveScrollPosition?: () => void
 }

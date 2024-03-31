@@ -19,6 +19,7 @@ import { Skeleton } from "@nextui-org/react"
 import defaultIcon from "../../../public/images/icon/default_icon.svg"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { TFunction } from "i18next"
 
 interface FeedResponseObject {
     actors: ProfileView[]
@@ -27,7 +28,7 @@ interface FeedResponseObject {
 
 interface SearchPostPageProps {
     isActive: boolean
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     searchText: string

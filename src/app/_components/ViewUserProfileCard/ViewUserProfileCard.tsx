@@ -5,6 +5,7 @@ import { viewUserProfileCardStyle } from "./styles"
 import { Skeleton } from "@nextui-org/react"
 
 import Link from "next/link"
+import { TFunction } from "i18next"
 
 interface Props {
     className?: string
@@ -14,7 +15,7 @@ interface Props {
     isEmbedToModal?: boolean
     isDummyHeader?: boolean
     nextQueryParams: URLSearchParams
-    t: any
+    t: TFunction
 }
 
 export const ViewUserProfileCard = (props: Props) => {
