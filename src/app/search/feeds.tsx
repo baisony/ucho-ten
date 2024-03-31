@@ -7,7 +7,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -52,7 +52,7 @@ const SearchFeedPage = ({
     const shouldCheckUpdate = useRef<boolean>(false)
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = `Feeds`
     const pageName = "search"
@@ -185,7 +185,6 @@ const SearchFeedPage = ({
     const handleSaveScrollPosition = () => {
         console.log("save")
         if (!isActive) return
-        //@ts-ignore
         virtuosoRef?.current?.getState((state) => {
             console.log(state)
             if (

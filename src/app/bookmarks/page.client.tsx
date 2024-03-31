@@ -8,7 +8,7 @@ import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
 import { useTranslation } from "react-i18next"
 import { processPostBodyText } from "../_lib/post/processPostBodyText"
 import { isMobile } from "react-device-detect"
-import { Virtuoso } from "react-virtuoso"
+import { StateSnapshot, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { DummyHeader } from "@/app/_components/DummyHeader"
@@ -37,7 +37,7 @@ export default function Root() {
     const [bookmarks] = useBookmarks()
     const [timeline, setTimeline] = useState<PostView[]>([])
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const [zenMode] = useZenMode()
     const [menus] = useHeaderMenusByHeaderAtom()
@@ -84,7 +84,6 @@ export default function Root() {
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
-                        //@ts-ignore
                         const updatedData = [...prevData]
                         if (
                             updatedData[foundObject] &&
@@ -150,15 +149,9 @@ export default function Root() {
     }
 
     const handleSaveScrollPosition = () => {
-        console.log("save")
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`bookmark`]?.scrollTop
-            ) {
+        virtuosoRef?.current?.getState((state: StateSnapshot) => {
+            //@ts-ignore
+            if (state.scrollTop !== scrollPositions[`bookmark`]?.scrollTop) {
                 const updatedScrollPositions = { ...scrollPositions }
                 //@ts-ignore
                 updatedScrollPositions[`bookmark`] = state

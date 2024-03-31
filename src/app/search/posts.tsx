@@ -10,7 +10,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
@@ -62,7 +62,7 @@ const SearchPostPage = ({
     const shouldCheckUpdate = useRef<boolean>(false)
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = `Posts`
     const pageName = "search"
@@ -98,7 +98,7 @@ const SearchPostPage = ({
                     queryKey: ["getSearch", feedKey],
                 })
             }
-            refetch()
+            void refetch()
         }
     }, [searchParams])
 
@@ -338,9 +338,7 @@ const SearchPostPage = ({
                         updatedData.splice(foundObject, 1)
                         return updatedData
                     })
-                //timeline.splice(foundObject, 1)
             }
-            // console.log(timeline)
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"

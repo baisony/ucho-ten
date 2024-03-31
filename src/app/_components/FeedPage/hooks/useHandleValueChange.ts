@@ -5,7 +5,7 @@ export const useHandleValueChange = (
     timeline: FeedViewPost[] | null, // 適切な型に置き換えてください
     setTimeline: (timeline: FeedViewPost[] | null) => void // 適切な型に置き換えてください
 ) => {
-    const handleValueChange = useCallback(
+    return useCallback(
         (newValue: any) => {
             if (!timeline) return
 
@@ -59,6 +59,4 @@ export const useHandleValueChange = (
         },
         [timeline, setTimeline]
     )
-
-    return handleValueChange
 }

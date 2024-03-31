@@ -50,7 +50,7 @@ import { AppBskyActorProfile, BlobRef, BskyAgent } from "@atproto/api"
 import { ReportModal } from "@/app/_components/ReportModal"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import Link from "next/link"
 import {
     useCurrentMenuType,
@@ -161,7 +161,7 @@ const PostPage = (props: PostPageProps) => {
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const [zenMode] = useZenMode()
 

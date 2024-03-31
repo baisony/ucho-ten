@@ -1,4 +1,4 @@
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { AppBskyFeedGetTimeline } from "@atproto/api"
 import {
@@ -90,7 +90,7 @@ const FeedPage = memo(
         const shouldCheckUpdate = useRef<boolean>(false)
         const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-        const virtuosoRef = useRef(null)
+        const virtuosoRef = useRef<VirtuosoHandle | null>(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
         const [zenMode] = useZenMode()

@@ -1,5 +1,5 @@
 "use client"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import {
@@ -70,7 +70,7 @@ export default function FeedPage() {
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = "Inbox"
     const pageName = "Inbox"

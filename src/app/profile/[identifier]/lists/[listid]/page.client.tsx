@@ -30,7 +30,7 @@ import {
     ViewUserProfileCardCell,
     ViewUserProfileCardCellProps,
 } from "@/app/_components/ViewUserProfileCard/ViewUserProfileCardCell"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { AtUri } from "@atproto/api"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
@@ -84,7 +84,7 @@ export default function Root() {
     const cursor = useRef<string>("")
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
 
     const [menus] = useHeaderMenusByHeaderAtom()
