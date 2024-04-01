@@ -10,7 +10,10 @@ import {
 } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    GeneratorView,
+    ThreadViewPost,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { notFound, usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
@@ -95,7 +98,6 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { useZenMode } from "@/app/_atoms/zenMode"
-import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -225,7 +227,7 @@ const PostPage = (props: PostPageProps) => {
             setIsReposted(!!(data.thread.post as PostView).viewer?.repost)
             setIsMuted(!!(data.thread.post as PostView).author.viewer?.muted)
         } catch (e: unknown) {
-            //@ts-ignore
+            //@ts-ignore - it's hard to handle unknown types
             if (e.message.startsWith("Post not found")) {
                 setNotfoundPost(true)
             }
@@ -297,7 +299,7 @@ const PostPage = (props: PostPageProps) => {
     ): JSX.Element | null {
         if (post && post.parent) {
             const nestedViewPostCards = renderNestedViewPostCards(
-                post.parent,
+                post?.parent,
                 isMobile
             )
             return (
@@ -390,7 +392,7 @@ const PostPage = (props: PostPageProps) => {
         }
 
         const index = bookmarks.findIndex(
-            (bookmark: any) => bookmark.uri === postView.uri
+            (bookmark: Bookmark) => bookmark.uri === postView.uri
         )
         console.log(index)
 
@@ -610,7 +612,7 @@ const PostPage = (props: PostPageProps) => {
             const json = await res.json()
             if (json[0] !== undefined) {
                 const combinedText = json[0].reduce(
-                    (acc: string, item: any[]) => {
+                    (acc: string, item: string[]) => {
                         if (item[0]) {
                             return acc + item[0]
                         }
@@ -687,7 +689,7 @@ const PostPage = (props: PostPageProps) => {
                     {(onClose) => (
                         <PostModal
                             type={modalType ? modalType : "Reply"}
-                            postData={postView}
+                            postData={postView ?? undefined}
                             onClose={onClose}
                         />
                     )}

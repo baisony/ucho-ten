@@ -337,7 +337,6 @@ const PostPage = (props: PostPageProps) => {
     }
 
     const handleSaveScrollPosition = () => {
-        //@ts-ignore
         virtuosoRef?.current?.getState((state) => {
             if (
                 state.scrollTop !==

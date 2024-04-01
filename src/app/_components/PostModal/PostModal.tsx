@@ -1,11 +1,4 @@
 import {
-    AppBskyEmbedImages,
-    AppBskyEmbedRecord,
-    AppBskyFeedPost,
-    BlobRef,
-    RichText,
-} from "@atproto/api"
-import {
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -75,8 +68,8 @@ import { useGetOGPData } from "@/app/post/hooks/useGetOGPData"
 import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguagesSelectionChangeHandler"
 import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
 import { useAddImages } from "@/app/post/hooks/useAddImages"
-
-//export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
+import { usePostClickHandler } from "@/app/post/hooks/usePostClickHandler"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -89,7 +82,7 @@ interface AttachmentImage {
 interface Props {
     children?: React.ReactNode
     type?: "Post" | "Reply" | `Quote`
-    postData?: any
+    postData?: PostView
     initialText?: string
     initialEmbed?: any
     initialEmbedType?: "feed" | "list"
@@ -207,9 +200,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [editALTIndex, setEditALTIndex] = useState(0)
     const [altText, setAltText] = useState("")
     const queryClient = useQueryClient()
-    const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
-
-    //const [selectedColor, setSelectedColor] = useState("default")
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -217,7 +207,29 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            void handlePostClick()
+            void usePostClickHandler(
+                agent,
+                trimedContentText,
+                contentImages,
+                OGPImage,
+                setOGPImage,
+                setPostLanguage,
+                setLoading,
+                type,
+                getOGPData,
+                getFeedData,
+                getListData,
+                selectedURL,
+                PostLanguage,
+                altOfImageList,
+                adultContent,
+                queryClient,
+                "PostModal",
+                props.onClose,
+                postData,
+                undefined,
+                nextQueryParams
+            )
         }
     }
 
@@ -242,146 +254,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         e.dataTransfer.dropEffect = "copy"
     }
 
-    const handlePostClick = async () => {
-        if (!agent) return
-        if (
-            trimedContentText() === "" &&
-            contentImages.length === 0 &&
-            !getOGPData &&
-            !getFeedData &&
-            !getListData
-        )
-            return
-        setLoading(true)
-        try {
-            const blobRefs: BlobRef[] = []
-            const images = contentImages.length > 0 ? contentImages : OGPImage
-            let uploadBlobRes
-            for (const image of images) {
-                const uint8array = new Uint8Array(
-                    await image.blob.arrayBuffer()
-                )
-                uploadBlobRes = await agent.uploadBlob(uint8array, {
-                    encoding: "image/jpeg",
-                })
-
-                const blobRef = uploadBlobRes.data.blob
-                blobRefs.push(blobRef)
-            }
-
-            const rt = new RichText({ text: trimedContentText() })
-            await rt.detectFacets(agent)
-
-            const postObj: Partial<AppBskyFeedPost.Record> &
-                Omit<AppBskyFeedPost.Record, "createdAt"> = {
-                text: rt.text.trimStart().trimEnd(),
-                facets: rt.facets,
-                langs: Array.from(PostLanguage),
-            }
-
-            if (type === "Reply") {
-                postObj.reply = {
-                    root: {
-                        uri: postData?.record?.reply?.root?.uri ?? postData.uri,
-                        cid: postData?.record?.reply?.root?.cid ?? postData.cid,
-                    },
-                    parent: {
-                        uri: postData.uri,
-                        cid: postData.cid,
-                    },
-                } as any
-            } else if (type === "Quote") {
-                console.log("Quote")
-                postObj.embed = {
-                    $type: "app.bsky.embed.record",
-                    record: postData,
-                } as AppBskyEmbedRecord.Main
-            }
-
-            if (getFeedData || getListData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.record",
-                    record: getFeedData ?? getListData,
-                } as AppBskyEmbedRecord.Main
-            }
-
-            if (getOGPData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.external",
-                    external: {
-                        uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
-                        title: getOGPData?.title
-                            ? getOGPData.title
-                            : selectedURL,
-                        description: getOGPData?.description
-                            ? getOGPData.description
-                            : "",
-                    },
-                } as any
-            }
-
-            if (blobRefs.length > 0) {
-                const images: AppBskyEmbedImages.Image[] = []
-
-                for (const [index, blobRef] of blobRefs.entries()) {
-                    const image: AppBskyEmbedImages.Image = {
-                        image: blobRef,
-                        alt: altOfImageList[index],
-                    }
-
-                    images.push(image)
-                }
-
-                if (
-                    getOGPData &&
-                    OGPImage.length > 0 &&
-                    postObj.embed &&
-                    postObj.embed.external
-                ) {
-                    ;(postObj.embed.external as any).thumb = {
-                        $type: "blob",
-                        ref: {
-                            $link: uploadBlobRes?.data?.blob.ref.toString(),
-                        },
-                        mimeType: uploadBlobRes?.data?.blob.mimeType,
-                        size: uploadBlobRes?.data?.blob.size,
-                    }
-                } else {
-                    postObj.embed = {
-                        $type: "app.bsky.embed.images",
-                        images,
-                    } as AppBskyEmbedImages.Main
-                }
-            }
-
-            if (
-                adultContent &&
-                (getOGPData ||
-                    getListData ||
-                    getFeedData ||
-                    contentImages.length > 0)
-            ) {
-                postObj.labels = {
-                    $type: "com.atproto.label.defs#selfLabels",
-                    values: [
-                        {
-                            val: adultContent,
-                        },
-                    ],
-                }
-            }
-            await agent.post(postObj)
-            props.onClose(true)
-            await queryClient.refetchQueries({
-                queryKey: ["getFeed", "following"],
-            })
-            console.log("hoge")
-        } catch (e) {
-            console.log(e)
-        } finally {
-            setLoading(false)
-        }
-    }
     const handleOnRemoveImage = (index: number) => {
         const newImages = [...contentImages]
         newImages.splice(index, 1)
@@ -626,7 +498,31 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         radius={"full"}
                         size={"sm"}
                         color={"primary"}
-                        onPress={handlePostClick}
+                        onPress={
+                            void usePostClickHandler(
+                                agent,
+                                trimedContentText,
+                                contentImages,
+                                OGPImage,
+                                setOGPImage,
+                                setPostLanguage,
+                                setLoading,
+                                type,
+                                getOGPData,
+                                getFeedData,
+                                getListData,
+                                selectedURL,
+                                PostLanguage,
+                                altOfImageList,
+                                adultContent,
+                                queryClient,
+                                "PostModal",
+                                props.onClose,
+                                postData,
+                                undefined,
+                                nextQueryParams
+                            )
+                        }
                         isDisabled={
                             loading ||
                             isOGPGetProcessing ||

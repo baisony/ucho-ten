@@ -45,14 +45,6 @@ import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import i18n from "@/app/_i18n/config"
 
-import {
-    AppBskyEmbedImages,
-    AppBskyEmbedRecord,
-    AppBskyFeedPost,
-    BlobRef,
-    RichText,
-} from "@atproto/api"
-
 import { Linkcard } from "@/app/_components/Linkcard"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -70,6 +62,7 @@ import { useGetOGPData } from "@/app/post/hooks/useGetOGPData"
 import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguagesSelectionChangeHandler"
 import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
 import { useAddImages } from "@/app/post/hooks/useAddImages"
+import { usePostClickHandler } from "@/app/post/hooks/usePostClickHandler"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -193,7 +186,29 @@ export default function Root() {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            void handlePostClick()
+            void usePostClickHandler(
+                agent,
+                trimedContentText,
+                contentImages,
+                OGPImage,
+                setOGPImage,
+                setPostLanguage,
+                setLoading,
+                undefined,
+                getOGPData,
+                getFeedData,
+                getListData,
+                selectedURL,
+                PostLanguage,
+                altOfImageList,
+                adultContent,
+                queryClient,
+                "PostPage",
+                undefined,
+                undefined,
+                router,
+                nextQueryParams
+            )
         }
     }
 
@@ -216,126 +231,6 @@ export default function Root() {
     const handleDragOver = (e: any) => {
         e.preventDefault()
         e.dataTransfer.dropEffect = "copy"
-    }
-
-    const handlePostClick = async () => {
-        if (!agent) return
-        if (
-            trimedContentText() === "" &&
-            contentImages.length === 0 &&
-            !getOGPData &&
-            !getFeedData &&
-            !getListData
-        )
-            return
-        setLoading(true)
-        try {
-            const blobRefs: BlobRef[] = []
-
-            const images = contentImages.length > 0 ? contentImages : OGPImage
-
-            let uploadBlobRes
-
-            for (const image of images) {
-                const uint8array = new Uint8Array(
-                    await image.blob.arrayBuffer()
-                )
-                uploadBlobRes = await agent.uploadBlob(uint8array, {
-                    encoding: "image/jpeg",
-                })
-
-                const blobRef = uploadBlobRes.data.blob
-                blobRefs.push(blobRef)
-            }
-
-            const rt = new RichText({ text: trimedContentText() })
-            await rt.detectFacets(agent)
-            const postObj: Partial<AppBskyFeedPost.Record> &
-                Omit<AppBskyFeedPost.Record, "createdAt"> = {
-                text: rt.text.trimStart().trimEnd(),
-                facets: rt.facets,
-                langs: PostLanguage,
-            }
-
-            if (getFeedData || getListData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.record",
-                    record: getFeedData ?? getListData,
-                } as AppBskyEmbedRecord.Main
-            }
-
-            if (getOGPData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.external",
-                    external: {
-                        uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
-                        title: getOGPData?.title
-                            ? getOGPData.title
-                            : selectedURL,
-                        description: getOGPData?.description
-                            ? getOGPData.description
-                            : "",
-                    },
-                } as any
-            }
-
-            if (blobRefs.length > 0) {
-                const images: AppBskyEmbedImages.Image[] = []
-
-                for (const [index, blobRef] of blobRefs.entries()) {
-                    const image: AppBskyEmbedImages.Image = {
-                        image: blobRef,
-                        alt: altOfImageList[index],
-                    }
-
-                    images.push(image)
-                }
-
-                if (
-                    getOGPData &&
-                    OGPImage.length > 0 &&
-                    postObj.embed &&
-                    postObj.embed.external
-                ) {
-                    ;(postObj.embed.external as any).thumb = {
-                        $type: "blob",
-                        ref: {
-                            $link: uploadBlobRes?.data?.blob.ref.toString(),
-                        },
-                        mimeType: uploadBlobRes?.data?.blob.mimeType,
-                        size: uploadBlobRes?.data?.blob.size,
-                    }
-                } else {
-                    postObj.embed = {
-                        $type: "app.bsky.embed.images",
-                        images,
-                    } as AppBskyEmbedImages.Main
-                }
-            }
-
-            if (adultContent && (getOGPData || contentImages.length > 0)) {
-                postObj.labels = {
-                    $type: "com.atproto.label.defs#selfLabels",
-                    values: [
-                        {
-                            val: adultContent,
-                        },
-                    ],
-                }
-            }
-
-            await agent.post(postObj)
-
-            //queryClient.clear() 動く
-            await queryClient.refetchQueries({
-                queryKey: ["getFeed", "following"],
-            })
-            router.push(`/home?${nextQueryParams.toString()}`)
-        } catch (e) {
-            console.log(e)
-        } finally {
-            setLoading(false)
-        }
     }
 
     const handleOnRemoveImage = (index: number) => {
@@ -549,7 +444,31 @@ export default function Root() {
                             size={"sm"}
                             radius={"full"}
                             color={"primary"}
-                            onPress={handlePostClick}
+                            onPress={
+                                void usePostClickHandler(
+                                    agent,
+                                    trimedContentText,
+                                    contentImages,
+                                    OGPImage,
+                                    setOGPImage,
+                                    setPostLanguage,
+                                    setLoading,
+                                    undefined,
+                                    getOGPData,
+                                    getFeedData,
+                                    getListData,
+                                    selectedURL,
+                                    PostLanguage,
+                                    altOfImageList,
+                                    adultContent,
+                                    queryClient,
+                                    "PostPage",
+                                    undefined,
+                                    undefined,
+                                    router,
+                                    nextQueryParams
+                                )
+                            }
                             isDisabled={
                                 loading ||
                                 isOGPGetProcessing ||
@@ -727,7 +646,7 @@ export default function Root() {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         if (isFeedURL(url)) {
-                                                            useGetFeedInfo(
+                                                            void useGetFeedInfo(
                                                                 url,
                                                                 agent,
                                                                 setIsOGPGetProcessing,
@@ -737,7 +656,7 @@ export default function Root() {
                                                             isListURL(url)
                                                         ) {
                                                             console.log("list")
-                                                            useGetListInfo(
+                                                            void useGetListInfo(
                                                                 url,
                                                                 agent,
                                                                 setIsOGPGetProcessing,

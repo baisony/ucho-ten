@@ -34,7 +34,7 @@ import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { AtUri, BskyAgent } from "@atproto/api"
+import { AppBskyFeedGetFeedGenerator, AtUri, BskyAgent } from "@atproto/api"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -70,8 +70,8 @@ export default function Root() {
     const [, setIsEndOfFeed] = useState(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    const [feedInfo, setFeedInfo] = useState<any>(null)
-    //const [, setUserPreference] = useState<any>(null)
+    const [feedInfo, setFeedInfo] =
+        useState<AppBskyFeedGetFeedGenerator.OutputSchema | null>(null)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)
@@ -356,7 +356,6 @@ export default function Root() {
 
     const handleSaveScrollPosition = () => {
         console.log("save")
-        //@ts-ignore
         virtuosoRef?.current?.getState((state) => {
             console.log(state)
             if (
@@ -648,7 +647,7 @@ const FeedHeaderComponent = ({
                                         const aturl = new AtUri(
                                             feedInfo.view?.uri
                                         )
-                                        navigator.clipboard.writeText(
+                                        void navigator.clipboard.writeText(
                                             `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`
                                         )
                                     }}

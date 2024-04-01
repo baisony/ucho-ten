@@ -302,7 +302,6 @@ export default function FeedPage() {
 
     const handleSaveScrollPosition = () => {
         console.log("save")
-        //@ts-ignore
         virtuosoRef?.current?.getState((state) => {
             console.log(state)
             if (

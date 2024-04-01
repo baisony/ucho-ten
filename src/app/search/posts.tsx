@@ -349,7 +349,6 @@ const SearchPostPage = ({
     const handleSaveScrollPosition = () => {
         console.log("save")
         if (!isActive) return
-        //@ts-ignore
         virtuosoRef?.current?.getState((state) => {
             console.log(state)
             if (
