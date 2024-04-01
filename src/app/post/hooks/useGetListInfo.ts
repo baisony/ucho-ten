@@ -1,8 +1,10 @@
 // useGetListInfo.ts
 
+import { BskyAgent } from "@atproto/api"
+
 export const useGetListInfo = async (
     url: string,
-    agent: any,
+    agent: BskyAgent | null,
     setIsOGPGetProcessing: React.Dispatch<React.SetStateAction<boolean>>,
     setGetListData: React.Dispatch<React.SetStateAction<any>>
 ) => {
