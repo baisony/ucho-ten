@@ -1,11 +1,24 @@
 // useGetOGPData.ts
 
+interface OGPImage {
+    blob: Response | undefined | null
+    type: string
+}
+
+interface OGPData {
+    title: string
+    description: string
+    thumb?: string
+    uri: string
+    alt: string
+}
+
 export const useGetOGPData = async (
     url: string,
     setIsOGPGetProcessing: React.Dispatch<React.SetStateAction<boolean>>,
     setIsGetOGPFetchError: React.Dispatch<React.SetStateAction<boolean>>,
-    setGetOGPData: React.Dispatch<React.SetStateAction<any>>,
-    setOGPImage: React.Dispatch<React.SetStateAction<any[]>>
+    setGetOGPData: React.Dispatch<React.SetStateAction<OGPData>>,
+    setOGPImage: React.Dispatch<React.SetStateAction<OGPImage[]>>
 ) => {
     console.log(url)
     setIsOGPGetProcessing(true)
@@ -20,7 +33,7 @@ export const useGetOGPData = async (
                     (ogp?.ogImage && ogp?.ogImage[0]?.url)) ??
                 undefined
             const uri = url
-            const json = {
+            const json: OGPData = {
                 title: ogp?.ogTitle,
                 description: ogp?.ogDescription,
                 uri: url,
@@ -32,7 +45,6 @@ export const useGetOGPData = async (
                     : uri && thumb?.startsWith("/")
                       ? `${uri.replace(/\/$/, "")}${thumb}`
                       : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
-                //@ts-ignore
                 json.thumb = generatedURL
                 const image = await fetch(
                     `https://ucho-ten-image-api.vercel.app/api/image?url=${generatedURL}`

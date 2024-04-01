@@ -59,6 +59,7 @@ import useEmbed from "@/app/_components/ViewPostCard/lib/useEmbed"
 import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabels"
 import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
 import { TFunction } from "i18next"
+import { ViewerState } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
@@ -169,7 +170,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     const [bookmarks, setBookmarks] = useBookmarks()
     const [contentFontSize] = useContentFontSize()
     const isTranslated = useRef<boolean>(false)
-    const [translateError, setTranslateError] = useState<boolean>(false)
+    const [translateError] = useState<boolean>(false)
     const createDisclosure = () => {
         const disclosure = useDisclosure()
         return {
@@ -276,7 +277,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     }, [userPreference, postJson, quoteJson])
 
     useLayoutEffect(() => {
-        const shouldDeletePost = (viewer: any) =>
+        const shouldDeletePost = (viewer: ViewerState) =>
             viewer?.blockedBy || viewer?.muted || viewer?.blocking
 
         if (

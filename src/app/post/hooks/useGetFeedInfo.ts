@@ -7,7 +7,9 @@ export const useGetFeedInfo = async (
     url: string,
     agent: BskyAgent | null,
     setIsOGPGetProcessing: React.Dispatch<React.SetStateAction<boolean>>,
-    setGetFeedData: React.Dispatch<React.SetStateAction<GeneratorView>>
+    setGetFeedData: React.Dispatch<
+        React.SetStateAction<GeneratorView | undefined>
+    >
 ) => {
     if (!agent) return
     const regex = /\/([^/]+)\/feed\/([^/]+)/

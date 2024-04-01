@@ -69,7 +69,11 @@ import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguage
 import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
 import { useAddImages } from "@/app/post/hooks/useAddImages"
 import { usePostClickHandler } from "@/app/post/hooks/usePostClickHandler"
-import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    GeneratorView,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -84,7 +88,7 @@ interface Props {
     type?: "Post" | "Reply" | `Quote`
     postData?: PostView
     initialText?: string
-    initialEmbed?: any
+    initialEmbed?: GeneratorView | undefined
     initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
 }
@@ -139,8 +143,12 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
     const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [getFeedData, setGetFeedData] = useState<any>(null)
-    const [getListData, setGetListData] = useState<any>(null)
+    const [getFeedData, setGetFeedData] = useState<GeneratorView | undefined>(
+        undefined
+    )
+    const [getListData, setGetListData] = useState<ListView | undefined>(
+        undefined
+    )
     const [, setIsGetOGPFetchError] = useState(false)
     // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
@@ -741,7 +749,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         if (isFeedURL(url)) {
-                                                            useGetFeedInfo(
+                                                            void useGetFeedInfo(
                                                                 url,
                                                                 agent,
                                                                 setIsOGPGetProcessing,
@@ -751,7 +759,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                             isListURL(url)
                                                         ) {
                                                             console.log("list")
-                                                            useGetListInfo(
+                                                            void useGetListInfo(
                                                                 url,
                                                                 agent,
                                                                 setIsOGPGetProcessing,
