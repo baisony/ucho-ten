@@ -17,7 +17,7 @@ export const useGetOGPData = async (
     url: string,
     setIsOGPGetProcessing: React.Dispatch<React.SetStateAction<boolean>>,
     setIsGetOGPFetchError: React.Dispatch<React.SetStateAction<boolean>>,
-    setGetOGPData: React.Dispatch<React.SetStateAction<OGPData>>,
+    setGetOGPData: React.Dispatch<React.SetStateAction<OGPData | undefined>>,
     setOGPImage: React.Dispatch<React.SetStateAction<OGPImage[]>>
 ) => {
     console.log(url)

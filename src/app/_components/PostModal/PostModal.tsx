@@ -1,4 +1,5 @@
 import {
+    DragEvent,
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -92,7 +93,13 @@ interface Props {
     initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
 }
-
+interface OGPData {
+    title: string
+    description: string
+    thumb?: string
+    uri: string
+    alt: string
+}
 export const PostModal: React.FC<Props> = (props: Props) => {
     const { type, postData, initialText, initialEmbed, initialEmbedType } =
         props
@@ -142,7 +149,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [getOGPData, setGetOGPData] = useState<any>(null)
+    const [getOGPData, setGetOGPData] = useState<OGPData | undefined>(undefined)
     const [getFeedData, setGetFeedData] = useState<GeneratorView | undefined>(
         undefined
     )
@@ -251,13 +258,13 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     }, [])
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
     //const filesUpdated: FileWithPath[] = acceptedFiles;
-    const handleDrop = (e: any) => {
+    const handleDrop = (e: DragEvent) => {
         e.preventDefault()
         //const file = e.dataTransfer.files[0];
         // ファイルの処理を行う
     }
 
-    const handleDragOver = (e: any) => {
+    const handleDragOver = (e: DragEvent) => {
         e.preventDefault()
         e.dataTransfer.dropEffect = "copy"
     }
@@ -287,7 +294,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     }
 
     // ドラッグをキャンセルする
-    const handleDragStart = (e: any) => {
+    const handleDragStart = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault()
     }
 
@@ -611,7 +618,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         getOGPData !== null ||
                                         getListData !== null ||
                                         getFeedData !== null,
-                                    //@ts-ignore
                                     type: type,
                                 })}
                                 aria-label="post input area"
@@ -832,9 +838,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     loading ||
                                     isCompressing ||
                                     contentImages.length >= 4 ||
-                                    getOGPData ||
-                                    getListData ||
-                                    getFeedData ||
+                                    !!getOGPData ||
+                                    !!getListData ||
+                                    !!getFeedData ||
                                     isOGPGetProcessing
                                 }
                                 as={"span"}
@@ -863,9 +869,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     loading ||
                                     isCompressing ||
                                     contentImages.length >= 4 ||
-                                    getOGPData ||
-                                    getListData ||
-                                    getFeedData ||
+                                    !!getOGPData ||
+                                    !!getListData ||
+                                    !!getFeedData ||
                                     isOGPGetProcessing
                                 }
                             />

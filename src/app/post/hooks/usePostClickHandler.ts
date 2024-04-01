@@ -9,13 +9,25 @@ import {
 } from "@atproto/api"
 import { QueryClient } from "@tanstack/react-query"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    GeneratorView,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 
 interface AttachmentImage {
     blob: Blob
     type: string
     isFailed?: boolean
+}
+
+interface OGPData {
+    title: string
+    description: string
+    thumb?: string
+    uri: string
+    alt: string
 }
 
 export const usePostClickHandler = async (
@@ -27,9 +39,9 @@ export const usePostClickHandler = async (
     setPostLanguage: React.Dispatch<React.SetStateAction<string[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     type: "Post" | "Reply" | `Quote` | undefined,
-    getOGPData: any,
-    getFeedData: any,
-    getListData: any,
+    getOGPData: OGPData | undefined,
+    getFeedData: GeneratorView | undefined,
+    getListData: ListView | undefined,
     selectedURL: string,
     PostLanguage: string[],
     altOfImageList: string[],

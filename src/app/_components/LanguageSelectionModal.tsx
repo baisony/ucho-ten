@@ -19,7 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 interface LanguagesSelectionModalProps {
     isOpen: boolean
     onOpenChange: (isOpen: boolean) => void
-    onSelectionChange: (keys: Selection) => any
+    onSelectionChange: (keys: Selection) => void
     PostLanguage: string[]
 }
 
