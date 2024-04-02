@@ -93,6 +93,7 @@ interface Props {
     initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
 }
+
 interface OGPData {
     title: string
     description: string
@@ -100,9 +101,9 @@ interface OGPData {
     uri: string
     alt: string
 }
+
 export const PostModal: React.FC<Props> = (props: Props) => {
-    const { type, postData, initialText, initialEmbed, initialEmbedType } =
-        props
+    const { type, postData, initialEmbed, initialEmbedType } = props
     const [appearanceColor] = useAppearanceColor()
     const { t } = useTranslation()
     const searchParams = useSearchParams()

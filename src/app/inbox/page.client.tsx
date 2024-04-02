@@ -61,7 +61,7 @@ export default function FeedPage() {
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    //const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
@@ -357,7 +357,7 @@ export default function FeedPage() {
             const mergedTimeline = mergePosts(replies, timeline)
             //@ts-ignore
             setTimeline(mergedTimeline)
-            setHasUpdate(false)
+            //setHasUpdate(false)
 
             if (mergedTimeline.length > 0) {
                 latestCID.current = (mergedTimeline[0] as PostView).cid

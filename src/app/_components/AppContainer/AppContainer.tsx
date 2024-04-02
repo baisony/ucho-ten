@@ -176,8 +176,6 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         searchParams
     )
 
-    useTransferMuteWord(agent, muteWords, setMuteWords)
-
     const handleSideBarOpen = (isOpen: boolean) => {
         setDrawerOpen(isOpen)
     }
