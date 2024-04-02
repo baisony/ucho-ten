@@ -75,7 +75,7 @@ export default function Root() {
     const [timeline, setTimeline] = useState<
         ListItemView[] | FeedViewPost[] | null
     >(null)
-    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
+    //const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
     const [feedInfo, setFeedInfo] = useState<ListView | null>(null)
     const [now, setNow] = useState<Date>(new Date())
@@ -168,7 +168,7 @@ export default function Root() {
                 items.length === 0 &&
                 (cursor.current === data?.data.cursor || !data?.data.cursor)
             ) {
-                setIsEndOfFeed(true)
+                //setIsEndOfFeed(true)
             }
 
             if (data?.data.cursor) {

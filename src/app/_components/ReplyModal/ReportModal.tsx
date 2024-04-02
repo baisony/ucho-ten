@@ -2,6 +2,7 @@ import { Modal, ModalContent } from "@nextui-org/react"
 
 import { isMobile } from "react-device-detect"
 import { PostModal } from "../PostModal/PostModal"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 /**
  * SetttingsModal props.
@@ -12,7 +13,7 @@ export type ReportModalProps = {
     placement?: "top" | "center"
     className?: string
     //type?: "Reply"
-    post: any
+    post: PostView | undefined
     //nextQueryParams: URLSearchParams
 }
 

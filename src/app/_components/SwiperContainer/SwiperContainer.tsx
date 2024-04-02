@@ -40,9 +40,7 @@ export function SwiperContainer({
     const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
-        //@ts-ignore
         if (HEADER_MENUS[page] === undefined) return
-        //@ts-ignore
         setCurrentMenuType(`${page}`)
     }, [])
 

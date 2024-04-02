@@ -7,6 +7,12 @@ import {
 
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import {
+    AppBskyEmbedExternal,
+    AppBskyEmbedImages,
+    AppBskyEmbedRecord,
+    AppBskyEmbedRecordWithMedia,
+} from "@atproto/api"
 
 interface Embed {
     $type: string
@@ -27,18 +33,24 @@ const useEmbed = (
 
             if (!embed || !embed.$type) return null
 
-            if ((embed?.record as PostView)?.$type === type) return embed as any
+            if ((embed?.record as PostView)?.$type === type) return embed
 
             return embed.$type === type ? (embed as Embed) : null
         }
 
         return {
-            embedImages: extractEmbedOfType("app.bsky.embed.images#view"),
+            embedImages: extractEmbedOfType(
+                "app.bsky.embed.images#view"
+            ) as AppBskyEmbedImages.View,
             embedMedia: extractEmbedOfType(
                 "app.bsky.embed.recordWithMedia#view"
-            ),
-            embedExternal: extractEmbedOfType("app.bsky.embed.external#view"),
-            embedRecord: extractEmbedOfType("app.bsky.embed.record#view"),
+            ) as AppBskyEmbedRecordWithMedia.View,
+            embedExternal: extractEmbedOfType(
+                "app.bsky.embed.external#view"
+            ) as AppBskyEmbedExternal.View,
+            embedRecord: extractEmbedOfType(
+                "app.bsky.embed.record#view"
+            ) as AppBskyEmbedRecord.View,
             embedRecordBlocked: extractEmbedOfType(
                 "app.bsky.embed.record#viewBlocked"
             ),

@@ -274,7 +274,7 @@ interface UserCellProps {
     //index?: number
 }
 
-const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
+const UserCell = ({ onClick, skeleton }: UserCellProps) => {
     const { userCard } = layout()
 
     return (

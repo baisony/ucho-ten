@@ -529,7 +529,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
 
 interface FeedProps {
     agent: BskyAgent | null
-    feedInfo?: any
+    feedInfo?: AppBskyFeedGetFeedGenerator.OutputSchema
     isSubscribed?: boolean
     isPinned?: boolean
     onClick?: () => void
@@ -614,7 +614,7 @@ const FeedHeaderComponent = ({
                     {!isSkeleton ? (
                         <img
                             className={ProfileImage()}
-                            src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                            src={feedInfo?.view?.avatar || defaultFeedIcon.src}
                             alt={"profile"}
                         />
                     ) : (
@@ -645,7 +645,7 @@ const FeedHeaderComponent = ({
                                     key="new"
                                     onClick={() => {
                                         const aturl = new AtUri(
-                                            feedInfo.view?.uri
+                                            feedInfo?.view?.uri ?? ""
                                         )
                                         void navigator.clipboard.writeText(
                                             `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`
@@ -700,7 +700,7 @@ const FeedHeaderComponent = ({
                     </div>
                     <div className={ProfileDisplayName()}>
                         {!isSkeleton ? (
-                            feedInfo.view?.displayName
+                            feedInfo?.view?.displayName
                         ) : (
                             <Skeleton
                                 className={`h-[24px] w-[300px] rounded-[10px] `}
@@ -710,7 +710,7 @@ const FeedHeaderComponent = ({
                     <div className={ProfileHandle()}>
                         {!isSkeleton ? (
                             `${t(`pages.feedOnlyPage.createdBy`)} @${
-                                feedInfo.view.creator.handle
+                                feedInfo?.view.creator.handle
                             }`
                         ) : (
                             <Skeleton
@@ -720,7 +720,7 @@ const FeedHeaderComponent = ({
                     </div>
                     <div className={ProfileBio()}>
                         {!isSkeleton ? (
-                            feedInfo.view?.description
+                            feedInfo?.view?.description
                         ) : (
                             <>
                                 <Skeleton

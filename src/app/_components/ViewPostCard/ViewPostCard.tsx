@@ -12,7 +12,10 @@ import {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
-import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import {
+    ProfileViewBasic,
+    ViewerState,
+} from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
     faBookmark as faBookmarkRegular,
@@ -59,7 +62,7 @@ import useEmbed from "@/app/_components/ViewPostCard/lib/useEmbed"
 import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabels"
 import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
 import { TFunction } from "i18next"
-import { ViewerState } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { AppBskyEmbedRecord } from "@atproto/api"
 
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
@@ -91,6 +94,12 @@ const MobileOptionModal = dynamic(
     { ssr: true }
 )
 
+interface reactionJson {
+    reaction: string
+    postUri: string
+    reactionUri: string
+}
+
 export interface ViewPostCardProps {
     isSkeleton?: boolean
     isMobile?: boolean
@@ -104,7 +113,7 @@ export interface ViewPostCardProps {
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
     t: TFunction
-    handleValueChange?: (value: any) => void
+    handleValueChange?: (value: reactionJson) => void
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean
     isDisplayMode?: boolean
@@ -285,11 +294,15 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 embedRecordViewRecord?.author?.viewer &&
                 shouldDeletePost(embedRecordViewRecord.author.viewer)) ||
             (embedMedia &&
-                (embedMedia?.record?.record?.author as ProfileViewBasic)
-                    ?.viewer &&
+                (
+                    (embedMedia?.record as AppBskyEmbedRecord.View)?.record
+                        ?.author as ProfileViewBasic
+                )?.viewer &&
                 shouldDeletePost(
-                    (embedMedia?.record?.record?.author as ProfileViewBasic)
-                        .viewer as ProfileViewBasic
+                    (
+                        (embedMedia?.record as AppBskyEmbedRecord.View)?.record
+                            ?.author as ProfileViewBasic
+                    ).viewer as ProfileViewBasic
                 ))
         ) {
             handleInputChange("delete", postJsonData?.uri || "", "")

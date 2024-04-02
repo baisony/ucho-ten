@@ -122,7 +122,6 @@ const PageClient = () => {
                 {menus.profile.map((menu, index) => {
                     return (
                         <SwiperSlide key={index}>
-                            {/* @ts-ignore */}
                             <PostPage tab={menu.info} zenMode={zenMode} />
                         </SwiperSlide>
                     )
@@ -137,8 +136,8 @@ const PageClient = () => {
 export default PageClient
 
 interface PostPageProps {
-    tab: "posts" | "replies" | "media"
-    zenMode: boolean
+    tab: string
+    zenMode: boolean | undefined
 }
 
 const PostPage = (props: PostPageProps) => {
@@ -731,10 +730,10 @@ const UserProfileComponent = ({
         if (isLoading) return
         setIsLoading(true)
         if (isMuted) {
-            const res = await agent?.unmute(profile.did)
+            await agent?.unmute(profile.did)
             setIsMuted(!isMuted)
         } else {
-            const res = await agent?.mute(profile.did)
+            await agent?.mute(profile.did)
             setIsMuted(!isMuted)
         }
         setIsLoading(false)
@@ -1219,7 +1218,7 @@ const UserProfileComponent = ({
                                 } else if (isFollowing) {
                                     if (!agent) return
                                     try {
-                                        const res = await agent.deleteFollow(
+                                        await agent.deleteFollow(
                                             profile.viewer.following
                                         )
                                         setIsFollowing(false)

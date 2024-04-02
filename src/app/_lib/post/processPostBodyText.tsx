@@ -26,8 +26,8 @@ const addParamsToUrl = (hashtag: string, nextQueryParams: URLSearchParams) => {
 
 export const processPostBodyText = (
     nextQueryParams: URLSearchParams,
-    postJson?: PostView | null,
-    quoteJson?: ViewRecord | null
+    postJson?: PostView | undefined | null,
+    quoteJson?: PostView | ViewRecord | null
 ): React.ReactNode => {
     const { chip } = viewPostCard()
     const postJsonData: PostView | ViewRecord | null =
@@ -61,19 +61,6 @@ export const processPostBodyText = (
         <span key={key}>
             {textChunk}
             <br />
-        </span>
-    )
-
-    const addLink = (linkElement: React.ReactNode, key: string) => (
-        <span key={key}>
-            <Chip
-                className={chip()}
-                size={"sm"}
-                variant="faded"
-                color="primary"
-            >
-                {linkElement}
-            </Chip>
         </span>
     )
 

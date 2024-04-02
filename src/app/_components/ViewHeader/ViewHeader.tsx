@@ -322,5 +322,3 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
         </main>
     )
 })
-
-export default ViewHeader

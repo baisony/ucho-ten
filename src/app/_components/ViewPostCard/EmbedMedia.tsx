@@ -11,7 +11,7 @@ import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { Linkcard } from "@/app/_components/Linkcard"
 
 interface EmbedMediaProps {
-    embedMedia: AppBskyEmbedRecordWithMedia.View
+    embedMedia: AppBskyEmbedRecordWithMedia.View | null
     onImageClick: (images: ViewImage[], index: number) => void
     isEmbedToModal?: boolean
     nextQueryParams: URLSearchParams
@@ -24,7 +24,7 @@ export const EmbedMedia = memo(
         isEmbedToModal,
         nextQueryParams,
     }: EmbedMediaProps) => {
-        const images = embedMedia.media?.images
+        const images = embedMedia?.media?.images
 
         return (
             !isEmbedToModal && (
@@ -67,41 +67,41 @@ export const EmbedMedia = memo(
                             )}
                         </ScrollShadow>
                     )}
-                    {embedMedia.media.$type ===
+                    {embedMedia?.media.$type ===
                         "app.bsky.embed.external#view" && (
-                        <Linkcard ogpData={embedMedia.media.external} />
+                        <Linkcard ogpData={embedMedia?.media.external} />
                     )}
-                    {embedMedia.record.record.$type ===
+                    {embedMedia?.record.record.$type ===
                         "app.bsky.embed.record#view" && (
                         <ViewQuoteCard
-                            postJson={embedMedia.record.record}
+                            postJson={embedMedia?.record.record}
                             nextQueryParams={nextQueryParams}
                         />
                     )}
-                    {embedMedia.record.record.$type ===
+                    {embedMedia?.record.record.$type ===
                         "app.bsky.embed.record#viewRecord" && (
                         <ViewQuoteCard
-                            postJson={embedMedia.record.record}
+                            postJson={embedMedia?.record.record}
                             nextQueryParams={nextQueryParams}
                         />
                     )}
-                    {embedMedia.record.record.$type ===
+                    {embedMedia?.record.record.$type ===
                         "app.bsky.feed.defs#generatorView" && (
                         <ViewFeedCard
-                            feed={embedMedia.record.record as GeneratorView}
+                            feed={embedMedia?.record.record as GeneratorView}
                         />
                     )}
-                    {embedMedia.record.record.$type ===
+                    {embedMedia?.record.record.$type ===
                         "app.bsky.graph.defs#listView" && (
                         <ViewMuteListCard
-                            list={embedMedia.record.record as ListView}
+                            list={embedMedia?.record.record as ListView}
                         />
                     )}
-                    {embedMedia.record.record.$type ===
+                    {embedMedia?.record.record.$type ===
                         "app.bsky.embed.record#viewNotFound" && (
                         <ViewNotFoundCard />
                     )}
-                    {embedMedia.record.record.$type ===
+                    {embedMedia?.record.record.$type ===
                         "app.bsky.embed.record#viewBlocked" && (
                         <ViewNotFoundCard />
                     )}
