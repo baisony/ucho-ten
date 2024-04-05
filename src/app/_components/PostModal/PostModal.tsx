@@ -89,7 +89,7 @@ interface Props {
     type?: "Post" | "Reply" | `Quote`
     postData?: PostView
     initialText?: string
-    initialEmbed?: GeneratorView | undefined
+    initialEmbed?: GeneratorView | ListView | unknown | undefined
     initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
 }
@@ -358,11 +358,18 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     useEffect(() => {
         if (!initialEmbedType) return
-        if (initialEmbedType === "feed") {
+        if (
+            initialEmbedType === "feed" &&
+            (initialEmbed as ListView)?.$type ===
+                "app.bsky.feed.defs#generatorView"
+        ) {
             console.log("feed")
-            setGetFeedData(initialEmbed)
-        } else if (initialEmbedType === "list") {
-            setGetFeedData(initialEmbed)
+            setGetFeedData(initialEmbed as GeneratorView)
+        } else if (
+            initialEmbedType === "list" &&
+            (initialEmbed as ListView)?.$type === "app.bsky.graph.defs#listView"
+        ) {
+            setGetListData(initialEmbed as ListView)
         }
     }, [initialEmbedType])
 

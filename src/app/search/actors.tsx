@@ -1,6 +1,4 @@
 import { layout } from "@/app/search/styles"
-import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
-import { useWordMutes } from "@/app/_atoms/wordMute"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
@@ -13,13 +11,13 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { mergeActors } from "@/app/_lib/actor/mergeActors"
 import { useContentFontSize } from "@/app/_atoms/contentFontSize"
 import { Skeleton } from "@nextui-org/react"
 import defaultIcon from "../../../public/images/icon/default_icon.svg"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { TFunction } from "i18next"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 
 interface FeedResponseObject {
     actors: ProfileView[]
@@ -37,19 +35,17 @@ interface SearchPostPageProps {
 const SearchActorPage = ({
     agent,
     isActive,
-    t,
+    //t,
     nextQueryParams,
     searchText,
 }: SearchPostPageProps) => {
     const router = useRouter()
-    const { searchSupportCard } = layout()
-    const [userProfileDetailed] = useUserProfileDetailedAtom()
-    const [muteWords] = useWordMutes()
+    //const [muteWords] = useWordMutes()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<ProfileView[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<ProfileView[]>([])
+    const [, setNewTimeline] = useState<ProfileView[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
@@ -62,7 +58,7 @@ const SearchActorPage = ({
 
     const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
-    const isScrolling = useRef<boolean>(false)
+    //const isScrolling = useRef<boolean>(false)
     const feedKey = `Actors`
     const pageName = "search"
 
@@ -181,13 +177,12 @@ const SearchActorPage = ({
         }
     }, [agent, isActive])
 
-    const handleRefresh = async () => {
+    /*const handleRefresh = async () => {
         shouldScrollToTop.current = true
 
         const mergedTimeline = mergeActors(newTimeline, timeline)
 
         if (!mergedTimeline[0]) return
-        //@ts-ignore
         setTimeline(mergedTimeline)
         setNewTimeline([])
         setHasUpdate(false)
@@ -201,7 +196,7 @@ const SearchActorPage = ({
         })
 
         shouldCheckUpdate.current = true
-    }
+    }*/
 
     const handleFetchResponse = (response: FeedResponseObject) => {
         console.log(response)
@@ -251,7 +246,7 @@ const SearchActorPage = ({
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey] = queryKey
+        const [_key] = queryKey
 
         const response = await agent.searchActors({
             term: searchText,
@@ -280,23 +275,14 @@ const SearchActorPage = ({
         refetchOnReconnect: false,
     })
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        if (!isActive) return
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        isActive,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed && isActive) {
         handleFetchResponse(data)
@@ -314,7 +300,7 @@ const SearchActorPage = ({
                 ref={virtuosoRef}
                 restoreStateFrom={
                     //@ts-ignore
-                    scrollPositions[`search-posts-${searchText}`]
+                    scrollPositions[`${pageName}-${feedKey}`]
                 }
                 context={{ hasMore }}
                 overscan={200}

@@ -7,6 +7,7 @@ import {
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
+import { AppBskyRichtextFacet } from "@atproto/api/dist/client"
 
 const handleHideRepost = (
     item: FeedViewPost | PostView,
@@ -20,12 +21,13 @@ const handleFrontMention = (post: PostView) => {
         ((post.record as PostView)?.text as string)?.startsWith("@") &&
         (post.record as PostView)?.facets
     ) {
-        //@ts-ignore
-        post.record.facets.map((facet: any) => {
-            if (facet.index.byteStart == 0) {
-                return true
+        ;(post.record as Record)?.facets?.map(
+            (facet: AppBskyRichtextFacet.Main) => {
+                if (facet.index.byteStart == 0) {
+                    return true
+                }
             }
-        })
+        )
     }
     return false
 }
@@ -35,12 +37,11 @@ export const filterDisplayPosts = (
     sessionUser: ProfileViewDetailed | null,
     agent: BskyAgent | null,
     hideRepost?: boolean
-): FeedViewPost[] | PostView[] => {
+): (FeedViewPost | PostView)[] => {
     const seenUris = new Set<string>()
-    //@ts-ignore
     return posts.filter((item) => {
         //@ts-ignore
-        const postData: PostView = item.post ?? item
+        const postData: PostView = item?.post ?? item
         const uri = postData.uri
         const authorDID = postData.author?.did
 
@@ -60,8 +61,7 @@ export const filterDisplayPosts = (
             (postData.record as PostView)?.reply &&
             !item.reply
         ) {
-            const replyParent = ((postData.record as PostView).reply as any)
-                ?.parent
+            const replyParent = (postData.record as Record).reply?.parent
 
             if (replyParent && !item.reply) {
                 const did = new AtUri(replyParent.uri).hostname
@@ -72,7 +72,7 @@ export const filterDisplayPosts = (
                             author: sessionUser,
                         },
                         isFakeArray: true,
-                    } as any
+                    }
                 } else {
                     if (!agent) return
                     item.reply = {
@@ -83,7 +83,7 @@ export const filterDisplayPosts = (
                             },
                         },
                         isFakeArray: true,
-                    } as any
+                    }
                 }
             }
         }

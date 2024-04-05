@@ -68,6 +68,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -335,21 +336,14 @@ const PostPage = (props: PostPageProps) => {
         router.push(`/profile/${domain}?${nextQueryParams.toString()}`)
     }
 
-    const handleSaveScrollPosition = () => {
-        virtuosoRef?.current?.getState((state) => {
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`profile-${username}-${props.tab}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`profile-${username}-${props.tab}`] =
-                    state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        `profile-${username}`,
+        props.tab,
+        scrollPositions,
+        setScrollPositions
+    )
 
     const dataWithDummy = useMemo((): UserProfilePageCellProps[] => {
         let data: UserProfilePageCellProps[] = []

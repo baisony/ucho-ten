@@ -51,6 +51,7 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { PostModal } from "@/app/_components/PostModal"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 
 SwiperCore.use([Virtual])
 
@@ -354,22 +355,14 @@ export default function Root() {
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`feed-${atUri}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`feed-${atUri}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        "feed",
+        atUri,
+        scrollPositions,
+        setScrollPositions
+    )
 
     const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
         let data: CustomFeedCellProps[] = []

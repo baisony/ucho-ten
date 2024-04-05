@@ -42,6 +42,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 
 SwiperCore.use([Virtual])
 
@@ -300,22 +301,14 @@ export default function FeedPage() {
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)

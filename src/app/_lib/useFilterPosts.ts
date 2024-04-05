@@ -5,7 +5,7 @@ import {
 import { MuteWord } from "@/app/_atoms/wordMute"
 
 export const useFilterPosts = (
-    posts: PostView[] | FeedViewPost[],
+    posts: (PostView | FeedViewPost)[],
     muteWords: MuteWord[]
 ) => {
     return posts.filter((post) => {
