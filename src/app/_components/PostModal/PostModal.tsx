@@ -522,7 +522,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         radius={"full"}
                         size={"sm"}
                         color={"primary"}
-                        onPress={
+                        onPress={() => {
                             void usePostClickHandler(
                                 agent,
                                 trimedContentText,
@@ -546,7 +546,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 undefined,
                                 nextQueryParams
                             )
-                        }
+                        }}
                         isDisabled={
                             loading ||
                             isOGPGetProcessing ||

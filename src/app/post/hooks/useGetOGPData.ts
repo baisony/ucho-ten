@@ -1,14 +1,6 @@
 // useGetOGPData.ts
 
-import { OGPImage } from "@/app/_types/types"
-
-interface OGPData {
-    title: string
-    description: string
-    thumb?: string
-    uri: string
-    alt: string
-}
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 export const useGetOGPData = async (
     url: string,

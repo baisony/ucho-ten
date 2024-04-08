@@ -15,20 +15,12 @@ import {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
-import { OGPImage } from "@/app/_types/types"
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 interface AttachmentImage {
     blob: Blob
     type: string
     isFailed?: boolean
-}
-
-interface OGPData {
-    title: string
-    description: string
-    thumb?: string
-    uri: string
-    alt: string
 }
 
 export const usePostClickHandler = async (

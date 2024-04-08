@@ -451,8 +451,8 @@ export default function Root() {
                             size={"sm"}
                             radius={"full"}
                             color={"primary"}
-                            onPress={
-                                void usePostClickHandler(
+                            onPress={() => {
+                                usePostClickHandler(
                                     agent,
                                     trimedContentText,
                                     contentImages,
@@ -475,7 +475,7 @@ export default function Root() {
                                     router,
                                     nextQueryParams
                                 )
-                            }
+                            }}
                             isDisabled={
                                 loading ||
                                 isOGPGetProcessing ||
@@ -520,9 +520,9 @@ export default function Root() {
                                         contentImages.length !== 0 ||
                                         isCompressing ||
                                         detectedURLs.length !== 0 ||
-                                        getOGPData !== null ||
-                                        getFeedData !== null ||
-                                        getListData !== null,
+                                        !!getOGPData ||
+                                        !!getFeedData ||
+                                        !!getListData,
                                 })}
                                 aria-label="post input area"
                                 placeholder={t("modal.post.placeholder")}
