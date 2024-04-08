@@ -63,6 +63,7 @@ import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabel
 import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
 import { TFunction } from "i18next"
 import { AppBskyEmbedRecord } from "@atproto/api"
+import { reactionJson } from "@/app/_types/types"
 
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
@@ -93,12 +94,6 @@ const MobileOptionModal = dynamic(
         ),
     { ssr: true }
 )
-
-interface reactionJson {
-    reaction: string
-    postUri: string
-    reactionUri: string
-}
 
 export interface ViewPostCardProps {
     isSkeleton?: boolean

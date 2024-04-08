@@ -90,9 +90,7 @@ const MyFeedsPage = () => {
         useHeaderMenusByHeaderAtom()
 
     const fetchFeeds = async () => {
-        if (!agent) {
-            return
-        }
+        if (!agent) return
 
         try {
             setIsFetching(true)

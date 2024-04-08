@@ -8,16 +8,19 @@ import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useHandleImageClick from "@/app/_components/ViewPostCard/lib/handleDisplayImage"
+import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 
 interface Props {
     className?: string
     postJson?: any
     isSkeleton?: boolean
-    json?: any
+    json?: FeedViewPost
     isEmbedToModal?: boolean
     now?: Date
     isEmbedReportModal?: boolean
-    profile?: any
+    profile?: ProfileViewDetailed | null
     nextQueryParams: URLSearchParams
 }
 
@@ -53,7 +56,7 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
         if (!postJson?.value && !postJson?.record?.text) return
         const post: any[] = []
         const postText = postJson?.value?.text || postJson?.record?.text
-        postText?.split("\n").map((line: any, i: number) => {
+        postText?.split("\n").map((line: string, i: number) => {
             post.push(
                 <p key={i}>
                     {line}
@@ -215,7 +218,7 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                     >
                                                         {postJson.embed.images.map(
                                                             (
-                                                                image: any,
+                                                                image: ViewImage,
                                                                 index: number
                                                             ) => (
                                                                 <div
@@ -225,7 +228,8 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                                     <img
                                                                         className="w-full h-full z-0 object-cover"
                                                                         src={
-                                                                            image.thumb
+                                                                            image?.thumb ||
+                                                                            ""
                                                                         }
                                                                         alt={
                                                                             image?.alt
@@ -271,5 +275,3 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
         </>
     )
 })
-
-export default ViewQuoteCard

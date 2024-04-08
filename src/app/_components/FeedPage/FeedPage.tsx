@@ -200,7 +200,7 @@ const FeedPage = memo(
                     const muteWordFilter = useFilterPosts(
                         filteredData,
                         muteWords
-                    )
+                    ) as FeedViewPost[]
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
@@ -210,11 +210,11 @@ const FeedPage = memo(
                         }
                     }
 
-                    setTimeline((currentTimeline: any) => {
+                    setTimeline((currentTimeline: FeedViewPost[] | null) => {
                         if (currentTimeline !== null) {
                             return [...currentTimeline, ...muteWordFilter]
                         } else {
-                            return [...muteWordFilter]
+                            return muteWordFilter
                         }
                     })
                 } else {
@@ -399,7 +399,6 @@ const FeedPage = memo(
                                 isScrolling.current = e
                             }}
                             restoreStateFrom={
-                                //@ts-ignore
                                 scrollPositions[`${pageName}-${feedKey}`]
                             }
                             rangeChanged={(range) => {

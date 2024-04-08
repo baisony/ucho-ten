@@ -206,10 +206,7 @@ const SearchFeedPage = ({
                     }
                 }}
                 ref={virtuosoRef}
-                restoreStateFrom={
-                    //@ts-ignore
-                    scrollPositions[`search-posts-${searchText}`]
-                }
+                restoreStateFrom={scrollPositions[`search-posts-${searchText}`]}
                 rangeChanged={(range) => {
                     setScrollIndex(range.startIndex)
                 }}

@@ -298,10 +298,7 @@ const SearchActorPage = ({
                     }
                 }}
                 ref={virtuosoRef}
-                restoreStateFrom={
-                    //@ts-ignore
-                    scrollPositions[`${pageName}-${feedKey}`]
-                }
+                restoreStateFrom={scrollPositions[`${pageName}-${feedKey}`]}
                 context={{ hasMore }}
                 overscan={200}
                 increaseViewportBy={200}

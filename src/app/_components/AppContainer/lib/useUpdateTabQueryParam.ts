@@ -34,10 +34,10 @@ export const useUpdateTabQueryParam = (
         } else {
             const f = queryParams.get("f")
 
-            if (isTabQueryParamValue(f)) {
-                tabValue = f
-            } else {
+            if (!isTabQueryParamValue(f)) {
                 tabValue = "h"
+            } else {
+                tabValue = f
             }
         }
 

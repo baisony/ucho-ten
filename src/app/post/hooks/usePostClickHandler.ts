@@ -15,6 +15,7 @@ import {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { OGPImage } from "@/app/_types/types"
 
 interface AttachmentImage {
     blob: Blob
@@ -34,8 +35,8 @@ export const usePostClickHandler = async (
     agent: BskyAgent | null,
     trimedContentText: () => string,
     contentImages: AttachmentImage[],
-    OGPImage: any[],
-    setOGPImage: React.Dispatch<React.SetStateAction<any[]>>,
+    OGPImage: OGPImage[],
+    setOGPImage: React.Dispatch<React.SetStateAction<OGPImage[]>>,
     setPostLanguage: React.Dispatch<React.SetStateAction<string[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     type: "Post" | "Reply" | `Quote` | undefined,
@@ -68,6 +69,7 @@ export const usePostClickHandler = async (
         const images = contentImages.length > 0 ? contentImages : OGPImage
         let uploadBlobRes
         for (const image of images) {
+            if (!image.blob) return
             const uint8array = new Uint8Array(await image.blob.arrayBuffer())
             uploadBlobRes = await agent.uploadBlob(uint8array, {
                 encoding: "image/jpeg",

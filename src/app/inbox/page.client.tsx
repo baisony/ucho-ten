@@ -43,6 +43,7 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -222,7 +223,7 @@ export default function FeedPage() {
         refetchOnReconnect: false,
     })
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (post) => post.uri === newValue.postUri
@@ -347,8 +348,7 @@ export default function FeedPage() {
                     )
                 })
             }
-            const mergedTimeline = mergePosts(replies, timeline)
-            //@ts-ignore
+            const mergedTimeline = mergePosts(replies, timeline) as PostView[]
             setTimeline(mergedTimeline)
             //setHasUpdate(false)
 
@@ -404,7 +404,6 @@ export default function FeedPage() {
                                             ref={virtuosoRef}
                                             restoreStateFrom={
                                                 scrollPositions[
-                                                    //@ts-ignore
                                                     `${pageName}-${feedKey}`
                                                 ]
                                             }

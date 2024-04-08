@@ -2,11 +2,12 @@ import { linkcard } from "./styles"
 import { Spinner } from "@nextui-org/react"
 import { memo } from "react"
 import { SwitchingLinkATag } from "@/app/_components/Linkcard/SwitchingLinkATag"
+import { External } from "@atproto/api/dist/client/types/app/bsky/embed/external"
 
 interface Props {
     children?: React.ReactNode
     type?: "Post" | "Reply" | `Quote`
-    postData?: any
+    postData?: External
     ogpData?: any
     skeleton?: boolean
 }
@@ -176,5 +177,3 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
         </div>
     )
 })
-
-export default Linkcard

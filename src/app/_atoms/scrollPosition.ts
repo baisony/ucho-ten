@@ -1,19 +1,10 @@
 import { atom, useAtom } from "jotai"
-
-interface range {
-    startIndex: number
-    endIndex: number | null
-    startOffset: number
-}
-interface position {
-    ranges: range[]
-    scrollTop: number
-}
+import { StateSnapshot } from "react-virtuoso"
 
 export interface ScrollPosition {
-    [key: string]: position
+    [key: string]: StateSnapshot
 }
 
-const scrollPositions = atom<ScrollPosition[]>([])
+const scrollPositions = atom<ScrollPosition>({})
 
 export const useScrollPositions = () => useAtom(scrollPositions)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react"
 import { createPostPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faImage } from "@fortawesome/free-regular-svg-icons"
@@ -63,6 +63,9 @@ import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguage
 import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
 import { useAddImages } from "@/app/post/hooks/useAddImages"
 import { usePostClickHandler } from "@/app/post/hooks/usePostClickHandler"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -114,12 +117,16 @@ export default function Root() {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [getFeedData, setGetFeedData] = useState<any>(null)
-    const [getListData, setGetListData] = useState<any>(null)
+    const [getOGPData, setGetOGPData] = useState<OGPData | undefined>(undefined)
+    const [getFeedData, setGetFeedData] = useState<GeneratorView | undefined>(
+        undefined
+    )
+    const [getListData, setGetListData] = useState<ListView | undefined>(
+        undefined
+    )
     const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    const [OGPImage, setOGPImage] = useState<any>([])
+    const [OGPImage, setOGPImage] = useState<OGPImage[]>([])
     const [adultContent, setAdultContent] = useState<
         boolean | "suggestive" | "nudity" | "porn"
     >(false)
@@ -223,12 +230,12 @@ export default function Root() {
 
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
 
-    const handleDrop = (e: any) => {
+    const handleDrop = (e: DragEvent) => {
         e.preventDefault()
         // ファイルの処理を行う
     }
 
-    const handleDragOver = (e: any) => {
+    const handleDragOver = (e: DragEvent) => {
         e.preventDefault()
         e.dataTransfer.dropEffect = "copy"
     }
@@ -259,7 +266,7 @@ export default function Root() {
     }
 
     // ドラッグをキャンセルする
-    const handleDragStart = (e: any) => {
+    const handleDragStart = (e: DragEvent) => {
         e.preventDefault()
     }
 
@@ -725,9 +732,9 @@ export default function Root() {
                                         loading ||
                                         isCompressing ||
                                         contentImages.length >= 4 ||
-                                        getOGPData ||
-                                        getFeedData ||
-                                        getListData ||
+                                        !!getOGPData ||
+                                        !!getFeedData ||
+                                        !!getListData ||
                                         isOGPGetProcessing
                                     }
                                     as={"span"}
@@ -758,9 +765,9 @@ export default function Root() {
                                         loading ||
                                         isCompressing ||
                                         contentImages.length >= 4 ||
-                                        getOGPData ||
-                                        getFeedData ||
-                                        getListData ||
+                                        !!getOGPData ||
+                                        !!getFeedData ||
+                                        !!getListData ||
                                         isOGPGetProcessing
                                     }
                                 />
@@ -875,7 +882,9 @@ export default function Root() {
                                         <Picker
                                             data={data}
                                             locale={i18n.language}
-                                            onEmojiSelect={(e: any) => {
+                                            onEmojiSelect={(e: {
+                                                native: string
+                                            }) => {
                                                 console.log(e)
                                                 useEmojiClickHandler(
                                                     e,

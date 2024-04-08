@@ -12,6 +12,7 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { data: string } }
 ) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     const data = JSON.parse(params.did)
     const agent = new BskyAgent({ service: `https://${data.server}` })

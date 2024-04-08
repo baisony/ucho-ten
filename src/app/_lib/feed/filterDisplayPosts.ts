@@ -4,6 +4,7 @@ import {
     PostView,
     ReplyRef,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { AppBskyFeedDefs } from "@atproto/api"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
@@ -33,15 +34,19 @@ const handleFrontMention = (post: PostView) => {
 }
 
 export const filterDisplayPosts = (
-    posts: FeedViewPost[] | PostView[],
+    posts: (PostView | FeedViewPost)[],
     sessionUser: ProfileViewDetailed | null,
     agent: BskyAgent | null,
     hideRepost?: boolean
 ): (FeedViewPost | PostView)[] => {
     const seenUris = new Set<string>()
     return posts.filter((item) => {
-        //@ts-ignore
-        const postData: PostView = item?.post ?? item
+        let postData: PostView
+        if (AppBskyFeedDefs.isFeedViewPost(item)) {
+            postData = item.post
+        } else {
+            postData = item
+        }
         const uri = postData.uri
         const authorDID = postData.author?.did
 

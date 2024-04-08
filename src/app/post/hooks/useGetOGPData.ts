@@ -1,9 +1,6 @@
 // useGetOGPData.ts
 
-interface OGPImage {
-    blob: Response | undefined | null
-    type: string
-}
+import { OGPImage } from "@/app/_types/types"
 
 interface OGPData {
     title: string

@@ -58,6 +58,7 @@ import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { PostModal } from "@/app/_components/PostModal"
 import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -288,7 +289,7 @@ export default function Root() {
         }
     }
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => (item?.post as PostView).uri === newValue.postUri
@@ -520,7 +521,6 @@ export default function Root() {
                                     }}
                                     ref={virtuosoRef}
                                     restoreStateFrom={
-                                        //@ts-ignore
                                         scrollPositions[`list-${atUri}`]
                                     }
                                     rangeChanged={(range) => {
@@ -679,10 +679,8 @@ const FeedHeaderComponent = ({
                                 <DropdownItem
                                     key="new"
                                     onClick={() => {
-                                        const aturl = new AtUri(
-                                            //@ts-ignore
-                                            feedInfo?.view?.uri
-                                        )
+                                        if (!feedInfo) return
+                                        const aturl = new AtUri(feedInfo?.uri)
                                         void navigator.clipboard.writeText(
                                             `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
                                         )

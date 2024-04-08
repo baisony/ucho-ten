@@ -1,6 +1,7 @@
 "use client"
 
 import {
+    ChangeEvent,
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -439,7 +440,6 @@ const PostPage = (props: PostPageProps) => {
             context={{ hasMore }}
             ref={virtuosoRef}
             restoreStateFrom={
-                //@ts-ignore
                 scrollPositions[`profile-${username}-${props.tab}`]
             }
             overscan={200}
@@ -488,7 +488,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
 
 interface UserProfileProps {
     agent: BskyAgent | null
-    profile?: any
+    profile?: ProfileViewDetailed | undefined
     isProfileMine?: boolean
     onClickDomain?: (url: string) => void
     isSkeleton?: boolean
@@ -509,8 +509,12 @@ const UserProfileComponent = ({
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const [displayName, setDisplayName] = useState(profile?.displayName)
     const [description, setDescription] = useState(profile?.description)
-    const [avatar, setAvatar] = useState(profile?.avatar)
-    const [banner, setBanner] = useState(profile?.banner)
+    const [avatar, setAvatar] = useState<string | undefined | File>(
+        profile?.avatar
+    )
+    const [banner, setBanner] = useState<string | undefined | File>(
+        profile?.banner
+    )
     const [isUploading, setIsUploading] = useState(false)
     const [isFollowing, setIsFollowing] = useState(!!profile?.viewer?.following)
     const [copyContent, setCopyContent] = useState<
@@ -566,16 +570,18 @@ const UserProfileComponent = ({
         }
     }, [])
 
-    const handleBannerClick = (event: any) => {
+    const handleBannerClick = (event: ChangeEvent<HTMLInputElement>) => {
         // 選択されたファイルを取得
-        const selectedFile = event.target.files[0]
+        const target = event.target as HTMLInputElement
+        const selectedFile = (target.files as FileList)[0]
 
         // 選択されたファイルに対する処理を行う
         setBanner(selectedFile)
     }
-    const handleAvatarClick = (event: any) => {
+    const handleAvatarClick = (event: ChangeEvent<HTMLInputElement>) => {
         // 選択されたファイルを取得
-        const selectedFile = event.target.files[0]
+        const target = event.target as HTMLInputElement
+        const selectedFile = (target.files as FileList)[0]
 
         // 選択されたファイルに対する処理を行う
         setAvatar(selectedFile)
@@ -589,11 +595,15 @@ const UserProfileComponent = ({
             setIsUploading(true)
             let avatarBlob: BlobRef | undefined
 
-            if (avatar !== profile?.avatar) {
+            if (
+                avatar !== profile?.avatar &&
+                typeof avatar !== "string" &&
+                avatar
+            ) {
                 const result = await agent.uploadBlob(
-                    new Uint8Array(await avatar.arrayBuffer()),
+                    new Uint8Array(await avatar?.arrayBuffer()),
                     {
-                        encoding: avatar.type,
+                        encoding: avatar?.type,
                     }
                 )
                 avatarBlob = result.data.blob
@@ -601,11 +611,15 @@ const UserProfileComponent = ({
 
             let bannerBlob: BlobRef | undefined
 
-            if (banner !== profile?.banner) {
+            if (
+                banner !== profile?.banner &&
+                typeof banner !== "string" &&
+                banner
+            ) {
                 const result = await agent.uploadBlob(
-                    new Uint8Array(await banner.arrayBuffer()),
+                    new Uint8Array(await banner?.arrayBuffer()),
                     {
-                        encoding: banner.type,
+                        encoding: banner?.type,
                     }
                 )
                 bannerBlob = result.data.blob
@@ -632,7 +646,7 @@ const UserProfileComponent = ({
     const renderTextWithLinks = useMemo(() => {
         if (!profile?.description) return
         const description = profile?.description
-        const post: any[] = []
+        const post: JSX.Element[] = []
         description.split("\n").map((line: string, i: number) => {
             const words = line.split(" ")
             const updatedLine = words.map((word, j: number) => {
@@ -721,13 +735,13 @@ const UserProfileComponent = ({
     )
 
     const handleMute = async () => {
-        if (isLoading) return
+        if (isLoading || !profile) return
         setIsLoading(true)
         if (isMuted) {
-            await agent?.unmute(profile.did)
+            await agent?.unmute(profile?.did)
             setIsMuted(!isMuted)
         } else {
-            await agent?.mute(profile.did)
+            await agent?.mute(profile?.did)
             setIsMuted(!isMuted)
         }
         setIsLoading(false)
@@ -780,7 +794,9 @@ const UserProfileComponent = ({
                                         type="file"
                                         accept="image/*,.png,.jpg,.jpeg"
                                         style={{ display: "none" }}
-                                        onChange={(e) => {
+                                        onChange={(
+                                            e: ChangeEvent<HTMLInputElement>
+                                        ) => {
                                             handleBannerClick(e)
                                         }}
                                         ref={bannerInputRef}
@@ -920,10 +936,8 @@ const UserProfileComponent = ({
                                     <div
                                         className={"mt-[15px] mb-[15px] w-full"}
                                         onClick={() => {
-                                            copyToClipboard(
-                                                profile["did"],
-                                                "did"
-                                            )
+                                            if (!profile) return
+                                            copyToClipboard(profile?.did, "did")
                                         }}
                                     >
                                         DID
@@ -931,8 +945,9 @@ const UserProfileComponent = ({
                                     <div
                                         className={"mt-[15px] mb-[15px] w-full"}
                                         onClick={() => {
+                                            if (!profile) return
                                             copyToClipboard(
-                                                profile["handle"],
+                                                profile?.handle,
                                                 "handle"
                                             )
                                         }}
@@ -942,8 +957,10 @@ const UserProfileComponent = ({
                                     <div
                                         className={"mt-[15px] mb-[15px] w-full"}
                                         onClick={() => {
+                                            if (!profile) return
                                             copyToClipboard(
-                                                profile["displayName"],
+                                                profile?.displayName ??
+                                                    profile?.handle,
                                                 "displayName"
                                             )
                                         }}
@@ -1084,8 +1101,9 @@ const UserProfileComponent = ({
                                                 <FontAwesomeIcon icon={faD} />
                                             }
                                             onClick={() => {
+                                                if (!profile) return
                                                 void navigator.clipboard.writeText(
-                                                    profile.did
+                                                    profile?.did
                                                 )
                                             }}
                                         >
@@ -1097,8 +1115,9 @@ const UserProfileComponent = ({
                                                 <FontAwesomeIcon icon={faAt} />
                                             }
                                             onClick={() => {
+                                                if (!profile) return
                                                 void navigator.clipboard.writeText(
-                                                    profile.handle
+                                                    profile?.handle
                                                 )
                                             }}
                                         >
@@ -1110,8 +1129,10 @@ const UserProfileComponent = ({
                                                 <FontAwesomeIcon icon={faN} />
                                             }
                                             onClick={() => {
+                                                if (!profile) return
                                                 void navigator.clipboard.writeText(
-                                                    profile.displayName
+                                                    (profile?.displayName ??
+                                                        profile?.handle) as string
                                                 )
                                             }}
                                         >
@@ -1212,8 +1233,9 @@ const UserProfileComponent = ({
                                 } else if (isFollowing) {
                                     if (!agent) return
                                     try {
+                                        if (!profile?.viewer) return
                                         await agent.deleteFollow(
-                                            profile.viewer.following
+                                            profile?.viewer?.following as string
                                         )
                                         setIsFollowing(false)
                                         profile.viewer.following = undefined
@@ -1224,10 +1246,11 @@ const UserProfileComponent = ({
                                     // follow
                                     try {
                                         const res = await agent.follow(
-                                            profile.did
+                                            profile?.did as string
                                         )
                                         setIsFollowing(true)
-                                        profile.viewer.following = res.cid
+                                        if (profile?.viewer)
+                                            profile.viewer.following = res.cid
                                     } catch (e) {
                                         console.log(e)
                                     }
@@ -1245,7 +1268,7 @@ const UserProfileComponent = ({
                     </div>
                     <div className={ProfileDisplayName()}>
                         {!isSkeleton ? (
-                            profile.displayName
+                            profile?.displayName
                         ) : (
                             <Skeleton
                                 className={`h-[24px] w-[180px] rounded-[10px] mt-[8px]`}
@@ -1254,7 +1277,7 @@ const UserProfileComponent = ({
                     </div>
                     <div className={ProfileHandle()}>
                         {!isSkeleton ? (
-                            `@${profile.handle}`
+                            `@${profile?.handle}`
                         ) : (
                             <Skeleton
                                 className={`h-[16px] w-[130px] rounded-[10px] mt-[10px]`}

@@ -75,6 +75,7 @@ import {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { OGPImage } from "@/app/_types/types"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -160,7 +161,7 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [, setIsGetOGPFetchError] = useState(false)
     // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    const [OGPImage, setOGPImage] = useState<any>([])
+    const [OGPImage, setOGPImage] = useState<OGPImage[]>([])
     const [emojiPickerColor, setEmojiPickerColor] = useState<
         "auto" | "light" | "dark"
     >("auto")
@@ -997,7 +998,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     <Picker
                                         data={data}
                                         locale={i18n.language}
-                                        onEmojiSelect={(e: any) => {
+                                        onEmojiSelect={(e: {
+                                            native: string
+                                        }) => {
                                             console.log(e)
                                             useEmojiClickHandler(
                                                 e,

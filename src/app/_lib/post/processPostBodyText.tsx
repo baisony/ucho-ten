@@ -12,6 +12,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Chip, Tooltip } from "@nextui-org/react"
 import Link from "next/link"
+import { Main } from "@atproto/api/dist/client/types/app/bsky/richtext/facet"
 
 const deletehttp = (text: string) => {
     return text.replace(/^https?:\/\//, "")
@@ -64,7 +65,7 @@ export const processPostBodyText = (
         </span>
     )
 
-    ;(facets || []).forEach((facet: any, index: number) => {
+    ;(facets || []).forEach((facet: Main, index: number) => {
         const { byteStart, byteEnd } = facet.index
         const facetText = decoder.decode(text_bytes.slice(byteStart, byteEnd))
 
@@ -109,9 +110,14 @@ export const processPostBodyText = (
                                     color={"foreground"}
                                     content={
                                         deletehttp(facetText) ===
-                                        deletehttp(facet.features[0].uri)
+                                        deletehttp(
+                                            facet?.features[0]?.uri as string
+                                        )
                                             ? "リンク偽装の心配はありません。" // TODO: i18n
-                                            : facet.features[0].uri.includes(
+                                            : (
+                                                    facet?.features[0]
+                                                        .uri as string
+                                                ).includes(
                                                     facetText.replace("...", "")
                                                 )
                                               ? "URL短縮の可能性があります。" // TODO: i18n
@@ -121,9 +127,14 @@ export const processPostBodyText = (
                                     <FontAwesomeIcon
                                         icon={
                                             deletehttp(facetText) ===
-                                            deletehttp(facet.features[0].uri)
+                                            deletehttp(
+                                                facet.features[0].uri as string
+                                            )
                                                 ? faCheckCircle
-                                                : facet.features[0].uri.includes(
+                                                : (
+                                                        facet.features[0]
+                                                            .uri as string
+                                                    ).includes(
                                                         facetText.replace(
                                                             "...",
                                                             ""
@@ -139,16 +150,16 @@ export const processPostBodyText = (
                             variant="faded"
                             color={
                                 deletehttp(facetText) ===
-                                deletehttp(facet.features[0].uri)
+                                deletehttp(facet.features[0].uri as string)
                                     ? "success"
-                                    : facet.features[0].uri.includes(
-                                            facetText.replace("...", "")
-                                        )
+                                    : (
+                                            facet.features[0].uri as string
+                                        ).includes(facetText.replace("...", ""))
                                       ? "default"
                                       : "danger"
                             }
                         >
-                            {facet.features[0].uri.startsWith(
+                            {(facet.features[0].uri as string).startsWith(
                                 "https://bsky.app"
                             ) ? (
                                 <Link
@@ -157,7 +168,9 @@ export const processPostBodyText = (
                                         e.stopPropagation()
                                     }}
                                     href={
-                                        facet.features[0].uri.replace(
+                                        (
+                                            facet.features[0].uri as string
+                                        ).replace(
                                             "https://bsky.app",
                                             `${location.protocol}//${window.location.host}`
                                         ) + `?${nextQueryParams.toString()}`
@@ -169,7 +182,7 @@ export const processPostBodyText = (
                                 <a
                                     onClick={(e) => e.stopPropagation()}
                                     key={`a-${index}-${byteStart}`}
-                                    href={facet.features[0].uri}
+                                    href={facet.features[0].uri as string}
                                     target={"_blank"}
                                     rel={"noopener noreferrer"}
                                 >
@@ -201,7 +214,7 @@ export const processPostBodyText = (
                                     e.stopPropagation()
                                 }}
                                 href={addParamsToUrl(
-                                    facet.features[0].tag,
+                                    facet?.features[0]?.tag as string,
                                     nextQueryParams
                                 )}
                             >

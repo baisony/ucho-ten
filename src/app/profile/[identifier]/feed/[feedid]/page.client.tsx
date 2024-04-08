@@ -52,6 +52,7 @@ import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { PostModal } from "@/app/_components/PostModal"
 import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -272,16 +273,13 @@ export default function Root() {
         }
     }
 
-    const handleValueChange = (newValue: any) => {
-        console.log(newValue)
-        console.log(timeline)
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.post.uri === newValue.postUri
         )
 
         if (foundObject !== -1) {
-            console.log(timeline[foundObject])
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
@@ -464,7 +462,6 @@ export default function Root() {
                                     }}
                                     ref={virtuosoRef}
                                     restoreStateFrom={
-                                        //@ts-ignore
                                         scrollPositions[`feed-${atUri}`]
                                     }
                                     rangeChanged={(range) => {

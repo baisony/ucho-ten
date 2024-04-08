@@ -182,11 +182,9 @@ export default function Root() {
                                                     //scrollRef.current = ref
                                                 }
                                             }}
-                                            //context={{ hasMore }}
                                             ref={virtuosoRef}
                                             restoreStateFrom={
                                                 scrollPositions[
-                                                    //@ts-ignore
                                                     `bookmark-bookmark`
                                                 ]
                                             }

@@ -1,7 +1,7 @@
 // useEmojiClickHandler.ts
 
 export const useEmojiClickHandler = (
-    emoji: any,
+    emoji: { native: string },
     isEmojiAdding: React.MutableRefObject<boolean>,
     textareaRef: React.RefObject<HTMLTextAreaElement>,
     setContentText: React.Dispatch<React.SetStateAction<string>>,
