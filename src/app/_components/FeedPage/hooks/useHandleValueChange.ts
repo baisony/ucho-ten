@@ -1,12 +1,14 @@
 import { useCallback } from "react"
 import { FeedViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
+import { reactionJson } from "@/app/_types/types"
+
 export const useHandleValueChange = (
     timeline: FeedViewPost[] | null, // 適切な型に置き換えてください
     setTimeline: (timeline: FeedViewPost[] | null) => void // 適切な型に置き換えてください
 ) => {
     return useCallback(
-        (newValue: any) => {
+        (newValue: reactionJson) => {
             if (!timeline) return
 
             const foundObjectIndex = timeline.findIndex(

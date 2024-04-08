@@ -7,6 +7,15 @@ import {
     BskyAgent,
     RichText,
 } from "@atproto/api"
+import { QueryClient } from "@tanstack/react-query"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
+import {
+    GeneratorView,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 interface AttachmentImage {
     blob: Blob
@@ -15,26 +24,26 @@ interface AttachmentImage {
 }
 
 export const usePostClickHandler = async (
-    agent: BskyAgent | undefined,
+    agent: BskyAgent | null,
     trimedContentText: () => string,
     contentImages: AttachmentImage[],
-    OGPImage: any[],
-    setOGPImage: React.Dispatch<React.SetStateAction<any[]>>,
+    OGPImage: OGPImage[],
+    setOGPImage: React.Dispatch<React.SetStateAction<OGPImage[]>>,
     setPostLanguage: React.Dispatch<React.SetStateAction<string[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    postData: any,
-    type: string,
-    getOGPData: any,
-    getFeedData: any,
-    getListData: any,
+    type: "Post" | "Reply" | `Quote` | undefined,
+    getOGPData: OGPData | undefined,
+    getFeedData: GeneratorView | undefined,
+    getListData: ListView | undefined,
     selectedURL: string,
     PostLanguage: string[],
     altOfImageList: string[],
-    adultContent: boolean,
-    queryClient: any,
-    onClose: (param: boolean) => void,
+    adultContent: boolean | "suggestive" | "nudity" | "porn",
+    queryClient: QueryClient,
     modalType: "PostModal" | "PostPage",
-    router?: any,
+    onClose?: (param: boolean) => void | undefined,
+    postData?: PostView,
+    router?: AppRouterInstance,
     nextQueryParams?: URLSearchParams
 ) => {
     if (!agent) return
@@ -52,6 +61,7 @@ export const usePostClickHandler = async (
         const images = contentImages.length > 0 ? contentImages : OGPImage
         let uploadBlobRes
         for (const image of images) {
+            if (!image.blob) return
             const uint8array = new Uint8Array(await image.blob.arrayBuffer())
             uploadBlobRes = await agent.uploadBlob(uint8array, {
                 encoding: "image/jpeg",
@@ -71,17 +81,21 @@ export const usePostClickHandler = async (
             langs: Array.from(PostLanguage),
         }
 
-        if (type === "Reply") {
+        if (type === "Reply" && postData) {
             postObj.reply = {
                 root: {
-                    uri: postData?.record?.reply?.root?.uri ?? postData.uri,
-                    cid: postData?.record?.reply?.root?.cid ?? postData.cid,
+                    uri:
+                        (postData?.record as Record)?.reply?.root?.uri ??
+                        postData.uri,
+                    cid:
+                        (postData?.record as Record)?.reply?.root?.cid ??
+                        postData.cid,
                 },
                 parent: {
                     uri: postData.uri,
                     cid: postData.cid,
                 },
-            } as any
+            }
         } else if (type === "Quote") {
             console.log("Quote")
             postObj.embed = {
@@ -107,7 +121,7 @@ export const usePostClickHandler = async (
                         ? getOGPData.description
                         : "",
                 },
-            } as any
+            }
         }
 
         if (blobRefs.length > 0) {
@@ -164,9 +178,9 @@ export const usePostClickHandler = async (
         await queryClient.refetchQueries({
             queryKey: ["getFeed", "following"],
         })
-        if (modalType === "PostModal") {
+        if (modalType === "PostModal" && onClose) {
             onClose(true)
-        } else if (modalType === "PostPage") {
+        } else if (modalType === "PostPage" && router) {
             router.push(`/home?${nextQueryParams?.toString()}`)
         }
 

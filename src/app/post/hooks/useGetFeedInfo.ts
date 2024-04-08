@@ -1,10 +1,15 @@
 // useGetFeedInfo.ts
 
+import { BskyAgent } from "@atproto/api"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+
 export const useGetFeedInfo = async (
     url: string,
-    agent: any,
+    agent: BskyAgent | null,
     setIsOGPGetProcessing: React.Dispatch<React.SetStateAction<boolean>>,
-    setGetFeedData: React.Dispatch<React.SetStateAction<any>>
+    setGetFeedData: React.Dispatch<
+        React.SetStateAction<GeneratorView | undefined>
+    >
 ) => {
     if (!agent) return
     const regex = /\/([^/]+)\/feed\/([^/]+)/

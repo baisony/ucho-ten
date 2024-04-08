@@ -12,20 +12,20 @@ import {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
-import { ProfileViewBasic } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import {
+    ProfileViewBasic,
+    ViewerState,
+} from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBookmark as faBookmarkRegular,
-    faComment,
-    faStar as faHeartRegular,
-} from "@fortawesome/free-regular-svg-icons"
-import {
-    faBookmark as faBookmarkSolid,
-    faEllipsis,
-    faReply,
-    faRetweet,
-    faStar as faHeartSolid,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBookmark as faBookmarkRegular } from "@fortawesome/free-regular-svg-icons/faBookmark"
+import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons/faBookmark"
+import { faStar as faHeartSolid } from "@fortawesome/free-solid-svg-icons/faStar"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faReply } from "@fortawesome/free-solid-svg-icons/faReply"
+import { faStar as faHeartRegular } from "@fortawesome/free-regular-svg-icons/faStar"
+import { faRetweet } from "@fortawesome/free-solid-svg-icons/faRetweet"
+import { faComment } from "@fortawesome/free-regular-svg-icons/faComment"
+
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"
@@ -59,6 +59,8 @@ import useEmbed from "@/app/_components/ViewPostCard/lib/useEmbed"
 import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabels"
 import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
 import { TFunction } from "i18next"
+import { AppBskyEmbedRecord } from "@atproto/api"
+import { reactionJson } from "@/app/_types/types"
 
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
@@ -103,7 +105,7 @@ export interface ViewPostCardProps {
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
     t: TFunction
-    handleValueChange?: (value: any) => void
+    handleValueChange?: (value: reactionJson) => void
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean
     isDisplayMode?: boolean
@@ -169,7 +171,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     const [bookmarks, setBookmarks] = useBookmarks()
     const [contentFontSize] = useContentFontSize()
     const isTranslated = useRef<boolean>(false)
-    const [translateError, setTranslateError] = useState<boolean>(false)
+    const [translateError] = useState<boolean>(false)
     const createDisclosure = () => {
         const disclosure = useDisclosure()
         return {
@@ -276,7 +278,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     }, [userPreference, postJson, quoteJson])
 
     useLayoutEffect(() => {
-        const shouldDeletePost = (viewer: any) =>
+        const shouldDeletePost = (viewer: ViewerState) =>
             viewer?.blockedBy || viewer?.muted || viewer?.blocking
 
         if (
@@ -284,11 +286,15 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 embedRecordViewRecord?.author?.viewer &&
                 shouldDeletePost(embedRecordViewRecord.author.viewer)) ||
             (embedMedia &&
-                (embedMedia?.record?.record?.author as ProfileViewBasic)
-                    ?.viewer &&
+                (
+                    (embedMedia?.record as AppBskyEmbedRecord.View)?.record
+                        ?.author as ProfileViewBasic
+                )?.viewer &&
                 shouldDeletePost(
-                    (embedMedia?.record?.record?.author as ProfileViewBasic)
-                        .viewer as ProfileViewBasic
+                    (
+                        (embedMedia?.record as AppBskyEmbedRecord.View)?.record
+                            ?.author as ProfileViewBasic
+                    ).viewer as ProfileViewBasic
                 ))
         ) {
             handleInputChange("delete", postJsonData?.uri || "", "")

@@ -1,17 +1,16 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react"
 import { createPostPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage } from "@fortawesome/free-regular-svg-icons"
-import {
-    faCirclePlus,
-    faFaceLaughBeam,
-    faPlus,
-    faShieldHalved,
-    faTrash,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faImage } from "@fortawesome/free-regular-svg-icons/faImage"
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons/faCirclePlus"
+import { faFaceLaughBeam } from "@fortawesome/free-solid-svg-icons/faFaceLaughBeam"
+import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus"
+import { faShieldHalved } from "@fortawesome/free-solid-svg-icons/faShieldHalved"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark"
+
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
 import { useDropzone } from "react-dropzone"
@@ -45,14 +44,6 @@ import { useAgent } from "@/app/_atoms/agent"
 import { useUserProfileDetailedAtom } from "../_atoms/userProfileDetail"
 import i18n from "@/app/_i18n/config"
 
-import {
-    AppBskyEmbedImages,
-    AppBskyEmbedRecord,
-    AppBskyFeedPost,
-    BlobRef,
-    RichText,
-} from "@atproto/api"
-
 import { Linkcard } from "@/app/_components/Linkcard"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "../_atoms/nextQueryParams"
@@ -70,6 +61,10 @@ import { useGetOGPData } from "@/app/post/hooks/useGetOGPData"
 import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguagesSelectionChangeHandler"
 import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
 import { useAddImages } from "@/app/post/hooks/useAddImages"
+import { usePostClickHandler } from "@/app/post/hooks/usePostClickHandler"
+import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -121,12 +116,16 @@ export default function Root() {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [getFeedData, setGetFeedData] = useState<any>(null)
-    const [getListData, setGetListData] = useState<any>(null)
+    const [getOGPData, setGetOGPData] = useState<OGPData | undefined>(undefined)
+    const [getFeedData, setGetFeedData] = useState<GeneratorView | undefined>(
+        undefined
+    )
+    const [getListData, setGetListData] = useState<ListView | undefined>(
+        undefined
+    )
     const [, setIsGetOGPFetchError] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    const [OGPImage, setOGPImage] = useState<any>([])
+    const [OGPImage, setOGPImage] = useState<OGPImage[]>([])
     const [adultContent, setAdultContent] = useState<
         boolean | "suggestive" | "nudity" | "porn"
     >(false)
@@ -193,7 +192,29 @@ export default function Root() {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            void handlePostClick()
+            void usePostClickHandler(
+                agent,
+                trimedContentText,
+                contentImages,
+                OGPImage,
+                setOGPImage,
+                setPostLanguage,
+                setLoading,
+                undefined,
+                getOGPData,
+                getFeedData,
+                getListData,
+                selectedURL,
+                PostLanguage,
+                altOfImageList,
+                adultContent,
+                queryClient,
+                "PostPage",
+                undefined,
+                undefined,
+                router,
+                nextQueryParams
+            )
         }
     }
 
@@ -208,134 +229,14 @@ export default function Root() {
 
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
 
-    const handleDrop = (e: any) => {
+    const handleDrop = (e: DragEvent) => {
         e.preventDefault()
         // ファイルの処理を行う
     }
 
-    const handleDragOver = (e: any) => {
+    const handleDragOver = (e: DragEvent) => {
         e.preventDefault()
         e.dataTransfer.dropEffect = "copy"
-    }
-
-    const handlePostClick = async () => {
-        if (!agent) return
-        if (
-            trimedContentText() === "" &&
-            contentImages.length === 0 &&
-            !getOGPData &&
-            !getFeedData &&
-            !getListData
-        )
-            return
-        setLoading(true)
-        try {
-            const blobRefs: BlobRef[] = []
-
-            const images = contentImages.length > 0 ? contentImages : OGPImage
-
-            let uploadBlobRes
-
-            for (const image of images) {
-                const uint8array = new Uint8Array(
-                    await image.blob.arrayBuffer()
-                )
-                uploadBlobRes = await agent.uploadBlob(uint8array, {
-                    encoding: "image/jpeg",
-                })
-
-                const blobRef = uploadBlobRes.data.blob
-                blobRefs.push(blobRef)
-            }
-
-            const rt = new RichText({ text: trimedContentText() })
-            await rt.detectFacets(agent)
-            const postObj: Partial<AppBskyFeedPost.Record> &
-                Omit<AppBskyFeedPost.Record, "createdAt"> = {
-                text: rt.text.trimStart().trimEnd(),
-                facets: rt.facets,
-                langs: PostLanguage,
-            }
-
-            if (getFeedData || getListData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.record",
-                    record: getFeedData ?? getListData,
-                } as AppBskyEmbedRecord.Main
-            }
-
-            if (getOGPData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.external",
-                    external: {
-                        uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
-                        title: getOGPData?.title
-                            ? getOGPData.title
-                            : selectedURL,
-                        description: getOGPData?.description
-                            ? getOGPData.description
-                            : "",
-                    },
-                } as any
-            }
-
-            if (blobRefs.length > 0) {
-                const images: AppBskyEmbedImages.Image[] = []
-
-                for (const [index, blobRef] of blobRefs.entries()) {
-                    const image: AppBskyEmbedImages.Image = {
-                        image: blobRef,
-                        alt: altOfImageList[index],
-                    }
-
-                    images.push(image)
-                }
-
-                if (
-                    getOGPData &&
-                    OGPImage.length > 0 &&
-                    postObj.embed &&
-                    postObj.embed.external
-                ) {
-                    ;(postObj.embed.external as any).thumb = {
-                        $type: "blob",
-                        ref: {
-                            $link: uploadBlobRes?.data?.blob.ref.toString(),
-                        },
-                        mimeType: uploadBlobRes?.data?.blob.mimeType,
-                        size: uploadBlobRes?.data?.blob.size,
-                    }
-                } else {
-                    postObj.embed = {
-                        $type: "app.bsky.embed.images",
-                        images,
-                    } as AppBskyEmbedImages.Main
-                }
-            }
-
-            if (adultContent && (getOGPData || contentImages.length > 0)) {
-                postObj.labels = {
-                    $type: "com.atproto.label.defs#selfLabels",
-                    values: [
-                        {
-                            val: adultContent,
-                        },
-                    ],
-                }
-            }
-
-            await agent.post(postObj)
-
-            //queryClient.clear() 動く
-            await queryClient.refetchQueries({
-                queryKey: ["getFeed", "following"],
-            })
-            router.push(`/home?${nextQueryParams.toString()}`)
-        } catch (e) {
-            console.log(e)
-        } finally {
-            setLoading(false)
-        }
     }
 
     const handleOnRemoveImage = (index: number) => {
@@ -364,7 +265,7 @@ export default function Root() {
     }
 
     // ドラッグをキャンセルする
-    const handleDragStart = (e: any) => {
+    const handleDragStart = (e: DragEvent) => {
         e.preventDefault()
     }
 
@@ -549,7 +450,31 @@ export default function Root() {
                             size={"sm"}
                             radius={"full"}
                             color={"primary"}
-                            onPress={handlePostClick}
+                            onPress={() => {
+                                usePostClickHandler(
+                                    agent,
+                                    trimedContentText,
+                                    contentImages,
+                                    OGPImage,
+                                    setOGPImage,
+                                    setPostLanguage,
+                                    setLoading,
+                                    undefined,
+                                    getOGPData,
+                                    getFeedData,
+                                    getListData,
+                                    selectedURL,
+                                    PostLanguage,
+                                    altOfImageList,
+                                    adultContent,
+                                    queryClient,
+                                    "PostPage",
+                                    undefined,
+                                    undefined,
+                                    router,
+                                    nextQueryParams
+                                )
+                            }}
                             isDisabled={
                                 loading ||
                                 isOGPGetProcessing ||
@@ -594,9 +519,9 @@ export default function Root() {
                                         contentImages.length !== 0 ||
                                         isCompressing ||
                                         detectedURLs.length !== 0 ||
-                                        getOGPData !== null ||
-                                        getFeedData !== null ||
-                                        getListData !== null,
+                                        !!getOGPData ||
+                                        !!getFeedData ||
+                                        !!getListData,
                                 })}
                                 aria-label="post input area"
                                 placeholder={t("modal.post.placeholder")}
@@ -727,7 +652,7 @@ export default function Root() {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         if (isFeedURL(url)) {
-                                                            useGetFeedInfo(
+                                                            void useGetFeedInfo(
                                                                 url,
                                                                 agent,
                                                                 setIsOGPGetProcessing,
@@ -737,7 +662,7 @@ export default function Root() {
                                                             isListURL(url)
                                                         ) {
                                                             console.log("list")
-                                                            useGetListInfo(
+                                                            void useGetListInfo(
                                                                 url,
                                                                 agent,
                                                                 setIsOGPGetProcessing,
@@ -806,9 +731,9 @@ export default function Root() {
                                         loading ||
                                         isCompressing ||
                                         contentImages.length >= 4 ||
-                                        getOGPData ||
-                                        getFeedData ||
-                                        getListData ||
+                                        !!getOGPData ||
+                                        !!getFeedData ||
+                                        !!getListData ||
                                         isOGPGetProcessing
                                     }
                                     as={"span"}
@@ -839,9 +764,9 @@ export default function Root() {
                                         loading ||
                                         isCompressing ||
                                         contentImages.length >= 4 ||
-                                        getOGPData ||
-                                        getFeedData ||
-                                        getListData ||
+                                        !!getOGPData ||
+                                        !!getFeedData ||
+                                        !!getListData ||
                                         isOGPGetProcessing
                                     }
                                 />
@@ -956,7 +881,9 @@ export default function Root() {
                                         <Picker
                                             data={data}
                                             locale={i18n.language}
-                                            onEmojiSelect={(e: any) => {
+                                            onEmojiSelect={(e: {
+                                                native: string
+                                            }) => {
                                                 console.log(e)
                                                 useEmojiClickHandler(
                                                     e,

@@ -3,25 +3,28 @@ import {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { MuteWord } from "@/app/_atoms/wordMute"
+import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
+import { AppBskyFeedDefs } from "@atproto/api"
 
 export const useFilterPosts = (
-    posts: PostView[] | FeedViewPost[],
+    posts: (PostView | FeedViewPost)[],
     muteWords: MuteWord[]
-) => {
+): (PostView | FeedViewPost)[] => {
     return posts.filter((post) => {
         return !muteWords.some((muteWord) => {
             if (muteWord.isActive) {
                 let textToCheck: string | undefined
-                if ("embed" in post) {
+                if (AppBskyFeedDefs.isPostView(post)) {
                     textToCheck =
-                        //@ts-ignore
-                        post.embed?.record?.value?.text || post.record?.text
-                } else {
+                        ((post.embed?.record as ViewRecord)?.value as Record)
+                            ?.text || (post.record as Record)?.text
+                } else if (AppBskyFeedDefs.isFeedViewPost(post)) {
                     textToCheck =
-                        //@ts-ignore
-                        post.post?.embed?.record?.value?.text ||
-                        //@ts-ignore
-                        post.post?.record?.text
+                        (
+                            (post.post?.embed?.record as ViewRecord)
+                                ?.value as Record
+                        )?.text || (post.post?.record as Record)?.text
                 }
                 return textToCheck?.includes(muteWord.word)
             }

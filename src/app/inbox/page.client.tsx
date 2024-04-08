@@ -42,6 +42,8 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -61,7 +63,7 @@ export default function FeedPage() {
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    //const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
@@ -221,7 +223,7 @@ export default function FeedPage() {
         refetchOnReconnect: false,
     })
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (post) => post.uri === newValue.postUri
@@ -300,23 +302,14 @@ export default function FeedPage() {
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
@@ -355,10 +348,9 @@ export default function FeedPage() {
                     )
                 })
             }
-            const mergedTimeline = mergePosts(replies, timeline)
-            //@ts-ignore
+            const mergedTimeline = mergePosts(replies, timeline) as PostView[]
             setTimeline(mergedTimeline)
-            setHasUpdate(false)
+            //setHasUpdate(false)
 
             if (mergedTimeline.length > 0) {
                 latestCID.current = (mergedTimeline[0] as PostView).cid
@@ -412,7 +404,6 @@ export default function FeedPage() {
                                             ref={virtuosoRef}
                                             restoreStateFrom={
                                                 scrollPositions[
-                                                    //@ts-ignore
                                                     `${pageName}-${feedKey}`
                                                 ]
                                             }

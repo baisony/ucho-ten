@@ -53,5 +53,3 @@ export const EmbedImages = memo(
         )
     }
 )
-
-export default EmbedImages

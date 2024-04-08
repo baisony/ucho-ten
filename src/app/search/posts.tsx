@@ -22,6 +22,8 @@ import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 import { TFunction } from "i18next"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -138,8 +140,10 @@ const SearchPostPage = ({
                     userProfileDetailed,
                     agent
                 )
-                const muteWordFilter = useFilterPosts(filteredData, muteWords)
-                //@ts-ignore
+                const muteWordFilter = useFilterPosts(
+                    filteredData,
+                    muteWords
+                ) as PostView[]
                 setNewTimeline(muteWordFilter)
 
                 if (muteWordFilter.length > 0) {
@@ -197,7 +201,10 @@ const SearchPostPage = ({
                 userProfileDetailed,
                 agent
             )
-            const muteWordFilter = useFilterPosts(filteredData, muteWords)
+            const muteWordFilter = useFilterPosts(
+                filteredData,
+                muteWords
+            ) as PostView[]
 
             console.log("filteredData", filteredData)
             console.log("muteWordFilter", muteWordFilter)
@@ -208,7 +215,7 @@ const SearchPostPage = ({
                 }
             }
 
-            setTimeline((currentTimeline: any) => {
+            setTimeline((currentTimeline: PostView[] | null) => {
                 if (currentTimeline !== null) {
                     return [...currentTimeline, ...muteWordFilter]
                 } else {
@@ -271,7 +278,7 @@ const SearchPostPage = ({
         refetchOnReconnect: false,
     })
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.uri === newValue.postUri
@@ -346,24 +353,14 @@ const SearchPostPage = ({
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        if (!isActive) return
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        isActive,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed) {
         handleFetchResponse(data)
@@ -380,7 +377,6 @@ const SearchPostPage = ({
                 }}
                 ref={virtuosoRef}
                 restoreStateFrom={
-                    //@ts-ignore
                     scrollPositions[`search-posts-${searchTextRef.current}`]
                 }
                 rangeChanged={(range) => {

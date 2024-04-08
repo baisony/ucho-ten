@@ -36,11 +36,8 @@ const useHandleBookmark = (
             //await syncBookmarks();
         } else {
             console.log("add")
-            //@ts-ignore
-            setBookmarks((prevBookmarks: Bookmark[]) => [
-                ...prevBookmarks,
-                json,
-            ])
+            setBookmarks([...bookmarks, json])
+
             void syncBookmarks([...bookmarks, json])
             setIsBookmarked(true)
         }

@@ -3,15 +3,15 @@ import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 
-import {
-    faCheckCircle,
-    faCircleQuestion,
-    faCircleXmark,
-    faHashtag,
-} from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons/faCheckCircle"
+import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons/faCircleQuestion"
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons/faCircleXmark"
+import { faHashtag } from "@fortawesome/free-solid-svg-icons/faHashtag"
+
 import { Chip, Tooltip } from "@nextui-org/react"
 import Link from "next/link"
+import { Main } from "@atproto/api/dist/client/types/app/bsky/richtext/facet"
 
 const deletehttp = (text: string) => {
     return text.replace(/^https?:\/\//, "")
@@ -26,8 +26,8 @@ const addParamsToUrl = (hashtag: string, nextQueryParams: URLSearchParams) => {
 
 export const processPostBodyText = (
     nextQueryParams: URLSearchParams,
-    postJson?: PostView | null,
-    quoteJson?: ViewRecord | null
+    postJson?: PostView | undefined | null,
+    quoteJson?: PostView | ViewRecord | null
 ): React.ReactNode => {
     const { chip } = viewPostCard()
     const postJsonData: PostView | ViewRecord | null =
@@ -64,20 +64,7 @@ export const processPostBodyText = (
         </span>
     )
 
-    const addLink = (linkElement: React.ReactNode, key: string) => (
-        <span key={key}>
-            <Chip
-                className={chip()}
-                size={"sm"}
-                variant="faded"
-                color="primary"
-            >
-                {linkElement}
-            </Chip>
-        </span>
-    )
-
-    ;(facets || []).forEach((facet: any, index: number) => {
+    ;(facets || []).forEach((facet: Main, index: number) => {
         const { byteStart, byteEnd } = facet.index
         const facetText = decoder.decode(text_bytes.slice(byteStart, byteEnd))
 
@@ -122,9 +109,14 @@ export const processPostBodyText = (
                                     color={"foreground"}
                                     content={
                                         deletehttp(facetText) ===
-                                        deletehttp(facet.features[0].uri)
+                                        deletehttp(
+                                            facet?.features[0]?.uri as string
+                                        )
                                             ? "リンク偽装の心配はありません。" // TODO: i18n
-                                            : facet.features[0].uri.includes(
+                                            : (
+                                                    facet?.features[0]
+                                                        .uri as string
+                                                ).includes(
                                                     facetText.replace("...", "")
                                                 )
                                               ? "URL短縮の可能性があります。" // TODO: i18n
@@ -134,9 +126,14 @@ export const processPostBodyText = (
                                     <FontAwesomeIcon
                                         icon={
                                             deletehttp(facetText) ===
-                                            deletehttp(facet.features[0].uri)
+                                            deletehttp(
+                                                facet.features[0].uri as string
+                                            )
                                                 ? faCheckCircle
-                                                : facet.features[0].uri.includes(
+                                                : (
+                                                        facet.features[0]
+                                                            .uri as string
+                                                    ).includes(
                                                         facetText.replace(
                                                             "...",
                                                             ""
@@ -152,16 +149,16 @@ export const processPostBodyText = (
                             variant="faded"
                             color={
                                 deletehttp(facetText) ===
-                                deletehttp(facet.features[0].uri)
+                                deletehttp(facet.features[0].uri as string)
                                     ? "success"
-                                    : facet.features[0].uri.includes(
-                                            facetText.replace("...", "")
-                                        )
+                                    : (
+                                            facet.features[0].uri as string
+                                        ).includes(facetText.replace("...", ""))
                                       ? "default"
                                       : "danger"
                             }
                         >
-                            {facet.features[0].uri.startsWith(
+                            {(facet.features[0].uri as string).startsWith(
                                 "https://bsky.app"
                             ) ? (
                                 <Link
@@ -170,7 +167,9 @@ export const processPostBodyText = (
                                         e.stopPropagation()
                                     }}
                                     href={
-                                        facet.features[0].uri.replace(
+                                        (
+                                            facet.features[0].uri as string
+                                        ).replace(
                                             "https://bsky.app",
                                             `${location.protocol}//${window.location.host}`
                                         ) + `?${nextQueryParams.toString()}`
@@ -182,7 +181,7 @@ export const processPostBodyText = (
                                 <a
                                     onClick={(e) => e.stopPropagation()}
                                     key={`a-${index}-${byteStart}`}
-                                    href={facet.features[0].uri}
+                                    href={facet.features[0].uri as string}
                                     target={"_blank"}
                                     rel={"noopener noreferrer"}
                                 >
@@ -214,7 +213,7 @@ export const processPostBodyText = (
                                     e.stopPropagation()
                                 }}
                                 href={addParamsToUrl(
-                                    facet.features[0].tag,
+                                    facet?.features[0]?.tag as string,
                                     nextQueryParams
                                 )}
                             >

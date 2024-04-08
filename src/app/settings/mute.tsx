@@ -17,7 +17,7 @@ import {
 } from "@nextui-org/react"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons/faChevronRight"
 import { BskyAgent } from "@atproto/api"
 import { TFunction } from "i18next"
 

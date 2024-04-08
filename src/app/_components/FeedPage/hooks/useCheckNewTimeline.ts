@@ -78,14 +78,6 @@ export const useCheckNewTimeline = (
                     }
                 }
             }
-        } catch (e: unknown) {
-            try {
-                if (typeof e === "string")
-                    if (JSON.parse(e).status === 1) return
-                setHasError(e as ResponseObject)
-            } catch (e) {
-                console.error(e)
-            }
-        }
+        } catch (e: unknown) {}
     }, [agent])
 }

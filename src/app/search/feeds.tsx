@@ -18,6 +18,7 @@ import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCe
 import { isMobile } from "react-device-detect"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { TFunction } from "i18next"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 
 interface FeedResponseObject {
     feeds: GeneratorView[]
@@ -182,23 +183,14 @@ const SearchFeedPage = ({
         refetchOnReconnect: false,
     })
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        if (!isActive) return
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        isActive,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed && isActive) {
         handleFetchResponse(data)
@@ -214,10 +206,7 @@ const SearchFeedPage = ({
                     }
                 }}
                 ref={virtuosoRef}
-                restoreStateFrom={
-                    //@ts-ignore
-                    scrollPositions[`search-posts-${searchText}`]
-                }
+                restoreStateFrom={scrollPositions[`search-posts-${searchText}`]}
                 rangeChanged={(range) => {
                     setScrollIndex(range.startIndex)
                 }}
@@ -274,7 +263,7 @@ interface UserCellProps {
     //index?: number
 }
 
-const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
+const UserCell = ({ onClick, skeleton }: UserCellProps) => {
     const { userCard } = layout()
 
     return (

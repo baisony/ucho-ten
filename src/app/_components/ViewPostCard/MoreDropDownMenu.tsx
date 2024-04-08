@@ -6,16 +6,15 @@ import {
     DropdownTrigger,
 } from "@nextui-org/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faAt,
-    faCode,
-    faEllipsis,
-    faFlag,
-    faLanguage,
-    faLink,
-    faTrash,
-    faUser,
-} from "@fortawesome/free-solid-svg-icons"
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
+import { faCode } from "@fortawesome/free-solid-svg-icons/faCode"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage"
+import { faLink } from "@fortawesome/free-solid-svg-icons/faLink"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
+
 import { TFunction } from "i18next"
 
 interface MoreDropDownMenuProps {

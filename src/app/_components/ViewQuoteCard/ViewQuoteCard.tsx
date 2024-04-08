@@ -8,16 +8,30 @@ import { viewQuoteCard } from "@/app/_components/ViewQuoteCard/styles"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useHandleImageClick from "@/app/_components/ViewPostCard/lib/handleDisplayImage"
+import {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
+import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
+import {
+    AppBskyEmbedExternal,
+    AppBskyEmbedImages,
+    AppBskyFeedDefs,
+    AppBskyFeedPost,
+} from "@atproto/api"
 
 interface Props {
     className?: string
-    postJson?: any
+    postJson?: ViewRecord | PostView | null
     isSkeleton?: boolean
-    json?: any
+    json?: FeedViewPost
     isEmbedToModal?: boolean
     now?: Date
     isEmbedReportModal?: boolean
-    profile?: any
+    profile?: ProfileViewDetailed | null
     nextQueryParams: URLSearchParams
 }
 
@@ -50,10 +64,18 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
     } = viewQuoteCard()
 
     const renderTextWithLinks = useMemo(() => {
-        if (!postJson?.value && !postJson?.record?.text) return
-        const post: any[] = []
-        const postText = postJson?.value?.text || postJson?.record?.text
-        postText?.split("\n").map((line: any, i: number) => {
+        if (!postJson?.value && !(postJson?.record as Record)?.text) return
+        const post: JSX.Element[] = []
+        let postText
+        if (AppBskyFeedPost.isRecord(postJson?.value)) {
+            postText = postJson?.value?.text
+        } else if (
+            AppBskyFeedDefs.isPostView(postJson) &&
+            AppBskyFeedPost.isRecord(postJson?.record)
+        ) {
+            postText = postJson?.record?.text
+        }
+        postText?.split("\n").map((line: string, i: number) => {
             post.push(
                 <p key={i}>
                     {line}
@@ -203,9 +225,11 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                         </>
                                     )}
                                     <div className={"overflow-x-scroll"}>
-                                        {postJson?.embed &&
-                                            (postJson?.embed?.$type ===
-                                            "app.bsky.embed.images#view" ? (
+                                        {AppBskyFeedPost.isRecord(postJson) &&
+                                            postJson?.embed &&
+                                            (AppBskyEmbedImages.isView(
+                                                postJson?.embed
+                                            ) ? (
                                                 <ScrollShadow
                                                     hideScrollBar
                                                     orientation="horizontal"
@@ -213,9 +237,9 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                     <div
                                                         className={`flex overflow-x-auto overflow-y-hidden w-100svw}]`}
                                                     >
-                                                        {postJson.embed.images.map(
+                                                        {postJson?.embed?.images?.map(
                                                             (
-                                                                image: any,
+                                                                image: ViewImage,
                                                                 index: number
                                                             ) => (
                                                                 <div
@@ -225,7 +249,8 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                                     <img
                                                                         className="w-full h-full z-0 object-cover"
                                                                         src={
-                                                                            image.thumb
+                                                                            image?.thumb ||
+                                                                            ""
                                                                         }
                                                                         alt={
                                                                             image?.alt
@@ -236,11 +261,17 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                                             e.stopPropagation()
                                                                         }
                                                                         onClick={() => {
+                                                                            if (
+                                                                                !AppBskyEmbedImages.isView(
+                                                                                    postJson.embed
+                                                                                )
+                                                                            )
+                                                                                return
                                                                             useHandleImageClick(
                                                                                 setImageGallery,
                                                                                 postJson
-                                                                                    .embed
-                                                                                    .images,
+                                                                                    ?.embed
+                                                                                    ?.images,
                                                                                 index
                                                                             )
                                                                         }}
@@ -251,8 +282,9 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                     </div>
                                                 </ScrollShadow>
                                             ) : (
-                                                postJson.embed.$type ===
-                                                    "app.bsky.embed.external#view" && (
+                                                AppBskyEmbedExternal.isView(
+                                                    postJson.embed
+                                                ) && (
                                                     <Linkcard
                                                         ogpData={
                                                             postJson.embed
@@ -271,5 +303,3 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
         </>
     )
 })
-
-export default ViewQuoteCard

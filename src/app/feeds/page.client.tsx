@@ -83,16 +83,14 @@ const MyFeedsPage = () => {
         GeneratorView[] | undefined
     >([])
     const [isLoading, setIsLoading] = useState<boolean | null>(null)
-    const [selectedFeed, setSelectedFeed] = useState<GeneratorView | null>(null)
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const [selectedFeed] = useState<GeneratorView | null>(null)
+    const { isOpen, onOpenChange } = useDisclosure()
     const [, setFeedGenerators] = useFeedGeneratorsAtom()
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
 
     const fetchFeeds = async () => {
-        if (!agent) {
-            return
-        }
+        if (!agent) return
 
         try {
             setIsFetching(true)
@@ -110,7 +108,7 @@ const MyFeedsPage = () => {
             console.log(saved.data.feeds)
             setSavedFeeds(saved.data.feeds || [])
             setPinnedFeeds(
-                (pinned.data as any).feeds.map((feed: { uri: string }) => ({
+                pinned.data.feeds.map((feed) => ({
                     ...feed,
                     id: feed.uri,
                 }))
@@ -300,7 +298,7 @@ const MyFeedsPage = () => {
                             onDragEnd={handleDragEnd}
                         >
                             <SortableContext
-                                //@ts-ignore
+                                //@ts-ignore 仕方なくts-ignoreします
                                 items={pinnedFeeds}
                                 strategy={verticalListSortingStrategy}
                             >

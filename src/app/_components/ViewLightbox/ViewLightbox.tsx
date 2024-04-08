@@ -59,10 +59,8 @@ export const ViewLightbox = memo(() => {
                     )
 
                     for (let i = 0; i < elements.length; i++) {
-                        //@ts-ignore
-                        elements[i].style.visibility = hideToolbar
-                            ? "hidden"
-                            : "visible"
+                        ;(elements[i] as HTMLElement).style.visibility =
+                            hideToolbar ? "hidden" : "visible"
                     }
                     setHideToolbar(!hideToolbar)
                 }
@@ -103,5 +101,3 @@ export const ViewLightbox = memo(() => {
         </div>
     )
 })
-
-export default ViewLightbox

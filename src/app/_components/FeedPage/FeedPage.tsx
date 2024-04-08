@@ -163,9 +163,7 @@ const FeedPage = memo(
 
             const mergedTimeline = mergePosts(newTimeline, timeline)
 
-            if (!mergedTimeline[0]?.post) return
-            //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
-            setTimeline(mergedTimeline)
+            setTimeline(mergedTimeline as FeedViewPost[])
             setNewTimeline([])
             setHasUpdate(false)
 
@@ -188,6 +186,8 @@ const FeedPage = memo(
                         setIsEndOfFeed(true)
                     setCursorState(response.cursor)
 
+                    console.log("posts", posts)
+
                     const filteredData =
                         feedKey === "following"
                             ? filterDisplayPosts(
@@ -197,10 +197,11 @@ const FeedPage = memo(
                                   hideRepost
                               )
                             : posts
+                    console.log("filteredData", filteredData)
                     const muteWordFilter = useFilterPosts(
                         filteredData,
                         muteWords
-                    )
+                    ) as FeedViewPost[]
 
                     if (timeline === null) {
                         if (muteWordFilter.length > 0) {
@@ -210,11 +211,11 @@ const FeedPage = memo(
                         }
                     }
 
-                    setTimeline((currentTimeline: any) => {
+                    setTimeline((currentTimeline: FeedViewPost[] | null) => {
                         if (currentTimeline !== null) {
                             return [...currentTimeline, ...muteWordFilter]
                         } else {
-                            return [...muteWordFilter]
+                            return muteWordFilter
                         }
                     })
                 } else {
@@ -241,10 +242,7 @@ const FeedPage = memo(
         >): Promise<FeedResponseObject> => {
             // console.log("getTimelineFetcher: >>")
 
-            if (agent === null) {
-                // console.log("error")
-                throw new Error("Agent does not exist")
-            }
+            if (!agent) throw new Error("Agent does not exist")
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const [_key, feedKey] = queryKey
@@ -254,6 +252,8 @@ const FeedPage = memo(
                     cursor: cursorState || "",
                     limit: FEED_FETCH_LIMIT,
                 })
+
+                console.log(response.data.feed)
 
                 return {
                     posts: response.data.feed,
@@ -302,6 +302,7 @@ const FeedPage = memo(
         )
 
         if (data !== undefined && !isEndOfFeed) {
+            console.log(data)
             handleFetchResponse(data)
             setLoadMoreFeed(false)
         }
@@ -345,7 +346,6 @@ const FeedPage = memo(
                     //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
                     const mergedTimeline = mergePosts(muteWordFilter, timeline)
 
-                    if (!mergedTimeline[0]?.post) return
                     //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
                     setTimeline(mergedTimeline)
                     setNewTimeline([])
@@ -399,7 +399,6 @@ const FeedPage = memo(
                                 isScrolling.current = e
                             }}
                             restoreStateFrom={
-                                //@ts-ignore
                                 scrollPositions[`${pageName}-${feedKey}`]
                             }
                             rangeChanged={(range) => {

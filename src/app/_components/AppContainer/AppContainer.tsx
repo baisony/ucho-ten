@@ -34,7 +34,6 @@ import useRefreshSession from "@/app/_components/AppContainer/lib/useRefreshSess
 import { useShouldFillPageBackground } from "@/app/_components/AppContainer/lib/useShouldFillPageBackground"
 import { useKeyboardShortcuts } from "@/app/_components/AppContainer/lib/useKeyboardShortcuts"
 import { useRestoreSession } from "@/app/_components/AppContainer/lib/useRestoreSession"
-import { useTransferMuteWord } from "@/app/_components/AppContainer/lib/useTransferMuteWord"
 import { useServiceWorkerRegistration } from "@/app/_components/AppContainer/lib/useServiceWorkerRegistration"
 import { useSystemAppearanceColor } from "@/app/_components/AppContainer/lib/useSystemAppearanceColor"
 import { useUpdateTabQueryParam } from "@/app/_components/AppContainer/lib/useUpdateTabQueryParam"
@@ -71,7 +70,7 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
     const [headerMenusByHeader, setHeaderMenusByHeader] =
         useHeaderMenusByHeaderAtom()
     const [appearanceColor] = useAppearanceColor()
-    const [muteWords, setMuteWords] = useWordMutes()
+    const [, setMuteWords] = useWordMutes()
     const [, setBookmarks] = useBookmarks()
     const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
     const [userProfileDetailed, setUserProfileDetailed] =
@@ -175,8 +174,6 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         pathName,
         searchParams
     )
-
-    useTransferMuteWord(agent, muteWords, setMuteWords)
 
     const handleSideBarOpen = (isOpen: boolean) => {
         setDrawerOpen(isOpen)

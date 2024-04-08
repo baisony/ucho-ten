@@ -9,7 +9,7 @@ import type {
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,
@@ -31,7 +31,7 @@ import {
     ViewUserProfileCardCellProps,
 } from "@/app/_components/ViewUserProfileCard/ViewUserProfileCardCell"
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
-import { AtUri } from "@atproto/api"
+import { AppBskyGraphDefs, AtUri } from "@atproto/api"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import {
@@ -57,6 +57,8 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { PostModal } from "@/app/_components/PostModal"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -75,7 +77,7 @@ export default function Root() {
     const [timeline, setTimeline] = useState<
         ListItemView[] | FeedViewPost[] | null
     >(null)
-    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
+    //const [isEndOfFeed, setIsEndOfFeed] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
     const [feedInfo, setFeedInfo] = useState<ListView | null>(null)
     const [now, setNow] = useState<Date>(new Date())
@@ -168,7 +170,7 @@ export default function Root() {
                 items.length === 0 &&
                 (cursor.current === data?.data.cursor || !data?.data.cursor)
             ) {
-                setIsEndOfFeed(true)
+                //setIsEndOfFeed(true)
             }
 
             if (data?.data.cursor) {
@@ -287,7 +289,7 @@ export default function Root() {
         }
     }
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => (item?.post as PostView).uri === newValue.postUri
@@ -368,23 +370,14 @@ export default function Root() {
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`list-${atUri}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`list-${atUri}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        "list",
+        atUri,
+        scrollPositions,
+        setScrollPositions
+    )
 
     const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
         let data: CustomFeedCellProps[] = []
@@ -420,7 +413,9 @@ export default function Root() {
                     (post) => {
                         const profileProps: ViewUserProfileCardCellProps = {
                             isMobile,
-                            json: post.subject,
+                            json: AppBskyGraphDefs.isListItemView(post)
+                                ? post.subject
+                                : null,
                             nextQueryParams,
                             t,
                         }
@@ -528,7 +523,6 @@ export default function Root() {
                                     }}
                                     ref={virtuosoRef}
                                     restoreStateFrom={
-                                        //@ts-ignore
                                         scrollPositions[`list-${atUri}`]
                                     }
                                     rangeChanged={(range) => {
@@ -595,7 +589,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
 }
 
 interface FeedProps {
-    feedInfo?: any
+    feedInfo?: ListView | null
     isSubscribed?: boolean
     onClick?: () => void
     isSkeleton?: boolean
@@ -687,9 +681,8 @@ const FeedHeaderComponent = ({
                                 <DropdownItem
                                     key="new"
                                     onClick={() => {
-                                        const aturl = new AtUri(
-                                            feedInfo.view?.uri
-                                        )
+                                        if (!feedInfo) return
+                                        const aturl = new AtUri(feedInfo?.uri)
                                         void navigator.clipboard.writeText(
                                             `https://bsky.app/profile/${aturl.hostname}/lists/${aturl.rkey}`
                                         )
@@ -744,7 +737,7 @@ const FeedHeaderComponent = ({
                     <div className={ProfileHandle()}>
                         {!isSkeleton ? (
                             `${t(`pages.feedOnlyPage.createdBy`)} @${
-                                feedInfo.creator.handle
+                                feedInfo?.creator.handle
                             }`
                         ) : (
                             <Skeleton

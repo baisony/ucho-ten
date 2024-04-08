@@ -1,10 +1,13 @@
 // useGetListInfo.ts
 
+import { BskyAgent } from "@atproto/api"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+
 export const useGetListInfo = async (
     url: string,
-    agent: any,
+    agent: BskyAgent | null,
     setIsOGPGetProcessing: React.Dispatch<React.SetStateAction<boolean>>,
-    setGetListData: React.Dispatch<React.SetStateAction<any>>
+    setGetListData: React.Dispatch<React.SetStateAction<ListView | undefined>>
 ) => {
     if (!agent) return
     const regex = /\/([^/]+)\/lists\/([^/]+)/

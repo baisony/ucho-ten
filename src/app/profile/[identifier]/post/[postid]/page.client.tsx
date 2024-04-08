@@ -9,33 +9,36 @@ import {
     useState,
 } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
-import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import {
+    GeneratorView,
+    ReplyRef,
+    ThreadViewPost,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { notFound, usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBookmark as faRegularBookmark,
-    faComment,
-    faStar as faRegularStar,
-} from "@fortawesome/free-regular-svg-icons"
-import {
-    faArrowUpFromBracket,
-    faAt,
-    faBookmark as faSolidBookmark,
-    faChain,
-    faCode,
-    faEllipsis,
-    faFlag,
-    faLanguage,
-    faQuoteLeft,
-    faRetweet,
-    faStar as faSolidStar,
-    faTrash,
-    faUser,
-    faVolumeXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faComment } from "@fortawesome/free-regular-svg-icons/faComment"
+import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons/faBookmark"
+import { faStar as faRegularStar } from "@fortawesome/free-regular-svg-icons/faStar"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
+import { faVolumeXmark } from "@fortawesome/free-solid-svg-icons/faVolumeXmark"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
+import { faChain } from "@fortawesome/free-solid-svg-icons/faChain"
+import { faCode } from "@fortawesome/free-solid-svg-icons/faCode"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage"
+import { faQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft"
+import { faRetweet } from "@fortawesome/free-solid-svg-icons/faRetweet"
+import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark"
+import { faStar as faSolidStar } from "@fortawesome/free-solid-svg-icons/faStar"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Button,
@@ -62,6 +65,7 @@ import {
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedDefs,
+    AppBskyGraphDefs,
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
@@ -95,7 +99,6 @@ import { DummyHeader } from "@/app/_components/DummyHeader"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import { useZenMode } from "@/app/_atoms/zenMode"
-import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 const PageClient = () => {
     const [currentMenuType, setCurrentMenuType] = useCurrentMenuType()
@@ -225,7 +228,7 @@ const PostPage = (props: PostPageProps) => {
             setIsReposted(!!(data.thread.post as PostView).viewer?.repost)
             setIsMuted(!!(data.thread.post as PostView).author.viewer?.muted)
         } catch (e: unknown) {
-            //@ts-ignore
+            //@ts-ignore - it's hard to handle unknown types
             if (e.message.startsWith("Post not found")) {
                 setNotfoundPost(true)
             }
@@ -292,10 +295,10 @@ const PostPage = (props: PostPageProps) => {
     }
 
     function renderNestedViewPostCards(
-        post: any,
+        post: FeedViewPost | PostView | ReplyRef,
         isMobile: boolean
     ): JSX.Element | null {
-        if (post && post.parent) {
+        if (post && post.parent && AppBskyFeedDefs.isPostView(post.parent)) {
             const nestedViewPostCards = renderNestedViewPostCards(
                 post.parent,
                 isMobile
@@ -306,9 +309,9 @@ const PostPage = (props: PostPageProps) => {
                     <ViewPostCard
                         bodyText={processPostBodyText(
                             nextQueryParams,
-                            post.parent.post
+                            post.parent.post as PostView
                         )}
-                        postJson={post.parent.post}
+                        postJson={(post.parent.post as PostView) ?? undefined}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
                         t={t}
@@ -390,7 +393,7 @@ const PostPage = (props: PostPageProps) => {
         }
 
         const index = bookmarks.findIndex(
-            (bookmark: any) => bookmark.uri === postView.uri
+            (bookmark: Bookmark) => bookmark.uri === postView.uri
         )
         console.log(index)
 
@@ -610,7 +613,7 @@ const PostPage = (props: PostPageProps) => {
             const json = await res.json()
             if (json[0] !== undefined) {
                 const combinedText = json[0].reduce(
-                    (acc: string, item: any[]) => {
+                    (acc: string, item: string[]) => {
                         if (item[0]) {
                             return acc + item[0]
                         }
@@ -687,7 +690,7 @@ const PostPage = (props: PostPageProps) => {
                     {(onClose) => (
                         <PostModal
                             type={modalType ? modalType : "Reply"}
-                            postData={postView}
+                            postData={postView ?? undefined}
                             onClose={onClose}
                         />
                     )}
@@ -1115,7 +1118,7 @@ const PostPage = (props: PostPageProps) => {
                         )}
                         {embedExternal && !contentWarning && (
                             <div className={"h-full w-full mt-[5px]"}>
-                                <Linkcard ogpData={embedExternal.external} />
+                                <Linkcard ogpData={embedExternal?.external} />
                             </div>
                         )}
                         {embedRecord &&
@@ -1342,37 +1345,35 @@ const EmbedMedia = ({
                     )}
                 </ScrollShadow>
             )}
-            {embedMedia.media.$type === "app.bsky.embed.external#view" && (
-                <Linkcard ogpData={embedMedia.media.external} />
-            )}
+            {embedMedia.media.$type === "app.bsky.embed.external#view" &&
+                AppBskyEmbedExternal.isView(embedMedia.media) && (
+                    <Linkcard ogpData={embedMedia?.media?.external} />
+                )}
             {embedMedia.record.record.$type ===
                 "app.bsky.embed.record#view" && (
                 <ViewQuoteCard
-                    postJson={embedMedia.record.record}
+                    postJson={embedMedia.record.record as ViewRecord}
                     nextQueryParams={nextQueryParams}
                 />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.embed.record#viewRecord" && (
+            {AppBskyEmbedRecord.isViewRecord(embedMedia.record.record) && (
                 <ViewQuoteCard
                     postJson={embedMedia.record.record}
                     nextQueryParams={nextQueryParams}
                 />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.feed.defs#generatorView" && (
-                <ViewFeedCard
-                    feed={embedMedia.record.record as GeneratorView}
-                />
+            {AppBskyFeedDefs.isGeneratorView(embedMedia.record.record) && (
+                <ViewFeedCard feed={embedMedia.record.record} />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.graph.defs#listView" && (
-                <ViewMuteListCard list={embedMedia.record.record as ListView} />
+            {AppBskyGraphDefs.isListView(embedMedia.record.record) && (
+                <ViewMuteListCard list={embedMedia.record.record} />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.embed.record#viewNotFound" && <ViewNotFoundCard />}
-            {embedMedia.record.record.$type ===
-                "app.bsky.embed.record#viewBlocked" && <ViewNotFoundCard />}
+            {AppBskyFeedDefs.isNotFoundPost(embedMedia.record.record) && (
+                <ViewNotFoundCard />
+            )}
+            {AppBskyFeedDefs.isBlockedPost(embedMedia.record.record) && (
+                <ViewNotFoundCard />
+            )}
         </>
     )
 }

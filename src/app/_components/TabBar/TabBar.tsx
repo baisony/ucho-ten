@@ -1,13 +1,12 @@
 import { useLayoutEffect } from "react"
 import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faHome,
-    faRss,
-    faInbox,
-    faPenToSquare,
-    faSearch,
-} from "@fortawesome/free-solid-svg-icons"
+import { faHome } from "@fortawesome/free-solid-svg-icons/faHome"
+import { faRss } from "@fortawesome/free-solid-svg-icons/faRss"
+import { faInbox } from "@fortawesome/free-solid-svg-icons/faInbox"
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons/faPenToSquare"
+import { faSearch } from "@fortawesome/free-solid-svg-icons/faSearch"
+
 import { Badge } from "@nextui-org/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"

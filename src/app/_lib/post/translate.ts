@@ -18,12 +18,15 @@ export const translateText = async (
     if (res.status === 200) {
         const json = await res.json()
         if (json[0] !== undefined) {
-            const combinedText = json[0].reduce((acc: string, item: any[]) => {
-                if (item[0]) {
-                    return acc + item[0]
-                }
-                return acc
-            }, "")
+            const combinedText = json[0].reduce(
+                (acc: string, item: string[]) => {
+                    if (item[0]) {
+                        return acc + item[0]
+                    }
+                    return acc
+                },
+                ""
+            )
             console.log(combinedText)
             console.log(postJson)
             const translatedJson = JSON.parse(JSON.stringify(postJson))
