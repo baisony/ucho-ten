@@ -6,12 +6,13 @@ import { Skeleton } from "@nextui-org/react"
 
 import Link from "next/link"
 import { TFunction } from "i18next"
+import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 interface Props {
     className?: string
     isMobile?: boolean
     isSkeleton?: boolean
-    json: any
+    json: ProfileView | null
     isEmbedToModal?: boolean
     isDummyHeader?: boolean
     nextQueryParams: URLSearchParams

@@ -1,5 +1,11 @@
 import { ScrollShadow } from "@nextui-org/react"
-import { AppBskyEmbedRecordWithMedia } from "@atproto/api"
+import {
+    AppBskyEmbedExternal,
+    AppBskyEmbedRecord,
+    AppBskyEmbedRecordWithMedia,
+    AppBskyFeedDefs,
+    AppBskyGraphDefs,
+} from "@atproto/api"
 import { ViewImage } from "@atproto/api/dist/client/types/app/bsky/embed/images"
 import { ViewQuoteCard } from "../ViewQuoteCard"
 import { memo } from "react"
@@ -9,6 +15,7 @@ import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
 import { ViewNotFoundCard } from "@/app/_components/ViewNotFoundCard"
 import { Linkcard } from "@/app/_components/Linkcard"
+import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record"
 
 interface EmbedMediaProps {
     embedMedia: AppBskyEmbedRecordWithMedia.View | null
@@ -67,44 +74,42 @@ export const EmbedMedia = memo(
                             )}
                         </ScrollShadow>
                     )}
-                    {embedMedia?.media.$type ===
-                        "app.bsky.embed.external#view" && (
+                    {AppBskyEmbedExternal.isViewExternal(embedMedia?.media) && (
                         <Linkcard ogpData={embedMedia?.media.external} />
                     )}
                     {embedMedia?.record.record.$type ===
                         "app.bsky.embed.record#view" && (
                         <ViewQuoteCard
-                            postJson={embedMedia?.record.record}
+                            postJson={embedMedia?.record.record as ViewRecord}
                             nextQueryParams={nextQueryParams}
                         />
                     )}
-                    {embedMedia?.record.record.$type ===
-                        "app.bsky.embed.record#viewRecord" && (
+                    {AppBskyEmbedRecord.isViewRecord(
+                        embedMedia?.record.record
+                    ) && (
                         <ViewQuoteCard
                             postJson={embedMedia?.record.record}
                             nextQueryParams={nextQueryParams}
                         />
                     )}
-                    {embedMedia?.record.record.$type ===
-                        "app.bsky.feed.defs#generatorView" && (
+                    {AppBskyFeedDefs.isGeneratorView(
+                        embedMedia?.record.record
+                    ) && (
                         <ViewFeedCard
                             feed={embedMedia?.record.record as GeneratorView}
                         />
                     )}
-                    {embedMedia?.record.record.$type ===
-                        "app.bsky.graph.defs#listView" && (
+                    {AppBskyGraphDefs.isListView(embedMedia?.record.record) && (
                         <ViewMuteListCard
                             list={embedMedia?.record.record as ListView}
                         />
                     )}
-                    {embedMedia?.record.record.$type ===
-                        "app.bsky.embed.record#viewNotFound" && (
-                        <ViewNotFoundCard />
-                    )}
-                    {embedMedia?.record.record.$type ===
-                        "app.bsky.embed.record#viewBlocked" && (
-                        <ViewNotFoundCard />
-                    )}
+                    {AppBskyEmbedRecord.isViewNotFound(
+                        embedMedia?.record.record
+                    ) ||
+                        (AppBskyEmbedRecord.isViewBlocked(
+                            embedMedia?.record.record
+                        ) && <ViewNotFoundCard />)}
                 </>
             )
         )

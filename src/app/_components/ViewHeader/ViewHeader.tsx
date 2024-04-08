@@ -36,8 +36,8 @@ interface Props {
     isMobile?: boolean
     open?: boolean
     isNextPage?: boolean
-    setSideBarOpen?: any
-    setSearchText?: any
+    setSideBarOpen?: (v: boolean) => void
+    setSearchText?: (v: string) => void
 }
 
 export const ViewHeader: React.FC<Props> = memo((props: Props) => {
@@ -181,7 +181,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                         />
                     }
                     onClick={() => {
-                        if (isRoot) {
+                        if (isRoot && setSideBarOpen) {
                             setSideBarOpen(true)
                         } else {
                             if (pathname === "/login") {
@@ -248,6 +248,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                                     "absolute md:right-[8px] md:top-[8px] md:h-[25px] md:w-[25px] right-[10px] top-[10px] h-[18px] w-[18px] bg-black bg-opacity-30 rounded-full flex items-center justify-center"
                                 }
                                 onClick={() => {
+                                    if (!props.setSearchText) return
                                     setSearchText("")
                                     props.setSearchText("")
                                 }}

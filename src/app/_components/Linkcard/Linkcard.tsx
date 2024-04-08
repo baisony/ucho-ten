@@ -3,12 +3,14 @@ import { Spinner } from "@nextui-org/react"
 import { memo } from "react"
 import { SwitchingLinkATag } from "@/app/_components/Linkcard/SwitchingLinkATag"
 import { External } from "@atproto/api/dist/client/types/app/bsky/embed/external"
+import { OGPData } from "@/app/_types/types"
+import { ViewExternal } from "@atproto/api/src/client/types/app/bsky/embed/external"
 
 interface Props {
     children?: React.ReactNode
     type?: "Post" | "Reply" | `Quote`
-    postData?: External
-    ogpData?: any
+    postData?: External | ViewExternal
+    ogpData?: OGPData
     skeleton?: boolean
 }
 
@@ -92,11 +94,7 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
                                     </div>
                                     <div className={LinkCardSiteName()}>
                                         <div className="text-gray-400 w-full">
-                                            {
-                                                ogpData?.uri.match(
-                                                    /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
-                                                )[1]
-                                            }
+                                            {`${new URL(ogpData?.uri).hostname}`}
                                         </div>
                                     </div>
                                 </div>
@@ -162,11 +160,7 @@ export const Linkcard: React.FC<Props> = memo((props: Props) => {
                                 </div>
                                 <div className={LinkCardSiteName()}>
                                     <div className="text-gray-400 w-full">
-                                        {
-                                            ogpData?.uri.match(
-                                                /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
-                                            )[1]
-                                        }
+                                        {`${new URL(ogpData?.uri as string).hostname}`}
                                     </div>
                                 </div>
                             </div>

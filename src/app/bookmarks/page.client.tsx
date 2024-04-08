@@ -26,6 +26,7 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -74,8 +75,7 @@ export default function Root() {
         setTimeline(results)
     }
 
-    const handleValueChange = (newValue: any) => {
-        //setText(newValue);
+    const handleValueChange = (newValue: reactionJson) => {
         console.log(newValue)
         console.log(timeline)
         if (!timeline) return

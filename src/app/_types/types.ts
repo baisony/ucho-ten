@@ -12,7 +12,7 @@ export interface OGPData {
     description: string
     thumb?: string
     uri: string
-    alt: string
+    alt?: string
 }
 
 export interface OGPImage {

@@ -113,7 +113,7 @@ export const filterDisplayPosts = (
 
         const record = postData.record as Record
 
-        if (record.reply) {
+        if (record?.reply) {
             const rootDID = getDIDfromAtURI(record.reply.root.uri)
             const parentDID = getDIDfromAtURI(record.reply.parent.uri)
 

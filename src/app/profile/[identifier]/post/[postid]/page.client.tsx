@@ -9,9 +9,13 @@ import {
     useState,
 } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import type { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import type {
+    FeedViewPost,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import {
     GeneratorView,
+    ReplyRef,
     ThreadViewPost,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
@@ -65,6 +69,7 @@ import {
     AppBskyEmbedRecord,
     AppBskyEmbedRecordWithMedia,
     AppBskyFeedDefs,
+    AppBskyGraphDefs,
     AtUri,
 } from "@atproto/api"
 import { Bookmark, useBookmarks } from "@/app/_atoms/bookmarks"
@@ -294,12 +299,12 @@ const PostPage = (props: PostPageProps) => {
     }
 
     function renderNestedViewPostCards(
-        post: any,
+        post: FeedViewPost | PostView | ReplyRef,
         isMobile: boolean
     ): JSX.Element | null {
-        if (post && post.parent) {
+        if (post && post.parent && AppBskyFeedDefs.isPostView(post.parent)) {
             const nestedViewPostCards = renderNestedViewPostCards(
-                post?.parent,
+                post.parent,
                 isMobile
             )
             return (
@@ -308,9 +313,9 @@ const PostPage = (props: PostPageProps) => {
                     <ViewPostCard
                         bodyText={processPostBodyText(
                             nextQueryParams,
-                            post.parent.post
+                            post.parent.post as PostView
                         )}
-                        postJson={post.parent.post}
+                        postJson={(post.parent.post as PostView) ?? undefined}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
                         t={t}
@@ -1117,7 +1122,7 @@ const PostPage = (props: PostPageProps) => {
                         )}
                         {embedExternal && !contentWarning && (
                             <div className={"h-full w-full mt-[5px]"}>
-                                <Linkcard ogpData={embedExternal.external} />
+                                <Linkcard ogpData={embedExternal?.external} />
                             </div>
                         )}
                         {embedRecord &&
@@ -1344,37 +1349,35 @@ const EmbedMedia = ({
                     )}
                 </ScrollShadow>
             )}
-            {embedMedia.media.$type === "app.bsky.embed.external#view" && (
-                <Linkcard ogpData={embedMedia.media.external} />
-            )}
+            {embedMedia.media.$type === "app.bsky.embed.external#view" &&
+                AppBskyEmbedExternal.isView(embedMedia.media) && (
+                    <Linkcard ogpData={embedMedia?.media?.external} />
+                )}
             {embedMedia.record.record.$type ===
                 "app.bsky.embed.record#view" && (
                 <ViewQuoteCard
-                    postJson={embedMedia.record.record}
+                    postJson={embedMedia.record.record as ViewRecord}
                     nextQueryParams={nextQueryParams}
                 />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.embed.record#viewRecord" && (
+            {AppBskyEmbedRecord.isViewRecord(embedMedia.record.record) && (
                 <ViewQuoteCard
                     postJson={embedMedia.record.record}
                     nextQueryParams={nextQueryParams}
                 />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.feed.defs#generatorView" && (
-                <ViewFeedCard
-                    feed={embedMedia.record.record as GeneratorView}
-                />
+            {AppBskyFeedDefs.isGeneratorView(embedMedia.record.record) && (
+                <ViewFeedCard feed={embedMedia.record.record} />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.graph.defs#listView" && (
-                <ViewMuteListCard list={embedMedia.record.record as ListView} />
+            {AppBskyGraphDefs.isListView(embedMedia.record.record) && (
+                <ViewMuteListCard list={embedMedia.record.record} />
             )}
-            {embedMedia.record.record.$type ===
-                "app.bsky.embed.record#viewNotFound" && <ViewNotFoundCard />}
-            {embedMedia.record.record.$type ===
-                "app.bsky.embed.record#viewBlocked" && <ViewNotFoundCard />}
+            {AppBskyFeedDefs.isNotFoundPost(embedMedia.record.record) && (
+                <ViewNotFoundCard />
+            )}
+            {AppBskyFeedDefs.isBlockedPost(embedMedia.record.record) && (
+                <ViewNotFoundCard />
+            )}
         </>
     )
 }
