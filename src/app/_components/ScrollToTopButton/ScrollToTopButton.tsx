@@ -1,6 +1,6 @@
 import { memo, MutableRefObject } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronUp } from "@fortawesome/free-solid-svg-icons"
+import { faChevronUp } from "@fortawesome/free-solid-svg-icons/faChevronUp"
 
 /**
  * SetttingsModal props.

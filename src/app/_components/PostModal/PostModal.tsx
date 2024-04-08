@@ -8,15 +8,14 @@ import {
 } from "react"
 import { postModal } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage } from "@fortawesome/free-regular-svg-icons"
-import {
-    faCirclePlus,
-    faFaceLaughBeam,
-    faPlus,
-    faShieldHalved,
-    faTrash,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faImage } from "@fortawesome/free-regular-svg-icons/faImage"
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons/faCirclePlus"
+import { faFaceLaughBeam } from "@fortawesome/free-solid-svg-icons/faFaceLaughBeam"
+import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus"
+import { faShieldHalved } from "@fortawesome/free-solid-svg-icons/faShieldHalved"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark"
+
 import "react-circular-progressbar/dist/styles.css"
 import {
     Button,
@@ -75,7 +74,7 @@ import {
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
-import { OGPImage } from "@/app/_types/types"
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -93,14 +92,6 @@ interface Props {
     initialEmbed?: GeneratorView | ListView | unknown | undefined
     initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
-}
-
-interface OGPData {
-    title: string
-    description: string
-    thumb?: string
-    uri: string
-    alt: string
 }
 
 export const PostModal: React.FC<Props> = (props: Props) => {

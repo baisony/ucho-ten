@@ -3,15 +3,14 @@
 import { DragEvent, useCallback, useEffect, useRef, useState } from "react"
 import { createPostPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage } from "@fortawesome/free-regular-svg-icons"
-import {
-    faCirclePlus,
-    faFaceLaughBeam,
-    faPlus,
-    faShieldHalved,
-    faTrash,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faImage } from "@fortawesome/free-regular-svg-icons/faImage"
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons/faCirclePlus"
+import { faFaceLaughBeam } from "@fortawesome/free-solid-svg-icons/faFaceLaughBeam"
+import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus"
+import { faShieldHalved } from "@fortawesome/free-solid-svg-icons/faShieldHalved"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark"
+
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
 import { useDropzone } from "react-dropzone"

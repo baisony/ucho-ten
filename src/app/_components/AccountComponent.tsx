@@ -4,7 +4,7 @@ import { UserAccount } from "../_atoms/accounts"
 import { useTranslation } from "react-i18next"
 import { Button, Spinner } from "@nextui-org/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck"
 
 import defaultIcon from "../../../public/images/icon/default_icon.svg"
 

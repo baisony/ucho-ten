@@ -161,11 +161,7 @@ const FeedPage = memo(
         const handleRefresh = async () => {
             shouldScrollToTop.current = true
 
-            console.log(timeline)
-            console.log(newTimeline)
-
             const mergedTimeline = mergePosts(newTimeline, timeline)
-            console.log(mergedTimeline)
 
             setTimeline(mergedTimeline as FeedViewPost[])
             setNewTimeline([])

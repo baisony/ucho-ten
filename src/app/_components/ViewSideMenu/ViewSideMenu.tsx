@@ -1,20 +1,19 @@
 import { memo, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBookmark,
-    faCircleInfo,
-    faCloud,
-    faFlag,
-    faGear,
-    faHome,
-    faInbox,
-    faMagnifyingGlass,
-    faPenToSquare,
-    faRightFromBracket,
-    faRss,
-    faUser,
-    faUsers,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark"
+import { faInbox } from "@fortawesome/free-solid-svg-icons/faInbox"
+import { faRss } from "@fortawesome/free-solid-svg-icons/faRss"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
+import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers"
+import { faCircleInfo } from "@fortawesome/free-solid-svg-icons/faCircleInfo"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faGear } from "@fortawesome/free-solid-svg-icons/faGear"
+import { faHome } from "@fortawesome/free-solid-svg-icons/faHome"
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons/faMagnifyingGlass"
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons/faPenToSquare"
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket"
+import { faCloud } from "@fortawesome/free-solid-svg-icons/faCloud"
+
 import {
     Badge,
     Dropdown,

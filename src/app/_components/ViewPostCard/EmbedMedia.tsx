@@ -74,8 +74,8 @@ export const EmbedMedia = memo(
                             )}
                         </ScrollShadow>
                     )}
-                    {AppBskyEmbedExternal.isViewExternal(embedMedia?.media) && (
-                        <Linkcard ogpData={embedMedia?.media.external} />
+                    {AppBskyEmbedExternal.isView(embedMedia?.media) && (
+                        <Linkcard ogpData={embedMedia?.media?.external} />
                     )}
                     {embedMedia?.record.record.$type ===
                         "app.bsky.embed.record#view" && (

@@ -18,16 +18,15 @@ import type {
 import { notFound, usePathname, useRouter } from "next/navigation"
 import { viewProfilePage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faAt,
-    faCopy,
-    faD,
-    faEllipsis,
-    faFlag,
-    faLink,
-    faN,
-    faVolumeXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
+import { faCopy } from "@fortawesome/free-solid-svg-icons/faCopy"
+import { faD } from "@fortawesome/free-solid-svg-icons/faD"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faLink } from "@fortawesome/free-solid-svg-icons/faLink"
+import { faN } from "@fortawesome/free-solid-svg-icons/faN"
+import { faVolumeXmark } from "@fortawesome/free-solid-svg-icons/faVolumeXmark"
+
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Button,

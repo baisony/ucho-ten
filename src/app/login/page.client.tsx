@@ -3,12 +3,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { createLoginPage } from "./styles"
 import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faLink,
-    faList,
-    faLock,
-    faUser,
-} from "@fortawesome/free-solid-svg-icons"
+import { faLink } from "@fortawesome/free-solid-svg-icons/faLink"
+import { faList } from "@fortawesome/free-solid-svg-icons/faList"
+import { faLock } from "@fortawesome/free-solid-svg-icons/faLock"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
 import { Button, Spinner } from "@nextui-org/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { isMobile } from "react-device-detect"

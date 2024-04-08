@@ -4,11 +4,10 @@ import { memo, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBars,
-    faChevronLeft,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBars } from "@fortawesome/free-solid-svg-icons/faBars"
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons/faChevronLeft"
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark"
+
 import { Button } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Swiper, SwiperSlide } from "swiper/react"

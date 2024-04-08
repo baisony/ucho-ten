@@ -22,27 +22,23 @@ import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 import { notFound, usePathname, useRouter } from "next/navigation"
 import { postOnlyPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBookmark as faRegularBookmark,
-    faComment,
-    faStar as faRegularStar,
-} from "@fortawesome/free-regular-svg-icons"
-import {
-    faArrowUpFromBracket,
-    faAt,
-    faBookmark as faSolidBookmark,
-    faChain,
-    faCode,
-    faEllipsis,
-    faFlag,
-    faLanguage,
-    faQuoteLeft,
-    faRetweet,
-    faStar as faSolidStar,
-    faTrash,
-    faUser,
-    faVolumeXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faComment } from "@fortawesome/free-regular-svg-icons/faComment"
+import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons/faBookmark"
+import { faStar as faRegularStar } from "@fortawesome/free-regular-svg-icons/faStar"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
+import { faVolumeXmark } from "@fortawesome/free-solid-svg-icons/faVolumeXmark"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
+import { faChain } from "@fortawesome/free-solid-svg-icons/faChain"
+import { faCode } from "@fortawesome/free-solid-svg-icons/faCode"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage"
+import { faQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft"
+import { faRetweet } from "@fortawesome/free-solid-svg-icons/faRetweet"
+import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark"
+import { faStar as faSolidStar } from "@fortawesome/free-solid-svg-icons/faStar"
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import {
     Button,

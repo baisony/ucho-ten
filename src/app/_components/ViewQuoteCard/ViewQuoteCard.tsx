@@ -282,7 +282,7 @@ export const ViewQuoteCard: React.FC<Props> = memo((props: Props) => {
                                                     </div>
                                                 </ScrollShadow>
                                             ) : (
-                                                AppBskyEmbedExternal.isViewExternal(
+                                                AppBskyEmbedExternal.isView(
                                                     postJson.embed
                                                 ) && (
                                                     <Linkcard

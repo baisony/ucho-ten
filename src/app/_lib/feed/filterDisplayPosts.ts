@@ -44,27 +44,23 @@ export const filterDisplayPosts = (
 ): (FeedViewPost | PostView)[] => {
     const seenUris = new Set<string>()
     return posts.filter((item) => {
-        const postData: PostView = AppBskyFeedDefs.isPostView(item)
-            ? item
-            : item?.post
-        const uri = postData.uri
-        const authorDID = postData.author?.did
+        const postData = item?.post ?? item
+        const post: PostView = postData as PostView
+        const uri = post?.uri
+        const authorDID = post.author?.did
 
         let displayPost: boolean | null = null
 
-        if (
-            handleHideRepost(item, hideRepost) ||
-            handleFrontMention(postData)
-        ) {
+        if (handleHideRepost(item, hideRepost) || handleFrontMention(post)) {
             return false
         }
 
         if (
             (item?.post as PostView)?.record &&
-            (postData.record as PostView)?.reply &&
+            (post.record as PostView)?.reply &&
             !item.reply
         ) {
-            const replyParent = (postData.record as Record).reply?.parent
+            const replyParent = (post.record as Record).reply?.parent
 
             if (replyParent && !item.reply) {
                 const did = new AtUri(replyParent.uri).hostname
@@ -111,7 +107,7 @@ export const filterDisplayPosts = (
             } else displayPost = authorDID === sessionUser?.did
         }
 
-        const record = postData.record as Record
+        const record = post.record as Record
 
         if (record?.reply) {
             const rootDID = getDIDfromAtURI(record.reply.root.uri)

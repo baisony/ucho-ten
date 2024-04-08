@@ -9,7 +9,7 @@ import type {
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,

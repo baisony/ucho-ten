@@ -12,7 +12,6 @@ import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 
 import { isMobile } from "react-device-detect"
 import { HEADER_MENUS, HeaderMenuType } from "@/app/_constants/headerMenus"
-SwiperCore.use([Virtual])
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 interface SwiperPageProps {
@@ -83,7 +82,7 @@ export function SwiperContainer({
                 cssMode={isMobile}
                 pagination={{ type: "custom", clickable: false }}
                 hidden={true} // ??
-                modules={[Pagination]}
+                modules={[Pagination, Virtual]}
                 className="swiper-home"
                 style={{ height: "100%" }}
                 touchEventsTarget={"container"}

@@ -13,7 +13,8 @@ import {
 } from "@nextui-org/react"
 import { BskyAgent } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faAt, faLock } from "@fortawesome/free-solid-svg-icons"
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
+import { faLock } from "@fortawesome/free-solid-svg-icons/faLock"
 import { useAccounts, UserAccount } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 

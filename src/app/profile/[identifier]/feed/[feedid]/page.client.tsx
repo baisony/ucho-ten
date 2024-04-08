@@ -9,10 +9,8 @@ import type {
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faArrowUpFromBracket,
-    faThumbTack,
-} from "@fortawesome/free-solid-svg-icons"
+import { faThumbtack } from "@fortawesome/free-solid-svg-icons/faThumbTack"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,
@@ -651,7 +649,7 @@ const FeedHeaderComponent = ({
                             onClick={handlePinnedClick}
                         >
                             <FontAwesomeIcon
-                                icon={faThumbTack}
+                                icon={faThumbtack}
                                 className={PinButton({
                                     isPinned: isPinned1,
                                 })}

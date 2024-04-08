@@ -3,13 +3,12 @@ import { ViewRecord } from "@atproto/api/dist/client/types/app/bsky/embed/record
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 
-import {
-    faCheckCircle,
-    faCircleQuestion,
-    faCircleXmark,
-    faHashtag,
-} from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons/faCheckCircle"
+import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons/faCircleQuestion"
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons/faCircleXmark"
+import { faHashtag } from "@fortawesome/free-solid-svg-icons/faHashtag"
+
 import { Chip, Tooltip } from "@nextui-org/react"
 import Link from "next/link"
 import { Main } from "@atproto/api/dist/client/types/app/bsky/richtext/facet"

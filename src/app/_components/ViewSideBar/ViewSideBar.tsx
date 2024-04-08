@@ -1,17 +1,16 @@
 import { useState } from "react"
 import { viewSideBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBookmark,
-    faCircleQuestion,
-    faFlag,
-    faGear,
-    faRightFromBracket,
-    faRss,
-    faUser,
-    faUsers,
-    faVolumeXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark"
+import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons/faCircleQuestion"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faGear } from "@fortawesome/free-solid-svg-icons/faGear"
+import { faRss } from "@fortawesome/free-solid-svg-icons/faRss"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
+import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers"
+import { faVolumeXmark } from "@fortawesome/free-solid-svg-icons/faVolumeXmark"
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket"
+
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { useDisclosure } from "@nextui-org/react"
 import { useRouter } from "next/navigation"

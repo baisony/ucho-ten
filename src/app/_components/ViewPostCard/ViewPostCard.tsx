@@ -17,18 +17,15 @@ import {
     ViewerState,
 } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBookmark as faBookmarkRegular,
-    faComment,
-    faStar as faHeartRegular,
-} from "@fortawesome/free-regular-svg-icons"
-import {
-    faBookmark as faBookmarkSolid,
-    faEllipsis,
-    faReply,
-    faRetweet,
-    faStar as faHeartSolid,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBookmark as faBookmarkRegular } from "@fortawesome/free-regular-svg-icons/faBookmark"
+import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons/faBookmark"
+import { faStar as faHeartSolid } from "@fortawesome/free-solid-svg-icons/faStar"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faReply } from "@fortawesome/free-solid-svg-icons/faReply"
+import { faStar as faHeartRegular } from "@fortawesome/free-regular-svg-icons/faStar"
+import { faRetweet } from "@fortawesome/free-solid-svg-icons/faRetweet"
+import { faComment } from "@fortawesome/free-regular-svg-icons/faComment"
+
 import defaultIcon from "@/../public/images/icon/default_icon.svg"
 import { viewPostCard } from "./styles"
 import { viewQuoteCard } from "../ViewQuoteCard/styles"

@@ -1,13 +1,11 @@
 import { Modal, ModalBody, ModalContent } from "@nextui-org/react"
 import { AtUri } from "@atproto/api"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faArrowUpFromBracket,
-    faFlag,
-    faLanguage,
-    faTrash,
-    faVolumeXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faVolumeXmark } from "@fortawesome/free-solid-svg-icons/faVolumeXmark"
 
 import { useTranslation } from "react-i18next"
 import { useAgent } from "@/app/_atoms/agent"

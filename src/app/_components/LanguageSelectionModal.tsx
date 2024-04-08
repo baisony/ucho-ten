@@ -12,9 +12,9 @@ import {
     Selection,
     ModalHeader,
 } from "@nextui-org/react"
-import { faCheck } from "@fortawesome/free-solid-svg-icons"
 import { LANGUAGES } from "../_constants/lanuages"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck"
 
 interface LanguagesSelectionModalProps {
     isOpen: boolean

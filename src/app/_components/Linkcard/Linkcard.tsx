@@ -4,13 +4,13 @@ import { memo } from "react"
 import { SwitchingLinkATag } from "@/app/_components/Linkcard/SwitchingLinkATag"
 import { External } from "@atproto/api/dist/client/types/app/bsky/embed/external"
 import { OGPData } from "@/app/_types/types"
-import { ViewExternal } from "@atproto/api/src/client/types/app/bsky/embed/external"
+import { ViewExternal } from "@atproto/api/dist/client/types/app/bsky/embed/external"
 
 interface Props {
     children?: React.ReactNode
     type?: "Post" | "Reply" | `Quote`
     postData?: External | ViewExternal
-    ogpData?: OGPData
+    ogpData?: OGPData | undefined
     skeleton?: boolean
 }
 
