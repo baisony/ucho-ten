@@ -58,7 +58,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState<string>("")
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [isComposing, setComposing] = useState(false)
+    const isComposing = useRef(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
     const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
@@ -207,7 +207,8 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                             }}
                             placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
-                                if (e.key !== "Enter" || isComposing) return //1
+                                if (e.key !== "Enter" || isComposing.current)
+                                    return //1
 
                                 // props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
@@ -238,8 +239,12 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
 
                                 router.push(`/search?${queryParams.toString()}`)
                             }}
-                            onCompositionStart={() => setComposing(true)}
-                            onCompositionEnd={() => setComposing(false)}
+                            onCompositionStart={() =>
+                                (isComposing.current = true)
+                            }
+                            onCompositionEnd={() =>
+                                (isComposing.current = false)
+                            }
                         />
                         {searchText && searchText.length > 0 && (
                             <button

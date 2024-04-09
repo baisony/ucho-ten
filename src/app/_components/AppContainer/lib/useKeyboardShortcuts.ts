@@ -11,6 +11,7 @@ export const useKeyboardShortcuts = (
         if (isMobile) {
             return
         }
+        console.log("useKeyboardShortcuts")
 
         const handleKeyDown = (event: KeyboardEvent) => {
             const target = event.target as HTMLElement

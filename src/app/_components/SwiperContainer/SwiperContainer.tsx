@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useRef } from "react"
 import { Swiper } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
@@ -12,7 +12,8 @@ import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 
 import { isMobile } from "react-device-detect"
 import { HEADER_MENUS, HeaderMenuType } from "@/app/_constants/headerMenus"
-const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
+
+// const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 interface SwiperPageProps {
     page: HeaderMenuType
@@ -34,8 +35,6 @@ export function SwiperContainer({
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
 
-    const [, setNow] = useState<Date>(new Date())
-
     const swiperRef = useRef<SwiperCore | null>(null)
 
     useLayoutEffect(() => {
@@ -49,16 +48,6 @@ export function SwiperContainer({
             setMenuIndex(0) // at least home menu has 1 element
         }
     }, [tappedTabbarButton])
-
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setNow(new Date())
-        }, NOW_COUNT_UP_INTERVAL)
-
-        return () => {
-            clearInterval(intervalId)
-        }
-    }, [])
 
     useEffect(() => {
         if (currentMenuType !== page) return

@@ -78,23 +78,25 @@ const FeedPage = memo(
         const [hideRepost] = useHideRepost()
         const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
         const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-        const [hasMore, setHasMore] = useState<boolean>(false)
+        const hasMore = useRef<boolean>(false)
         const [hasUpdate, setHasUpdate] = useState<boolean>(false)
         const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
-        const [cursorState, setCursorState] = useState<string>()
-        const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
+        const cursorState = useRef<string>()
+        const isEndOfFeed = useRef<boolean>(false)
 
         const scrollRef = useRef<HTMLElement | null>(null)
         const shouldScrollToTop = useRef<boolean>(false)
         const latestCID = useRef<string>("")
         const shouldCheckUpdate = useRef<boolean>(false)
-        const [scrollIndex, setScrollIndex] = useState<number>(0)
+        const scrollIndex = useRef<number>(0)
 
         const virtuosoRef = useRef<VirtuosoHandle | null>(null)
         const [scrollPositions, setScrollPositions] = useScrollPositions()
         const isScrolling = useRef<boolean>(false)
         const [zenMode] = useZenMode()
         const [hasError, setHasError] = useState<null | ResponseObject>(null)
+
+        console.log("FeedPage")
 
         const getFeedKeys = {
             all: ["getFeed"] as const,
@@ -113,10 +115,10 @@ const FeedPage = memo(
         }, [timeline])
 
         const loadMore = useCallback(() => {
-            if (hasMore) {
+            if (hasMore.current) {
                 setLoadMoreFeed(true)
             }
-        }, [hasMore])
+        }, [hasMore.current])
 
         const checkNewTimeline = useCheckNewTimeline(
             agent,
@@ -183,8 +185,8 @@ const FeedPage = memo(
                 if (response) {
                     const { posts, cursor } = response
                     if (posts.length === 0 || cursor === "")
-                        setIsEndOfFeed(true)
-                    setCursorState(response.cursor)
+                        isEndOfFeed.current = true
+                    cursorState.current = response.cursor
 
                     console.log("posts", posts)
 
@@ -220,17 +222,13 @@ const FeedPage = memo(
                     })
                 } else {
                     setTimeline([])
-                    setHasMore(false)
+                    hasMore.current = false
                     return
                 }
 
-                setCursorState(response.cursor)
+                cursorState.current = response.cursor
 
-                if (cursorState !== "") {
-                    setHasMore(true)
-                } else {
-                    setHasMore(false)
-                }
+                hasMore.current = cursorState.current !== ""
             },
             []
         )
@@ -249,7 +247,7 @@ const FeedPage = memo(
 
             if (feedKey === "following") {
                 const response = await agent.getTimeline({
-                    cursor: cursorState || "",
+                    cursor: cursorState.current || "",
                     limit: FEED_FETCH_LIMIT,
                 })
 
@@ -262,7 +260,7 @@ const FeedPage = memo(
             } else {
                 const response = await agent.app.bsky.feed.getFeed({
                     feed: feedKey,
-                    cursor: cursorState || "",
+                    cursor: cursorState.current || "",
                     limit: FEED_FETCH_LIMIT,
                 })
 
@@ -274,7 +272,10 @@ const FeedPage = memo(
         }
 
         const { data /*isLoading, isError*/ } = useQuery({
-            queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
+            queryKey: getFeedKeys.feedkeyWithCursor(
+                feedKey,
+                cursorState.current || ""
+            ),
             queryFn: getTimelineFetcher,
             select: (fishes) => {
                 return fishes
@@ -301,7 +302,7 @@ const FeedPage = memo(
             setScrollPositions
         )
 
-        if (data !== undefined && !isEndOfFeed) {
+        if (data !== undefined && !isEndOfFeed.current) {
             console.log(data)
             handleFetchResponse(data)
             setLoadMoreFeed(false)
@@ -375,7 +376,7 @@ const FeedPage = memo(
                     }}
                     className={"swiperRefresh h-full w-full"}
                     threshold={150}
-                    disabled={isScrolling.current && scrollIndex > 0}
+                    disabled={isScrolling.current && scrollIndex.current > 0}
                 >
                     {hasError && (
                         <>
@@ -402,9 +403,9 @@ const FeedPage = memo(
                                 scrollPositions[`${pageName}-${feedKey}`]
                             }
                             rangeChanged={(range) => {
-                                setScrollIndex(range.startIndex)
+                                scrollIndex.current = range.startIndex
                             }}
-                            context={{ hasMore }}
+                            context={{ hasMore: hasMore.current }}
                             increaseViewportBy={200}
                             overscan={200}
                             data={timeline ?? undefined}
@@ -452,7 +453,7 @@ const FeedPage = memo(
                     )}
                     <ScrollToTopButton
                         scrollRef={scrollRef}
-                        scrollIndex={scrollIndex}
+                        scrollIndex={scrollIndex.current}
                     />
                 </SwipeRefreshList>
             </>

@@ -2,7 +2,13 @@
 
 import dynamic from "next/dynamic"
 import "@/app/_i18n/config" //i18
-import React, { Suspense, useEffect, useLayoutEffect, useState } from "react"
+import React, {
+    Suspense,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react"
 import { layout } from "@/app/styles"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -80,28 +86,22 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
     const [, setUnreadNotification] = useUnreadNotificationAtom()
 
     const target = searchParams.get("target")
-    const [searchText, setSearchText] = useState<string>("")
+    const searchText = useRef<string | undefined>()
     const specificPaths = ["/post", "/", "/login"]
     const isMatchingPath = specificPaths.includes(pathName)
     const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
+    console.log("AppContainer.tsx")
 
     const { background } = layout()
 
     usePrefetchRoutes(router)
 
-    const refreshSession = useRefreshSession(
-        agent,
-        setAgent,
-        accounts,
-        setAccounts
-    )
-
     useEffect(() => {
         if (!agent) return
         const count = setInterval(
             () => {
-                void refreshSession()
+                void useRefreshSession(agent, setAgent, accounts, setAccounts)
             },
             1000 * 60 * 5
         )
@@ -158,9 +158,9 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
     )
 
     useEffect(() => {
-        if (searchText === "" || !searchText) return
+        if (searchText.current === "" || !searchText.current) return
         const queryParams = new URLSearchParams(nextQueryParams)
-        queryParams.set("word", searchText)
+        queryParams.set("word", searchText?.current)
         queryParams.set("target", target || "posts")
 
         router.push(`/search?${queryParams.toString()}`)
@@ -310,7 +310,6 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
                                     <ViewHeader
                                         isMobile={isMobile}
                                         setSideBarOpen={handleSideBarOpen}
-                                        setSearchText={setSearchText}
                                     />
                                 )}
                                 <div
