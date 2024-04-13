@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { MutableRefObject, useCallback } from "react"
 import { AppBskyFeedGetFeed, BskyAgent } from "@atproto/api"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useFilterPosts } from "@/app/_lib/useFilterPosts"
@@ -24,7 +24,7 @@ export const useCheckNewTimeline = (
     hideRepost: boolean,
     shouldCheckUpdate: React.MutableRefObject<boolean>,
     latestCID: React.MutableRefObject<string>, // 適切な型に置き換えてください
-    setNewTimeline: (newTimeline: FeedViewPost[]) => void, // 適切な型に置き換えてください
+    setNewTimeline: MutableRefObject<FeedViewPost[] | PostView[]>, // 適切な型に置き換えてください
     setHasUpdate: (hasUpdate: boolean) => void, // 適切な型に置き換えてください
     setHasError: (error: ResponseObject) => void, // 適切な型に置き換えてください
     muteWords: MuteWord[]
@@ -64,7 +64,7 @@ export const useCheckNewTimeline = (
                         : feed
                 const muteWordFilter = useFilterPosts(filteredData, muteWords)
                 //@ts-ignore FeedViewPost[] には post が必ずあるので、ここでの型キャストは問題ない
-                setNewTimeline(muteWordFilter)
+                setNewTimeline.current = muteWordFilter
 
                 if (muteWordFilter.length > 0) {
                     if (

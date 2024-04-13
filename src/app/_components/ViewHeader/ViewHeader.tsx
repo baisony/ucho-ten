@@ -107,6 +107,12 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     }, [searchParams])
 
     useEffect(() => {
+        if (pathname === "/search") {
+            setShowSearchInput(true)
+        } else {
+            setShowSearchInput(false)
+        }
+
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -124,14 +130,6 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
             default:
                 setIsRoot(false)
                 break
-        }
-    }, [pathname])
-
-    useEffect(() => {
-        if (pathname === "/search") {
-            setShowSearchInput(true)
-        } else {
-            setShowSearchInput(false)
         }
     }, [pathname])
 
@@ -203,7 +201,8 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                             value={searchText}
                             autoFocus={true}
                             onChange={(e) => {
-                                setSearchText(e.target.value)
+                                if (!props.setSearchText) return
+                                props.setSearchText(e.target.value)
                             }}
                             placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
