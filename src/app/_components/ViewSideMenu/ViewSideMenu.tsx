@@ -250,6 +250,14 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                         </DropdownSection>
                         <DropdownSection showDivider>
                             <DropdownItem
+                                key="credit"
+                                startContent={
+                                    <FontAwesomeIcon icon={faCircleInfo} />
+                                }
+                            >
+                                {t("components.ViewSideMenu.credit")}
+                            </DropdownItem>
+                            <DropdownItem
                                 key="about"
                                 startContent={
                                     <FontAwesomeIcon icon={faCircleInfo} />
