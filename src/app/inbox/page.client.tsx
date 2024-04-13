@@ -62,11 +62,11 @@ export default function FeedPage() {
         useUnreadNotificationAtom()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
-    const [hasMore, setHasMore] = useState<boolean>(false)
+    const hasMore = useRef<boolean>(false)
     //const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
-    const [cursorState, setCursorState] = useState<string>()
-    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
+    const cursorState = useRef<string>()
+    const isEndOfFeed = useRef<boolean>(false) // TODO: should be implemented.
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
@@ -77,7 +77,7 @@ export default function FeedPage() {
     const feedKey = "Inbox"
     const pageName = "Inbox"
     const isScrolling = useRef<boolean>(false)
-    const [scrollIndex, setScrollIndex] = useState<number>(0)
+    const scrollIndex = useRef<number>(0)
 
     const [menus] = useHeaderMenusByHeaderAtom()
     const [zenMode] = useZenMode()
@@ -102,10 +102,10 @@ export default function FeedPage() {
     }, [timeline])
 
     const loadMore = useCallback(() => {
-        if (hasMore) {
+        if (hasMore.current) {
             setLoadMoreFeed(true)
         }
-    }, [hasMore])
+    }, [hasMore.current])
 
     const queryClient = useQueryClient()
 
@@ -123,9 +123,9 @@ export default function FeedPage() {
         if (response) {
             const { posts, notifications, cursor } = response
             if (notifications.length === 0 || cursor === "") {
-                setIsEndOfFeed(true)
+                isEndOfFeed.current = true
             }
-            setCursorState(response.cursor)
+            cursorState.current = response.cursor
 
             console.log("posts", posts)
 
@@ -149,17 +149,13 @@ export default function FeedPage() {
             })
         } else {
             setTimeline([])
-            setHasMore(false)
+            hasMore.current = false
             return
         }
 
-        setCursorState(response.cursor)
+        cursorState.current = response.cursor
 
-        if (cursorState !== "") {
-            setHasMore(true)
-        } else {
-            setHasMore(false)
-        }
+        hasMore.current = cursorState.current !== ""
     }
 
     const getTimelineFetcher = async ({
@@ -175,7 +171,7 @@ export default function FeedPage() {
         const [_key] = queryKey
 
         const { data } = await agent.listNotifications({
-            cursor: cursorState || "",
+            cursor: cursorState.current || "",
         })
 
         const reply = data.notifications.filter((notification) => {
@@ -210,7 +206,10 @@ export default function FeedPage() {
     }
 
     const { data /*isLoading, isError*/ } = useQuery({
-        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
+        queryKey: getFeedKeys.feedkeyWithCursor(
+            feedKey,
+            cursorState.current || ""
+        ),
         queryFn: getTimelineFetcher,
         select: (fishes) => {
             console.log(fishes)
@@ -311,7 +310,7 @@ export default function FeedPage() {
         setScrollPositions
     )
 
-    if (data !== undefined && !isEndOfFeed) {
+    if (data !== undefined && !isEndOfFeed.current) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
@@ -389,7 +388,7 @@ export default function FeedPage() {
                                         threshold={150}
                                         disabled={
                                             isScrolling.current &&
-                                            scrollIndex > 0
+                                            scrollIndex.current > 0
                                         }
                                     >
                                         <Virtuoso
@@ -408,7 +407,8 @@ export default function FeedPage() {
                                                 ]
                                             }
                                             rangeChanged={(range) => {
-                                                setScrollIndex(range.startIndex)
+                                                scrollIndex.current =
+                                                    range.startIndex
                                             }}
                                             context={{ hasMore }}
                                             isScrolling={(e) => {
@@ -465,7 +465,7 @@ export default function FeedPage() {
                                         />
                                         <ScrollToTopButton
                                             scrollRef={scrollRef}
-                                            scrollIndex={scrollIndex}
+                                            scrollIndex={scrollIndex.current}
                                         />
                                     </SwipeRefreshList>
                                 </main>

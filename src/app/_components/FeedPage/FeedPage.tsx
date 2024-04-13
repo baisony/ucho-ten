@@ -41,7 +41,6 @@ const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
 
 export interface FeedPageProps {
     isActive: boolean
-    isNextActive: boolean
     isViaUFeed?: boolean
     feedKey: string
     pageName: string
