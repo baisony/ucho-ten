@@ -128,7 +128,6 @@ export function AppContainer({ children }: { children: React.ReactNode }) {
         const hoge = localStorage.getItem("zenMode")
         console.log(hoge)
         if (!hoge || hoge === "false") {
-            console.log(hoge)
             menus.unshift({
                 displayText: "Following",
                 info: "following",

@@ -101,7 +101,7 @@ export interface ViewPostCardProps {
     json?: FeedViewPost
     bodyText: React.ReactNode
     isEmbedToModal?: boolean
-    now?: Date
+    //now?: Date
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
     t: TFunction
@@ -120,7 +120,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         json,
         bodyText,
         isEmbedToModal,
-        now,
         isEmbedToPost,
         nextQueryParams,
         t,
@@ -171,7 +170,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     const [bookmarks, setBookmarks] = useBookmarks()
     const [contentFontSize] = useContentFontSize()
     const isTranslated = useRef<boolean>(false)
-    const [translateError] = useState<boolean>(false)
+    //const [translateError] = useState<boolean>(false)
     const createDisclosure = () => {
         const disclosure = useDisclosure()
         return {
@@ -535,7 +534,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                             {postJsonData &&
                                 formattedSimpleDate(
                                     postJsonData.indexedAt,
-                                    now || new Date()
+                                    new Date()
                                 )}
                         </div>
 
@@ -615,7 +614,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             }
                                         }}
                                     >
-                                        {!translateError
+                                        {/*!translateError
                                             ? !viewTranslatedText
                                                 ? t(
                                                       "pages.postOnlyPage.translate"
@@ -625,7 +624,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                                   )
                                             : t(
                                                   "pages.postOnlyPage.translateErorr"
-                                              )}
+                                              )*/}
                                     </Button>
                                 )}
                             </div>
