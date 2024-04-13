@@ -101,7 +101,7 @@ export interface ViewPostCardProps {
     json?: FeedViewPost
     bodyText: React.ReactNode
     isEmbedToModal?: boolean
-    now?: Date
+    //now?: Date
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
     t: TFunction

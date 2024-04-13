@@ -72,8 +72,6 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
                                     <FeedPage
                                         {...{
                                             isActive: index === menuIndex,
-                                            isNextActive:
-                                                index === menuIndex + 1,
                                             feedKey: menu.info,
                                             pageName: page,
                                             disableSlideVerticalScroll,

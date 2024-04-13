@@ -130,7 +130,7 @@ export default function Root() {
         boolean | "suggestive" | "nudity" | "porn"
     >(false)
 
-    const [selectedAdultContent, setSelectedAdultContent] = useState<
+    const selectedAdultContent = useRef<
         boolean | "suggestive" | "nudity" | "porn"
     >(false)
 
@@ -393,7 +393,7 @@ export default function Root() {
                                     color="danger"
                                     variant="light"
                                     onClick={() => {
-                                        setSelectedAdultContent(false)
+                                        selectedAdultContent.current = false
                                         setAdultContent(false)
                                         onCloseModerations()
                                     }}
@@ -411,8 +411,9 @@ export default function Root() {
                                 <Button
                                     color={"primary"}
                                     onClick={() => {
-                                        setAdultContent(selectedAdultContent)
-                                        console.log(selectedAdultContent)
+                                        setAdultContent(
+                                            selectedAdultContent.current
+                                        )
                                         onCloseModerations()
                                     }}
                                 >
@@ -450,8 +451,8 @@ export default function Root() {
                             size={"sm"}
                             radius={"full"}
                             color={"primary"}
-                            onPress={() => {
-                                usePostClickHandler(
+                            onPress={async () => {
+                                await usePostClickHandler(
                                     agent,
                                     trimedContentText,
                                     contentImages,
