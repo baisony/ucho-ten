@@ -44,7 +44,7 @@ export interface FeedPageProps {
     isViaUFeed?: boolean
     feedKey: string
     pageName: string
-    disableSlideVerticalScroll: boolean
+    disableSlideVerticalScroll?: boolean
     now?: Date
 }
 

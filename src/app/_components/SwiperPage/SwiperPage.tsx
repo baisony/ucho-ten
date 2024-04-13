@@ -29,8 +29,8 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
-    const [now, setNow] = useState<Date>(new Date())
-    const [disableSlideVerticalScroll] = useState<boolean>(false)
+    //const [now, setNow] = useState<Date>(new Date())
+    //const [disableSlideVerticalScroll] = useState<boolean>(false)
 
     useLayoutEffect(() => {
         if (HEADER_MENUS[page] === undefined) return
@@ -44,7 +44,7 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
         }
     }, [tappedTabbarButton])
 
-    useEffect(() => {
+    /*useEffect(() => {
         const intervalId = setInterval(() => {
             setNow(new Date())
         }, NOW_COUNT_UP_INTERVAL)
@@ -52,7 +52,9 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
         return () => {
             clearInterval(intervalId)
         }
-    }, [])
+    }, [])*/
+
+    console.log("SwiperPage")
 
     return (
         <>
@@ -74,8 +76,8 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
                                             isActive: index === menuIndex,
                                             feedKey: menu.info,
                                             pageName: page,
-                                            disableSlideVerticalScroll,
-                                            now,
+                                            //disableSlideVerticalScroll,
+                                            //now,
                                         }}
                                     />
                                 </div>
