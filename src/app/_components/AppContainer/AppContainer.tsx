@@ -5,6 +5,7 @@ import "@/app/_i18n/config" //i18
 import React, {
     memo,
     Suspense,
+    useCallback,
     useEffect,
     useLayoutEffect,
     useState,
@@ -182,9 +183,9 @@ export const AppContainer = memo(
             searchParams
         )
 
-        const handleSideBarOpen = (isOpen: boolean) => {
+        const handleSideBarOpen = useCallback((isOpen: boolean) => {
             setDrawerOpen(isOpen)
-        }
+        }, [])
 
         const burgerMenuStyles = {
             bmBurgerButton: {

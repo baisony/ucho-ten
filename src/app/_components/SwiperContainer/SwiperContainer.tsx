@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useLayoutEffect, useRef } from "react"
+import React, { memo, useEffect, useLayoutEffect, useRef } from "react"
 import { Swiper } from "swiper/react"
 import SwiperCore from "swiper/core"
 import { Pagination, Virtual } from "swiper/modules"
@@ -101,3 +101,5 @@ export function SwiperContainer({
         </>
     )
 }
+
+export default memo(SwiperContainer)

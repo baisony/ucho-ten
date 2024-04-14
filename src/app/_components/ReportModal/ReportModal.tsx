@@ -10,7 +10,7 @@ import {
     Spinner,
     Textarea,
 } from "@nextui-org/react"
-import { useState } from "react"
+import { memo, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"
@@ -39,7 +39,7 @@ export type ReportModalProps = {
 /**
  * SetttingsModal component.
  */
-export const ReportModal = (props: ReportModalProps) => {
+export const ReportModal = memo((props: ReportModalProps) => {
     const {
         postUri,
         postCid,
@@ -291,4 +291,4 @@ export const ReportModal = (props: ReportModalProps) => {
             </ModalContent>
         </Modal>
     )
-}
+})

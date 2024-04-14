@@ -1,5 +1,6 @@
 import {
     memo,
+    useCallback,
     useEffect,
     useLayoutEffect,
     useMemo,
@@ -209,21 +210,20 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         syncBookmarks
     )
 
-    const handleInputChange = (
-        reaction: string,
-        postUri: string,
-        reactionUri: string
-    ) => {
-        if (!handleValueChange) return
+    const handleInputChange = useCallback(
+        (reaction: string, postUri: string, reactionUri: string) => {
+            if (!handleValueChange) return
 
-        const json = {
-            reaction: reaction,
-            postUri: postUri,
-            reactionUri: reactionUri,
-        }
-        console.log(json)
-        handleValueChange(json)
-    }
+            const json = {
+                reaction: reaction,
+                postUri: postUri,
+                reactionUri: reactionUri,
+            }
+            console.log(json)
+            handleValueChange(json)
+        },
+        []
+    )
 
     const [handleRepost, isReposted] = useHandleRepost(
         postView,
@@ -359,9 +359,9 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
 
     const longPressTimerRef = useRef<number | null>(null)
 
-    const handleLongPress = () => {
+    const handleLongPress = useCallback(() => {
         onOpenOption()
-    }
+    }, [])
 
     const handleTouchStart = useLongPress(handleLongPress)
 
