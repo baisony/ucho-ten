@@ -376,7 +376,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
     }, [])
 
     return (
-        <div className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}>
+        <>
             <ReplyModal
                 isOpen={isOpenReply}
                 onOpenChange={onOpenChangeReply}
@@ -406,212 +406,234 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                 onOpenReport={onOpenReport}
                 translateContentText={translateContentText}
             />
-            <main
-                className={`${
-                    quoteJson
-                        ? quoteCardStyles.PostCard()
-                        : PostCard({ isEmbedToModal })
-                } ${
-                    isEmbedToModal ? `border-none` : `cursor-pointer group`
-                } overflow-hidden`}
-                style={{
-                    backgroundColor: isEmbedToModal ? "transparent" : "",
-                }}
-                onClick={(e) => {
-                    e.stopPropagation()
-                    handleChangeSaveScrollPosition()
-                    console.log("hogehoge")
-                    router.push(
-                        `/profile/${postJsonData?.author.did}/post/${
-                            postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
-                        }?${nextQueryParams.toString()}`
-                    )
-                }}
-                onTouchStart={(e) => {
-                    e.stopPropagation()
-                    handleTouchStart()
-                }}
+            <div
+                className={quoteJson ? quoteCardStyles.PostCardContainer() : ""}
             >
-                <div className={`${PostCardContainer({ isEmbedToModal })}`}>
-                    {json?.reason && (
-                        <Link
-                            className={`text-[13px] ${
-                                zenMode ? `ml-[11px]` : `ml-[40px]`
-                            } text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                handleChangeSaveScrollPosition()
-                            }}
-                            href={`/profile/${(
-                                json?.reason?.by as ProfileViewBasic
-                            )?.did}?${nextQueryParams.toString()}`}
-                        >
-                            <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
-                            {(json.reason.by as ProfileViewBasic).displayName ||
-                                ""}
-                        </Link>
-                    )}
-                    <div
-                        className={`${PostAuthor()} ${
-                            isEmbedToModal ? `z-[2]` : `z-[0]`
-                        }`}
-                    >
-                        <span className={"flex items-center"}>
+                <main
+                    className={`${
+                        quoteJson
+                            ? quoteCardStyles.PostCard()
+                            : PostCard({ isEmbedToModal })
+                    } ${
+                        isEmbedToModal ? `border-none` : `cursor-pointer group`
+                    } overflow-hidden`}
+                    style={{
+                        backgroundColor: isEmbedToModal ? "transparent" : "",
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        handleChangeSaveScrollPosition()
+                        console.log("hogehoge")
+                        router.push(
+                            `/profile/${postJsonData?.author.did}/post/${
+                                postJsonData?.uri.match(/\/(\w+)$/)?.[1] || ""
+                            }?${nextQueryParams.toString()}`
+                        )
+                    }}
+                    onTouchStart={(e) => {
+                        e.stopPropagation()
+                        handleTouchStart()
+                    }}
+                >
+                    <div className={`${PostCardContainer({ isEmbedToModal })}`}>
+                        {json?.reason && (
                             <Link
-                                className={PostAuthorIcon({
-                                    isEmbedToPost,
-                                    zenMode,
-                                })}
+                                className={`text-[13px] ${
+                                    zenMode ? `ml-[11px]` : `ml-[40px]`
+                                } text-[#595959] text-bold hover:cursor-pointer md:hover:underline`}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleChangeSaveScrollPosition()
                                 }}
-                                href={`/profile/${postJsonData?.author
-                                    ?.did}?${nextQueryParams.toString()}`}
+                                href={`/profile/${(
+                                    json?.reason?.by as ProfileViewBasic
+                                )?.did}?${nextQueryParams.toString()}`}
                             >
-                                <img
-                                    src={
-                                        postJsonData?.author?.avatar ||
-                                        defaultIcon.src
-                                    }
-                                    alt={postJsonData?.author?.did || ""}
-                                    className={`${
-                                        !isEmbedToPost
-                                            ? `w-[30px] h-[30px]`
-                                            : `w-[18px] h-[18px]`
-                                    }`}
-                                    decoding={"async"}
-                                    loading={"eager"}
-                                    fetchPriority={"high"}
-                                />
+                                <FontAwesomeIcon icon={faRetweet} /> Reposted by{" "}
+                                {(json.reason.by as ProfileViewBasic)
+                                    .displayName || ""}
                             </Link>
-                            <Link
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleChangeSaveScrollPosition()
-                                }}
-                                href={`/profile/${postJsonData?.author
-                                    ?.did}?${nextQueryParams.toString()}`}
-                                className={"items-start"}
+                        )}
+                        <div
+                            className={`${PostAuthor()} ${
+                                isEmbedToModal ? `z-[2]` : `z-[0]`
+                            }`}
+                        >
+                            <span className={"flex items-center"}>
+                                <Link
+                                    className={PostAuthorIcon({
+                                        isEmbedToPost,
+                                        zenMode,
+                                    })}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleChangeSaveScrollPosition()
+                                    }}
+                                    href={`/profile/${postJsonData?.author
+                                        ?.did}?${nextQueryParams.toString()}`}
+                                >
+                                    <img
+                                        src={
+                                            postJsonData?.author?.avatar ||
+                                            defaultIcon.src
+                                        }
+                                        alt={postJsonData?.author?.did || ""}
+                                        className={`${
+                                            !isEmbedToPost
+                                                ? `w-[30px] h-[30px]`
+                                                : `w-[18px] h-[18px]`
+                                        }`}
+                                        decoding={"async"}
+                                        loading={"eager"}
+                                        fetchPriority={"high"}
+                                    />
+                                </Link>
+                                <Link
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleChangeSaveScrollPosition()
+                                    }}
+                                    href={`/profile/${postJsonData?.author
+                                        ?.did}?${nextQueryParams.toString()}`}
+                                    className={"items-start"}
+                                >
+                                    <span
+                                        className={`${PostAuthorDisplayName()} md:hover:underline ${
+                                            `text-[` +
+                                            Number(contentFontSize + 11) +
+                                            `px]`
+                                        }`}
+                                    >
+                                        {postJsonData?.author?.displayName ||
+                                            postJsonData?.author?.handle}
+                                    </span>
+                                </Link>
+                                {postJsonData?.author?.displayName && (
+                                    <>
+                                        <Link
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleChangeSaveScrollPosition()
+                                            }}
+                                            href={`/profile/${postJsonData
+                                                ?.author
+                                                ?.did}?${nextQueryParams.toString()}`}
+                                        >
+                                            <span
+                                                className={`${PostAuthorHandle()} md:hover:underline ml-[5px]`}
+                                            >
+                                                @{postJsonData?.author?.handle}
+                                            </span>
+                                        </Link>
+                                    </>
+                                )}
+                            </span>
+
+                            <div
+                                className={`${postCreatedAt()} group-hover:md:hidden md:flex`}
                             >
-                                <span
-                                    className={`${PostAuthorDisplayName()} md:hover:underline ${
-                                        `text-[` +
-                                        Number(contentFontSize + 11) +
-                                        `px]`
+                                {postJsonData &&
+                                    formattedSimpleDate(
+                                        postJsonData.indexedAt,
+                                        new Date()
+                                    )}
+                            </div>
+
+                            <div
+                                className={`${moreButton()} group-hover:md:flex md:hidden hidden`}
+                            >
+                                {!isEmbedToModal &&
+                                    postJsonData &&
+                                    postJson && (
+                                        <MoreDropDownMenu
+                                            isThisUser={
+                                                agent?.session?.did !==
+                                                postJsonData?.author.did
+                                            }
+                                            onClickTranslate={
+                                                translateContentText
+                                            }
+                                            onClickCopyURL={
+                                                handleMenuClickCopyURL
+                                            }
+                                            onClickCopyATURI={
+                                                handleMenuClickCopyATURI
+                                            }
+                                            onClickCopyDID={
+                                                handleMenuClickCopyDID
+                                            }
+                                            onClickCopyJSON={
+                                                handleMenuClickCopyJSON
+                                            }
+                                            onClickReport={
+                                                handleMenuClickReport
+                                            }
+                                            onClickDelete={
+                                                handleMenuClickDelete
+                                            }
+                                            t={t}
+                                        />
+                                    )}
+                            </div>
+                        </div>
+                        <div
+                            className={PostContent({ isEmbedToPost, zenMode })}
+                        >
+                            {json?.reply && (
+                                <div
+                                    className={
+                                        "text-[#BABABA] text-[12px] dark:text-[#787878]"
+                                    }
+                                >
+                                    <FontAwesomeIcon icon={faReply} /> Reply to{" "}
+                                    {
+                                        (
+                                            json.reply.parent
+                                                .author as ProfileViewBasic
+                                        )?.displayName
+                                    }
+                                </div>
+                            )}
+                            {bodyText !== undefined && (
+                                <div
+                                    style={{ wordBreak: "break-word" }}
+                                    className={`h-full w-full ${
+                                        isEmbedToPost
+                                            ? `text-[13px]`
+                                            : `text-[` +
+                                              Number(contentFontSize + 11) +
+                                              `px]`
                                     }`}
                                 >
-                                    {postJsonData?.author?.displayName ||
-                                        postJsonData?.author?.handle}
-                                </span>
-                            </Link>
-                            {postJsonData?.author?.displayName && (
-                                <>
-                                    <Link
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            handleChangeSaveScrollPosition()
-                                        }}
-                                        href={`/profile/${postJsonData?.author
-                                            ?.did}?${nextQueryParams.toString()}`}
-                                    >
-                                        <span
-                                            className={`${PostAuthorHandle()} md:hover:underline ml-[5px]`}
+                                    {!viewTranslatedText && bodyText}
+                                    {translatedJsonData !== null &&
+                                        viewTranslatedText && (
+                                            <>
+                                                {processPostBodyText(
+                                                    nextQueryParams,
+                                                    null,
+                                                    translatedJsonData
+                                                )}
+                                            </>
+                                        )}
+                                    {viewTranslatedText && (
+                                        <Button
+                                            size={"sm"}
+                                            variant={"flat"}
+                                            radius={"full"}
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                if (!isTranslated.current) {
+                                                    await translateContentText()
+                                                }
+                                                if (viewTranslatedText) {
+                                                    setViewTranslatedText(false)
+                                                } else {
+                                                    setViewTranslatedText(true)
+                                                }
+                                            }}
                                         >
-                                            @{postJsonData?.author?.handle}
-                                        </span>
-                                    </Link>
-                                </>
-                            )}
-                        </span>
-
-                        <div
-                            className={`${postCreatedAt()} group-hover:md:hidden md:flex`}
-                        >
-                            {postJsonData &&
-                                formattedSimpleDate(
-                                    postJsonData.indexedAt,
-                                    new Date()
-                                )}
-                        </div>
-
-                        <div
-                            className={`${moreButton()} group-hover:md:flex md:hidden hidden`}
-                        >
-                            {!isEmbedToModal && postJsonData && postJson && (
-                                <MoreDropDownMenu
-                                    isThisUser={
-                                        agent?.session?.did !==
-                                        postJsonData?.author.did
-                                    }
-                                    onClickTranslate={translateContentText}
-                                    onClickCopyURL={handleMenuClickCopyURL}
-                                    onClickCopyATURI={handleMenuClickCopyATURI}
-                                    onClickCopyDID={handleMenuClickCopyDID}
-                                    onClickCopyJSON={handleMenuClickCopyJSON}
-                                    onClickReport={handleMenuClickReport}
-                                    onClickDelete={handleMenuClickDelete}
-                                    t={t}
-                                />
-                            )}
-                        </div>
-                    </div>
-                    <div className={PostContent({ isEmbedToPost, zenMode })}>
-                        {json?.reply && (
-                            <div
-                                className={
-                                    "text-[#BABABA] text-[12px] dark:text-[#787878]"
-                                }
-                            >
-                                <FontAwesomeIcon icon={faReply} /> Reply to{" "}
-                                {
-                                    (
-                                        json.reply.parent
-                                            .author as ProfileViewBasic
-                                    )?.displayName
-                                }
-                            </div>
-                        )}
-                        {bodyText !== undefined && (
-                            <div
-                                style={{ wordBreak: "break-word" }}
-                                className={`h-full w-full ${
-                                    isEmbedToPost
-                                        ? `text-[13px]`
-                                        : `text-[` +
-                                          Number(contentFontSize + 11) +
-                                          `px]`
-                                }`}
-                            >
-                                {!viewTranslatedText && bodyText}
-                                {translatedJsonData !== null &&
-                                    viewTranslatedText && (
-                                        <>
-                                            {processPostBodyText(
-                                                nextQueryParams,
-                                                null,
-                                                translatedJsonData
-                                            )}
-                                        </>
-                                    )}
-                                {viewTranslatedText && (
-                                    <Button
-                                        size={"sm"}
-                                        variant={"flat"}
-                                        radius={"full"}
-                                        onClick={async (e) => {
-                                            e.stopPropagation()
-                                            if (!isTranslated.current) {
-                                                await translateContentText()
-                                            }
-                                            if (viewTranslatedText) {
-                                                setViewTranslatedText(false)
-                                            } else {
-                                                setViewTranslatedText(true)
-                                            }
-                                        }}
-                                    >
-                                        {/*!translateError
+                                            {/*!translateError
                                             ? !viewTranslatedText
                                                 ? t(
                                                       "pages.postOnlyPage.translate"
@@ -622,218 +644,221 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             : t(
                                                   "pages.postOnlyPage.translateErorr"
                                               )*/}
-                                    </Button>
-                                )}
-                            </div>
-                        )}
-                        {embedImages && !contentWarning && (
-                            <EmbedImages
-                                embedImages={embedImages}
-                                onImageClick={(images, index) => {
-                                    useHandleImageClick(
-                                        setImageGallery,
-                                        images,
-                                        index
-                                    )
-                                }}
-                                isEmbedToModal={isEmbedToModal}
-                            />
-                        )}
-                        {contentWarning && (
-                            <div
-                                className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
-                            >
-                                <div className={"ml-[20px]"}>
-                                    {t("components.ViewPostCard.warning")}:{" "}
-                                    {warningReason.current}
-                                </div>
-                                <Button
-                                    variant={"light"}
-                                    color={"primary"}
-                                    onClick={() => {
-                                        setContentWarning(false)
-                                    }}
-                                >
-                                    {t("components.ViewPostCard.show")}
-                                </Button>
-                            </div>
-                        )}
-                        {embedMedia && !contentWarning && (
-                            <EmbedMedia
-                                embedMedia={embedMedia}
-                                onImageClick={(images, index) => {
-                                    useHandleImageClick(
-                                        setImageGallery,
-                                        images,
-                                        index
-                                    )
-                                }}
-                                nextQueryParams={nextQueryParams}
-                            />
-                        )}
-                        {embedExternal &&
-                            !isEmbedToPost &&
-                            !isEmbedToModal &&
-                            !contentWarning && (
-                                <div className={"h-full w-full mt-[5px]"}>
-                                    <Linkcard
-                                        ogpData={embedExternal.external}
-                                    />
+                                        </Button>
+                                    )}
                                 </div>
                             )}
-                        {embedRecord &&
-                            embedRecordViewRecord &&
-                            !embedFeed &&
-                            !embedMuteList &&
-                            !notfoundEmbedRecord &&
-                            !embedRecordBlocked &&
-                            !contentWarning && (
-                                <ViewPostCard
-                                    bodyText={processPostBodyText(
-                                        nextQueryParams,
-                                        null,
-                                        embedRecordViewRecord
-                                    )}
-                                    quoteJson={embedRecordViewRecord}
-                                    isEmbedToPost={true}
-                                    nextQueryParams={nextQueryParams}
-                                    t={t}
-                                    zenMode={props.zenMode}
+                            {embedImages && !contentWarning && (
+                                <EmbedImages
+                                    embedImages={embedImages}
+                                    onImageClick={(images, index) => {
+                                        useHandleImageClick(
+                                            setImageGallery,
+                                            images,
+                                            index
+                                        )
+                                    }}
+                                    isEmbedToModal={isEmbedToModal}
                                 />
                             )}
-                        {embedFeed && <ViewFeedCard feed={embedFeed} />}
-                        {embedMuteList && (
-                            <ViewMuteListCard list={embedMuteList} />
-                        )}
-                        {(notfoundEmbedRecord || embedRecordBlocked) && (
-                            <ViewNotFoundCard />
-                        )}
-                    </div>
-                    {!isEmbedToPost && (
-                        <div className={PostReactionButtonContainer()}>
-                            <div className={`flex`}>
+                            {contentWarning && (
                                 <div
-                                    className={`${bookmarkButton()} ${
-                                        !isBookmarked && `md:hidden`
-                                    } ${isEmbedToModal && `hidden`} ${
-                                        !zenMode
-                                            ? `group-hover:md:block md:hidden`
-                                            : `hidden`
-                                    }`}
+                                    className={`h-[50px] w-full flex justify-between items-center border border-gray-600 rounded-[10px]`}
                                 >
-                                    <FontAwesomeIcon
-                                        icon={
-                                            isBookmarked
-                                                ? faBookmarkSolid
-                                                : faBookmarkRegular
-                                        }
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            const postUri =
-                                                postJson?.uri ||
-                                                quoteJson?.uri ||
-                                                json?.post?.uri
-                                            if (!postUri) return
-                                            void handleBookmark(postUri)
+                                    <div className={"ml-[20px]"}>
+                                        {t("components.ViewPostCard.warning")}:{" "}
+                                        {warningReason.current}
+                                    </div>
+                                    <Button
+                                        variant={"light"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            setContentWarning(false)
                                         }}
-                                        className={"h-[14px] w-[12px]"}
-                                    />
+                                    >
+                                        {t("components.ViewPostCard.show")}
+                                    </Button>
                                 </div>
-                            </div>
-                            {!isEmbedToModal && (
-                                <div
-                                    className={`flex text-[#bfbfbf] dark:text-[#636363]`}
-                                >
-                                    {!isViaUFeed && (
-                                        <div
-                                            className={`${PostReactionButton()}  ${replyButton(
-                                                {
-                                                    replyDisabled:
-                                                        postJson?.viewer
-                                                            ?.replyDisabled,
-                                                }
-                                            )} ${
-                                                !zenMode
-                                                    ? `group-hover:md:block md:hidden`
-                                                    : `hidden`
-                                            }`}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faComment}
-                                                onClick={async (e) => {
-                                                    e.stopPropagation()
-                                                    if (
-                                                        postJson?.viewer
-                                                            ?.replyDisabled
-                                                    )
-                                                        return
-                                                    await onOpenReply()
-                                                }}
-                                                className={"h-full w-full"}
-                                            />
-                                        </div>
-                                    )}
-                                    {!isViaUFeed && (
-                                        <div
-                                            className={`${PostReactionButton()} ${repostButton(
-                                                {
-                                                    isReacted: isReposted,
-                                                }
-                                            )} ${
-                                                !zenMode
-                                                    ? `group-hover:md:block`
-                                                    : `hidden`
-                                            } ${!isReposted && `md:hidden`}`}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faRetweet}
-                                                onClick={async (e) => {
-                                                    e.stopPropagation()
-                                                    await handleRepost()
-                                                }}
-                                                className={"h-full w-full"}
-                                            />
-                                        </div>
-                                    )}
+                            )}
+                            {embedMedia && !contentWarning && (
+                                <EmbedMedia
+                                    embedMedia={embedMedia}
+                                    onImageClick={(images, index) => {
+                                        useHandleImageClick(
+                                            setImageGallery,
+                                            images,
+                                            index
+                                        )
+                                    }}
+                                    nextQueryParams={nextQueryParams}
+                                />
+                            )}
+                            {embedExternal &&
+                                !isEmbedToPost &&
+                                !isEmbedToModal &&
+                                !contentWarning && (
+                                    <div className={"h-full w-full mt-[5px]"}>
+                                        <Linkcard
+                                            ogpData={embedExternal.external}
+                                        />
+                                    </div>
+                                )}
+                            {embedRecord &&
+                                embedRecordViewRecord &&
+                                !embedFeed &&
+                                !embedMuteList &&
+                                !notfoundEmbedRecord &&
+                                !embedRecordBlocked &&
+                                !contentWarning && (
+                                    <ViewPostCard
+                                        bodyText={processPostBodyText(
+                                            nextQueryParams,
+                                            null,
+                                            embedRecordViewRecord
+                                        )}
+                                        quoteJson={embedRecordViewRecord}
+                                        isEmbedToPost={true}
+                                        nextQueryParams={nextQueryParams}
+                                        t={t}
+                                        zenMode={props.zenMode}
+                                    />
+                                )}
+                            {embedFeed && <ViewFeedCard feed={embedFeed} />}
+                            {embedMuteList && (
+                                <ViewMuteListCard list={embedMuteList} />
+                            )}
+                            {(notfoundEmbedRecord || embedRecordBlocked) && (
+                                <ViewNotFoundCard />
+                            )}
+                        </div>
+                        {!isEmbedToPost && (
+                            <div className={PostReactionButtonContainer()}>
+                                <div className={`flex`}>
                                     <div
-                                        className={`${PostReactionButton()} ${likeButton(
-                                            { isReacted: isLiked }
-                                        )} group-hover:md:block ${
-                                            !isLiked && `md:hidden`
+                                        className={`${bookmarkButton()} ${
+                                            !isBookmarked && `md:hidden`
+                                        } ${isEmbedToModal && `hidden`} ${
+                                            !zenMode
+                                                ? `group-hover:md:block md:hidden`
+                                                : `hidden`
                                         }`}
                                     >
                                         <FontAwesomeIcon
                                             icon={
-                                                isLiked
-                                                    ? faHeartSolid
-                                                    : faHeartRegular
+                                                isBookmarked
+                                                    ? faBookmarkSolid
+                                                    : faBookmarkRegular
                                             }
-                                            onClick={async (e) => {
+                                            onClick={(e) => {
                                                 e.stopPropagation()
-                                                await handleLike()
+                                                const postUri =
+                                                    postJson?.uri ||
+                                                    quoteJson?.uri ||
+                                                    json?.post?.uri
+                                                if (!postUri) return
+                                                void handleBookmark(postUri)
                                             }}
-                                            className={"h-full w-full"}
-                                        />
-                                    </div>
-                                    <div
-                                        className={`${PostReactionButton()} lg:hidden h-[15px] w-[20px]`}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faEllipsis}
-                                            onClick={async (e) => {
-                                                e.stopPropagation()
-                                                onOpenOption()
-                                            }}
-                                            className={"h-full w-full"}
+                                            className={"h-[14px] w-[12px]"}
                                         />
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </main>
-        </div>
+                                {!isEmbedToModal && (
+                                    <div
+                                        className={`flex text-[#bfbfbf] dark:text-[#636363]`}
+                                    >
+                                        {!isViaUFeed && (
+                                            <div
+                                                className={`${PostReactionButton()}  ${replyButton(
+                                                    {
+                                                        replyDisabled:
+                                                            postJson?.viewer
+                                                                ?.replyDisabled,
+                                                    }
+                                                )} ${
+                                                    !zenMode
+                                                        ? `group-hover:md:block md:hidden`
+                                                        : `hidden`
+                                                }`}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faComment}
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation()
+                                                        if (
+                                                            postJson?.viewer
+                                                                ?.replyDisabled
+                                                        )
+                                                            return
+                                                        await onOpenReply()
+                                                    }}
+                                                    className={"h-full w-full"}
+                                                />
+                                            </div>
+                                        )}
+                                        {!isViaUFeed && (
+                                            <div
+                                                className={`${PostReactionButton()} ${repostButton(
+                                                    {
+                                                        isReacted: isReposted,
+                                                    }
+                                                )} ${
+                                                    !zenMode
+                                                        ? `group-hover:md:block`
+                                                        : `hidden`
+                                                } ${
+                                                    !isReposted && `md:hidden`
+                                                }`}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faRetweet}
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation()
+                                                        await handleRepost()
+                                                    }}
+                                                    className={"h-full w-full"}
+                                                />
+                                            </div>
+                                        )}
+                                        <div
+                                            className={`${PostReactionButton()} ${likeButton(
+                                                { isReacted: isLiked }
+                                            )} group-hover:md:block ${
+                                                !isLiked && `md:hidden`
+                                            }`}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    isLiked
+                                                        ? faHeartSolid
+                                                        : faHeartRegular
+                                                }
+                                                onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    await handleLike()
+                                                }}
+                                                className={"h-full w-full"}
+                                            />
+                                        </div>
+                                        <div
+                                            className={`${PostReactionButton()} lg:hidden h-[15px] w-[20px]`}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faEllipsis}
+                                                onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    onOpenOption()
+                                                }}
+                                                className={"h-full w-full"}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </main>
+            </div>
+        </>
     )
 })
 

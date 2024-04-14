@@ -227,11 +227,33 @@ export const AppContainer = memo(
                 queryKey: ["getNotification", "Inbox"],
             })
         }
-        const checkNewNotification = useCheckNewNotification(
-            agent,
-            setUnreadNotification,
-            autoRefetch
-        )
+        const checkNewNotification = useCallback(async () => {
+            if (!agent) {
+                return
+            }
+
+            console.log("checkNewTimeline")
+            try {
+                const { data } = await agent.countUnreadNotifications()
+                const notifications = await agent.listNotifications()
+                const { count } = data
+                const reason = ["mention", "reply"]
+                let notify_num = 0
+                for (let i = 0; i < count; i++) {
+                    const notificationReason =
+                        notifications.data.notifications[i].reason
+                    if (
+                        reason.some((item) => notificationReason.includes(item))
+                    ) {
+                        notify_num++
+                    }
+                }
+                setUnreadNotification(notify_num)
+                void autoRefetch()
+            } catch (e) {
+                console.log(e)
+            }
+        }, [agent])
 
         useEffect(() => {
             void checkNewNotification()
@@ -242,7 +264,7 @@ export const AppContainer = memo(
             return () => {
                 clearInterval(interval) // インターバルをクリーンアップ
             }
-        }, [agent])
+        }, [])
 
         useEffect(() => {
             if (!userProfileDetailed) return

@@ -16,6 +16,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
 import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
 
 import { TFunction } from "i18next"
+import { memo } from "react"
 
 interface MoreDropDownMenuProps {
     isThisUser: boolean
@@ -140,4 +141,4 @@ const MoreDropDownMenu = ({
     )
 }
 
-export default MoreDropDownMenu
+export default memo(MoreDropDownMenu)

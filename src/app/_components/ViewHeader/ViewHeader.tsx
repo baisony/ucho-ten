@@ -40,6 +40,7 @@ interface Props {
 }
 
 export const ViewHeader: React.FC<Props> = memo((props: Props) => {
+    console.log(props)
     const router = useRouter()
     const pathname = usePathname()
     const specificPaths = ["/search"]

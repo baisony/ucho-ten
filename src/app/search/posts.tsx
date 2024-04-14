@@ -2,7 +2,7 @@ import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import {
@@ -428,4 +428,4 @@ const SearchPostPage = ({
         </div>
     )
 }
-export default SearchPostPage
+export default memo(SearchPostPage)
