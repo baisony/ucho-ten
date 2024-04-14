@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react"
+import { memo, useLayoutEffect } from "react"
 import { tabBar } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHome } from "@fortawesome/free-solid-svg-icons/faHome"
@@ -21,7 +21,7 @@ interface Props {
     className?: string
 }
 
-export const TabBar: React.FC<Props> = () => {
+export const TabBar: React.FC<Props> = memo(() => {
     const router = useRouter()
     const pathname = usePathname()
 
@@ -196,6 +196,6 @@ export const TabBar: React.FC<Props> = () => {
             </div>
         </main>
     )
-}
+})
 
 export default TabBar

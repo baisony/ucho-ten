@@ -2,7 +2,14 @@
 
 import dynamic from "next/dynamic"
 import "@/app/_i18n/config" //i18
-import React, { Suspense, useEffect, useLayoutEffect, useState } from "react"
+import React, {
+    memo,
+    Suspense,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useState,
+} from "react"
 import { layout } from "@/app/styles"
 import { isMobile } from "react-device-detect"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -57,286 +64,311 @@ const ViewSideMenu = dynamic(
     {}
 )
 
-export function AppContainer({ children }: { children: React.ReactNode }) {
-    const [statusCode] = useStatusCodeAtPage()
-    const router = useRouter()
-    const pathName = usePathname()
-    const [accounts, setAccounts] = useAccounts()
-    const searchParams = useSearchParams()
-    const { i18n } = useTranslation()
-    const isLoginPath = ["/login", "/"].includes(pathName)
-    const [displayLanguage] = useDisplayLanguage()
-    const [agent, setAgent] = useAgent()
-    const [headerMenusByHeader, setHeaderMenusByHeader] =
-        useHeaderMenusByHeaderAtom()
-    const [appearanceColor] = useAppearanceColor()
-    const [, setMuteWords] = useWordMutes()
-    const [, setBookmarks] = useBookmarks()
-    const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
-    const [userProfileDetailed, setUserProfileDetailed] =
-        useUserProfileDetailedAtom()
-    const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
-    const [, setFeedGenerators] = useFeedGeneratorsAtom()
-    const [, setUnreadNotification] = useUnreadNotificationAtom()
+//export function AppContainer({ children }: { children: React.ReactNode }) {
+export const AppContainer = memo(
+    ({ children }: { children: React.ReactNode }) => {
+        const [statusCode] = useStatusCodeAtPage()
+        const router = useRouter()
+        const pathName = usePathname()
+        const [accounts, setAccounts] = useAccounts()
+        const searchParams = useSearchParams()
+        const { i18n } = useTranslation()
+        const isLoginPath = ["/login", "/"].includes(pathName)
+        const [displayLanguage] = useDisplayLanguage()
+        const [agent, setAgent] = useAgent()
+        const [headerMenusByHeader, setHeaderMenusByHeader] =
+            useHeaderMenusByHeaderAtom()
+        const [appearanceColor] = useAppearanceColor()
+        const [, setMuteWords] = useWordMutes()
+        const [, setBookmarks] = useBookmarks()
+        const [nextQueryParams, setNextQueryParams] = useNextQueryParamsAtom()
+        const [userProfileDetailed, setUserProfileDetailed] =
+            useUserProfileDetailedAtom()
+        const [userPreferences, setUserPreferences] = useUserPreferencesAtom()
+        const [, setFeedGenerators] = useFeedGeneratorsAtom()
+        const [, setUnreadNotification] = useUnreadNotificationAtom()
 
-    const target = searchParams.get("target")
-    const [searchText, setSearchText] = useState<string>("")
-    const specificPaths = ["/post", "/", "/login"]
-    const isMatchingPath = specificPaths.includes(pathName)
-    const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
-    const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
+        const target = searchParams.get("target")
+        const [searchText, setSearchText] = useState<string>("")
+        const specificPaths = ["/post", "/", "/login"]
+        const isMatchingPath = specificPaths.includes(pathName)
+        const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
+        const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
 
-    const { background } = layout()
+        const { background } = layout()
 
-    usePrefetchRoutes(router)
+        usePrefetchRoutes(router)
 
-    const refreshSession = useRefreshSession(
-        agent,
-        setAgent,
-        accounts,
-        setAccounts
-    )
-
-    useEffect(() => {
-        if (!agent) return
-        const count = setInterval(
-            () => {
-                void refreshSession()
-            },
-            1000 * 60 * 5
+        const refreshSession = useRefreshSession(
+            agent,
+            setAgent,
+            accounts,
+            setAccounts
         )
 
-        return () => clearInterval(count)
-    }, [agent])
+        useEffect(() => {
+            if (!agent) return
+            const count = setInterval(
+                () => {
+                    void refreshSession()
+                },
+                1000 * 60 * 5
+            )
 
-    useUpdateTabQueryParam(pathName, searchParams, setNextQueryParams)
+            return () => clearInterval(count)
+        }, [agent])
 
-    useKeyboardShortcuts(router, pathName, nextQueryParams, isMobile)
+        useUpdateTabQueryParam(pathName, searchParams, setNextQueryParams)
 
-    const updateMenuWithFeedGenerators = (feeds: GeneratorView[]) => {
-        if (feeds.length === 0) {
-            return
-        }
-        const newHeaderMenusByHeader = headerMenusByHeader
-        const menus: HeaderMenu[] = feeds.map((feed) => {
-            return {
-                displayText: feed.displayName,
-                info: feed.uri,
+        useKeyboardShortcuts(router, pathName, nextQueryParams, isMobile)
+
+        const updateMenuWithFeedGenerators = (feeds: GeneratorView[]) => {
+            if (feeds.length === 0) {
+                return
             }
-        })
+            const newHeaderMenusByHeader = headerMenusByHeader
+            const menus: HeaderMenu[] = feeds.map((feed) => {
+                return {
+                    displayText: feed.displayName,
+                    info: feed.uri,
+                }
+            })
 
-        const hoge = localStorage.getItem("zenMode")
-        console.log(hoge)
-        if (!hoge || hoge === "false") {
-            menus.unshift({
-                displayText: "Following",
-                info: "following",
+            const hoge = localStorage.getItem("zenMode")
+            console.log(hoge)
+            if (!hoge || hoge === "false") {
+                menus.unshift({
+                    displayText: "Following",
+                    info: "following",
+                })
+            }
+
+            newHeaderMenusByHeader.home = menus
+
+            setHeaderMenusByHeader((prevHeaderMenus) => ({
+                ...prevHeaderMenus,
+                home: menus,
+            }))
+        }
+
+        useRestoreSession(
+            agent,
+            setAgent,
+            router,
+            pathName,
+            searchParams,
+            userProfileDetailed,
+            setUserProfileDetailed,
+            userPreferences,
+            setUserPreferences,
+            setFeedGenerators,
+            updateMenuWithFeedGenerators
+        )
+
+        useEffect(() => {
+            if (searchText === "" || !searchText) return
+            const queryParams = new URLSearchParams(nextQueryParams)
+            queryParams.set("word", searchText)
+            queryParams.set("target", target || "posts")
+
+            router.push(`/search?${queryParams.toString()}`)
+        }, [searchText])
+
+        useEffect(() => {
+            setShowTabBar(!specificPaths.includes(pathName))
+        }, [pathName])
+
+        const shouldFillPageBackground = useShouldFillPageBackground(
+            pathName,
+            searchParams
+        )
+
+        const handleSideBarOpen = useCallback((isOpen: boolean) => {
+            setDrawerOpen(isOpen)
+        }, [])
+
+        const burgerMenuStyles = {
+            bmBurgerButton: {
+                position: "fixed",
+                width: "0",
+                height: "0",
+                left: "0",
+                top: "0",
+            },
+            bmBurgerBars: {},
+            bmBurgerBarsHover: {},
+            bmCrossButton: {
+                height: "0",
+                width: "0",
+            },
+            bmCross: {},
+            bmMenuWrap: {},
+            bmMenu: {},
+            bmMorphShape: {},
+            bmItemList: {},
+            bmOverlay: { background: "transparent", zIndex: "49" }, // Modal's z-index is 50
+        }
+
+        useLayoutEffect(() => {
+            const lngChange = (lng: string) => {
+                const lang = lng.replace(/-\w+$/, "")
+                void i18n.changeLanguage(lang)
+            }
+            lngChange(displayLanguage[0])
+        }, [displayLanguage])
+
+        useSystemAppearanceColor()
+
+        const getSettings = useGetSettings(setBookmarks, setMuteWords)
+
+        const queryClient = useQueryClient()
+        const autoRefetch = async () => {
+            await queryClient.refetchQueries({
+                queryKey: ["getNotification", "Inbox"],
             })
         }
+        const checkNewNotification = useCallback(async () => {
+            if (!agent) {
+                return
+            }
 
-        newHeaderMenusByHeader.home = menus
+            console.log("checkNewTimeline")
+            try {
+                const { data } = await agent.countUnreadNotifications()
+                const notifications = await agent.listNotifications()
+                const { count } = data
+                const reason = ["mention", "reply"]
+                let notify_num = 0
+                for (let i = 0; i < count; i++) {
+                    const notificationReason =
+                        notifications.data.notifications[i].reason
+                    if (
+                        reason.some((item) => notificationReason.includes(item))
+                    ) {
+                        notify_num++
+                    }
+                }
+                setUnreadNotification(notify_num)
+                void autoRefetch()
+            } catch (e) {
+                console.log(e)
+            }
+        }, [agent])
 
-        setHeaderMenusByHeader((prevHeaderMenus) => ({
-            ...prevHeaderMenus,
-            home: menus,
-        }))
-    }
-
-    useRestoreSession(
-        agent,
-        setAgent,
-        router,
-        pathName,
-        searchParams,
-        userProfileDetailed,
-        setUserProfileDetailed,
-        userPreferences,
-        setUserPreferences,
-        setFeedGenerators,
-        updateMenuWithFeedGenerators
-    )
-
-    useEffect(() => {
-        if (searchText === "" || !searchText) return
-        const queryParams = new URLSearchParams(nextQueryParams)
-        queryParams.set("word", searchText)
-        queryParams.set("target", target || "posts")
-
-        router.push(`/search?${queryParams.toString()}`)
-    }, [searchText])
-
-    useEffect(() => {
-        setShowTabBar(!specificPaths.includes(pathName))
-    }, [pathName])
-
-    const shouldFillPageBackground = useShouldFillPageBackground(
-        pathName,
-        searchParams
-    )
-
-    const handleSideBarOpen = (isOpen: boolean) => {
-        setDrawerOpen(isOpen)
-    }
-
-    const burgerMenuStyles = {
-        bmBurgerButton: {
-            position: "fixed",
-            width: "0",
-            height: "0",
-            left: "0",
-            top: "0",
-        },
-        bmBurgerBars: {},
-        bmBurgerBarsHover: {},
-        bmCrossButton: {
-            height: "0",
-            width: "0",
-        },
-        bmCross: {},
-        bmMenuWrap: {},
-        bmMenu: {},
-        bmMorphShape: {},
-        bmItemList: {},
-        bmOverlay: { background: "transparent", zIndex: "49" }, // Modal's z-index is 50
-    }
-
-    useLayoutEffect(() => {
-        const lngChange = (lng: string) => {
-            const lang = lng.replace(/-\w+$/, "")
-            void i18n.changeLanguage(lang)
-        }
-        lngChange(displayLanguage[0])
-    }, [displayLanguage])
-
-    useSystemAppearanceColor()
-
-    const getSettings = useGetSettings(setBookmarks, setMuteWords)
-
-    const queryClient = useQueryClient()
-    const autoRefetch = async () => {
-        await queryClient.refetchQueries({
-            queryKey: ["getNotification", "Inbox"],
-        })
-    }
-    const checkNewNotification = useCheckNewNotification(
-        agent,
-        setUnreadNotification,
-        autoRefetch
-    )
-
-    useEffect(() => {
-        void checkNewNotification()
-        const interval = setInterval(() => {
+        useEffect(() => {
             void checkNewNotification()
-        }, 10000)
-        // クリーンアップ関数
-        return () => {
-            clearInterval(interval) // インターバルをクリーンアップ
-        }
-    }, [agent])
+            const interval = setInterval(() => {
+                void checkNewNotification()
+            }, 10000)
+            // クリーンアップ関数
+            return () => {
+                clearInterval(interval) // インターバルをクリーンアップ
+            }
+        }, [])
 
-    useEffect(() => {
-        if (!userProfileDetailed) return
-        if (!userProfileDetailed.did) return
-        void getSettings()
-    }, [userProfileDetailed])
+        useEffect(() => {
+            if (!userProfileDetailed) return
+            if (!userProfileDetailed.did) return
+            void getSettings()
+        }, [userProfileDetailed])
 
-    useThemeColorSetting(appearanceColor, pathName)
+        useThemeColorSetting(appearanceColor, pathName)
 
-    useServiceWorkerRegistration()
+        useServiceWorkerRegistration()
 
-    return (
-        <div
-            className={`bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]`}
-            style={{
-                overscrollBehaviorY: "none",
-                WebkitOverflowScrolling: "touch",
-                overscrollBehavior: "none",
-                overflow: "hidden",
-                height: "100%",
-                width: "100%",
-                //背景をスクロールさせない
-                position: "fixed",
-            }}
-        >
-            <div id="burger-outer-container" className={"h-full w-full"}>
-                <BurgerPush
-                    className={"backdrop-blur-[5px]"}
-                    outerContainerId={"burger-outer-container"}
-                    pageWrapId={"main-container"}
-                    styles={burgerMenuStyles}
-                    isOpen={drawerOpen}
-                    onClose={() => {
-                        setDrawerOpen(false)
-                    }}
-                >
-                    <ViewSideBar
-                        isSideBarOpen={drawerOpen}
-                        openSideBar={handleSideBarOpen}
-                        isMobile={isMobile}
-                    />
-                </BurgerPush>
-                <main
-                    id="main-container"
-                    className={background()}
-                    onClick={() => {
-                        handleSideBarOpen(false)
-                    }}
-                >
-                    <div
-                        className={
-                            "w-full h-full flex justify-center select-none"
-                        }
+        return (
+            <div
+                className={`bg-cover bg-[url(/images/backgroundImage/light/image.webp)] dark:bg-[url(/images/backgroundImage/dark/image.webp)]`}
+                style={{
+                    overscrollBehaviorY: "none",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehavior: "none",
+                    overflow: "hidden",
+                    height: "100%",
+                    width: "100%",
+                    //背景をスクロールさせない
+                    position: "fixed",
+                }}
+            >
+                <div id="burger-outer-container" className={"h-full w-full"}>
+                    <BurgerPush
+                        className={"backdrop-blur-[5px]"}
+                        outerContainerId={"burger-outer-container"}
+                        pageWrapId={"main-container"}
+                        styles={burgerMenuStyles}
+                        isOpen={drawerOpen}
+                        onClose={() => {
+                            setDrawerOpen(false)
+                        }}
+                    >
+                        <ViewSideBar
+                            isSideBarOpen={drawerOpen}
+                            openSideBar={handleSideBarOpen}
+                            isMobile={isMobile}
+                        />
+                    </BurgerPush>
+                    <main
+                        id="main-container"
+                        className={background()}
+                        onClick={() => {
+                            handleSideBarOpen(false)
+                        }}
                     >
                         <div
                             className={
-                                "lg:w-[calc(100%/4)] h-full hidden lg:block"
-                            }
-                        >
-                            {showTabBar && <ViewSideMenu />}
-                        </div>
-                        <div
-                            className={
-                                "min-w-[350px] max-w-[600px] h-full w-full "
+                                "w-full h-full flex justify-center select-none"
                             }
                         >
                             <div
                                 className={
-                                    "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative overscroll-contain"
+                                    "lg:w-[calc(100%/4)] h-full hidden lg:block"
                                 }
                             >
-                                {(pathName === "/login" || showTabBar) && (
-                                    <ViewHeader
-                                        isMobile={isMobile}
-                                        setSideBarOpen={handleSideBarOpen}
-                                        setSearchText={setSearchText}
-                                    />
-                                )}
-                                <div
-                                    className={`pt-[0px] ${
-                                        isLoginPath
-                                            ? `h-full`
-                                            : `h-[calc(100dvh-50px-env(safe-area-inset-bottom))]`
-                                    } lg:h-full relative`}
-                                >
-                                    {shouldFillPageBackground &&
-                                        statusCode !== 404 && (
-                                            <ViewFillPageBackground />
-                                        )}
-                                    <Suspense>{children}</Suspense>
-                                </div>
-                                {showTabBar && !isLoginPath && <TabBar />}
+                                {showTabBar && <ViewSideMenu />}
                             </div>
-                            <ViewLightbox />
+                            <div
+                                className={
+                                    "min-w-[350px] max-w-[600px] h-full w-full "
+                                }
+                            >
+                                <div
+                                    className={
+                                        "h-full max-w-[600px] min-w-[350px] w-full overflow-x-hidden relative overscroll-contain"
+                                    }
+                                >
+                                    {(pathName === "/login" || showTabBar) && (
+                                        <ViewHeader
+                                            isMobile={isMobile}
+                                            setSideBarOpen={handleSideBarOpen}
+                                            setSearchText={setSearchText}
+                                        />
+                                    )}
+                                    <div
+                                        className={`pt-[0px] ${
+                                            isLoginPath
+                                                ? `h-full`
+                                                : `h-[calc(100dvh-50px-env(safe-area-inset-bottom))]`
+                                        } lg:h-full relative`}
+                                    >
+                                        {shouldFillPageBackground &&
+                                            statusCode !== 404 && (
+                                                <ViewFillPageBackground />
+                                            )}
+                                        <Suspense>{children}</Suspense>
+                                    </div>
+                                    {showTabBar && !isLoginPath && <TabBar />}
+                                </div>
+                                <ViewLightbox />
+                            </div>
+                            <div
+                                className={
+                                    "lg:w-[calc(100%/4)] h-full hidden lg:flex"
+                                }
+                            />
                         </div>
-                        <div
-                            className={
-                                "lg:w-[calc(100%/4)] h-full hidden lg:flex"
-                            }
-                        />
-                    </div>
-                </main>
+                    </main>
+                </div>
             </div>
-        </div>
-    )
-}
+        )
+    }
+)

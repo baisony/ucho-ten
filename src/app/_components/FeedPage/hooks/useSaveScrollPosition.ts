@@ -23,12 +23,5 @@ export const useSaveScrollPosition = (
                 setScrollPositions(updatedScrollPositions)
             }
         })
-    }, [
-        isActive,
-        virtuosoRef,
-        pageName,
-        feedKey,
-        scrollPositions,
-        setScrollPositions,
-    ])
+    }, [])
 }

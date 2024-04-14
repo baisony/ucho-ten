@@ -44,7 +44,7 @@ export interface FeedPageProps {
     isViaUFeed?: boolean
     feedKey: string
     pageName: string
-    disableSlideVerticalScroll: boolean
+    disableSlideVerticalScroll?: boolean
     now?: Date
 }
 
@@ -150,7 +150,7 @@ const FeedPage = ({
 
     const queryClient = useQueryClient()
 
-    const handleRefresh = async () => {
+    const handleRefresh = useCallback(async () => {
         shouldScrollToTop.current = true
 
         const mergedTimeline = mergePosts(newTimeline.current, timeline)
@@ -168,7 +168,7 @@ const FeedPage = ({
         })
 
         shouldCheckUpdate.current = true
-    }
+    }, [])
 
     const handleFetchResponse = useCallback((response: FeedResponseObject) => {
         if (response) {
@@ -217,43 +217,46 @@ const FeedPage = ({
         hasMore.current = cursorState.current !== ""
     }, [])
 
-    const getTimelineFetcher = async ({
-        queryKey,
-    }: QueryFunctionContext<
-        ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
-    >): Promise<FeedResponseObject> => {
-        // console.log("getTimelineFetcher: >>")
+    const getTimelineFetcher = useCallback(
+        async ({
+            queryKey,
+        }: QueryFunctionContext<
+            ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
+        >): Promise<FeedResponseObject> => {
+            // console.log("getTimelineFetcher: >>")
 
-        if (!agent) throw new Error("Agent does not exist")
+            if (!agent) throw new Error("Agent does not exist")
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey] = queryKey
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [_key, feedKey] = queryKey
 
-        if (feedKey === "following") {
-            const response = await agent.getTimeline({
-                cursor: cursorState.current || "",
-                limit: FEED_FETCH_LIMIT,
-            })
+            if (feedKey === "following") {
+                const response = await agent.getTimeline({
+                    cursor: cursorState.current || "",
+                    limit: FEED_FETCH_LIMIT,
+                })
 
-            console.log(response.data.feed)
+                console.log(response.data.feed)
 
-            return {
-                posts: response.data.feed,
-                cursor: response.data.cursor || "",
+                return {
+                    posts: response.data.feed,
+                    cursor: response.data.cursor || "",
+                }
+            } else {
+                const response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    cursor: cursorState.current || "",
+                    limit: FEED_FETCH_LIMIT,
+                })
+
+                return {
+                    posts: response.data.feed,
+                    cursor: response.data.cursor || "",
+                }
             }
-        } else {
-            const response = await agent.app.bsky.feed.getFeed({
-                feed: feedKey,
-                cursor: cursorState.current || "",
-                limit: FEED_FETCH_LIMIT,
-            })
-
-            return {
-                posts: response.data.feed,
-                cursor: response.data.cursor || "",
-            }
-        }
-    }
+        },
+        []
+    )
 
     const { data /*isLoading, isError*/ } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(
@@ -293,7 +296,7 @@ const FeedPage = ({
         }
     }, [data, isEndOfFeed.current])
 
-    const lazyCheckNewTimeline = async () => {
+    const lazyCheckNewTimeline = useCallback(async () => {
         if (!agent) return
 
         try {
@@ -345,7 +348,7 @@ const FeedPage = ({
         } catch (e) {
             console.error(e)
         }
-    }
+    }, [])
 
     console.log(`FeedPage: ${feedKey}`)
 

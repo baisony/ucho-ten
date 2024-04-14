@@ -10,6 +10,7 @@ import { faVolumeXmark } from "@fortawesome/free-solid-svg-icons/faVolumeXmark"
 import { useTranslation } from "react-i18next"
 import { useAgent } from "@/app/_atoms/agent"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { memo } from "react"
 
 interface MobileOptionModalProps {
     isOpen?: boolean
@@ -26,7 +27,7 @@ interface MobileOptionModalProps {
     isMuted?: boolean
 }
 
-export const MobileOptionModal = (props: MobileOptionModalProps) => {
+export const MobileOptionModal = memo((props: MobileOptionModalProps) => {
     const {
         isOpen,
         onOpenChange,
@@ -194,4 +195,4 @@ export const MobileOptionModal = (props: MobileOptionModalProps) => {
             </Modal>
         </>
     )
-}
+})
