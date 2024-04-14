@@ -6,16 +6,17 @@ import {
     DropdownTrigger,
 } from "@nextui-org/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faLanguage,
-    faCode,
-    faEllipsis,
-    faFlag,
-    faLink,
-    faTrash,
-    faAt,
-    faUser,
-} from "@fortawesome/free-solid-svg-icons"
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
+import { faCode } from "@fortawesome/free-solid-svg-icons/faCode"
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis"
+import { faFlag } from "@fortawesome/free-solid-svg-icons/faFlag"
+import { faLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage"
+import { faLink } from "@fortawesome/free-solid-svg-icons/faLink"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
+
+import { TFunction } from "i18next"
+import { memo } from "react"
 
 interface MoreDropDownMenuProps {
     isThisUser: boolean
@@ -26,7 +27,7 @@ interface MoreDropDownMenuProps {
     onClickCopyJSON: () => void
     onClickReport: () => void
     onClickDelete: () => void
-    t: any
+    t: TFunction
 }
 
 const MoreDropDownMenu = ({
@@ -140,4 +141,4 @@ const MoreDropDownMenu = ({
     )
 }
 
-export default MoreDropDownMenu
+export default memo(MoreDropDownMenu)

@@ -1,11 +1,5 @@
 import {
-    AppBskyEmbedImages,
-    AppBskyEmbedRecord,
-    AppBskyFeedPost,
-    BlobRef,
-    RichText,
-} from "@atproto/api"
-import {
+    DragEvent,
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -14,15 +8,14 @@ import {
 } from "react"
 import { postModal } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faImage } from "@fortawesome/free-regular-svg-icons"
-import {
-    faCirclePlus,
-    faFaceLaughBeam,
-    faPlus,
-    faShieldHalved,
-    faTrash,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faImage } from "@fortawesome/free-regular-svg-icons/faImage"
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons/faCirclePlus"
+import { faFaceLaughBeam } from "@fortawesome/free-solid-svg-icons/faFaceLaughBeam"
+import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus"
+import { faShieldHalved } from "@fortawesome/free-solid-svg-icons/faShieldHalved"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark"
+
 import "react-circular-progressbar/dist/styles.css"
 import {
     Button,
@@ -41,7 +34,6 @@ import {
     PopoverTrigger,
     Radio,
     RadioGroup,
-    Selection,
     Spinner,
     Textarea as NextUITextarea,
     useDisclosure,
@@ -56,9 +48,6 @@ import { useDropzone } from "react-dropzone"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { Linkcard } from "@/app/_components/Linkcard"
-import imageCompression, {
-    Options as ImageCompressionOptions,
-} from "browser-image-compression"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import i18n from "@/app/_i18n/config"
@@ -71,8 +60,21 @@ import { usePostLanguage } from "@/app/_atoms/postLanguage"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ViewFeedCard } from "@/app/_components/ViewFeedCard"
 import { ViewMuteListCard } from "@/app/_components/ViewMuteListCard"
-
-//export type PostRecordPost = Parameters<BskyAgent["post"]>[0]
+import { useEmojiClickHandler } from "@/app/post/hooks/useEmojiClickHandler"
+import { useDetectURL } from "@/app/post/hooks/useDetectURL"
+import { useGetListInfo } from "@/app/post/hooks/useGetListInfo"
+import { useGetFeedInfo } from "@/app/post/hooks/useGetFeedInfo"
+import { useGetOGPData } from "@/app/post/hooks/useGetOGPData"
+import { useLanguagesSelectionChangeHandler } from "@/app/post/hooks/useLanguagesSelectionChangeHandler"
+import { usePasteHandler } from "@/app/post/hooks/usePasteHandler"
+import { useAddImages } from "@/app/post/hooks/useAddImages"
+import { usePostClickHandler } from "@/app/post/hooks/usePostClickHandler"
+import {
+    GeneratorView,
+    PostView,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ListView } from "@atproto/api/dist/client/types/app/bsky/graph/defs"
+import { OGPData, OGPImage } from "@/app/_types/types"
 
 const MAX_ATTACHMENT_IMAGES: number = 4
 
@@ -85,16 +87,15 @@ interface AttachmentImage {
 interface Props {
     children?: React.ReactNode
     type?: "Post" | "Reply" | `Quote`
-    postData?: any
+    postData?: PostView
     initialText?: string
-    initialEmbed?: any
+    initialEmbed?: GeneratorView | ListView | unknown | undefined
     initialEmbedType?: "feed" | "list"
     onClose: (isClosed: boolean) => void
 }
 
 export const PostModal: React.FC<Props> = (props: Props) => {
-    const { type, postData, initialText, initialEmbed, initialEmbedType } =
-        props
+    const { type, postData, initialEmbed, initialEmbedType } = props
     const [appearanceColor] = useAppearanceColor()
     const { t } = useTranslation()
     const searchParams = useSearchParams()
@@ -141,13 +142,17 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [detectedURLs, setDetectURLs] = useState<string[]>([])
     const [selectedURL, setSelectedURL] = useState<string>("")
     const [isOGPGetProcessing, setIsOGPGetProcessing] = useState(false)
-    const [getOGPData, setGetOGPData] = useState<any>(null)
-    const [getFeedData, setGetFeedData] = useState<any>(null)
-    const [getListData, setGetListData] = useState<any>(null)
+    const [getOGPData, setGetOGPData] = useState<OGPData | undefined>(undefined)
+    const [getFeedData, setGetFeedData] = useState<GeneratorView | undefined>(
+        undefined
+    )
+    const [getListData, setGetListData] = useState<ListView | undefined>(
+        undefined
+    )
     const [, setIsGetOGPFetchError] = useState(false)
     // const [compressProcessing, setCompressProcessing] = useState(false)
     const [isCompressing, setIsCompressing] = useState(false)
-    const [OGPImage, setOGPImage] = useState<any>([])
+    const [OGPImage, setOGPImage] = useState<OGPImage[]>([])
     const [emojiPickerColor, setEmojiPickerColor] = useState<
         "auto" | "light" | "dark"
     >("auto")
@@ -203,9 +208,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
     const [editALTIndex, setEditALTIndex] = useState(0)
     const [altText, setAltText] = useState("")
     const queryClient = useQueryClient()
-    const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
-
-    //const [selectedColor, setSelectedColor] = useState("default")
 
     const trimedContentText = (): string => {
         return contentText.trim()
@@ -213,166 +215,53 @@ export const PostModal: React.FC<Props> = (props: Props) => {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            void handlePostClick()
+            void usePostClickHandler(
+                agent,
+                trimedContentText,
+                contentImages,
+                OGPImage,
+                setOGPImage,
+                setPostLanguage,
+                setLoading,
+                type,
+                getOGPData,
+                getFeedData,
+                getListData,
+                selectedURL,
+                PostLanguage,
+                altOfImageList,
+                adultContent,
+                queryClient,
+                "PostModal",
+                props.onClose,
+                postData,
+                undefined,
+                nextQueryParams
+            )
         }
     }
 
     const onDrop = useCallback(async (files: File[]) => {
-        void addImages(files)
+        await useAddImages(
+            files,
+            contentImages,
+            setContentImages,
+            setIsCompressing
+        )
     }, [])
     const { getRootProps, isDragActive } = useDropzone({ onDrop })
     //const filesUpdated: FileWithPath[] = acceptedFiles;
-    const handleDrop = (e: any) => {
+    const handleDrop = (e: DragEvent) => {
         e.preventDefault()
         //const file = e.dataTransfer.files[0];
         // ファイルの処理を行う
     }
 
-    const handleDragOver = (e: any) => {
+    const handleDragOver = (e: DragEvent) => {
         e.preventDefault()
         e.dataTransfer.dropEffect = "copy"
     }
 
-    const handlePostClick = async () => {
-        if (!agent) return
-        if (
-            trimedContentText() === "" &&
-            contentImages.length === 0 &&
-            !getOGPData &&
-            !getFeedData &&
-            !getListData
-        )
-            return
-        setLoading(true)
-        try {
-            const blobRefs: BlobRef[] = []
-            const images = contentImages.length > 0 ? contentImages : OGPImage
-            let uploadBlobRes
-            for (const image of images) {
-                const uint8array = new Uint8Array(
-                    await image.blob.arrayBuffer()
-                )
-                uploadBlobRes = await agent.uploadBlob(uint8array, {
-                    encoding: "image/jpeg",
-                })
-
-                const blobRef = uploadBlobRes.data.blob
-                blobRefs.push(blobRef)
-            }
-
-            const rt = new RichText({ text: trimedContentText() })
-            await rt.detectFacets(agent)
-
-            const postObj: Partial<AppBskyFeedPost.Record> &
-                Omit<AppBskyFeedPost.Record, "createdAt"> = {
-                text: rt.text.trimStart().trimEnd(),
-                facets: rt.facets,
-                langs: Array.from(PostLanguage),
-            }
-
-            if (type === "Reply") {
-                postObj.reply = {
-                    root: {
-                        uri: postData?.record?.reply?.root?.uri ?? postData.uri,
-                        cid: postData?.record?.reply?.root?.cid ?? postData.cid,
-                    },
-                    parent: {
-                        uri: postData.uri,
-                        cid: postData.cid,
-                    },
-                } as any
-            } else if (type === "Quote") {
-                console.log("Quote")
-                postObj.embed = {
-                    $type: "app.bsky.embed.record",
-                    record: postData,
-                } as AppBskyEmbedRecord.Main
-            }
-
-            if (getFeedData || getListData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.record",
-                    record: getFeedData ?? getListData,
-                } as AppBskyEmbedRecord.Main
-            }
-
-            if (getOGPData) {
-                postObj.embed = {
-                    $type: "app.bsky.embed.external",
-                    external: {
-                        uri: getOGPData?.uri ? getOGPData.uri : selectedURL,
-                        title: getOGPData?.title
-                            ? getOGPData.title
-                            : selectedURL,
-                        description: getOGPData?.description
-                            ? getOGPData.description
-                            : "",
-                    },
-                } as any
-            }
-
-            if (blobRefs.length > 0) {
-                const images: AppBskyEmbedImages.Image[] = []
-
-                for (const [index, blobRef] of blobRefs.entries()) {
-                    const image: AppBskyEmbedImages.Image = {
-                        image: blobRef,
-                        alt: altOfImageList[index],
-                    }
-
-                    images.push(image)
-                }
-
-                if (
-                    getOGPData &&
-                    OGPImage.length > 0 &&
-                    postObj.embed &&
-                    postObj.embed.external
-                ) {
-                    ;(postObj.embed.external as any).thumb = {
-                        $type: "blob",
-                        ref: {
-                            $link: uploadBlobRes?.data?.blob.ref.toString(),
-                        },
-                        mimeType: uploadBlobRes?.data?.blob.mimeType,
-                        size: uploadBlobRes?.data?.blob.size,
-                    }
-                } else {
-                    postObj.embed = {
-                        $type: "app.bsky.embed.images",
-                        images,
-                    } as AppBskyEmbedImages.Main
-                }
-            }
-
-            if (
-                adultContent &&
-                (getOGPData ||
-                    getListData ||
-                    getFeedData ||
-                    contentImages.length > 0)
-            ) {
-                postObj.labels = {
-                    $type: "com.atproto.label.defs#selfLabels",
-                    values: [
-                        {
-                            val: adultContent,
-                        },
-                    ],
-                }
-            }
-            await agent.post(postObj)
-            props.onClose(true)
-            await queryClient.refetchQueries({
-                queryKey: ["getFeed", "following"],
-            })
-            console.log("hoge")
-        } catch (e) {
-            console.log(e)
-        } finally {
-            setLoading(false)
-        }
-    }
     const handleOnRemoveImage = (index: number) => {
         const newImages = [...contentImages]
         newImages.splice(index, 1)
@@ -388,125 +277,18 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         const imageFiles = Array.from(e.target.files)
         console.log(imageFiles)
         if (!(imageFiles.length + currentImagesCount > 4)) {
-            void addImages(imageFiles)
+            await useAddImages(
+                imageFiles,
+                contentImages,
+                setContentImages,
+                setIsCompressing
+            )
         }
-    }
-
-    const addImages = async (imageFiles: File[]) => {
-        const currentImagesCount = contentImages.length
-
-        if (currentImagesCount + imageFiles.length > 4) {
-            imageFiles.slice(0, 4 - currentImagesCount)
-        }
-        console.log(imageFiles)
-
-        const maxFileSize = 975 * 1024 // 975KB
-
-        const imageBlobs: AttachmentImage[] = await Promise.all(
-            imageFiles.map(async (file) => {
-                if (file.size > maxFileSize) {
-                    try {
-                        setIsCompressing(true)
-                        const options: ImageCompressionOptions = {
-                            maxSizeMB: maxFileSize / 1024 / 1024,
-                            maxWidthOrHeight: 4096,
-                            useWebWorker: true,
-                            maxIteration: 20,
-                        }
-
-                        const compressedFile = await imageCompression(
-                            file,
-                            options
-                        )
-
-                        console.log("圧縮後", compressedFile.size)
-
-                        if (compressedFile.size > maxFileSize) {
-                            throw new Error("Image compression failure")
-                        }
-                        setIsCompressing(false)
-
-                        return {
-                            blob: compressedFile,
-                            type: file.type,
-                        }
-                    } catch (error) {
-                        setIsCompressing(false)
-                        console.log("圧縮失敗", file.size)
-                        console.error(error)
-
-                        return {
-                            blob: file,
-                            type: file.type,
-                            isFailed: true,
-                        }
-                    }
-                } else {
-                    console.log("圧縮しなーい", file.size)
-                    return {
-                        blob: file,
-                        type: file.type,
-                    }
-                }
-            })
-        )
-
-        const addingImages: AttachmentImage[] = imageBlobs.filter(
-            (imageBlob) => {
-                return !imageBlob.isFailed
-            }
-        )
-
-        setContentImages((currentImages) => [...currentImages, ...addingImages])
-    }
-
-    const onEmojiClick = (emoji: any) => {
-        if (isEmojiAdding.current) {
-            return
-        }
-
-        isEmojiAdding.current = true
-
-        if (textareaRef.current) {
-            // const target = textareaRef.current
-            // const cursorPosition = target.selectionStart
-
-            setContentText((prevContentText) => {
-                return `${prevContentText.slice(
-                    0,
-                    currentCursorPostion.current
-                )}${emoji.native}${prevContentText.slice(
-                    currentCursorPostion.current
-                )}`
-            })
-
-            currentCursorPostion.current += emoji.native.length
-        } else {
-            setContentText((prevContentText) => prevContentText + emoji.native)
-        }
-
-        isEmojiAdding.current = false
     }
 
     // ドラッグをキャンセルする
-    const handleDragStart = (e: any) => {
+    const handleDragStart = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault()
-    }
-
-    const detectURL = (text: string) => {
-        // URLを検出する正規表現パターン
-        const urlPattern =
-            /(?:https?|ftp):\/\/[\w-]+(?:\.[\w-]+)+(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?/g
-        const urls = text.match(urlPattern)
-        setDetectURLs([])
-
-        if (urls && urls.length > 0) {
-            setIsDetectURL(true)
-            urls.forEach((url) => {
-                setDetectURLs((prevURLs) => [...prevURLs, url])
-                console.log(url)
-            })
-        }
     }
 
     function isFeedURL(url: string): boolean {
@@ -519,109 +301,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         return regex.test(url)
     }
 
-    const getListInfo = async (url: string) => {
-        if (!agent) return
-        const regex = /\/([^/]+)\/lists\/([^/]+)/
-        const matches = url.match(regex)
-        console.log("hogehoge")
-        if (matches) {
-            const did = matches[1]
-            const feedName = matches[2]
-            try {
-                setIsOGPGetProcessing(true)
-                const { data } = await agent.app.bsky.graph.getList({
-                    list: `at://${did}/app.bsky.graph.list/${feedName}`,
-                })
-                console.log(data)
-                setGetListData(data.list)
-            } catch (e) {
-                console.log(e)
-            } finally {
-                setIsOGPGetProcessing(false)
-            }
-        }
-    }
-
-    const getFeedInfo = async (url: string) => {
-        if (!agent) return
-        const regex = /\/([^/]+)\/feed\/([^/]+)/
-        const matches = url.match(regex)
-        console.log(matches)
-        if (matches) {
-            const did = matches[1]
-            const feedName = matches[2]
-            try {
-                setIsOGPGetProcessing(true)
-                const { data } = await agent.app.bsky.feed.getFeedGenerator({
-                    feed: `at://${did}/app.bsky.feed.generator/${feedName}`,
-                })
-                console.log(data)
-                setGetFeedData(data.view)
-            } catch (e) {
-            } finally {
-                setIsOGPGetProcessing(false)
-            }
-        }
-    }
-
-    const getOGP = async (url: string) => {
-        console.log(url)
-        setIsOGPGetProcessing(true)
-        try {
-            const res = await fetch(
-                `/api/getOGPData/${encodeURIComponent(url)}`,
-                {
-                    method: "GET",
-                }
-            )
-            if (res.status === 200) {
-                const ogp = await res.json()
-                const thumb =
-                    (ogp["image:secure_url"] ||
-                        (ogp?.ogImage && ogp?.ogImage[0]?.url)) ??
-                    undefined
-                const uri = url
-                const json = {
-                    title: ogp?.ogTitle,
-                    description: ogp?.ogDescription,
-                    uri: url,
-                    alt: ogp?.ogDescription || "",
-                }
-                if (json && thumb) {
-                    const generatedURL = thumb?.startsWith("http")
-                        ? thumb
-                        : uri && thumb?.startsWith("/")
-                          ? `${uri.replace(/\/$/, "")}${thumb}`
-                          : `${uri}${uri?.endsWith("/") ? "" : "/"}${thumb}`
-                    //@ts-ignore
-                    json.thumb = generatedURL
-                    const image = await fetch(
-                        `https://ucho-ten-image-api.vercel.app/api/image?url=${generatedURL}`
-                    )
-                    setOGPImage([{ blob: image, type: "image/jpeg" }])
-                }
-                setGetOGPData(json)
-                setIsOGPGetProcessing(false)
-            } else {
-                const json = {
-                    title: url,
-                    description: "",
-                    thumb: "",
-                    uri: url,
-                    alt: "",
-                }
-                setGetOGPData(json)
-                setIsOGPGetProcessing(false)
-            }
-            return res
-        } catch (e) {
-            setIsOGPGetProcessing(false)
-            setIsGetOGPFetchError(true)
-            console.log(e)
-            return e
-        }
-    }
-
     const scrollBottomRef = useRef<HTMLDivElement>(null)
 
     useLayoutEffect(() => {
@@ -631,30 +310,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         // }
         scrollBottomRef?.current?.scrollIntoView()
     }, [])
-
-    const handlePaste = async (event: React.ClipboardEvent) => {
-        const items = event.clipboardData.items
-        const imageFiles: File[] = []
-
-        for (const item of items) {
-            if (item.type.startsWith("image/")) {
-                const file = item.getAsFile()
-
-                if (file !== null) {
-                    if (
-                        contentImages.length + imageFiles.length <
-                        MAX_ATTACHMENT_IMAGES
-                    ) {
-                        imageFiles.push(file)
-                    }
-                }
-            }
-        }
-
-        if (imageFiles.length > 0) {
-            await addImages(imageFiles)
-        }
-    }
 
     const handleOnEmojiOpenChange = (isOpen: boolean) => {
         if (isOpen) {
@@ -693,19 +348,20 @@ export const PostModal: React.FC<Props> = (props: Props) => {
         setAltOfImageList(updatedAltOfImageList)
     }, [altOfImageList, editALTIndex, altText])
 
-    const handleLanguagesSelectionChange = (keys: Selection) => {
-        if (Array.from(keys).length < 4) {
-            setPostLanguage(Array.from(keys) as string[])
-        }
-    }
-
     useEffect(() => {
         if (!initialEmbedType) return
-        if (initialEmbedType === "feed") {
+        if (
+            initialEmbedType === "feed" &&
+            (initialEmbed as ListView)?.$type ===
+                "app.bsky.feed.defs#generatorView"
+        ) {
             console.log("feed")
-            setGetFeedData(initialEmbed)
-        } else if (initialEmbedType === "list") {
-            setGetFeedData(initialEmbed)
+            setGetFeedData(initialEmbed as GeneratorView)
+        } else if (
+            initialEmbedType === "list" &&
+            (initialEmbed as ListView)?.$type === "app.bsky.graph.defs#listView"
+        ) {
+            setGetListData(initialEmbed as ListView)
         }
     }, [initialEmbedType])
 
@@ -716,7 +372,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
             <LanguagesSelectionModal
                 isOpen={isOpenLangs}
                 onOpenChange={onOpenChangeLangs}
-                onSelectionChange={handleLanguagesSelectionChange}
+                onSelectionChange={(e) =>
+                    useLanguagesSelectionChangeHandler(e, setPostLanguage)
+                }
                 PostLanguage={PostLanguage}
             />
 
@@ -855,7 +513,31 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                         radius={"full"}
                         size={"sm"}
                         color={"primary"}
-                        onPress={handlePostClick}
+                        onPress={() => {
+                            void usePostClickHandler(
+                                agent,
+                                trimedContentText,
+                                contentImages,
+                                OGPImage,
+                                setOGPImage,
+                                setPostLanguage,
+                                setLoading,
+                                type,
+                                getOGPData,
+                                getFeedData,
+                                getListData,
+                                selectedURL,
+                                PostLanguage,
+                                altOfImageList,
+                                adultContent,
+                                queryClient,
+                                "PostModal",
+                                props.onClose,
+                                postData,
+                                undefined,
+                                nextQueryParams
+                            )
+                        }}
                         isDisabled={
                             loading ||
                             isOGPGetProcessing ||
@@ -936,7 +618,6 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                         getOGPData !== null ||
                                         getListData !== null ||
                                         getFeedData !== null,
-                                    //@ts-ignore
                                     type: type,
                                 })}
                                 aria-label="post input area"
@@ -946,7 +627,11 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 autoFocus={true}
                                 onChange={(e) => {
                                     setContentText(e.target.value)
-                                    detectURL(e.target.value)
+                                    useDetectURL(
+                                        e.target.value,
+                                        setDetectURLs,
+                                        setIsDetectURL
+                                    )
                                     currentCursorPostion.current =
                                         textareaRef.current?.selectionStart || 0
                                 }}
@@ -958,7 +643,16 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                 //         e.currentTarget.value.length
                                 //     )
                                 // }
-                                onPaste={handlePaste}
+                                onPaste={(e) =>
+                                    usePasteHandler(
+                                        e,
+                                        contentImages,
+                                        useAddImages,
+                                        MAX_ATTACHMENT_IMAGES,
+                                        setContentImages,
+                                        setIsCompressing
+                                    )
+                                }
                             />
                             {(contentImages.length > 0 || isCompressing) && (
                                 <div className={contentRightImagesContainer()}>
@@ -1061,14 +755,30 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                                     onClick={() => {
                                                         setSelectedURL(url)
                                                         if (isFeedURL(url)) {
-                                                            getFeedInfo(url)
+                                                            void useGetFeedInfo(
+                                                                url,
+                                                                agent,
+                                                                setIsOGPGetProcessing,
+                                                                setGetFeedData
+                                                            )
                                                         } else if (
                                                             isListURL(url)
                                                         ) {
                                                             console.log("list")
-                                                            getListInfo(url)
+                                                            void useGetListInfo(
+                                                                url,
+                                                                agent,
+                                                                setIsOGPGetProcessing,
+                                                                setGetListData
+                                                            )
                                                         } else {
-                                                            void getOGP(url)
+                                                            void useGetOGPData(
+                                                                url,
+                                                                setIsOGPGetProcessing,
+                                                                setIsGetOGPFetchError,
+                                                                setGetOGPData,
+                                                                setOGPImage
+                                                            )
                                                         }
                                                     }}
                                                 >
@@ -1128,9 +838,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     loading ||
                                     isCompressing ||
                                     contentImages.length >= 4 ||
-                                    getOGPData ||
-                                    getListData ||
-                                    getFeedData ||
+                                    !!getOGPData ||
+                                    !!getListData ||
+                                    !!getFeedData ||
                                     isOGPGetProcessing
                                 }
                                 as={"span"}
@@ -1159,9 +869,9 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     loading ||
                                     isCompressing ||
                                     contentImages.length >= 4 ||
-                                    getOGPData ||
-                                    getListData ||
-                                    getFeedData ||
+                                    !!getOGPData ||
+                                    !!getListData ||
+                                    !!getFeedData ||
                                     isOGPGetProcessing
                                 }
                             />
@@ -1279,7 +989,18 @@ export const PostModal: React.FC<Props> = (props: Props) => {
                                     <Picker
                                         data={data}
                                         locale={i18n.language}
-                                        onEmojiSelect={onEmojiClick}
+                                        onEmojiSelect={(e: {
+                                            native: string
+                                        }) => {
+                                            console.log(e)
+                                            useEmojiClickHandler(
+                                                e,
+                                                isEmojiAdding,
+                                                textareaRef,
+                                                setContentText,
+                                                currentCursorPostion
+                                            )
+                                        }}
                                         previewPosition="none"
                                         theme={emojiPickerColor}
                                     />

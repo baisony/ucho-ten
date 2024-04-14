@@ -1,14 +1,13 @@
 "use client"
 
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faBars,
-    faChevronLeft,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBars } from "@fortawesome/free-solid-svg-icons/faBars"
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons/faChevronLeft"
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark"
+
 import { Button } from "@nextui-org/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Swiper, SwiperSlide } from "swiper/react"
@@ -36,11 +35,12 @@ interface Props {
     isMobile?: boolean
     open?: boolean
     isNextPage?: boolean
-    setSideBarOpen?: any
-    setSearchText?: any
+    setSideBarOpen?: (v: boolean) => void
+    setSearchText?: (v: string) => void
 }
 
 export const ViewHeader: React.FC<Props> = memo((props: Props) => {
+    console.log(props)
     const router = useRouter()
     const pathname = usePathname()
     const specificPaths = ["/search"]
@@ -59,7 +59,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState<string>("")
     const [nextQueryParams] = useNextQueryParamsAtom()
-    const [isComposing, setComposing] = useState(false)
+    const isComposing = useRef(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
     const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
@@ -108,6 +108,12 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     }, [searchParams])
 
     useEffect(() => {
+        if (pathname === "/search") {
+            setShowSearchInput(true)
+        } else {
+            setShowSearchInput(false)
+        }
+
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -125,14 +131,6 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
             default:
                 setIsRoot(false)
                 break
-        }
-    }, [pathname])
-
-    useEffect(() => {
-        if (pathname === "/search") {
-            setShowSearchInput(true)
-        } else {
-            setShowSearchInput(false)
         }
     }, [pathname])
 
@@ -155,7 +153,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
         return menus[currentMenuType]
     }, [menus, currentMenuType, feedGenerators])
 
-    const tl = (word: string) => {
+    const tl = useCallback((word: string) => {
         const translate = t(`components.ViewHeader.${word}`)
         let res
         if (translate === `components.ViewHeader.${word}`) {
@@ -164,7 +162,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
             res = translate
         }
         return res
-    }
+    }, [])
 
     return (
         <main className={Header({ isMatchingPath })}>
@@ -181,7 +179,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                         />
                     }
                     onClick={() => {
-                        if (isRoot) {
+                        if (isRoot && setSideBarOpen) {
                             setSideBarOpen(true)
                         } else {
                             if (pathname === "/login") {
@@ -204,11 +202,13 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                             value={searchText}
                             autoFocus={true}
                             onChange={(e) => {
-                                setSearchText(e.target.value)
+                                if (!props.setSearchText) return
+                                props.setSearchText(e.target.value)
                             }}
                             placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
-                                if (e.key !== "Enter" || isComposing) return //1
+                                if (e.key !== "Enter" || isComposing.current)
+                                    return //1
 
                                 // props.setSearchText(searchText)
                                 document.getElementById("searchBar")?.blur()
@@ -239,8 +239,12 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
 
                                 router.push(`/search?${queryParams.toString()}`)
                             }}
-                            onCompositionStart={() => setComposing(true)}
-                            onCompositionEnd={() => setComposing(false)}
+                            onCompositionStart={() =>
+                                (isComposing.current = true)
+                            }
+                            onCompositionEnd={() =>
+                                (isComposing.current = false)
+                            }
                         />
                         {searchText && searchText.length > 0 && (
                             <button
@@ -248,6 +252,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                                     "absolute md:right-[8px] md:top-[8px] md:h-[25px] md:w-[25px] right-[10px] top-[10px] h-[18px] w-[18px] bg-black bg-opacity-30 rounded-full flex items-center justify-center"
                                 }
                                 onClick={() => {
+                                    if (!props.setSearchText) return
                                     setSearchText("")
                                     props.setSearchText("")
                                 }}
@@ -322,5 +327,3 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
         </main>
     )
 })
-
-export default ViewHeader

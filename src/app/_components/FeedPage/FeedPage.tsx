@@ -1,12 +1,12 @@
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
+import { AppBskyFeedGetTimeline } from "@atproto/api"
 import {
     FeedViewPost,
     PostView,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
-import { AppBskyFeedGetTimeline } from "@atproto/api"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import { useTranslation } from "react-i18next"
@@ -31,17 +31,20 @@ import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkel
 import RefreshButton from "@/app/_components/RefreshButton/RefreshButton"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton/ScrollToTopButton"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { useHandleValueChange } from "@/app/_components/FeedPage/hooks/useHandleValueChange"
+import { useCheckNewTimeline } from "@/app/_components/FeedPage/hooks/useCheckNewTimeline"
+import { useFilterPosts } from "@/app/_lib/useFilterPosts"
 
 const FEED_FETCH_LIMIT: number = 30
 const CHECK_FEED_UPDATE_INTERVAL: number = 15 * 1000
 
 export interface FeedPageProps {
     isActive: boolean
-    isNextActive: boolean
     isViaUFeed?: boolean
     feedKey: string
     pageName: string
-    disableSlideVerticalScroll: boolean
+    disableSlideVerticalScroll?: boolean
     now?: Date
 }
 
@@ -54,264 +57,186 @@ interface ResponseObject {
     status: number
     error: string
     success: boolean
-    headers: any
+    headers: unknown
 }
 
-const FeedPage = memo(
-    ({
+const FeedPage = ({
+    feedKey,
+    isViaUFeed,
+    isActive, // disableSlideVerticalScroll, isNextActive
+    pageName,
+}: FeedPageProps) => {
+    const { t } = useTranslation()
+    const [agent] = useAgent()
+    const [userProfileDetailed] = useUserProfileDetailedAtom()
+    const [nextQueryParams] = useNextQueryParamsAtom()
+    const { notNulltimeline } = tabBarSpaceStyles()
+    const [muteWords] = useWordMutes()
+    const [hideRepost] = useHideRepost()
+    const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
+    const newTimeline = useRef<FeedViewPost[]>([])
+    const hasMore = useRef<boolean>(false)
+    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
+    const cursorState = useRef<string>()
+    const isEndOfFeed = useRef<boolean>(false) // TODO: should be implemented.
+
+    const scrollRef = useRef<HTMLElement | null>(null)
+    const shouldScrollToTop = useRef<boolean>(false)
+    const latestCID = useRef<string>("")
+    const shouldCheckUpdate = useRef<boolean>(false)
+    const scrollIndex = useRef<number>(0)
+
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
+    const [scrollPositions, setScrollPositions] = useScrollPositions()
+    const isScrolling = useRef<boolean>(false)
+    const [zenMode] = useZenMode()
+    const [hasError, setHasError] = useState<null | ResponseObject>(null)
+
+    const getFeedKeys = {
+        all: ["getFeed"] as const,
+        feedkey: (feedKey: string) => [...getFeedKeys.all, feedKey] as const,
+        feedkeyWithCursor: (feedKey: string, cursor: string) =>
+            [...getFeedKeys.feedkey(feedKey), cursor] as const,
+    }
+
+    useEffect(() => {
+        if (shouldScrollToTop.current && scrollRef.current) {
+            scrollRef.current.scrollTop = 0
+
+            shouldScrollToTop.current = false
+        }
+        return () => {}
+    }, [timeline])
+
+    const loadMore = useCallback(() => {
+        if (hasMore.current) {
+            setLoadMoreFeed(true)
+        }
+    }, [hasMore.current])
+
+    const checkNewTimeline = useCheckNewTimeline(
+        agent,
         feedKey,
-        now,
-        isViaUFeed,
-        isActive, // disableSlideVerticalScroll, isNextActive
-        pageName,
-    }: FeedPageProps) => {
-        const { t } = useTranslation()
-        const [agent] = useAgent()
-        const [userProfileDetailed] = useUserProfileDetailedAtom()
-        const [nextQueryParams] = useNextQueryParamsAtom()
-        const { notNulltimeline } = tabBarSpaceStyles()
-        const [muteWords] = useWordMutes()
-        const [hideRepost] = useHideRepost()
-        const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-        const [newTimeline, setNewTimeline] = useState<FeedViewPost[]>([])
-        const [hasMore, setHasMore] = useState<boolean>(false)
-        const [hasUpdate, setHasUpdate] = useState<boolean>(false)
-        const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
-        const [cursorState, setCursorState] = useState<string>()
-        const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
+        FEED_FETCH_LIMIT,
+        userProfileDetailed,
+        hideRepost,
+        shouldCheckUpdate,
+        latestCID,
+        newTimeline,
+        setHasUpdate,
+        setHasError,
+        muteWords
+    )
 
-        const scrollRef = useRef<HTMLElement | null>(null)
-        const shouldScrollToTop = useRef<boolean>(false)
-        const latestCID = useRef<string>("")
-        const shouldCheckUpdate = useRef<boolean>(false)
-        const [scrollIndex, setScrollIndex] = useState<number>(0)
+    useEffect(() => {
+        if (!agent || !isActive) return
 
-        const virtuosoRef = useRef(null)
-        const [scrollPositions, setScrollPositions] = useScrollPositions()
-        const isScrolling = useRef<boolean>(false)
-        const [zenMode] = useZenMode()
-        const [hasError, setHasError] = useState<null | ResponseObject>(null)
-
-        const getFeedKeys = {
-            all: ["getFeed"] as const,
-            feedkey: (feedKey: string) =>
-                [...getFeedKeys.all, feedKey] as const,
-            feedkeyWithCursor: (feedKey: string, cursor: string) =>
-                [...getFeedKeys.feedkey(feedKey), cursor] as const,
-        }
-
-        useEffect(() => {
-            if (shouldScrollToTop.current && scrollRef.current) {
-                scrollRef.current.scrollTop = 0
-
-                shouldScrollToTop.current = false
-            }
-        }, [timeline])
-
-        const loadMore = useCallback(() => {
-            if (hasMore) {
-                setLoadMoreFeed(true)
-            }
-        }, [hasMore])
-
-        const filterPosts = (posts: FeedViewPost[]) => {
-            return posts.filter((post) => {
-                return !muteWords.some((muteWord) => {
-                    if (muteWord.isActive) {
-                        const textToCheck =
-                            //@ts-ignore
-                            post.post?.embed?.record?.value?.text ||
-                            //@ts-ignore
-                            post.post?.record?.text
-                        return textToCheck?.includes(muteWord.word)
-                    }
-                    return false
-                })
-            })
-        }
-
-        const checkNewTimeline = useCallback(async () => {
-            if (!agent) return
-            shouldCheckUpdate.current = false
-
-            try {
-                let response: AppBskyFeedGetTimeline.Response
-
-                if (feedKey === "following") {
-                    response = await agent.getTimeline({
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                } else {
-                    response = await agent.app.bsky.feed.getFeed({
-                        feed: feedKey,
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                }
-
-                const { data } = response
-
-                if (data) {
-                    const { feed } = data
-                    const filteredData =
-                        feedKey === "following"
-                            ? filterDisplayPosts(
-                                  feed,
-                                  userProfileDetailed,
-                                  agent,
-                                  hideRepost
-                              )
-                            : feed
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
-
-                    setNewTimeline(muteWordFilter)
-
-                    if (muteWordFilter.length > 0) {
-                        /*console.log(
-                            "new and old cid",
-                            feedKey,
-                            muteWordFilter[0].post.cid,
-                            latestCID.current
-                        )*/
-
-                        if (
-                            muteWordFilter[0].post.cid !== latestCID.current &&
-                            latestCID.current !== ""
-                        ) {
-                            setHasUpdate(true)
-                        } else {
-                            setHasUpdate(false)
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error(e)
-                //@ts-ignore
-                if (JSON.parse(e).status === 1) return
-                setHasError(e as ResponseObject)
-            }
-        }, [agent])
-
-        useEffect(() => {
-            if (!agent) return
-            if (!isActive) {
-                return
-            }
-
-            if (!shouldCheckUpdate.current) {
-                shouldCheckUpdate.current = true
-                //void initialLoad()
-                void checkNewTimeline()
-                //console.log("useEffect set setTimeout", feedKey)
-                const timeoutId = setInterval(() => {
-                    console.log("fetch", feedKey)
-
-                    void checkNewTimeline()
-                }, CHECK_FEED_UPDATE_INTERVAL)
-
-                return () => {
-                    console.log(`useEffect unmounted ${feedKey}`)
-                    clearInterval(timeoutId)
-                }
-            }
-        }, [agent, isActive])
-
-        const queryClient = useQueryClient()
-
-        const handleRefresh = async () => {
-            shouldScrollToTop.current = true
-
-            const mergedTimeline = mergePosts(newTimeline, timeline)
-
-            if (!mergedTimeline[0]?.post) return
-            //@ts-ignore
-            setTimeline(mergedTimeline)
-            setNewTimeline([])
-            setHasUpdate(false)
-
-            if (mergedTimeline.length > 0) {
-                latestCID.current = (mergedTimeline[0].post as PostView).cid
-            }
-
-            await queryClient.refetchQueries({
-                queryKey: ["getFeed", feedKey],
-            })
-
+        if (!shouldCheckUpdate.current) {
             shouldCheckUpdate.current = true
+            void checkNewTimeline()
+            const timeoutId = setInterval(() => {
+                console.log("fetch", feedKey)
+
+                void checkNewTimeline()
+            }, CHECK_FEED_UPDATE_INTERVAL)
+
+            return () => {
+                console.log(`useEffect unmounted ${feedKey}`)
+                clearInterval(timeoutId)
+            }
+        }
+    }, [agent, isActive])
+
+    const queryClient = useQueryClient()
+
+    const handleRefresh = useCallback(async () => {
+        shouldScrollToTop.current = true
+
+        const mergedTimeline = mergePosts(newTimeline.current, timeline)
+
+        setTimeline(mergedTimeline as FeedViewPost[])
+        newTimeline.current = []
+        setHasUpdate(false)
+
+        if (mergedTimeline.length > 0) {
+            latestCID.current = (mergedTimeline[0].post as PostView).cid
         }
 
-        const handleFetchResponse = useCallback(
-            (response: FeedResponseObject) => {
-                if (response) {
-                    const { posts, cursor } = response
-                    if (posts.length === 0 || cursor === "")
-                        setIsEndOfFeed(true)
-                    setCursorState(response.cursor)
+        await queryClient.refetchQueries({
+            queryKey: ["getFeed", feedKey],
+        })
 
-                    const filteredData =
-                        feedKey === "following"
-                            ? filterDisplayPosts(
-                                  posts,
-                                  userProfileDetailed,
-                                  agent,
-                                  hideRepost
-                              )
-                            : posts
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
+        shouldCheckUpdate.current = true
+    }, [])
 
-                    if (timeline === null) {
-                        if (muteWordFilter.length > 0) {
-                            latestCID.current = muteWordFilter[0].post.cid
-                        }
-                    }
+    const handleFetchResponse = useCallback((response: FeedResponseObject) => {
+        if (response) {
+            const { posts, cursor } = response
+            if (posts.length === 0 || cursor === "") isEndOfFeed.current = true
+            cursorState.current = response.cursor
 
-                    setTimeline((currentTimeline) => {
-                        if (currentTimeline !== null) {
-                            return [...currentTimeline, ...muteWordFilter]
-                        } else {
-                            return [...muteWordFilter]
-                        }
-                    })
-                } else {
-                    setTimeline([])
-                    setHasMore(false)
-                    return
+            console.log("posts", posts)
+
+            const filteredData =
+                feedKey === "following"
+                    ? filterDisplayPosts(
+                          posts,
+                          userProfileDetailed,
+                          agent,
+                          hideRepost
+                      )
+                    : posts
+            console.log("filteredData", filteredData)
+            const muteWordFilter = useFilterPosts(
+                filteredData,
+                muteWords
+            ) as FeedViewPost[]
+
+            if (timeline === null) {
+                if (muteWordFilter.length > 0) {
+                    latestCID.current = (muteWordFilter[0].post as PostView).cid
                 }
+            }
 
-                setCursorState(response.cursor)
-
-                if (cursorState !== "") {
-                    setHasMore(true)
+            setTimeline((currentTimeline: FeedViewPost[] | null) => {
+                if (currentTimeline !== null) {
+                    return [...currentTimeline, ...muteWordFilter]
                 } else {
-                    setHasMore(false)
+                    return muteWordFilter
                 }
-            },
-            []
-        )
+            })
+        } else {
+            setTimeline([])
+            hasMore.current = false
+            return
+        }
 
-        const getTimelineFetcher = async ({
+        cursorState.current = response.cursor
+
+        hasMore.current = cursorState.current !== ""
+    }, [])
+
+    const getTimelineFetcher = useCallback(
+        async ({
             queryKey,
         }: QueryFunctionContext<
             ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
         >): Promise<FeedResponseObject> => {
             // console.log("getTimelineFetcher: >>")
 
-            if (agent === null) {
-                // console.log("error")
-                throw new Error("Agent does not exist")
-            }
+            if (!agent) throw new Error("Agent does not exist")
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const [_key, feedKey] = queryKey
 
             if (feedKey === "following") {
                 const response = await agent.getTimeline({
-                    cursor: cursorState || "",
+                    cursor: cursorState.current || "",
                     limit: FEED_FETCH_LIMIT,
                 })
+
+                console.log(response.data.feed)
 
                 return {
                     posts: response.data.feed,
@@ -320,7 +245,7 @@ const FeedPage = memo(
             } else {
                 const response = await agent.app.bsky.feed.getFeed({
                     feed: feedKey,
-                    cursor: cursorState || "",
+                    cursor: cursorState.current || "",
                     limit: FEED_FETCH_LIMIT,
                 })
 
@@ -329,249 +254,192 @@ const FeedPage = memo(
                     cursor: response.data.cursor || "",
                 }
             }
-        }
+        },
+        []
+    )
 
-        const { data /*isLoading, isError*/ } = useQuery({
-            queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
-            queryFn: getTimelineFetcher,
-            select: (fishes) => {
-                return fishes
-            },
-            notifyOnChangeProps: ["data"],
-            enabled:
-                agent !== null &&
-                feedKey !== "" &&
-                isActive /*shouldLoad */ &&
-                loadMoreFeed,
-            refetchOnWindowFocus: false,
-            refetchOnMount: false,
-            refetchOnReconnect: false,
-        })
+    const { data /*isLoading, isError*/ } = useQuery({
+        queryKey: getFeedKeys.feedkeyWithCursor(
+            feedKey,
+            cursorState.current || ""
+        ),
+        queryFn: getTimelineFetcher,
+        select: (fishes) => {
+            return fishes
+        },
+        notifyOnChangeProps: ["data"],
+        enabled:
+            agent !== null &&
+            feedKey !== "" &&
+            isActive /*shouldLoad */ &&
+            loadMoreFeed,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+    })
 
-        const handleValueChange = (newValue: any) => {
-            if (!timeline) return
+    const handleValueChange = useHandleValueChange(timeline, setTimeline)
 
-            const foundObjectIndex = timeline.findIndex(
-                (item) => item.post && item.post.uri === newValue.postUri
-            )
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        isActive,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
-            if (foundObjectIndex !== -1) {
-                setTimeline((prevData) => {
-                    if (!prevData) return prevData
-
-                    const updatedData = [...prevData]
-
-                    const foundObject = updatedData[foundObjectIndex]
-                    if (
-                        foundObject &&
-                        foundObject.post &&
-                        foundObject.post.viewer
-                    ) {
-                        switch (newValue.reaction) {
-                            case "like":
-                            case "unlike":
-                                foundObject.post.viewer.like =
-                                    newValue.reaction === "like"
-                                        ? newValue.reactionUri
-                                        : undefined
-                                break
-                            case "repost":
-                            case "unrepost":
-                                foundObject.post.viewer.repost =
-                                    newValue.reaction === "repost"
-                                        ? newValue.reactionUri
-                                        : undefined
-                                break
-                            case "delete":
-                                updatedData.splice(foundObjectIndex, 1)
-                                break
-                            default:
-                                break
-                        }
-                    }
-
-                    return updatedData
-                })
-            } else {
-                console.log(
-                    "指定されたURIを持つオブジェクトは見つかりませんでした。"
-                )
-            }
-        }
-
-        const handleSaveScrollPosition = () => {
-            if (!isActive) return
-            //@ts-ignore
-            virtuosoRef?.current?.getState((state) => {
-                if (
-                    state.scrollTop !==
-                    //@ts-ignore
-                    scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-                ) {
-                    const updatedScrollPositions = { ...scrollPositions }
-                    //@ts-ignore
-                    updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                    setScrollPositions(updatedScrollPositions)
-                }
-            })
-        }
-
-        if (data !== undefined && !isEndOfFeed) {
+    useEffect(() => {
+        if (data !== undefined && !isEndOfFeed.current) {
             handleFetchResponse(data)
             setLoadMoreFeed(false)
         }
+    }, [data, isEndOfFeed.current])
 
-        const lazyCheckNewTimeline = async () => {
-            if (!agent) return
+    const lazyCheckNewTimeline = useCallback(async () => {
+        if (!agent) return
 
-            try {
-                let response: AppBskyFeedGetTimeline.Response
+        try {
+            let response: AppBskyFeedGetTimeline.Response
 
-                if (feedKey === "following") {
-                    response = await agent.getTimeline({
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                } else {
-                    response = await agent.app.bsky.feed.getFeed({
-                        feed: feedKey,
-                        limit: FEED_FETCH_LIMIT,
-                        cursor: "",
-                    })
-                }
-
-                const { data } = response
-
-                if (data) {
-                    const { feed } = data
-                    const filteredData =
-                        feedKey === "following"
-                            ? filterDisplayPosts(
-                                  feed,
-                                  userProfileDetailed,
-                                  agent,
-                                  hideRepost
-                              )
-                            : feed
-                    //@ts-ignore
-                    const muteWordFilter = filterPosts(filteredData)
-
-                    const mergedTimeline = mergePosts(muteWordFilter, timeline)
-
-                    if (!mergedTimeline[0]?.post) return
-                    //@ts-ignore
-                    setTimeline(mergedTimeline)
-                    setNewTimeline([])
-                    setHasUpdate(false)
-
-                    if (mergedTimeline.length > 0) {
-                        latestCID.current = (
-                            mergedTimeline[0].post as PostView
-                        ).cid
-                    }
-
-                    await queryClient.refetchQueries({
-                        queryKey: ["getFeed", feedKey],
-                    })
-                }
-            } catch (e) {
-                console.error(e)
+            if (feedKey === "following") {
+                response = await agent.getTimeline({
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
+            } else {
+                response = await agent.app.bsky.feed.getFeed({
+                    feed: feedKey,
+                    limit: FEED_FETCH_LIMIT,
+                    cursor: "",
+                })
             }
+
+            const { data } = response
+
+            if (data) {
+                const { feed } = data
+                const filteredData =
+                    feedKey === "following"
+                        ? filterDisplayPosts(
+                              feed,
+                              userProfileDetailed,
+                              agent,
+                              hideRepost
+                          )
+                        : feed
+                const muteWordFilter = useFilterPosts(filteredData, muteWords)
+                //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
+                const mergedTimeline = mergePosts(muteWordFilter, timeline)
+
+                //@ts-ignore FeedViewPost[]でなければreturnするので、ここでの型は問題ない
+                setTimeline(mergedTimeline)
+                newTimeline.current = []
+                setHasUpdate(false)
+
+                if (mergedTimeline.length > 0) {
+                    latestCID.current = (mergedTimeline[0].post as PostView).cid
+                }
+
+                await queryClient.refetchQueries({
+                    queryKey: ["getFeed", feedKey],
+                })
+            }
+        } catch (e) {
+            console.error(e)
         }
+    }, [])
 
-        return (
-            <>
-                {hasUpdate && <RefreshButton handleRefresh={handleRefresh} />}
-                <SwipeRefreshList
-                    onRefresh={async () => {
-                        await lazyCheckNewTimeline()
-                    }}
-                    className={"swiperRefresh h-full w-full"}
-                    threshold={150}
-                    disabled={isScrolling.current && scrollIndex > 0}
-                >
-                    {hasError && (
-                        <>
-                            <DummyHeader />
-                            <div className={"w-full h-[50ox] bg-white"}>
-                                <div>Error code: {hasError?.status}</div>
-                                <div>Error: {hasError?.error}</div>
-                            </div>
-                        </>
-                    )}
-                    {!hasError && (
-                        <Virtuoso
-                            scrollerRef={(ref) => {
-                                if (ref instanceof HTMLElement) {
-                                    scrollRef.current = ref
-                                    // setListScrollRefAtom(ref)
-                                }
-                            }}
-                            ref={virtuosoRef}
-                            isScrolling={(e) => {
-                                isScrolling.current = e
-                            }}
-                            restoreStateFrom={
-                                //@ts-ignore
-                                scrollPositions[`${pageName}-${feedKey}`]
+    console.log(`FeedPage: ${feedKey}`)
+
+    return (
+        <>
+            {hasUpdate && <RefreshButton handleRefresh={handleRefresh} />}
+            <SwipeRefreshList
+                onRefresh={async () => {
+                    await lazyCheckNewTimeline()
+                }}
+                className={"swiperRefresh h-full w-full"}
+                threshold={150}
+                disabled={isScrolling.current && scrollIndex.current > 0}
+            >
+                {hasError && (
+                    <>
+                        <DummyHeader />
+                        <div className={"w-full h-[50ox] bg-white"}>
+                            <div>Error code: {hasError?.status}</div>
+                            <div>Error: {hasError?.error}</div>
+                        </div>
+                    </>
+                )}
+                {
+                    <Virtuoso
+                        scrollerRef={(ref) => {
+                            if (ref instanceof HTMLElement) {
+                                scrollRef.current = ref
+                                // setListScrollRefAtom(ref)
                             }
-                            rangeChanged={(range) => {
-                                setScrollIndex(range.startIndex)
-                            }}
-                            context={{ hasMore }}
-                            increaseViewportBy={200}
-                            overscan={200}
-                            data={timeline ?? undefined}
-                            totalCount={timeline ? timeline.length : 20}
-                            atTopThreshold={100}
-                            atBottomThreshold={100}
-                            itemContent={(index, item) => (
-                                <>
-                                    {item ? (
-                                        <ViewPostCard
-                                            key={`feed-${item.post.uri}`}
-                                            {...{
-                                                isMobile,
-                                                isSkeleton: false,
-                                                bodyText: processPostBodyText(
-                                                    nextQueryParams,
-                                                    item.post || null
-                                                ),
-                                                postJson: item.post || null,
-                                                json: item,
-                                                now,
+                        }}
+                        ref={virtuosoRef}
+                        isScrolling={(e) => {
+                            isScrolling.current = e
+                        }}
+                        restoreStateFrom={
+                            scrollPositions[`${pageName}-${feedKey}`]
+                        }
+                        rangeChanged={(range) => {
+                            scrollIndex.current = range.startIndex
+                        }}
+                        context={hasMore.current}
+                        increaseViewportBy={200}
+                        overscan={200}
+                        data={timeline ?? undefined}
+                        totalCount={timeline ? timeline.length : 20}
+                        atTopThreshold={100}
+                        atBottomThreshold={100}
+                        itemContent={(index, item) => (
+                            <>
+                                {item ? (
+                                    <ViewPostCard
+                                        key={`feed-${item.post.uri}`}
+                                        {...{
+                                            isMobile,
+                                            isSkeleton: false,
+                                            bodyText: processPostBodyText(
                                                 nextQueryParams,
-                                                t,
-                                                handleValueChange:
-                                                    handleValueChange,
-                                                handleSaveScrollPosition:
-                                                    handleSaveScrollPosition,
-                                                isViaUFeed: isViaUFeed,
-                                                zenMode: zenMode,
-                                            }}
-                                        />
-                                    ) : (
-                                        <ViewPostCardSkelton
-                                            zenMode={zenMode}
-                                        />
-                                    )}
-                                </>
-                            )}
-                            components={{
-                                Header: () => <DummyHeader />,
-                            }}
-                            endReached={loadMore}
-                            className={notNulltimeline()}
-                        />
-                    )}
-                    <ScrollToTopButton
-                        scrollRef={scrollRef}
-                        scrollIndex={scrollIndex}
+                                                item.post || null
+                                            ),
+                                            postJson: item.post || null,
+                                            json: item,
+                                            nextQueryParams,
+                                            t,
+                                            handleValueChange:
+                                                handleValueChange,
+                                            handleSaveScrollPosition:
+                                                handleSaveScrollPosition,
+                                            isViaUFeed: isViaUFeed,
+                                            zenMode: zenMode,
+                                        }}
+                                    />
+                                ) : (
+                                    <ViewPostCardSkelton zenMode={zenMode} />
+                                )}
+                            </>
+                        )}
+                        components={{
+                            Header: () => <DummyHeader />,
+                        }}
+                        endReached={loadMore}
+                        className={notNulltimeline()}
                     />
-                </SwipeRefreshList>
-            </>
-        )
-    }
-)
+                }
+                <ScrollToTopButton
+                    scrollRef={scrollRef}
+                    scrollIndex={scrollIndex.current}
+                />
+            </SwipeRefreshList>
+        </>
+    )
+}
 
-export default FeedPage
+export default memo(FeedPage)

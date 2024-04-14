@@ -1,15 +1,17 @@
 import { ViewUserProfileCard } from "."
 import { DummyHeader } from "@/app/_components/DummyHeader"
+import { TFunction } from "i18next"
+import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 export interface ViewUserProfileCardCellProps {
     className?: string
     isMobile?: boolean
     isSkeleton?: boolean
-    json: any
+    json: ProfileView | null
     isEmbedToModal?: boolean
     isDummyHeader?: boolean
     nextQueryParams: URLSearchParams
-    t: any
+    t: TFunction
 }
 
 export const ViewUserProfileCardCell = (

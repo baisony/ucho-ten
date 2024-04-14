@@ -1,5 +1,5 @@
 "use client"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { isMobile } from "react-device-detect"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import {
@@ -38,11 +38,12 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -61,22 +62,22 @@ export default function FeedPage() {
         useUnreadNotificationAtom()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
-    const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const hasMore = useRef<boolean>(false)
+    //const [hasUpdate, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
-    const [cursorState, setCursorState] = useState<string>()
-    const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
+    const cursorState = useRef<string>()
+    const isEndOfFeed = useRef<boolean>(false) // TODO: should be implemented.
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const shouldScrollToTop = useRef<boolean>(false)
     const latestCID = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = "Inbox"
     const pageName = "Inbox"
     const isScrolling = useRef<boolean>(false)
-    const [scrollIndex, setScrollIndex] = useState<number>(0)
+    const scrollIndex = useRef<number>(0)
 
     const [menus] = useHeaderMenusByHeaderAtom()
     const [zenMode] = useZenMode()
@@ -101,10 +102,10 @@ export default function FeedPage() {
     }, [timeline])
 
     const loadMore = useCallback(() => {
-        if (hasMore) {
+        if (hasMore.current) {
             setLoadMoreFeed(true)
         }
-    }, [hasMore])
+    }, [hasMore.current])
 
     const queryClient = useQueryClient()
 
@@ -122,9 +123,9 @@ export default function FeedPage() {
         if (response) {
             const { posts, notifications, cursor } = response
             if (notifications.length === 0 || cursor === "") {
-                setIsEndOfFeed(true)
+                isEndOfFeed.current = true
             }
-            setCursorState(response.cursor)
+            cursorState.current = response.cursor
 
             console.log("posts", posts)
 
@@ -148,17 +149,13 @@ export default function FeedPage() {
             })
         } else {
             setTimeline([])
-            setHasMore(false)
+            hasMore.current = false
             return
         }
 
-        setCursorState(response.cursor)
+        cursorState.current = response.cursor
 
-        if (cursorState !== "") {
-            setHasMore(true)
-        } else {
-            setHasMore(false)
-        }
+        hasMore.current = cursorState.current !== ""
     }
 
     const getTimelineFetcher = async ({
@@ -174,7 +171,7 @@ export default function FeedPage() {
         const [_key] = queryKey
 
         const { data } = await agent.listNotifications({
-            cursor: cursorState || "",
+            cursor: cursorState.current || "",
         })
 
         const reply = data.notifications.filter((notification) => {
@@ -209,7 +206,10 @@ export default function FeedPage() {
     }
 
     const { data /*isLoading, isError*/ } = useQuery({
-        queryKey: getFeedKeys.feedkeyWithCursor(feedKey, cursorState || ""),
+        queryKey: getFeedKeys.feedkeyWithCursor(
+            feedKey,
+            cursorState.current || ""
+        ),
         queryFn: getTimelineFetcher,
         select: (fishes) => {
             console.log(fishes)
@@ -222,7 +222,7 @@ export default function FeedPage() {
         refetchOnReconnect: false,
     })
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (post) => post.uri === newValue.postUri
@@ -301,25 +301,16 @@ export default function FeedPage() {
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
-    if (data !== undefined && !isEndOfFeed) {
+    if (data !== undefined && !isEndOfFeed.current) {
         // console.log(`useQuery: data.cursor: ${data.cursor}`)
         handleFetchResponse(data)
         setLoadMoreFeed(false)
@@ -356,10 +347,9 @@ export default function FeedPage() {
                     )
                 })
             }
-            const mergedTimeline = mergePosts(replies, timeline)
-            //@ts-ignore
+            const mergedTimeline = mergePosts(replies, timeline) as PostView[]
             setTimeline(mergedTimeline)
-            setHasUpdate(false)
+            //setHasUpdate(false)
 
             if (mergedTimeline.length > 0) {
                 latestCID.current = (mergedTimeline[0] as PostView).cid
@@ -398,7 +388,7 @@ export default function FeedPage() {
                                         threshold={150}
                                         disabled={
                                             isScrolling.current &&
-                                            scrollIndex > 0
+                                            scrollIndex.current > 0
                                         }
                                     >
                                         <Virtuoso
@@ -413,12 +403,12 @@ export default function FeedPage() {
                                             ref={virtuosoRef}
                                             restoreStateFrom={
                                                 scrollPositions[
-                                                    //@ts-ignore
                                                     `${pageName}-${feedKey}`
                                                 ]
                                             }
                                             rangeChanged={(range) => {
-                                                setScrollIndex(range.startIndex)
+                                                scrollIndex.current =
+                                                    range.startIndex
                                             }}
                                             context={{ hasMore }}
                                             isScrolling={(e) => {
@@ -475,14 +465,11 @@ export default function FeedPage() {
                                         />
                                         <ScrollToTopButton
                                             scrollRef={scrollRef}
-                                            scrollIndex={scrollIndex}
+                                            scrollIndex={scrollIndex.current}
                                         />
                                     </SwipeRefreshList>
                                 </main>
                             </div>
-                        </SwiperSlide>
-                        <SwiperSlide>
-                            <SwiperEmptySlide />
                         </SwiperSlide>
                     </>
                 )

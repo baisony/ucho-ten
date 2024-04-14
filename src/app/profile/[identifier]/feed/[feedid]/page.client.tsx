@@ -9,11 +9,8 @@ import type {
 import { usePathname } from "next/navigation"
 import { viewFeedPage } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-    faArrowUpFromBracket,
-    faHeart as faSolidHeart,
-    faThumbTack,
-} from "@fortawesome/free-solid-svg-icons"
+import { faThumbtack } from "@fortawesome/free-solid-svg-icons/faThumbtack"
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons/faArrowUpFromBracket"
 import defaultFeedIcon from "@/../public/images/icon/default_feed_icon.svg"
 import {
     Button,
@@ -30,12 +27,12 @@ import "react-swipeable-list/dist/styles.css"
 import { isMobile } from "react-device-detect"
 import { useTranslation } from "react-i18next"
 import { useNextQueryParamsAtom } from "@/app/_atoms/nextQueryParams"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { ViewPostCard, ViewPostCardProps } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
 import { DummyHeader } from "@/app/_components/DummyHeader"
-import { AtUri, BskyAgent } from "@atproto/api"
+import { AppBskyFeedGetFeedGenerator, AtUri, BskyAgent } from "@atproto/api"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { SwiperSlide } from "swiper/react"
 import SwiperCore from "swiper/core"
@@ -47,12 +44,13 @@ import {
 
 import "swiper/css"
 import "swiper/css/pagination"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { PostModal } from "@/app/_components/PostModal"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 SwiperCore.use([Virtual])
 
@@ -69,17 +67,17 @@ export default function Root() {
     const [loading, setLoading] = useState(true)
     const [hasMore, setHasMore] = useState(false)
     const [timeline, setTimeline] = useState<FeedViewPost[] | null>(null)
-    const [isEndOfFeed, setIsEndOfFeed] = useState(false)
+    const [, setIsEndOfFeed] = useState(false)
     const [isPinned, setIsPinned] = useState<boolean>(false)
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-    const [feedInfo, setFeedInfo] = useState<any>(null)
-    const [, setUserPreference] = useState<any>(null)
+    const [feedInfo, setFeedInfo] =
+        useState<AppBskyFeedGetFeedGenerator.OutputSchema | null>(null)
     const [now, setNow] = useState<Date>(new Date())
 
     const scrollRef = useRef<HTMLElement | null>(null)
     const cursor = useRef<string>("")
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const [scrollIndex, setScrollIndex] = useState(0)
 
@@ -130,7 +128,7 @@ export default function Root() {
 
         try {
             const res = await agent.getPreferences()
-            setUserPreference(res)
+            //setUserPreference(res)
 
             const { feeds } = res
             const { pinned, saved } = feeds
@@ -273,16 +271,13 @@ export default function Root() {
         }
     }
 
-    const handleValueChange = (newValue: any) => {
-        console.log(newValue)
-        console.log(timeline)
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.post.uri === newValue.postUri
         )
 
         if (foundObject !== -1) {
-            console.log(timeline[foundObject])
             switch (newValue.reaction) {
                 case "like":
                     setTimeline((prevData) => {
@@ -356,23 +351,14 @@ export default function Root() {
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`feed-${atUri}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`feed-${atUri}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        true,
+        virtuosoRef,
+        "feed",
+        atUri,
+        scrollPositions,
+        setScrollPositions
+    )
 
     const dataWithDummy = useMemo((): CustomFeedCellProps[] => {
         let data: CustomFeedCellProps[] = []
@@ -411,7 +397,6 @@ export default function Root() {
                     isMobile,
                     bodyText: processPostBodyText(nextQueryParams, post.post),
                     postJson: post.post,
-                    now,
                     nextQueryParams,
                     t,
                     handleValueChange: handleValueChange,
@@ -433,7 +418,6 @@ export default function Root() {
                     isSkeleton: true,
                     isMobile,
                     bodyText: undefined,
-                    now,
                     nextQueryParams,
                     t,
                     zenMode,
@@ -474,7 +458,6 @@ export default function Root() {
                                     }}
                                     ref={virtuosoRef}
                                     restoreStateFrom={
-                                        //@ts-ignore
                                         scrollPositions[`feed-${atUri}`]
                                     }
                                     rangeChanged={(range) => {
@@ -504,9 +487,6 @@ export default function Root() {
                                 scrollIndex={scrollIndex}
                             />
                         </SwiperSlide>
-                        <SwiperSlide>
-                            <SwiperEmptySlide />
-                        </SwiperSlide>
                     </>
                 )
             })}
@@ -535,7 +515,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
 
 interface FeedProps {
     agent: BskyAgent | null
-    feedInfo?: any
+    feedInfo?: AppBskyFeedGetFeedGenerator.OutputSchema
     isSubscribed?: boolean
     isPinned?: boolean
     onClick?: () => void
@@ -620,7 +600,7 @@ const FeedHeaderComponent = ({
                     {!isSkeleton ? (
                         <img
                             className={ProfileImage()}
-                            src={feedInfo.view?.avatar || defaultFeedIcon.src}
+                            src={feedInfo?.view?.avatar || defaultFeedIcon.src}
                             alt={"profile"}
                         />
                     ) : (
@@ -651,9 +631,9 @@ const FeedHeaderComponent = ({
                                     key="new"
                                     onClick={() => {
                                         const aturl = new AtUri(
-                                            feedInfo.view?.uri
+                                            feedInfo?.view?.uri ?? ""
                                         )
-                                        navigator.clipboard.writeText(
+                                        void navigator.clipboard.writeText(
                                             `https://bsky.app/profile/${aturl.hostname}/feed/${aturl.rkey}`
                                         )
                                     }}
@@ -667,7 +647,7 @@ const FeedHeaderComponent = ({
                             onClick={handlePinnedClick}
                         >
                             <FontAwesomeIcon
-                                icon={faThumbTack}
+                                icon={faThumbtack}
                                 className={PinButton({
                                     isPinned: isPinned1,
                                 })}
@@ -706,7 +686,7 @@ const FeedHeaderComponent = ({
                     </div>
                     <div className={ProfileDisplayName()}>
                         {!isSkeleton ? (
-                            feedInfo.view?.displayName
+                            feedInfo?.view?.displayName
                         ) : (
                             <Skeleton
                                 className={`h-[24px] w-[300px] rounded-[10px] `}
@@ -716,7 +696,7 @@ const FeedHeaderComponent = ({
                     <div className={ProfileHandle()}>
                         {!isSkeleton ? (
                             `${t(`pages.feedOnlyPage.createdBy`)} @${
-                                feedInfo.view.creator.handle
+                                feedInfo?.view.creator.handle
                             }`
                         ) : (
                             <Skeleton
@@ -726,7 +706,7 @@ const FeedHeaderComponent = ({
                     </div>
                     <div className={ProfileBio()}>
                         {!isSkeleton ? (
-                            feedInfo.view?.description
+                            feedInfo?.view?.description
                         ) : (
                             <>
                                 <Skeleton

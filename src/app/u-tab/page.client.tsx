@@ -143,7 +143,7 @@ const Root = () => {
                                             isMobile={isMobile}
                                             nextQueryParams={nextQueryParams}
                                             t={t}
-                                            zenMode
+                                            zenMode={false}
                                         />
                                     </>
                                 )}

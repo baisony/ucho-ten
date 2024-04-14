@@ -2,6 +2,8 @@ import { Modal, ModalContent } from "@nextui-org/react"
 
 import { isMobile } from "react-device-detect"
 import { PostModal } from "../PostModal/PostModal"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { memo } from "react"
 
 /**
  * SetttingsModal props.
@@ -12,14 +14,14 @@ export type ReportModalProps = {
     placement?: "top" | "center"
     className?: string
     //type?: "Reply"
-    post: any
+    post: PostView | undefined
     //nextQueryParams: URLSearchParams
 }
 
 /**
  * SetttingsModal component.
  */
-export const ReplyModal = (props: ReportModalProps) => {
+export const ReplyModal = memo((props: ReportModalProps) => {
     const { isOpen, onOpenChange, post } = props
 
     return (
@@ -40,4 +42,4 @@ export const ReplyModal = (props: ReportModalProps) => {
             </ModalContent>
         </Modal>
     )
-}
+})

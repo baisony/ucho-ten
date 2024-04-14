@@ -1,3 +1,7 @@
 .yarl__toolbar,.yarl__counter{
     padding-top: env(safe-area-inset-top);
 }
+
+.yarl__toolbar, .yarl__counter {
+    background: rgba(0, 0, 0, 0.5); /* 背景の透明度を50%に設定 */
+}

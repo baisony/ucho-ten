@@ -7,7 +7,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { BskyAgent } from "@atproto/api"
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
@@ -17,6 +17,8 @@ import { GeneratorView } from "@atproto/api/dist/client/types/app/bsky/feed/defs
 import { ViewFeedCardCell } from "@/app/_components/ViewFeedCard/ViewFeedtCardCell"
 import { isMobile } from "react-device-detect"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { TFunction } from "i18next"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 
 interface FeedResponseObject {
     feeds: GeneratorView[]
@@ -25,7 +27,7 @@ interface FeedResponseObject {
 
 interface SearchPostPageProps {
     isActive: boolean
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     searchText: string
@@ -51,7 +53,7 @@ const SearchFeedPage = ({
     const shouldCheckUpdate = useRef<boolean>(false)
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = `Feeds`
     const pageName = "search"
@@ -181,24 +183,14 @@ const SearchFeedPage = ({
         refetchOnReconnect: false,
     })
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        if (!isActive) return
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        isActive,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed && isActive) {
         handleFetchResponse(data)
@@ -214,10 +206,7 @@ const SearchFeedPage = ({
                     }
                 }}
                 ref={virtuosoRef}
-                restoreStateFrom={
-                    //@ts-ignore
-                    scrollPositions[`search-posts-${searchText}`]
-                }
+                restoreStateFrom={scrollPositions[`search-posts-${searchText}`]}
                 rangeChanged={(range) => {
                     setScrollIndex(range.startIndex)
                 }}
@@ -274,7 +263,7 @@ interface UserCellProps {
     //index?: number
 }
 
-const UserCell = ({ actor, onClick, skeleton }: UserCellProps) => {
+const UserCell = ({ onClick, skeleton }: UserCellProps) => {
     const { userCard } = layout()
 
     return (

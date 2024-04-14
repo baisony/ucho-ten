@@ -26,15 +26,16 @@ import {
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
 import { BskyAgent } from "@atproto/api"
-import { useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 import OneSignal from "react-onesignal"
 import { useOneSignalLogin } from "@/app/_atoms/onesignalLoggined"
 import { useAgent } from "@/app/_atoms/agent"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { useHeaderMenusByHeaderAtom } from "@/app/_atoms/headerMenu"
+import { TFunction } from "i18next"
 
 interface SettingsGeneralPageProps {
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
 }
@@ -58,11 +59,15 @@ export const SettingsGeneralPage = ({
     const { /*background, */ accordion, appearanceTextColor } =
         viewSettingsPage()
 
-    const handleDisplayLanguageSelectionChange = (e: any) => {
+    const handleDisplayLanguageSelectionChange = (
+        e: ChangeEvent<HTMLSelectElement>
+    ) => {
         setDisplayLanguage(e.target.value.split(","))
     }
 
-    const handleTranslateToSelectionChange = (e: any) => {
+    const handleTranslateToSelectionChange = (
+        e: ChangeEvent<HTMLSelectElement>
+    ) => {
         setTranslateTo(e.target.value.split(","))
     }
 
@@ -365,7 +370,9 @@ export const SettingsGeneralPage = ({
                                     label={t("pages.settings.selectLanguage")}
                                     selectedKeys={displayLanguage}
                                     className={`${accordion()} max-w-xs ${appearanceTextColor()}`}
-                                    onChange={(event) => {
+                                    onChange={(
+                                        event: ChangeEvent<HTMLSelectElement>
+                                    ) => {
                                         if (event.target.value === "") return
                                         handleDisplayLanguageSelectionChange(
                                             event
@@ -400,7 +407,9 @@ export const SettingsGeneralPage = ({
                                     label={t("pages.settings.selectLanguage")}
                                     className={`${accordion()} max-w-xs`}
                                     selectedKeys={translateTo}
-                                    onChange={(event) => {
+                                    onChange={(
+                                        event: ChangeEvent<HTMLSelectElement>
+                                    ) => {
                                         if (event.target.value === "") return
                                         handleTranslateToSelectionChange(event)
                                     }}
@@ -536,5 +545,3 @@ export const SettingsGeneralPage = ({
         </div>
     )
 }
-
-export default SettingsGeneralPage

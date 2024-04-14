@@ -17,11 +17,12 @@ import {
 } from "@nextui-org/react"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons"
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons/faChevronRight"
 import { BskyAgent } from "@atproto/api"
+import { TFunction } from "i18next"
 
 interface SettingsMutePageProps {
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
 }
@@ -34,7 +35,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
     const [inputMuteWord, setInputMuteWord] = useState<string>("")
     const [inputMuteCategory] = useState<string>("")
     ///const [inputTimePeriod, setInputTimePeriod] = useState<string>("")
-    const [selectMuteWord, setSelectMuteWord] = useState<any>(null)
+    const [selectMuteWord, setSelectMuteWord] = useState<MuteWord | null>(null)
     const [, setSwitchIsActive] = useState<boolean>(false)
     const [modalEditMode, setModalEditMode] = useState<boolean>(false)
     const {
@@ -43,7 +44,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
         onOpenChange: onOpenChangeEdit,
     } = useDisclosure()
 
-    const syncMuteWords = async (mutelist: any[]) => {
+    const syncMuteWords = async (mutelist: MuteWord[]) => {
         if (!agent) return
         const syncData = {
             bookmarks: bookmarks,
@@ -84,7 +85,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
             deletedAt: null,
         }
         const index = muteWords.find(
-            (muteWord: any) => muteWord.word === inputMuteWord
+            (muteWord) => muteWord.word === inputMuteWord
         )
         if (index) return
         setMuteWords((prevMutewords) => [...prevMutewords, json])
@@ -95,11 +96,12 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
         if (!agent) return
         console.log("save")
         const updatedAt = new Date().getTime()
-        const json: MuteWord = selectMuteWord
+        const json = selectMuteWord
         const index = muteWords.findIndex(
-            (muteWord: any) => muteWord.word === inputMuteWord
+            (muteWord) => muteWord.word === inputMuteWord
         )
         if (muteWords[index] === json) return
+        if (!json) return
         json.updatedAt = updatedAt
 
         const newMuteWords = [...muteWords]
@@ -124,7 +126,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
         if (!agent) return
         console.log("delete")
         const index = muteWords.findIndex(
-            (muteWord: any) => muteWord.word === selectMuteWord.word
+            (muteWord) => muteWord.word === selectMuteWord?.word
         )
         const newMuteWords = muteWords
         newMuteWords.splice(index, 1)
@@ -218,7 +220,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                                     }`}
                                                 >
                                                     {modalEditMode
-                                                        ? selectMuteWord.word
+                                                        ? selectMuteWord?.word
                                                               .length
                                                         : inputMuteWord.length}{" "}
                                                     / 20
@@ -232,7 +234,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                                 isDisabled={modalEditMode}
                                                 defaultValue={
                                                     modalEditMode
-                                                        ? selectMuteWord.word
+                                                        ? selectMuteWord?.word
                                                         : inputMuteWord
                                                 }
                                             ></Input>
@@ -242,7 +244,7 @@ export const SettingsMutePage = ({ t }: SettingsMutePageProps) => {
                                             <Switch
                                                 defaultSelected={
                                                     modalEditMode
-                                                        ? selectMuteWord.isActive
+                                                        ? selectMuteWord?.isActive
                                                         : true
                                                 }
                                                 onValueChange={

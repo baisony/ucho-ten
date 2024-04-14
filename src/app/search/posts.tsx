@@ -2,7 +2,7 @@ import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
 import { useWordMutes } from "@/app/_atoms/wordMute"
 import { tabBarSpaceStyles } from "@/app/_components/TabBar/tabBarSpaceStyles"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useScrollPositions } from "@/app/_atoms/scrollPosition"
 import { filterDisplayPosts } from "@/app/_lib/feed/filterDisplayPosts"
 import {
@@ -10,8 +10,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import { mergePosts } from "@/app/_lib/feed/mergePosts"
-import { Virtuoso } from "react-virtuoso"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { ViewPostCard } from "@/app/_components/ViewPostCard"
 import { isMobile } from "react-device-detect"
 import { processPostBodyText } from "@/app/_lib/post/processPostBodyText"
@@ -21,6 +20,10 @@ import { useSearchParams } from "next/navigation"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
+import { useFilterPosts } from "@/app/_lib/useFilterPosts"
+import { TFunction } from "i18next"
+import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
+import { reactionJson } from "@/app/_types/types"
 
 interface FeedResponseObject {
     posts: PostView[]
@@ -29,7 +32,7 @@ interface FeedResponseObject {
 
 interface SearchPostPageProps {
     isActive: boolean
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
     searchText: string
@@ -47,9 +50,9 @@ const SearchPostPage = ({
     const [muteWords] = useWordMutes()
     const { notNulltimeline } = tabBarSpaceStyles()
     const [timeline, setTimeline] = useState<PostView[] | null>(null)
-    const [newTimeline, setNewTimeline] = useState<PostView[]>([])
+    const [, setNewTimeline] = useState<PostView[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
-    const [hasUpdate, setHasUpdate] = useState<boolean>(false)
+    const [, setHasUpdate] = useState<boolean>(false)
     const [loadMoreFeed, setLoadMoreFeed] = useState<boolean>(true)
     const [cursorState, setCursorState] = useState<string>()
     const [isEndOfFeed, setIsEndOfFeed] = useState<boolean>(false) // TODO: should be implemented.
@@ -61,7 +64,7 @@ const SearchPostPage = ({
     const shouldCheckUpdate = useRef<boolean>(false)
     const [scrollIndex, setScrollIndex] = useState<number>(0)
 
-    const virtuosoRef = useRef(null)
+    const virtuosoRef = useRef<VirtuosoHandle | null>(null)
     const [scrollPositions, setScrollPositions] = useScrollPositions()
     const feedKey = `Posts`
     const pageName = "search"
@@ -97,7 +100,7 @@ const SearchPostPage = ({
                     queryKey: ["getSearch", feedKey],
                 })
             }
-            refetch()
+            void refetch()
         }
     }, [searchParams])
 
@@ -116,28 +119,6 @@ const SearchPostPage = ({
             setLoadMoreFeed(true)
         }
     }, [hasMore])
-
-    const filterPosts = (posts: PostView[]) => {
-        return posts.filter((post) => {
-            const shouldInclude = muteWords.some((muteWord) => {
-                if (post?.embed?.record) {
-                    const embedRecord = post.embed.record
-                    if (muteWord.isActive) {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        return embedRecord?.value?.text.includes(muteWord.word)
-                    } else {
-                        return false
-                    }
-                } else {
-                    // @ts-ignore
-                    return post.record?.text.includes(muteWord.word)
-                }
-            })
-
-            return !shouldInclude
-        })
-    }
 
     const checkNewTimeline = async () => {
         if (!agent) return
@@ -159,19 +140,13 @@ const SearchPostPage = ({
                     userProfileDetailed,
                     agent
                 )
-                //@ts-ignore
-                const muteWordFilter = filterPosts(filteredData)
-
+                const muteWordFilter = useFilterPosts(
+                    filteredData,
+                    muteWords
+                ) as PostView[]
                 setNewTimeline(muteWordFilter)
 
                 if (muteWordFilter.length > 0) {
-                    console.log(
-                        "new and old cid",
-                        feedKey,
-                        muteWordFilter[0].cid,
-                        latestCID.current
-                    )
-
                     if (
                         muteWordFilter[0].cid !== latestCID.current &&
                         latestCID.current !== ""
@@ -213,28 +188,6 @@ const SearchPostPage = ({
 
     const queryClient = useQueryClient()
 
-    const handleRefresh = async () => {
-        shouldScrollToTop.current = true
-
-        const mergedTimeline = mergePosts(newTimeline, timeline)
-
-        if (!mergedTimeline[0]) return
-        //@ts-ignore
-        setTimeline(mergedTimeline)
-        setNewTimeline([])
-        setHasUpdate(false)
-
-        if (mergedTimeline.length > 0) {
-            latestCID.current = (mergedTimeline[0] as PostView).cid
-        }
-
-        await queryClient.refetchQueries({
-            queryKey: ["getFeed", feedKey],
-        })
-
-        shouldCheckUpdate.current = true
-    }
-
     const handleFetchResponse = (response: FeedResponseObject) => {
         if (response) {
             const { posts, cursor } = response
@@ -248,19 +201,21 @@ const SearchPostPage = ({
                 userProfileDetailed,
                 agent
             )
-            //@ts-ignore
-            const muteWordFilter = filterPosts(filteredData)
+            const muteWordFilter = useFilterPosts(
+                filteredData,
+                muteWords
+            ) as PostView[]
 
             console.log("filteredData", filteredData)
             console.log("muteWordFilter", muteWordFilter)
 
             if (timeline === null) {
                 if (muteWordFilter.length > 0) {
-                    latestCID.current = muteWordFilter[0].cid
+                    latestCID.current = muteWordFilter[0].cid as string
                 }
             }
 
-            setTimeline((currentTimeline) => {
+            setTimeline((currentTimeline: PostView[] | null) => {
                 if (currentTimeline !== null) {
                     return [...currentTimeline, ...muteWordFilter]
                 } else {
@@ -295,7 +250,7 @@ const SearchPostPage = ({
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_key, feedKey] = queryKey
+        const [_key] = queryKey
 
         const response = await agent.app.bsky.feed.searchPosts({
             q: searchTextRef.current,
@@ -323,7 +278,7 @@ const SearchPostPage = ({
         refetchOnReconnect: false,
     })
 
-    const handleValueChange = (newValue: any) => {
+    const handleValueChange = (newValue: reactionJson) => {
         if (!timeline) return
         const foundObject = timeline.findIndex(
             (item) => item.uri === newValue.postUri
@@ -390,9 +345,7 @@ const SearchPostPage = ({
                         updatedData.splice(foundObject, 1)
                         return updatedData
                     })
-                //timeline.splice(foundObject, 1)
             }
-            // console.log(timeline)
         } else {
             console.log(
                 "指定されたURIを持つオブジェクトは見つかりませんでした。"
@@ -400,24 +353,14 @@ const SearchPostPage = ({
         }
     }
 
-    const handleSaveScrollPosition = () => {
-        console.log("save")
-        if (!isActive) return
-        //@ts-ignore
-        virtuosoRef?.current?.getState((state) => {
-            console.log(state)
-            if (
-                state.scrollTop !==
-                //@ts-ignore
-                scrollPositions[`${pageName}-${feedKey}`]?.scrollTop
-            ) {
-                const updatedScrollPositions = { ...scrollPositions }
-                //@ts-ignore
-                updatedScrollPositions[`${pageName}-${feedKey}`] = state
-                setScrollPositions(updatedScrollPositions)
-            }
-        })
-    }
+    const handleSaveScrollPosition = useSaveScrollPosition(
+        isActive,
+        virtuosoRef,
+        pageName,
+        feedKey,
+        scrollPositions,
+        setScrollPositions
+    )
 
     if (data !== undefined && !isEndOfFeed) {
         handleFetchResponse(data)
@@ -434,7 +377,6 @@ const SearchPostPage = ({
                 }}
                 ref={virtuosoRef}
                 restoreStateFrom={
-                    //@ts-ignore
                     scrollPositions[`search-posts-${searchTextRef.current}`]
                 }
                 rangeChanged={(range) => {
@@ -486,4 +428,4 @@ const SearchPostPage = ({
         </div>
     )
 }
-export default SearchPostPage
+export default memo(SearchPostPage)

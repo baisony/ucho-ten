@@ -4,9 +4,9 @@ import {
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 
 export const mergePosts = (
-    newPosts: FeedViewPost[] | PostView[] | null,
-    posts: FeedViewPost[] | PostView[] | null
-): FeedViewPost[] | PostView[] => {
+    newPosts: (FeedViewPost | PostView)[] | null,
+    posts: (FeedViewPost | PostView)[] | null
+): (FeedViewPost | PostView)[] => {
     if (newPosts === null) {
         return posts || []
     }
@@ -18,15 +18,13 @@ export const mergePosts = (
     const urisSet = new Set<string>()
     const allPosts = [...newPosts, ...posts]
 
-    let mergedPosts: FeedViewPost[] | PostView[] = []
+    let mergedPosts: (FeedViewPost | PostView)[] = []
 
     for (const post of allPosts) {
-        console.log(typeof post)
         if (post?.post) {
             if (urisSet.has((post.post as PostView).uri)) {
                 continue
             }
-            //@ts-ignore
             mergedPosts = [...mergedPosts, post]
 
             urisSet.add((post.post as PostView).uri)
@@ -34,7 +32,6 @@ export const mergePosts = (
             if (urisSet.has((post as PostView).uri)) {
                 continue
             }
-            //@ts-ignore
             mergedPosts = [...mergedPosts, post]
 
             urisSet.add((post as PostView).uri)

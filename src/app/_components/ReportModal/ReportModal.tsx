@@ -10,13 +10,15 @@ import {
     Spinner,
     Textarea,
 } from "@nextui-org/react"
-import { useState } from "react"
+import { memo, useState } from "react"
 import { useAgent } from "@/app/_atoms/agent"
 import { ViewQuoteCard } from "@/app/_components/ViewQuoteCard"
 import type { ComAtprotoModerationCreateReport } from "@atproto/api"
 import { useTranslation } from "react-i18next"
 import { reportModalStyle } from "@/app/_components/ReportModal/styles"
 import { isMobile } from "react-device-detect"
+import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 /**
  * SetttingsModal props.
@@ -24,20 +26,20 @@ import { isMobile } from "react-device-detect"
 export type ReportModalProps = {
     postUri?: string
     postCid?: string
-    profile?: any
+    profile?: ProfileViewDetailed | null
     isOpen?: boolean
     onOpenChange?: (open: boolean) => void
     placement?: "top" | "center"
     className?: string
     target: "post" | "account"
-    post?: any
+    post?: PostView | null
     nextQueryParams: URLSearchParams
 }
 
 /**
  * SetttingsModal component.
  */
-export const ReportModal = (props: ReportModalProps) => {
+export const ReportModal = memo((props: ReportModalProps) => {
     const {
         postUri,
         postCid,
@@ -110,7 +112,7 @@ export const ReportModal = (props: ReportModalProps) => {
             setIsReportSending(false)
             console.log(report)
             return report
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.log(e)
             setIsReportSending(false)
             return undefined
@@ -118,8 +120,6 @@ export const ReportModal = (props: ReportModalProps) => {
     }
 
     const handleSendButtonPush = async () => {
-        //console.log(reportReasonText)
-        //console.log(reportReasonType)
         const result = await submitReport()
         if (result?.success) {
             setIsReportSuccess(true)
@@ -291,4 +291,4 @@ export const ReportModal = (props: ReportModalProps) => {
             </ModalContent>
         </Modal>
     )
-}
+})

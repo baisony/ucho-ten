@@ -10,8 +10,7 @@ import {
     useMenuIndexChangedByMenu,
 } from "@/app/_atoms/headerMenu"
 import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
-import { SwiperEmptySlide } from "@/app/_components/SwiperEmptySlide"
-import { HEADER_MENUS } from "@/app/_constants/headerMenus"
+import { HEADER_MENUS, HeaderMenuType } from "@/app/_constants/headerMenus"
 import "swiper/css"
 import "swiper/css/pagination"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
@@ -19,7 +18,7 @@ import { SwiperContainer } from "@/app/_components/SwiperContainer"
 const NOW_COUNT_UP_INTERVAL: number = 10 * 1000
 
 interface SwiperPageProps {
-    page: string
+    page: HeaderMenuType
 }
 
 export const SwiperPage = memo((props: SwiperPageProps) => {
@@ -30,13 +29,11 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
     const [, setMenuIndexChangedByMenu] = useMenuIndexChangedByMenu()
     const [tappedTabbarButton] = useTappedTabbarButtonAtom()
 
-    const [now, setNow] = useState<Date>(new Date())
-    const [disableSlideVerticalScroll] = useState<boolean>(false)
+    //const [now, setNow] = useState<Date>(new Date())
+    //const [disableSlideVerticalScroll] = useState<boolean>(false)
 
     useLayoutEffect(() => {
-        //@ts-ignore
         if (HEADER_MENUS[page] === undefined) return
-        //@ts-ignore
         setCurrentMenuType(`${page}`)
     }, [])
 
@@ -47,7 +44,7 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
         }
     }, [tappedTabbarButton])
 
-    useEffect(() => {
+    /*useEffect(() => {
         const intervalId = setInterval(() => {
             setNow(new Date())
         }, NOW_COUNT_UP_INTERVAL)
@@ -55,15 +52,13 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
         return () => {
             clearInterval(intervalId)
         }
-    }, [])
+    }, [])*/
+
+    console.log("SwiperPage")
 
     return (
         <>
-            <SwiperContainer
-                //@ts-ignore
-                props={{ page: page }}
-            >
-                {/*//@ts-ignore*/}
+            <SwiperContainer props={{ page: page }}>
                 {menus[page].map((menu: HeaderMenu, index: number) => {
                     return (
                         <>
@@ -79,22 +74,14 @@ export const SwiperPage = memo((props: SwiperPageProps) => {
                                     <FeedPage
                                         {...{
                                             isActive: index === menuIndex,
-                                            isNextActive:
-                                                index === menuIndex + 1,
                                             feedKey: menu.info,
                                             pageName: page,
-                                            disableSlideVerticalScroll,
-                                            now,
+                                            //disableSlideVerticalScroll,
+                                            //now,
                                         }}
                                     />
                                 </div>
                             </SwiperSlide>
-                            {/*//@ts-ignore*/}
-                            {menus[page].length === 1 && (
-                                <SwiperSlide key={1}>
-                                    <SwiperEmptySlide />
-                                </SwiperSlide>
-                            )}
                         </>
                     )
                 })}

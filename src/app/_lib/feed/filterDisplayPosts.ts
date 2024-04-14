@@ -1,6 +1,7 @@
 import {
     AppBskyActorDefs,
-    AppBskyFeedPost,
+    AppBskyFeedDefs,
+    AppBskyRichtextFacet,
     AtUri,
     BskyAgent,
 } from "@atproto/api"
@@ -10,6 +11,7 @@ import {
     ReplyRef,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
 import { getDIDfromAtURI } from "../strings/getDIDfromAtURI"
+import { Record } from "@atproto/api/dist/client/types/app/bsky/feed/post"
 
 const handleHideRepost = (
     item: FeedViewPost | PostView,
@@ -21,48 +23,44 @@ const handleHideRepost = (
 const handleFrontMention = (post: PostView) => {
     if (
         ((post.record as PostView)?.text as string)?.startsWith("@") &&
-        (post.record as PostView)?.facets
+        (post.record as Record)?.facets
     ) {
-        //@ts-ignore
-        post.record.facets.map((facet: any) => {
-            if (facet.index.byteStart == 0) {
-                return true
+        ;(post?.record as Record)?.facets?.map(
+            (facet: AppBskyRichtextFacet.Main) => {
+                if (facet.index.byteStart == 0) {
+                    return true
+                }
             }
-        })
+        )
     }
     return false
 }
 
 export const filterDisplayPosts = (
-    posts: FeedViewPost[] | PostView[],
+    posts: (FeedViewPost | PostView)[],
     sessionUser: AppBskyActorDefs.ProfileViewDetailed | null,
     agent: BskyAgent | null,
     hideRepost?: boolean
-): FeedViewPost[] | PostView[] => {
+): (FeedViewPost | PostView)[] => {
     const seenUris = new Set<string>()
-    //@ts-ignore
     return posts.filter((item) => {
-        //@ts-ignore
-        const postData: PostView = item.post ?? item
-        const uri = postData.uri
-        const authorDID = postData.author?.did
+        const postData = item?.post ?? item
+        const post: PostView = postData as PostView
+        const uri = post?.uri
+        const authorDID = post.author?.did
 
         let displayPost: boolean | null = null
 
-        if (
-            handleHideRepost(item, hideRepost) ||
-            handleFrontMention(postData)
-        ) {
+        if (handleHideRepost(item, hideRepost) || handleFrontMention(post)) {
             return false
         }
 
         if (
             (item?.post as PostView)?.record &&
-            (postData.record as PostView)?.reply &&
+            (post.record as PostView)?.reply &&
             !item.reply
         ) {
-            const replyParent = ((postData.record as PostView).reply as any)
-                ?.parent
+            const replyParent = (post.record as Record).reply?.parent
 
             if (replyParent && !item.reply) {
                 const did = new AtUri(replyParent.uri).hostname
@@ -73,7 +71,7 @@ export const filterDisplayPosts = (
                             author: sessionUser,
                         },
                         isFakeArray: true,
-                    } as any
+                    }
                 } else {
                     if (!agent) return
                     item.reply = {
@@ -84,16 +82,18 @@ export const filterDisplayPosts = (
                             },
                         },
                         isFakeArray: true,
-                    } as any
+                    }
                 }
             }
         }
 
-        if (item?.reply && !(item?.reply as ReplyRef)?.isFakeArray) {
-            const rootDID = ((item.reply as ReplyRef).root as PostView).author
-                .did
-            const parentDID = ((item.reply as ReplyRef).parent as PostView)
-                .author.did
+        if (
+            item?.reply &&
+            AppBskyFeedDefs.isReplyRef(item?.reply) &&
+            !(item?.reply as ReplyRef)?.isFakeArray
+        ) {
+            const rootDID = (item.reply.root as PostView).author.did
+            const parentDID = (item.reply.parent as PostView).author.did
 
             if (item.reason) {
                 // repost
@@ -107,9 +107,9 @@ export const filterDisplayPosts = (
             } else displayPost = authorDID === sessionUser?.did
         }
 
-        const record = postData.record as AppBskyFeedPost.Record
+        const record = post.record as Record
 
-        if (record.reply) {
+        if (record?.reply) {
             const rootDID = getDIDfromAtURI(record.reply.root.uri)
             const parentDID = getDIDfromAtURI(record.reply.parent.uri)
 

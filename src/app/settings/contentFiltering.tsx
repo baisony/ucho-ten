@@ -1,14 +1,15 @@
 import { useUserPreferencesAtom } from "@/app/_atoms/preferences"
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 import { DummyHeader } from "@/app/_components/DummyHeader"
 import { Button, ButtonGroup, Switch } from "@nextui-org/react"
-import { BskyAgent, BskyLabelPreference } from "@atproto/api"
+import { BskyAgent, BskyLabelPreference, BskyPreferences } from "@atproto/api"
+import { TFunction } from "i18next"
 
 interface SettingsContentFilteringPageProps {
-    t: any
+    t: TFunction
     nextQueryParams: URLSearchParams
     agent: BskyAgent | null
-    userPreferences: any
+    userPreferences: BskyPreferences | null
 }
 
 export const SettingsContentFilteringPage = ({
@@ -22,7 +23,10 @@ export const SettingsContentFilteringPage = ({
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [isAdultContentEnabled] = useState(false)
 
-    const handleButtonClick = async (key: any, value: BskyLabelPreference) => {
+    const handleButtonClick = async (
+        key: string,
+        value: BskyLabelPreference
+    ) => {
         if (isLoading) return
         setIsLoading(true)
         // ここでボタンの状態を更新
@@ -40,7 +44,9 @@ export const SettingsContentFilteringPage = ({
         setIsLoading(false)
     }
 
-    const handleAdultContentEnabledChange = async (e: any) => {
+    const handleAdultContentEnabledChange = async (
+        e: ChangeEvent<HTMLInputElement>
+    ) => {
         if (isLoading) return
         setIsLoading(true)
         const newAdultContentEnabled = e.target.checked
