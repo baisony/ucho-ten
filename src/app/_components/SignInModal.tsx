@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import {
     Button,
     Input,
@@ -261,4 +261,4 @@ const SignInModal = (props: SignInModalProps) => {
     )
 }
 
-export default SignInModal
+export default memo(SignInModal)

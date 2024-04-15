@@ -1,6 +1,14 @@
 "use client"
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+    memo,
+    MutableRefObject,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import Image from "next/image"
 import { viewHeader } from "./styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -36,7 +44,7 @@ interface Props {
     open?: boolean
     isNextPage?: boolean
     setSideBarOpen?: (v: boolean) => void
-    setSearchText?: (v: string) => void
+    setSearchText?: MutableRefObject<string | undefined>
 }
 
 export const ViewHeader: React.FC<Props> = memo((props: Props) => {
@@ -202,8 +210,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                             value={searchText}
                             autoFocus={true}
                             onChange={(e) => {
-                                if (!props.setSearchText) return
-                                props.setSearchText(e.target.value)
+                                setSearchText(e.target.value)
                             }}
                             placeholder={t("components.ViewHeader.search")}
                             onKeyDown={(e) => {
@@ -254,7 +261,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                                 onClick={() => {
                                     if (!props.setSearchText) return
                                     setSearchText("")
-                                    props.setSearchText("")
+                                    props.setSearchText.current = ""
                                 }}
                             >
                                 <FontAwesomeIcon

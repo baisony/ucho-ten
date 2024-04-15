@@ -314,41 +314,41 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         void navigator.clipboard.writeText(object)
     }
 
-    const handleMenuClickCopyURL = () => {
+    const handleMenuClickCopyURL = useCallback(() => {
         if (!postJsonData) return
         const urlToCopy = `https://bsky.app/profile/${
             postJsonData.author.did
         }/post/${postJsonData.uri.match(/\/(\w+)$/)?.[1] || ""}`
 
         handleCopy(urlToCopy)
-    }
+    }, [])
 
-    const handleMenuClickCopyATURI = () => {
+    const handleMenuClickCopyATURI = useCallback(() => {
         if (!postJsonData) return
         handleCopy(postJsonData.uri)
-    }
+    }, [])
 
-    const handleMenuClickCopyDID = () => {
+    const handleMenuClickCopyDID = useCallback(() => {
         if (!postJsonData) return
         handleCopy(postJsonData.author.did)
-    }
+    }, [])
 
-    const handleMenuClickCopyJSON = () => {
+    const handleMenuClickCopyJSON = useCallback(() => {
         handleCopy(JSON.stringify(postJson))
-    }
+    }, [])
 
-    const handleMenuClickReport = () => {
+    const handleMenuClickReport = useCallback(() => {
         onOpenReport()
-    }
+    }, [])
 
-    const handleMenuClickDelete = () => {
+    const handleMenuClickDelete = useCallback(() => {
         void handleDelete()
-    }
+    }, [])
 
-    const handleChangeSaveScrollPosition = () => {
+    const handleChangeSaveScrollPosition = useCallback(() => {
         if (!handleSaveScrollPosition) return
         handleSaveScrollPosition()
-    }
+    }, [])
 
     const {
         viewTranslatedText,

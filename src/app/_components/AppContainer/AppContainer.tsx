@@ -8,6 +8,7 @@ import React, {
     useCallback,
     useEffect,
     useLayoutEffect,
+    useRef,
     useState,
 } from "react"
 import { layout } from "@/app/styles"
@@ -35,7 +36,6 @@ import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
 import { useAccounts } from "@/app/_atoms/accounts"
-import useCheckNewNotification from "@/app/_components/AppContainer/lib/useCheckNewNotification"
 import useGetSettings from "@/app/_components/AppContainer/lib/useGetSettings"
 import useRefreshSession from "@/app/_components/AppContainer/lib/useRefreshSession"
 import { useShouldFillPageBackground } from "@/app/_components/AppContainer/lib/useShouldFillPageBackground"
@@ -89,7 +89,8 @@ export const AppContainer = memo(
         const [, setUnreadNotification] = useUnreadNotificationAtom()
 
         const target = searchParams.get("target")
-        const [searchText, setSearchText] = useState<string>("")
+        //const [searchText, setSearchText] = useState<string>("")
+        const searchText = useRef<string | undefined>()
         const specificPaths = ["/post", "/", "/login"]
         const isMatchingPath = specificPaths.includes(pathName)
         const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
@@ -166,13 +167,13 @@ export const AppContainer = memo(
         )
 
         useEffect(() => {
-            if (searchText === "" || !searchText) return
+            if (searchText.current === "" || !searchText.current) return
             const queryParams = new URLSearchParams(nextQueryParams)
-            queryParams.set("word", searchText)
+            queryParams.set("word", searchText.current)
             queryParams.set("target", target || "posts")
 
             router.push(`/search?${queryParams.toString()}`)
-        }, [searchText])
+        }, [searchText.current])
 
         useEffect(() => {
             setShowTabBar(!specificPaths.includes(pathName))
@@ -340,7 +341,7 @@ export const AppContainer = memo(
                                         <ViewHeader
                                             isMobile={isMobile}
                                             setSideBarOpen={handleSideBarOpen}
-                                            setSearchText={setSearchText}
+                                            setSearchText={searchText}
                                         />
                                     )}
                                     <div

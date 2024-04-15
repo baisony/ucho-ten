@@ -12,6 +12,7 @@ import { useAccounts, UserAccountByDid } from "../_atoms/accounts"
 import { useAgent } from "../_atoms/agent"
 import { useQueryClient } from "@tanstack/react-query"
 import { useUserProfileDetailedAtom } from "@/app/_atoms/userProfileDetail"
+import { memo } from "react"
 
 // TODO: Move this to style.ts --
 export const signInModal = tv({
@@ -111,4 +112,4 @@ const SignOutModal = (props: SignOutModalProps) => {
     )
 }
 
-export default SignOutModal
+export default memo(SignOutModal)
