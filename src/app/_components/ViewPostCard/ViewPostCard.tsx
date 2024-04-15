@@ -572,7 +572,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                             onClickDelete={
                                                 handleMenuClickDelete
                                             }
-                                            t={t}
                                         />
                                     )}
                             </div>
@@ -860,5 +859,3 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         </>
     )
 })
-
-export default ViewPostCard

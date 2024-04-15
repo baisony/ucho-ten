@@ -407,11 +407,10 @@ const SearchPostPage = ({
                                     handleValueChange: handleValueChange,
                                     handleSaveScrollPosition:
                                         handleSaveScrollPosition,
-                                    zenMode,
                                 }}
                             />
                         ) : (
-                            <ViewPostCardSkelton zenMode />
+                            <ViewPostCardSkelton />
                         )}
                     </>
                 )}

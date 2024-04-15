@@ -1,12 +1,10 @@
 import { viewPostCard } from "./styles"
 import { Skeleton } from "@nextui-org/react"
 import { memo } from "react"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
-interface Props {
-    zenMode?: boolean
-}
-
-export const ViewPostCardSkelton = memo((props: Props) => {
+export const ViewPostCardSkelton = memo(() => {
+    const [zenMode] = useZenMode()
     const getRandomNumber = () => Math.floor(Math.random() * 2)
     const {
         PostCard,
@@ -29,7 +27,7 @@ export const ViewPostCardSkelton = memo((props: Props) => {
                         <span className={"flex items-center"}>
                             <span
                                 className={PostAuthorIcon({
-                                    zenMode: props.zenMode,
+                                    zenMode: zenMode,
                                 })}
                             >
                                 <Skeleton className={skeletonIcon()} />
@@ -42,7 +40,7 @@ export const ViewPostCardSkelton = memo((props: Props) => {
                             </span>
                         </span>
                     </div>
-                    <div className={PostContent({ zenMode: props.zenMode })}>
+                    <div className={PostContent({ zenMode: zenMode })}>
                         <div className="w-full flex flex-col gap-2">
                             <Skeleton className={skeletonText1line()} />
                             <Skeleton className={skeletonText2line()} />

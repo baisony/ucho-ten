@@ -411,17 +411,15 @@ const FeedPage = ({
                                             postJson: item.post || null,
                                             json: item,
                                             nextQueryParams,
-                                            t,
                                             handleValueChange:
                                                 handleValueChange,
                                             handleSaveScrollPosition:
                                                 handleSaveScrollPosition,
                                             isViaUFeed: isViaUFeed,
-                                            zenMode: zenMode,
                                         }}
                                     />
                                 ) : (
-                                    <ViewPostCardSkelton zenMode={zenMode} />
+                                    <ViewPostCardSkelton />
                                 )}
                             </>
                         )}

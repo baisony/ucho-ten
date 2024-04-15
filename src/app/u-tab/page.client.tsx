@@ -142,8 +142,6 @@ const Root = () => {
                                             postJson={randomPost}
                                             isMobile={isMobile}
                                             nextQueryParams={nextQueryParams}
-                                            t={t}
-                                            zenMode={false}
                                         />
                                     </>
                                 )}
