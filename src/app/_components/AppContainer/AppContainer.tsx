@@ -8,6 +8,7 @@ import React, {
     useCallback,
     useEffect,
     useLayoutEffect,
+    useRef,
     useState,
 } from "react"
 import { layout } from "@/app/styles"
@@ -35,7 +36,6 @@ import { ViewHeader } from "@/app/_components/ViewHeader"
 import ViewSideBar from "@/app/_components/ViewSideBar/ViewSideBar"
 import { ViewFillPageBackground } from "@/app/_components/ViewFillPageBackground"
 import { useAccounts } from "@/app/_atoms/accounts"
-import useCheckNewNotification from "@/app/_components/AppContainer/lib/useCheckNewNotification"
 import useGetSettings from "@/app/_components/AppContainer/lib/useGetSettings"
 import useRefreshSession from "@/app/_components/AppContainer/lib/useRefreshSession"
 import { useShouldFillPageBackground } from "@/app/_components/AppContainer/lib/useShouldFillPageBackground"
@@ -89,11 +89,16 @@ export const AppContainer = memo(
         const [, setUnreadNotification] = useUnreadNotificationAtom()
 
         const target = searchParams.get("target")
-        const [searchText, setSearchText] = useState<string>("")
+        //const [searchText, setSearchText] = useState<string>("")
+        const searchText = useRef<string | undefined>()
         const specificPaths = ["/post", "/", "/login"]
         const isMatchingPath = specificPaths.includes(pathName)
         const [showTabBar, setShowTabBar] = useState<boolean>(!isMatchingPath)
         const [drawerOpen, setDrawerOpen] = useState<boolean>(false)
+
+        useEffect(() => {
+            console.log("AppContainer useEffect")
+        }, [children])
 
         const { background } = layout()
 
@@ -122,34 +127,37 @@ export const AppContainer = memo(
 
         useKeyboardShortcuts(router, pathName, nextQueryParams, isMobile)
 
-        const updateMenuWithFeedGenerators = (feeds: GeneratorView[]) => {
-            if (feeds.length === 0) {
-                return
-            }
-            const newHeaderMenusByHeader = headerMenusByHeader
-            const menus: HeaderMenu[] = feeds.map((feed) => {
-                return {
-                    displayText: feed.displayName,
-                    info: feed.uri,
+        const updateMenuWithFeedGenerators = useCallback(
+            (feeds: GeneratorView[]) => {
+                if (feeds.length === 0) {
+                    return
                 }
-            })
-
-            const hoge = localStorage.getItem("zenMode")
-            console.log(hoge)
-            if (!hoge || hoge === "false") {
-                menus.unshift({
-                    displayText: "Following",
-                    info: "following",
+                const newHeaderMenusByHeader = headerMenusByHeader
+                const menus: HeaderMenu[] = feeds.map((feed) => {
+                    return {
+                        displayText: feed.displayName,
+                        info: feed.uri,
+                    }
                 })
-            }
 
-            newHeaderMenusByHeader.home = menus
+                const hoge = localStorage.getItem("zenMode")
+                console.log(hoge)
+                if (!hoge || hoge === "false") {
+                    menus.unshift({
+                        displayText: "Following",
+                        info: "following",
+                    })
+                }
 
-            setHeaderMenusByHeader((prevHeaderMenus) => ({
-                ...prevHeaderMenus,
-                home: menus,
-            }))
-        }
+                newHeaderMenusByHeader.home = menus
+
+                setHeaderMenusByHeader((prevHeaderMenus) => ({
+                    ...prevHeaderMenus,
+                    home: menus,
+                }))
+            },
+            []
+        )
 
         useRestoreSession(
             agent,
@@ -166,13 +174,13 @@ export const AppContainer = memo(
         )
 
         useEffect(() => {
-            if (searchText === "" || !searchText) return
+            if (searchText.current === "" || !searchText.current) return
             const queryParams = new URLSearchParams(nextQueryParams)
-            queryParams.set("word", searchText)
+            queryParams.set("word", searchText.current)
             queryParams.set("target", target || "posts")
 
             router.push(`/search?${queryParams.toString()}`)
-        }, [searchText])
+        }, [searchText.current])
 
         useEffect(() => {
             setShowTabBar(!specificPaths.includes(pathName))
@@ -304,7 +312,6 @@ export const AppContainer = memo(
                         <ViewSideBar
                             isSideBarOpen={drawerOpen}
                             openSideBar={handleSideBarOpen}
-                            isMobile={isMobile}
                         />
                     </BurgerPush>
                     <main
@@ -338,9 +345,8 @@ export const AppContainer = memo(
                                 >
                                     {(pathName === "/login" || showTabBar) && (
                                         <ViewHeader
-                                            isMobile={isMobile}
                                             setSideBarOpen={handleSideBarOpen}
-                                            setSearchText={setSearchText}
+                                            setSearchText={searchText}
                                         />
                                     )}
                                     <div

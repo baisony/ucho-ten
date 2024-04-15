@@ -163,6 +163,8 @@ const FeedPage = ({
             latestCID.current = (mergedTimeline[0].post as PostView).cid
         }
 
+        console.log(feedKey)
+
         await queryClient.refetchQueries({
             queryKey: ["getFeed", feedKey],
         })
@@ -217,46 +219,43 @@ const FeedPage = ({
         hasMore.current = cursorState.current !== ""
     }, [])
 
-    const getTimelineFetcher = useCallback(
-        async ({
-            queryKey,
-        }: QueryFunctionContext<
-            ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
-        >): Promise<FeedResponseObject> => {
-            // console.log("getTimelineFetcher: >>")
+    const getTimelineFetcher = async ({
+        queryKey,
+    }: QueryFunctionContext<
+        ReturnType<(typeof getFeedKeys)["feedkeyWithCursor"]>
+    >): Promise<FeedResponseObject> => {
+        // console.log("getTimelineFetcher: >>")
 
-            if (!agent) throw new Error("Agent does not exist")
+        if (!agent) throw new Error("Agent does not exist")
 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [_key, feedKey] = queryKey
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [_key, feedKey] = queryKey
 
-            if (feedKey === "following") {
-                const response = await agent.getTimeline({
-                    cursor: cursorState.current || "",
-                    limit: FEED_FETCH_LIMIT,
-                })
+        if (feedKey === "following") {
+            const response = await agent.getTimeline({
+                cursor: cursorState.current || "",
+                limit: FEED_FETCH_LIMIT,
+            })
 
-                console.log(response.data.feed)
+            console.log(response.data.feed)
 
-                return {
-                    posts: response.data.feed,
-                    cursor: response.data.cursor || "",
-                }
-            } else {
-                const response = await agent.app.bsky.feed.getFeed({
-                    feed: feedKey,
-                    cursor: cursorState.current || "",
-                    limit: FEED_FETCH_LIMIT,
-                })
-
-                return {
-                    posts: response.data.feed,
-                    cursor: response.data.cursor || "",
-                }
+            return {
+                posts: response.data.feed,
+                cursor: response.data.cursor || "",
             }
-        },
-        []
-    )
+        } else {
+            const response = await agent.app.bsky.feed.getFeed({
+                feed: feedKey,
+                cursor: cursorState.current || "",
+                limit: FEED_FETCH_LIMIT,
+            })
+
+            return {
+                posts: response.data.feed,
+                cursor: response.data.cursor || "",
+            }
+        }
+    }
 
     const { data /*isLoading, isError*/ } = useQuery({
         queryKey: getFeedKeys.feedkeyWithCursor(

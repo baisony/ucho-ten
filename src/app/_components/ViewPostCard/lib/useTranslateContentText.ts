@@ -1,5 +1,5 @@
 // useTranslateContentText.ts
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { translateText } from "@/app/_lib/post/translate"
 import { useTranslationLanguage } from "@/app/_atoms/translationLanguage"
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs"
@@ -14,12 +14,12 @@ const useTranslateContentText = (
         useState<PostView | null>(null)
     const isTranslated = useRef(false)
 
-    const translateContentText = async () => {
+    const translateContentText = useCallback(async () => {
         isTranslated.current = true
         setViewTranslatedText(true)
         const res = await translateText(translateTo, postJson, postView)
         setTranslatedJsonData(res)
-    }
+    }, [])
 
     return {
         viewTranslatedText,

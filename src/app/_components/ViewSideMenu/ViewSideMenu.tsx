@@ -1,4 +1,4 @@
-import { memo, useState } from "react"
+import { memo, useRef } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark"
 import { faInbox } from "@fortawesome/free-solid-svg-icons/faInbox"
@@ -53,9 +53,7 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
     const accountSwitchModalDisclosure = useDisclosure({ id: "account_switch" })
     const signOutModalDisclosure = useDisclosure({ id: "sign_out" })
 
-    const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(
-        null
-    )
+    const selectedAccount = useRef<UserAccount | null>(null)
     const [highlightedTab, sethighlightedTab] = useHighlightedTab()
     const [tappedTabbarButton, setTappedTabbarButton] =
         useTappedTabbarButtonAtom()
@@ -305,7 +303,7 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
             <SignInModal
                 isOpen={signInModalDisclosure.isOpen}
                 onOpenChange={signInModalDisclosure.onOpenChange}
-                selectedAccount={selectedAccount}
+                selectedAccount={selectedAccount.current}
                 // handleSideBarOpen={openSideBar}
                 //handleDeleteSession={handleDeleteSession}
             />
@@ -317,11 +315,11 @@ export const ViewSideMenu: React.FC<Props> = memo(() => {
                 isOpen={accountSwitchModalDisclosure.isOpen}
                 onOpenChange={accountSwitchModalDisclosure.onOpenChange}
                 handleClickAddAccount={() => {
-                    setSelectedAccount(null)
+                    selectedAccount.current = null
                     signInModalDisclosure.onOpen()
                 }}
                 handleClickNeedLogin={(account: UserAccount) => {
-                    setSelectedAccount(account)
+                    selectedAccount.current = account
                     signInModalDisclosure.onOpen()
                 }}
             />
