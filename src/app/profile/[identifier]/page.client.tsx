@@ -386,9 +386,7 @@ const PostPage = (props: PostPageProps) => {
                         postJson: post.post,
                         json: post,
                         nextQueryParams,
-                        t,
                         handleSaveScrollPosition: handleSaveScrollPosition,
-                        zenMode: props.zenMode,
                     }
 
                     return {
@@ -407,9 +405,7 @@ const PostPage = (props: PostPageProps) => {
                     isMobile,
                     bodyText: undefined,
                     nextQueryParams,
-                    t,
                     handleSaveScrollPosition: handleSaveScrollPosition,
-                    zenMode,
                 }
 
                 return {
@@ -478,7 +474,7 @@ const UserProfilePageCell = (props: UserProfilePageCellProps) => {
     }
 
     if (postProps) {
-        if (postProps.isSkeleton) return <ViewPostCardSkelton zenMode />
+        if (postProps.isSkeleton) return <ViewPostCardSkelton />
         return <ViewPostCard {...postProps} />
     }
 }

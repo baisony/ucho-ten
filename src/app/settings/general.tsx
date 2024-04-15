@@ -530,14 +530,12 @@ export const SettingsGeneralPage = ({
                         style={{ pointerEvents: "none" }}
                     >
                         <ViewPostCard
-                            t={t}
                             bodyText={processPostBodyText(
                                 nextQueryParams,
                                 testJson
                             )}
                             postJson={testJson}
                             nextQueryParams={nextQueryParams}
-                            zenMode
                         />
                     </div>
                 </div>
