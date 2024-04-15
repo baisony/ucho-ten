@@ -398,10 +398,8 @@ export default function Root() {
                     bodyText: processPostBodyText(nextQueryParams, post.post),
                     postJson: post.post,
                     nextQueryParams,
-                    t,
                     handleValueChange: handleValueChange,
                     handleSaveScrollPosition: handleSaveScrollPosition,
-                    zenMode,
                 }
 
                 return {
@@ -419,8 +417,6 @@ export default function Root() {
                     isMobile,
                     bodyText: undefined,
                     nextQueryParams,
-                    t,
-                    zenMode,
                 }
 
                 return {

@@ -220,13 +220,10 @@ export default function Root() {
                                                                     handleValueChange,
                                                                 handleSaveScrollPosition:
                                                                     handleSaveScrollPosition,
-                                                                zenMode,
                                                             }}
                                                         />
                                                     ) : (
-                                                        <ViewPostCardSkelton
-                                                            zenMode={zenMode}
-                                                        />
+                                                        <ViewPostCardSkelton />
                                                     )}
                                                 </>
                                             )}

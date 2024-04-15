@@ -40,7 +40,6 @@ import "swiper/css"
 import "swiper/css/pagination"
 import ViewPostCardSkelton from "@/app/_components/ViewPostCard/ViewPostCardSkelton"
 import { SwiperContainer } from "@/app/_components/SwiperContainer"
-import { useZenMode } from "@/app/_atoms/zenMode"
 import { ScrollToTopButton } from "@/app/_components/ScrollToTopButton"
 import { useSaveScrollPosition } from "@/app/_components/FeedPage/hooks/useSaveScrollPosition"
 import { reactionJson } from "@/app/_types/types"
@@ -80,7 +79,6 @@ export default function FeedPage() {
     const scrollIndex = useRef<number>(0)
 
     const [menus] = useHeaderMenusByHeaderAtom()
-    const [zenMode] = useZenMode()
 
     useLayoutEffect(() => {
         setCurrentMenuType("inbox")
@@ -444,14 +442,10 @@ export default function FeedPage() {
                                                                     handleValueChange,
                                                                 handleSaveScrollPosition:
                                                                     handleSaveScrollPosition,
-                                                                zenMode:
-                                                                    zenMode,
                                                             }}
                                                         />
                                                     ) : (
-                                                        <ViewPostCardSkelton
-                                                            zenMode={zenMode}
-                                                        />
+                                                        <ViewPostCardSkelton />
                                                     )}
                                                 </>
                                             )}

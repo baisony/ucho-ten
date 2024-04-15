@@ -438,10 +438,8 @@ export default function Root() {
                             postJson: post.post as PostView,
                             json: post as FeedViewPost,
                             nextQueryParams,
-                            t,
                             handleValueChange: handleValueChange,
                             handleSaveScrollPosition: handleSaveScrollPosition,
-                            zenMode,
                         }
                         return {
                             postProps,
@@ -479,8 +477,6 @@ export default function Root() {
                         isMobile,
                         bodyText: undefined,
                         nextQueryParams,
-                        t,
-                        zenMode,
                     }
 
                     return {
@@ -581,7 +577,7 @@ const CustomFeedCell = (props: CustomFeedCellProps) => {
     }
 
     if (postProps) {
-        if (postProps.isSkeleton) return <ViewPostCardSkelton zenMode />
+        if (postProps.isSkeleton) return <ViewPostCardSkelton />
         return <ViewPostCard {...postProps} />
     }
 }

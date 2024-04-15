@@ -5,6 +5,7 @@ import {
     DropdownSection,
     DropdownTrigger,
 } from "@nextui-org/react"
+import { useTranslation } from "react-i18next"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAt } from "@fortawesome/free-solid-svg-icons/faAt"
 import { faCode } from "@fortawesome/free-solid-svg-icons/faCode"
@@ -15,7 +16,6 @@ import { faLink } from "@fortawesome/free-solid-svg-icons/faLink"
 import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
 import { faUser } from "@fortawesome/free-solid-svg-icons/faUser"
 
-import { TFunction } from "i18next"
 import { memo } from "react"
 
 interface MoreDropDownMenuProps {
@@ -27,7 +27,6 @@ interface MoreDropDownMenuProps {
     onClickCopyJSON: () => void
     onClickReport: () => void
     onClickDelete: () => void
-    t: TFunction
 }
 
 const MoreDropDownMenu = ({
@@ -39,8 +38,8 @@ const MoreDropDownMenu = ({
     onClickCopyJSON,
     onClickReport,
     onClickDelete,
-    t,
 }: MoreDropDownMenuProps) => {
+    const { t } = useTranslation()
     return (
         <>
             <Dropdown className={"text-black dark:text-white"}>
