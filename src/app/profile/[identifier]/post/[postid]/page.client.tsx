@@ -298,9 +298,11 @@ const PostPage = (props: PostPageProps) => {
         post: FeedViewPost | PostView | ReplyRef,
         isMobile: boolean
     ): JSX.Element | null {
-        if (post && post.parent && AppBskyFeedDefs.isPostView(post.parent)) {
+        if (post && post.parent) {
+            console.log(post)
             const nestedViewPostCards = renderNestedViewPostCards(
-                post.parent,
+                // @ts-ignore - it's hard to handle unknown types
+                post?.parent,
                 isMobile
             )
             return (
@@ -309,13 +311,13 @@ const PostPage = (props: PostPageProps) => {
                     <ViewPostCard
                         bodyText={processPostBodyText(
                             nextQueryParams,
-                            post.parent.post as PostView
+                            //@ts-ignore - it's hard to handle unknown types
+                            post?.parent?.post as PostView
                         )}
-                        postJson={(post.parent.post as PostView) ?? undefined}
+                        // @ts-ignore - it's hard to handle unknown types
+                        postJson={(post.parent?.post as PostView) ?? undefined}
                         isMobile={isMobile}
                         nextQueryParams={nextQueryParams}
-                        t={t}
-                        zenMode={props.zenMode}
                     />
                 </>
             )
@@ -324,13 +326,11 @@ const PostPage = (props: PostPageProps) => {
     }
 
     const handleReply = async () => {
-        console.log("open")
         setModalType("Reply")
         onOpen()
     }
 
     const handleQuote = async () => {
-        console.log("open")
         setModalType("Quote")
         onOpen()
     }
@@ -395,16 +395,13 @@ const PostPage = (props: PostPageProps) => {
         const index = bookmarks.findIndex(
             (bookmark: Bookmark) => bookmark.uri === postView.uri
         )
-        console.log(index)
 
         if (index !== -1) {
-            console.log("delete")
             const newBookmarks = bookmarks
             newBookmarks.splice(index, 1)
             setBookmarks(newBookmarks)
             setIsBookmarked(false)
         } else {
-            console.log("add")
             setBookmarks((prevBookmarks) => [...prevBookmarks, json])
             setIsBookmarked(true)
         }
@@ -418,7 +415,6 @@ const PostPage = (props: PostPageProps) => {
             setLoading(true)
             await agent.deletePost(thread?.post?.uri)
         } catch (e) {
-            console.log(e)
         } finally {
             setLoading(false)
         }
@@ -671,12 +667,9 @@ const PostPage = (props: PostPageProps) => {
                         break
                 }
             } else {
-                console.log(label)
             }
         })
     }, [userPreference, postView])
-
-    console.log(thread)
 
     return thread && !notfoundPost ? (
         <>
@@ -732,7 +725,6 @@ const PostPage = (props: PostPageProps) => {
                                                 const url = new AtUri(atUri)
                                                 const bskyURL = `https://bsky.app/profile/${url.hostname}/post/${url.rkey}`
 
-                                                console.log(url)
                                                 await window.navigator.share({
                                                     url: bskyURL,
                                                 })
@@ -1137,8 +1129,6 @@ const PostPage = (props: PostPageProps) => {
                                     quoteJson={embedRecordViewRecord}
                                     isEmbedToPost={true}
                                     nextQueryParams={nextQueryParams}
-                                    t={t}
-                                    zenMode={props.zenMode}
                                 />
                             )}
                         {embedFeed && <ViewFeedCard feed={embedFeed} />}
@@ -1223,8 +1213,6 @@ const PostPage = (props: PostPageProps) => {
                     {thread?.replies &&
                         (thread.replies as Array<ThreadViewPost>).map(
                             (item, index: number) => {
-                                console.log(thread)
-                                console.log(item)
                                 if (tab === "authors") {
                                     if (
                                         thread.post.author.did !==
@@ -1246,8 +1234,6 @@ const PostPage = (props: PostPageProps) => {
                                         postJson={item.post as PostView}
                                         //isMobile={isMobile}
                                         nextQueryParams={nextQueryParams}
-                                        t={t}
-                                        zenMode={props.zenMode}
                                     />
                                 )
                             }

@@ -28,17 +28,17 @@ import SignInModal from "../SignInModal"
 import SignOutModal from "../SignOutModal"
 import AccountSwitchModal from "../AccountSwitchModal"
 import { useZenMode } from "@/app/_atoms/zenMode"
+import { isMobile } from "react-device-detect"
 
 interface Props {
     className?: string
-    isMobile?: boolean
     isDragActive?: boolean
     open?: boolean
     isSideBarOpen: boolean
     openSideBar: (isOpen: boolean) => void
 }
 
-const ViewSideBar = ({ isMobile, openSideBar }: Props) => {
+const ViewSideBar = ({ openSideBar }: Props) => {
     const router = useRouter()
 
     const { t } = useTranslation()

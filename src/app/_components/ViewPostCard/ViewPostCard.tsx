@@ -59,9 +59,10 @@ import useLongPress from "@/app/_components/ViewPostCard/lib/useLongPress"
 import useEmbed from "@/app/_components/ViewPostCard/lib/useEmbed"
 import useContentLabels from "@/app/_components/ViewPostCard/lib/useContentLabels"
 import useTranslateContentText from "@/app/_components/ViewPostCard/lib/useTranslateContentText"
-import { TFunction } from "i18next"
 import { AppBskyEmbedRecord } from "@atproto/api"
 import { reactionJson } from "@/app/_types/types"
+import { useTranslation } from "react-i18next"
+import { useZenMode } from "@/app/_atoms/zenMode"
 
 //import { PostModal } from "../PostModal"
 //import { ReportModal } from "@/app/_components/ReportModal"
@@ -105,12 +106,10 @@ export interface ViewPostCardProps {
     //now?: Date
     isEmbedToPost?: boolean
     nextQueryParams: URLSearchParams
-    t: TFunction
     handleValueChange?: (value: reactionJson) => void
     handleSaveScrollPosition?: () => void
     isViaUFeed?: boolean
     isDisplayMode?: boolean
-    zenMode: boolean | undefined
 }
 
 export const ViewPostCard = memo((props: ViewPostCardProps) => {
@@ -123,12 +122,11 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
         isEmbedToModal,
         isEmbedToPost,
         nextQueryParams,
-        t,
         handleValueChange,
         handleSaveScrollPosition,
         isViaUFeed,
-        zenMode,
     } = props
+    const { t } = useTranslation()
 
     const postJsonData = useMemo(
         () => quoteJson || postJson || null,
@@ -142,6 +140,7 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
             return null
         }
     }, [postJson, quoteJson])
+    const [zenMode] = useZenMode()
     const [agent] = useAgent()
     const [muteWords] = useWordMutes()
     const [, setImageGallery] = useImageGalleryAtom()
@@ -721,8 +720,6 @@ export const ViewPostCard = memo((props: ViewPostCardProps) => {
                                         quoteJson={embedRecordViewRecord}
                                         isEmbedToPost={true}
                                         nextQueryParams={nextQueryParams}
-                                        t={t}
-                                        zenMode={props.zenMode}
                                     />
                                 )}
                             {embedFeed && <ViewFeedCard feed={embedFeed} />}

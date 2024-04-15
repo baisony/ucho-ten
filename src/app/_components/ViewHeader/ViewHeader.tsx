@@ -37,10 +37,10 @@ import { useTappedTabbarButtonAtom } from "@/app/_atoms/tabbarButtonTapped"
 import { useSearchInfoAtom } from "@/app/_atoms/searchInfo"
 import Link from "next/link"
 import { useFeedGeneratorsAtom } from "@/app/_atoms/feedGenerators"
+import { isMobile } from "react-device-detect"
 
 interface Props {
     className?: string
-    isMobile?: boolean
     open?: boolean
     isNextPage?: boolean
     setSideBarOpen?: (v: boolean) => void
@@ -48,7 +48,6 @@ interface Props {
 }
 
 export const ViewHeader: React.FC<Props> = memo((props: Props) => {
-    console.log(props)
     const router = useRouter()
     const pathname = usePathname()
     const specificPaths = ["/search"]
@@ -62,19 +61,23 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
         useTappedTabbarButtonAtom()
     const [searchInfo, setSearchInfo] = useSearchInfoAtom()
 
-    const { isMobile, setSideBarOpen } = props
+    const { setSideBarOpen } = props
     const { t } = useTranslation()
     const searchParams = useSearchParams()
     const [searchText, setSearchText] = useState<string>("")
     const [nextQueryParams] = useNextQueryParamsAtom()
     const isComposing = useRef(false)
     const [isRoot, setIsRoot] = useState<boolean>(true)
-    const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
+    //const [showSearchInput, setShowSearchInput] = useState<boolean>(false)
 
     const swiperRef = useRef<SwiperCore | null>(null)
     const prevMenuType = useRef<HeaderMenuType>("home")
 
     const { Header, top, bottom, HeaderInputArea } = viewHeader()
+
+    useEffect(() => {
+        console.log(props)
+    }, [props])
 
     useEffect(() => {
         if (tappedTabbarButton == "search") {
@@ -116,12 +119,6 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
     }, [searchParams])
 
     useEffect(() => {
-        if (pathname === "/search") {
-            setShowSearchInput(true)
-        } else {
-            setShowSearchInput(false)
-        }
-
         if (!isMobile) {
             setIsRoot(true)
             return
@@ -198,7 +195,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                         }
                     }}
                 />
-                {showSearchInput && (
+                {pathname === "/search" && (
                     <div
                         className={
                             "h-[40px] w-[60%] rounded-[10px] overflow-hidden relative"
@@ -274,7 +271,7 @@ export const ViewHeader: React.FC<Props> = memo((props: Props) => {
                         )}
                     </div>
                 )}
-                {!showSearchInput && (
+                {pathname !== "/search" && (
                     <Link href={`/?${nextQueryParams.toString()}`}>
                         <Image
                             className={"md:h-[24px] h-[20px] cursor-pointer"}
