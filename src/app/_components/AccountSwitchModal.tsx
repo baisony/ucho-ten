@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import {
     Button,
     Modal,
@@ -231,4 +231,4 @@ const AccountSwitchModal = (props: AccountSwitchModalProps) => {
     )
 }
 
-export default AccountSwitchModal
+export default memo(AccountSwitchModal)
