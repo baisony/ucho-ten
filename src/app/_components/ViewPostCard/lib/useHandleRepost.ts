@@ -26,7 +26,7 @@ const useHandleRepost = (
 
         if (isReposted && postView?.viewer?.repost) {
             setIsReposted(!isReposted)
-            const res = await agent?.deleteLike(postView.viewer.repost)
+            const res = await agent?.deleteRepost(postView.viewer.repost)
             console.log(res)
             handleInputChange(
                 "unrepost",
@@ -35,7 +35,7 @@ const useHandleRepost = (
             )
         } else if (postJsonData?.uri && postJsonData?.cid) {
             setIsReposted(!isReposted)
-            const res = await agent?.like(postJsonData.uri, postJsonData.cid)
+            const res = await agent?.repost(postJsonData.uri, postJsonData.cid)
             console.log(res)
             handleInputChange("repost", postJsonData.uri || "", res?.uri || "")
         }
